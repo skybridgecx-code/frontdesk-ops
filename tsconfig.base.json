@@ -1,0 +1,27 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022"],
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "strict": true,
+    "noImplicitOverride": true,
+    "noUncheckedIndexedAccess": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "baseUrl": ".",
+    "paths": {
+      "@frontdesk/domain/*": ["packages/domain/src/*"],
+      "@frontdesk/config/*": ["packages/config/src/*"],
+      "@frontdesk/db/*": ["packages/db/src/*"],
+      "@frontdesk/ui/*": ["packages/ui/src/*"],
+      "@frontdesk/prompts/*": ["packages/prompts/src/*"],
+      "@frontdesk/integrations/*": ["packages/integrations/src/*"],
+      "@frontdesk/analytics/*": ["packages/analytics/src/*"],
+      "@frontdesk/voice/*": ["packages/voice/src/*"]
+    }
+  }
+}

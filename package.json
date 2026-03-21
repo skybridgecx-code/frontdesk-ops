@@ -1,0 +1,21 @@
+{
+  "name": "frontdesk-os",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.6.2",
+  "scripts": {
+    "dev": "turbo run dev --parallel",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "typecheck": "turbo run typecheck",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.6",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  }
+}
