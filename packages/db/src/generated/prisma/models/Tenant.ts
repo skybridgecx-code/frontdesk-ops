@@ -186,6 +186,7 @@ export type TenantWhereInput = {
   businesses?: Prisma.BusinessListRelationFilter
   phoneNumbers?: Prisma.PhoneNumberListRelationFilter
   agentProfiles?: Prisma.AgentProfileListRelationFilter
+  calls?: Prisma.CallListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -198,6 +199,7 @@ export type TenantOrderByWithRelationInput = {
   businesses?: Prisma.BusinessOrderByRelationAggregateInput
   phoneNumbers?: Prisma.PhoneNumberOrderByRelationAggregateInput
   agentProfiles?: Prisma.AgentProfileOrderByRelationAggregateInput
+  calls?: Prisma.CallOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -213,6 +215,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   businesses?: Prisma.BusinessListRelationFilter
   phoneNumbers?: Prisma.PhoneNumberListRelationFilter
   agentProfiles?: Prisma.AgentProfileListRelationFilter
+  calls?: Prisma.CallListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -247,6 +250,7 @@ export type TenantCreateInput = {
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -259,6 +263,7 @@ export type TenantUncheckedCreateInput = {
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -271,6 +276,7 @@ export type TenantUpdateInput = {
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -283,6 +289,7 @@ export type TenantUncheckedUpdateInput = {
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -402,6 +409,20 @@ export type TenantUpdateOneRequiredWithoutAgentProfilesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutAgentProfilesInput, Prisma.TenantUpdateWithoutAgentProfilesInput>, Prisma.TenantUncheckedUpdateWithoutAgentProfilesInput>
 }
 
+export type TenantCreateNestedOneWithoutCallsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCallsInput, Prisma.TenantUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCallsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutCallsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutCallsInput, Prisma.TenantUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutCallsInput
+  upsert?: Prisma.TenantUpsertWithoutCallsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutCallsInput, Prisma.TenantUpdateWithoutCallsInput>, Prisma.TenantUncheckedUpdateWithoutCallsInput>
+}
+
 export type TenantCreateWithoutMembershipsInput = {
   id?: string
   name: string
@@ -411,6 +432,7 @@ export type TenantCreateWithoutMembershipsInput = {
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMembershipsInput = {
@@ -422,6 +444,7 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMembershipsInput = {
@@ -449,6 +472,7 @@ export type TenantUpdateWithoutMembershipsInput = {
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMembershipsInput = {
@@ -460,6 +484,7 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutBusinessesInput = {
@@ -471,6 +496,7 @@ export type TenantCreateWithoutBusinessesInput = {
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutBusinessesInput = {
@@ -482,6 +508,7 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutBusinessesInput = {
@@ -509,6 +536,7 @@ export type TenantUpdateWithoutBusinessesInput = {
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutBusinessesInput = {
@@ -520,6 +548,7 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPhoneNumbersInput = {
@@ -531,6 +560,7 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
@@ -542,6 +572,7 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPhoneNumbersInput = {
@@ -569,6 +600,7 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
@@ -580,6 +612,7 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAgentProfilesInput = {
@@ -591,6 +624,7 @@ export type TenantCreateWithoutAgentProfilesInput = {
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAgentProfilesInput = {
@@ -602,6 +636,7 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAgentProfilesInput = {
@@ -629,6 +664,7 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
@@ -640,6 +676,71 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutCallsInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutCallsInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutCallsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCallsInput, Prisma.TenantUncheckedCreateWithoutCallsInput>
+}
+
+export type TenantUpsertWithoutCallsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutCallsInput, Prisma.TenantUncheckedUpdateWithoutCallsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutCallsInput, Prisma.TenantUncheckedCreateWithoutCallsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutCallsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutCallsInput, Prisma.TenantUncheckedUpdateWithoutCallsInput>
+}
+
+export type TenantUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -652,6 +753,7 @@ export type TenantCountOutputType = {
   businesses: number
   phoneNumbers: number
   agentProfiles: number
+  calls: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -659,6 +761,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   businesses?: boolean | TenantCountOutputTypeCountBusinessesArgs
   phoneNumbers?: boolean | TenantCountOutputTypeCountPhoneNumbersArgs
   agentProfiles?: boolean | TenantCountOutputTypeCountAgentProfilesArgs
+  calls?: boolean | TenantCountOutputTypeCountCallsArgs
 }
 
 /**
@@ -699,6 +802,13 @@ export type TenantCountOutputTypeCountAgentProfilesArgs<ExtArgs extends runtime.
   where?: Prisma.AgentProfileWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountCallsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CallWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -710,6 +820,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
   phoneNumbers?: boolean | Prisma.Tenant$phoneNumbersArgs<ExtArgs>
   agentProfiles?: boolean | Prisma.Tenant$agentProfilesArgs<ExtArgs>
+  calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -743,6 +854,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
   phoneNumbers?: boolean | Prisma.Tenant$phoneNumbersArgs<ExtArgs>
   agentProfiles?: boolean | Prisma.Tenant$agentProfilesArgs<ExtArgs>
+  calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -755,6 +867,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     businesses: Prisma.$BusinessPayload<ExtArgs>[]
     phoneNumbers: Prisma.$PhoneNumberPayload<ExtArgs>[]
     agentProfiles: Prisma.$AgentProfilePayload<ExtArgs>[]
+    calls: Prisma.$CallPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1160,6 +1273,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   businesses<T extends Prisma.Tenant$businessesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$businessesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   phoneNumbers<T extends Prisma.Tenant$phoneNumbersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$phoneNumbersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhoneNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   agentProfiles<T extends Prisma.Tenant$agentProfilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$agentProfilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  calls<T extends Prisma.Tenant$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1680,6 +1794,30 @@ export type Tenant$agentProfilesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.AgentProfileScalarFieldEnum | Prisma.AgentProfileScalarFieldEnum[]
+}
+
+/**
+ * Tenant.calls
+ */
+export type Tenant$callsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Call
+   */
+  select?: Prisma.CallSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Call
+   */
+  omit?: Prisma.CallOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CallInclude<ExtArgs> | null
+  where?: Prisma.CallWhereInput
+  orderBy?: Prisma.CallOrderByWithRelationInput | Prisma.CallOrderByWithRelationInput[]
+  cursor?: Prisma.CallWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CallScalarFieldEnum | Prisma.CallScalarFieldEnum[]
 }
 
 /**

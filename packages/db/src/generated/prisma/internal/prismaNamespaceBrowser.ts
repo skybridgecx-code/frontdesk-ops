@@ -57,7 +57,11 @@ export const ModelName = {
   Business: 'Business',
   Location: 'Location',
   PhoneNumber: 'PhoneNumber',
-  AgentProfile: 'AgentProfile'
+  AgentProfile: 'AgentProfile',
+  BusinessHours: 'BusinessHours',
+  ServiceArea: 'ServiceArea',
+  Call: 'Call',
+  CallEvent: 'CallEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -154,6 +158,10 @@ export const PhoneNumberScalarFieldEnum = {
   e164: 'e164',
   label: 'label',
   isActive: 'isActive',
+  routingMode: 'routingMode',
+  primaryAgentProfileId: 'primaryAgentProfileId',
+  afterHoursAgentProfileId: 'afterHoursAgentProfileId',
+  enableMissedCallTextBack: 'enableMissedCallTextBack',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -178,12 +186,83 @@ export const AgentProfileScalarFieldEnum = {
 export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
 
 
+export const BusinessHoursScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  weekday: 'weekday',
+  openTime: 'openTime',
+  closeTime: 'closeTime',
+  isClosed: 'isClosed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessHoursScalarFieldEnum = (typeof BusinessHoursScalarFieldEnum)[keyof typeof BusinessHoursScalarFieldEnum]
+
+
+export const ServiceAreaScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  label: 'label',
+  city: 'city',
+  state: 'state',
+  postalCode: 'postalCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceAreaScalarFieldEnum = (typeof ServiceAreaScalarFieldEnum)[keyof typeof ServiceAreaScalarFieldEnum]
+
+
+export const CallScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  phoneNumberId: 'phoneNumberId',
+  agentProfileId: 'agentProfileId',
+  twilioCallSid: 'twilioCallSid',
+  direction: 'direction',
+  status: 'status',
+  routeKind: 'routeKind',
+  fromE164: 'fromE164',
+  toE164: 'toE164',
+  startedAt: 'startedAt',
+  answeredAt: 'answeredAt',
+  endedAt: 'endedAt',
+  durationSeconds: 'durationSeconds',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CallScalarFieldEnum = (typeof CallScalarFieldEnum)[keyof typeof CallScalarFieldEnum]
+
+
+export const CallEventScalarFieldEnum = {
+  id: 'id',
+  callId: 'callId',
+  type: 'type',
+  sequence: 'sequence',
+  payloadJson: 'payloadJson',
+  createdAt: 'createdAt'
+} as const
+
+export type CallEventScalarFieldEnum = (typeof CallEventScalarFieldEnum)[keyof typeof CallEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -200,4 +279,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

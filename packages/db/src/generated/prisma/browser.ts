@@ -52,3 +52,23 @@ export type PhoneNumber = Prisma.PhoneNumberModel
  * 
  */
 export type AgentProfile = Prisma.AgentProfileModel
+/**
+ * Model BusinessHours
+ * 
+ */
+export type BusinessHours = Prisma.BusinessHoursModel
+/**
+ * Model ServiceArea
+ * 
+ */
+export type ServiceArea = Prisma.ServiceAreaModel
+/**
+ * Model Call
+ * 
+ */
+export type Call = Prisma.CallModel
+/**
+ * Model CallEvent
+ * 
+ */
+export type CallEvent = Prisma.CallEventModel

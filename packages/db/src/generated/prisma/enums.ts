@@ -43,3 +43,57 @@ export const AgentChannel = {
 } as const
 
 export type AgentChannel = (typeof AgentChannel)[keyof typeof AgentChannel]
+
+
+export const Weekday = {
+  MONDAY: 'MONDAY',
+  TUESDAY: 'TUESDAY',
+  WEDNESDAY: 'WEDNESDAY',
+  THURSDAY: 'THURSDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  SUNDAY: 'SUNDAY'
+} as const
+
+export type Weekday = (typeof Weekday)[keyof typeof Weekday]
+
+
+export const PhoneRoutingMode = {
+  AI_ALWAYS: 'AI_ALWAYS',
+  AI_AFTER_HOURS: 'AI_AFTER_HOURS',
+  HUMAN_ONLY: 'HUMAN_ONLY',
+  AI_OVERFLOW: 'AI_OVERFLOW'
+} as const
+
+export type PhoneRoutingMode = (typeof PhoneRoutingMode)[keyof typeof PhoneRoutingMode]
+
+
+export const CallDirection = {
+  INBOUND: 'INBOUND',
+  OUTBOUND: 'OUTBOUND'
+} as const
+
+export type CallDirection = (typeof CallDirection)[keyof typeof CallDirection]
+
+
+export const CallStatus = {
+  RINGING: 'RINGING',
+  IN_PROGRESS: 'IN_PROGRESS',
+  COMPLETED: 'COMPLETED',
+  NO_ANSWER: 'NO_ANSWER',
+  BUSY: 'BUSY',
+  FAILED: 'FAILED',
+  CANCELED: 'CANCELED'
+} as const
+
+export type CallStatus = (typeof CallStatus)[keyof typeof CallStatus]
+
+
+export const CallRouteKind = {
+  AI: 'AI',
+  HUMAN: 'HUMAN',
+  VOICEMAIL: 'VOICEMAIL',
+  REJECTED: 'REJECTED'
+} as const
+
+export type CallRouteKind = (typeof CallRouteKind)[keyof typeof CallRouteKind]

@@ -232,6 +232,9 @@ export type AgentProfileWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  primaryForPhoneNumbers?: Prisma.PhoneNumberListRelationFilter
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberListRelationFilter
+  calls?: Prisma.CallListRelationFilter
 }
 
 export type AgentProfileOrderByWithRelationInput = {
@@ -248,6 +251,9 @@ export type AgentProfileOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberOrderByRelationAggregateInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberOrderByRelationAggregateInput
+  calls?: Prisma.CallOrderByRelationAggregateInput
 }
 
 export type AgentProfileWhereUniqueInput = Prisma.AtLeast<{
@@ -267,6 +273,9 @@ export type AgentProfileWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  primaryForPhoneNumbers?: Prisma.PhoneNumberListRelationFilter
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberListRelationFilter
+  calls?: Prisma.CallListRelationFilter
 }, "id">
 
 export type AgentProfileOrderByWithAggregationInput = {
@@ -315,6 +324,9 @@ export type AgentProfileCreateInput = {
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAgentProfilesInput
   business: Prisma.BusinessCreateNestedOneWithoutAgentProfilesInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileUncheckedCreateInput = {
@@ -329,6 +341,9 @@ export type AgentProfileUncheckedCreateInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileUpdateInput = {
@@ -343,6 +358,9 @@ export type AgentProfileUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAgentProfilesNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutAgentProfilesNestedInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileUncheckedUpdateInput = {
@@ -357,6 +375,9 @@ export type AgentProfileUncheckedUpdateInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileCreateManyInput = {
@@ -407,6 +428,11 @@ export type AgentProfileListRelationFilter = {
 
 export type AgentProfileOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type AgentProfileNullableScalarRelationFilter = {
+  is?: Prisma.AgentProfileWhereInput | null
+  isNot?: Prisma.AgentProfileWhereInput | null
 }
 
 export type AgentProfileCountOrderByAggregateInput = {
@@ -535,8 +561,56 @@ export type AgentProfileUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.AgentProfileScalarWhereInput | Prisma.AgentProfileScalarWhereInput[]
 }
 
+export type AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutPrimaryForPhoneNumbersInput
+  connect?: Prisma.AgentProfileWhereUniqueInput
+}
+
+export type AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutAfterHoursForPhoneNumbersInput
+  connect?: Prisma.AgentProfileWhereUniqueInput
+}
+
+export type AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutPrimaryForPhoneNumbersInput
+  upsert?: Prisma.AgentProfileUpsertWithoutPrimaryForPhoneNumbersInput
+  disconnect?: Prisma.AgentProfileWhereInput | boolean
+  delete?: Prisma.AgentProfileWhereInput | boolean
+  connect?: Prisma.AgentProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AgentProfileUpdateToOneWithWhereWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUpdateWithoutPrimaryForPhoneNumbersInput>, Prisma.AgentProfileUncheckedUpdateWithoutPrimaryForPhoneNumbersInput>
+}
+
+export type AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutAfterHoursForPhoneNumbersInput
+  upsert?: Prisma.AgentProfileUpsertWithoutAfterHoursForPhoneNumbersInput
+  disconnect?: Prisma.AgentProfileWhereInput | boolean
+  delete?: Prisma.AgentProfileWhereInput | boolean
+  connect?: Prisma.AgentProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AgentProfileUpdateToOneWithWhereWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUpdateWithoutAfterHoursForPhoneNumbersInput>, Prisma.AgentProfileUncheckedUpdateWithoutAfterHoursForPhoneNumbersInput>
+}
+
 export type EnumAgentChannelFieldUpdateOperationsInput = {
   set?: $Enums.AgentChannel
+}
+
+export type AgentProfileCreateNestedOneWithoutCallsInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutCallsInput, Prisma.AgentProfileUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutCallsInput
+  connect?: Prisma.AgentProfileWhereUniqueInput
+}
+
+export type AgentProfileUpdateOneWithoutCallsNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentProfileCreateWithoutCallsInput, Prisma.AgentProfileUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.AgentProfileCreateOrConnectWithoutCallsInput
+  upsert?: Prisma.AgentProfileUpsertWithoutCallsInput
+  disconnect?: Prisma.AgentProfileWhereInput | boolean
+  delete?: Prisma.AgentProfileWhereInput | boolean
+  connect?: Prisma.AgentProfileWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AgentProfileUpdateToOneWithWhereWithoutCallsInput, Prisma.AgentProfileUpdateWithoutCallsInput>, Prisma.AgentProfileUncheckedUpdateWithoutCallsInput>
 }
 
 export type AgentProfileCreateWithoutTenantInput = {
@@ -550,6 +624,9 @@ export type AgentProfileCreateWithoutTenantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutAgentProfilesInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileUncheckedCreateWithoutTenantInput = {
@@ -563,6 +640,9 @@ export type AgentProfileUncheckedCreateWithoutTenantInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileCreateOrConnectWithoutTenantInput = {
@@ -619,6 +699,9 @@ export type AgentProfileCreateWithoutBusinessInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutAgentProfilesInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileUncheckedCreateWithoutBusinessInput = {
@@ -632,6 +715,9 @@ export type AgentProfileUncheckedCreateWithoutBusinessInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutAgentProfileInput
 }
 
 export type AgentProfileCreateOrConnectWithoutBusinessInput = {
@@ -660,6 +746,246 @@ export type AgentProfileUpdateManyWithWhereWithoutBusinessInput = {
   data: Prisma.XOR<Prisma.AgentProfileUpdateManyMutationInput, Prisma.AgentProfileUncheckedUpdateManyWithoutBusinessInput>
 }
 
+export type AgentProfileCreateWithoutPrimaryForPhoneNumbersInput = {
+  id?: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutAgentProfilesInput
+  business: Prisma.BusinessCreateNestedOneWithoutAgentProfilesInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallCreateNestedManyWithoutAgentProfileInput
+}
+
+export type AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutAgentProfileInput
+}
+
+export type AgentProfileCreateOrConnectWithoutPrimaryForPhoneNumbersInput = {
+  where: Prisma.AgentProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput>
+}
+
+export type AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput = {
+  id?: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutAgentProfilesInput
+  business: Prisma.BusinessCreateNestedOneWithoutAgentProfilesInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput
+  calls?: Prisma.CallCreateNestedManyWithoutAgentProfileInput
+}
+
+export type AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutAgentProfileInput
+}
+
+export type AgentProfileCreateOrConnectWithoutAfterHoursForPhoneNumbersInput = {
+  where: Prisma.AgentProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput>
+}
+
+export type AgentProfileUpsertWithoutPrimaryForPhoneNumbersInput = {
+  update: Prisma.XOR<Prisma.AgentProfileUpdateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedUpdateWithoutPrimaryForPhoneNumbersInput>
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput>
+  where?: Prisma.AgentProfileWhereInput
+}
+
+export type AgentProfileUpdateToOneWithWhereWithoutPrimaryForPhoneNumbersInput = {
+  where?: Prisma.AgentProfileWhereInput
+  data: Prisma.XOR<Prisma.AgentProfileUpdateWithoutPrimaryForPhoneNumbersInput, Prisma.AgentProfileUncheckedUpdateWithoutPrimaryForPhoneNumbersInput>
+}
+
+export type AgentProfileUpdateWithoutPrimaryForPhoneNumbersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutAgentProfilesNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutAgentProfilesNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUpdateManyWithoutAgentProfileNestedInput
+}
+
+export type AgentProfileUncheckedUpdateWithoutPrimaryForPhoneNumbersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutAgentProfileNestedInput
+}
+
+export type AgentProfileUpsertWithoutAfterHoursForPhoneNumbersInput = {
+  update: Prisma.XOR<Prisma.AgentProfileUpdateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedUpdateWithoutAfterHoursForPhoneNumbersInput>
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput>
+  where?: Prisma.AgentProfileWhereInput
+}
+
+export type AgentProfileUpdateToOneWithWhereWithoutAfterHoursForPhoneNumbersInput = {
+  where?: Prisma.AgentProfileWhereInput
+  data: Prisma.XOR<Prisma.AgentProfileUpdateWithoutAfterHoursForPhoneNumbersInput, Prisma.AgentProfileUncheckedUpdateWithoutAfterHoursForPhoneNumbersInput>
+}
+
+export type AgentProfileUpdateWithoutAfterHoursForPhoneNumbersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutAgentProfilesNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutAgentProfilesNestedInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput
+  calls?: Prisma.CallUpdateManyWithoutAgentProfileNestedInput
+}
+
+export type AgentProfileUncheckedUpdateWithoutAfterHoursForPhoneNumbersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutAgentProfileNestedInput
+}
+
+export type AgentProfileCreateWithoutCallsInput = {
+  id?: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutAgentProfilesInput
+  business: Prisma.BusinessCreateNestedOneWithoutAgentProfilesInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput
+}
+
+export type AgentProfileUncheckedCreateWithoutCallsInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  name: string
+  channel?: $Enums.AgentChannel
+  language?: string
+  voiceName?: string | null
+  systemPrompt?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput
+}
+
+export type AgentProfileCreateOrConnectWithoutCallsInput = {
+  where: Prisma.AgentProfileWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutCallsInput, Prisma.AgentProfileUncheckedCreateWithoutCallsInput>
+}
+
+export type AgentProfileUpsertWithoutCallsInput = {
+  update: Prisma.XOR<Prisma.AgentProfileUpdateWithoutCallsInput, Prisma.AgentProfileUncheckedUpdateWithoutCallsInput>
+  create: Prisma.XOR<Prisma.AgentProfileCreateWithoutCallsInput, Prisma.AgentProfileUncheckedCreateWithoutCallsInput>
+  where?: Prisma.AgentProfileWhereInput
+}
+
+export type AgentProfileUpdateToOneWithWhereWithoutCallsInput = {
+  where?: Prisma.AgentProfileWhereInput
+  data: Prisma.XOR<Prisma.AgentProfileUpdateWithoutCallsInput, Prisma.AgentProfileUncheckedUpdateWithoutCallsInput>
+}
+
+export type AgentProfileUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutAgentProfilesNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutAgentProfilesNestedInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput
+}
+
+export type AgentProfileUncheckedUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  channel?: Prisma.EnumAgentChannelFieldUpdateOperationsInput | $Enums.AgentChannel
+  language?: Prisma.StringFieldUpdateOperationsInput | string
+  voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput
+}
+
 export type AgentProfileCreateManyTenantInput = {
   id?: string
   businessId: string
@@ -684,6 +1010,9 @@ export type AgentProfileUpdateWithoutTenantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutAgentProfilesNestedInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileUncheckedUpdateWithoutTenantInput = {
@@ -697,6 +1026,9 @@ export type AgentProfileUncheckedUpdateWithoutTenantInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileUncheckedUpdateManyWithoutTenantInput = {
@@ -736,6 +1068,9 @@ export type AgentProfileUpdateWithoutBusinessInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutAgentProfilesNestedInput
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileUncheckedUpdateWithoutBusinessInput = {
@@ -749,6 +1084,9 @@ export type AgentProfileUncheckedUpdateWithoutBusinessInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  primaryForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput
+  afterHoursForPhoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutAgentProfileNestedInput
 }
 
 export type AgentProfileUncheckedUpdateManyWithoutBusinessInput = {
@@ -765,6 +1103,53 @@ export type AgentProfileUncheckedUpdateManyWithoutBusinessInput = {
 }
 
 
+/**
+ * Count Type AgentProfileCountOutputType
+ */
+
+export type AgentProfileCountOutputType = {
+  primaryForPhoneNumbers: number
+  afterHoursForPhoneNumbers: number
+  calls: number
+}
+
+export type AgentProfileCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  primaryForPhoneNumbers?: boolean | AgentProfileCountOutputTypeCountPrimaryForPhoneNumbersArgs
+  afterHoursForPhoneNumbers?: boolean | AgentProfileCountOutputTypeCountAfterHoursForPhoneNumbersArgs
+  calls?: boolean | AgentProfileCountOutputTypeCountCallsArgs
+}
+
+/**
+ * AgentProfileCountOutputType without action
+ */
+export type AgentProfileCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgentProfileCountOutputType
+   */
+  select?: Prisma.AgentProfileCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * AgentProfileCountOutputType without action
+ */
+export type AgentProfileCountOutputTypeCountPrimaryForPhoneNumbersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PhoneNumberWhereInput
+}
+
+/**
+ * AgentProfileCountOutputType without action
+ */
+export type AgentProfileCountOutputTypeCountAfterHoursForPhoneNumbersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PhoneNumberWhereInput
+}
+
+/**
+ * AgentProfileCountOutputType without action
+ */
+export type AgentProfileCountOutputTypeCountCallsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CallWhereInput
+}
+
 
 export type AgentProfileSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -780,6 +1165,10 @@ export type AgentProfileSelect<ExtArgs extends runtime.Types.Extensions.Internal
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  primaryForPhoneNumbers?: boolean | Prisma.AgentProfile$primaryForPhoneNumbersArgs<ExtArgs>
+  afterHoursForPhoneNumbers?: boolean | Prisma.AgentProfile$afterHoursForPhoneNumbersArgs<ExtArgs>
+  calls?: boolean | Prisma.AgentProfile$callsArgs<ExtArgs>
+  _count?: boolean | Prisma.AgentProfileCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["agentProfile"]>
 
 export type AgentProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -832,6 +1221,10 @@ export type AgentProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalAr
 export type AgentProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  primaryForPhoneNumbers?: boolean | Prisma.AgentProfile$primaryForPhoneNumbersArgs<ExtArgs>
+  afterHoursForPhoneNumbers?: boolean | Prisma.AgentProfile$afterHoursForPhoneNumbersArgs<ExtArgs>
+  calls?: boolean | Prisma.AgentProfile$callsArgs<ExtArgs>
+  _count?: boolean | Prisma.AgentProfileCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AgentProfileIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -847,6 +1240,9 @@ export type $AgentProfilePayload<ExtArgs extends runtime.Types.Extensions.Intern
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     business: Prisma.$BusinessPayload<ExtArgs>
+    primaryForPhoneNumbers: Prisma.$PhoneNumberPayload<ExtArgs>[]
+    afterHoursForPhoneNumbers: Prisma.$PhoneNumberPayload<ExtArgs>[]
+    calls: Prisma.$CallPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1256,6 +1652,9 @@ export interface Prisma__AgentProfileClient<T, Null = never, ExtArgs extends run
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  primaryForPhoneNumbers<T extends Prisma.AgentProfile$primaryForPhoneNumbersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AgentProfile$primaryForPhoneNumbersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhoneNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  afterHoursForPhoneNumbers<T extends Prisma.AgentProfile$afterHoursForPhoneNumbersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AgentProfile$afterHoursForPhoneNumbersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PhoneNumberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  calls<T extends Prisma.AgentProfile$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AgentProfile$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1694,6 +2093,78 @@ export type AgentProfileDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.
    * Limit how many AgentProfiles to delete.
    */
   limit?: number
+}
+
+/**
+ * AgentProfile.primaryForPhoneNumbers
+ */
+export type AgentProfile$primaryForPhoneNumbersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PhoneNumber
+   */
+  select?: Prisma.PhoneNumberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PhoneNumber
+   */
+  omit?: Prisma.PhoneNumberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PhoneNumberInclude<ExtArgs> | null
+  where?: Prisma.PhoneNumberWhereInput
+  orderBy?: Prisma.PhoneNumberOrderByWithRelationInput | Prisma.PhoneNumberOrderByWithRelationInput[]
+  cursor?: Prisma.PhoneNumberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PhoneNumberScalarFieldEnum | Prisma.PhoneNumberScalarFieldEnum[]
+}
+
+/**
+ * AgentProfile.afterHoursForPhoneNumbers
+ */
+export type AgentProfile$afterHoursForPhoneNumbersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PhoneNumber
+   */
+  select?: Prisma.PhoneNumberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PhoneNumber
+   */
+  omit?: Prisma.PhoneNumberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PhoneNumberInclude<ExtArgs> | null
+  where?: Prisma.PhoneNumberWhereInput
+  orderBy?: Prisma.PhoneNumberOrderByWithRelationInput | Prisma.PhoneNumberOrderByWithRelationInput[]
+  cursor?: Prisma.PhoneNumberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PhoneNumberScalarFieldEnum | Prisma.PhoneNumberScalarFieldEnum[]
+}
+
+/**
+ * AgentProfile.calls
+ */
+export type AgentProfile$callsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Call
+   */
+  select?: Prisma.CallSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Call
+   */
+  omit?: Prisma.CallOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CallInclude<ExtArgs> | null
+  where?: Prisma.CallWhereInput
+  orderBy?: Prisma.CallOrderByWithRelationInput | Prisma.CallOrderByWithRelationInput[]
+  cursor?: Prisma.CallWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CallScalarFieldEnum | Prisma.CallScalarFieldEnum[]
 }
 
 /**

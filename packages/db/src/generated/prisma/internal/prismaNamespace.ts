@@ -390,7 +390,11 @@ export const ModelName = {
   Business: 'Business',
   Location: 'Location',
   PhoneNumber: 'PhoneNumber',
-  AgentProfile: 'AgentProfile'
+  AgentProfile: 'AgentProfile',
+  BusinessHours: 'BusinessHours',
+  ServiceArea: 'ServiceArea',
+  Call: 'Call',
+  CallEvent: 'CallEvent'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -406,7 +410,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile"
+    modelProps: "tenant" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile" | "businessHours" | "serviceArea" | "call" | "callEvent"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -928,6 +932,302 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BusinessHours: {
+      payload: Prisma.$BusinessHoursPayload<ExtArgs>
+      fields: Prisma.BusinessHoursFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BusinessHoursFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BusinessHoursFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        findFirst: {
+          args: Prisma.BusinessHoursFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BusinessHoursFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        findMany: {
+          args: Prisma.BusinessHoursFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>[]
+        }
+        create: {
+          args: Prisma.BusinessHoursCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        createMany: {
+          args: Prisma.BusinessHoursCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BusinessHoursCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>[]
+        }
+        delete: {
+          args: Prisma.BusinessHoursDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        update: {
+          args: Prisma.BusinessHoursUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        deleteMany: {
+          args: Prisma.BusinessHoursDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BusinessHoursUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BusinessHoursUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>[]
+        }
+        upsert: {
+          args: Prisma.BusinessHoursUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BusinessHoursPayload>
+        }
+        aggregate: {
+          args: Prisma.BusinessHoursAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBusinessHours>
+        }
+        groupBy: {
+          args: Prisma.BusinessHoursGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessHoursGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BusinessHoursCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BusinessHoursCountAggregateOutputType> | number
+        }
+      }
+    }
+    ServiceArea: {
+      payload: Prisma.$ServiceAreaPayload<ExtArgs>
+      fields: Prisma.ServiceAreaFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ServiceAreaFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ServiceAreaFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        findFirst: {
+          args: Prisma.ServiceAreaFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ServiceAreaFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        findMany: {
+          args: Prisma.ServiceAreaFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>[]
+        }
+        create: {
+          args: Prisma.ServiceAreaCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        createMany: {
+          args: Prisma.ServiceAreaCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ServiceAreaCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>[]
+        }
+        delete: {
+          args: Prisma.ServiceAreaDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        update: {
+          args: Prisma.ServiceAreaUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        deleteMany: {
+          args: Prisma.ServiceAreaDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ServiceAreaUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ServiceAreaUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>[]
+        }
+        upsert: {
+          args: Prisma.ServiceAreaUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceAreaPayload>
+        }
+        aggregate: {
+          args: Prisma.ServiceAreaAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceArea>
+        }
+        groupBy: {
+          args: Prisma.ServiceAreaGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAreaGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ServiceAreaCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ServiceAreaCountAggregateOutputType> | number
+        }
+      }
+    }
+    Call: {
+      payload: Prisma.$CallPayload<ExtArgs>
+      fields: Prisma.CallFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CallFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CallFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        findFirst: {
+          args: Prisma.CallFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CallFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        findMany: {
+          args: Prisma.CallFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>[]
+        }
+        create: {
+          args: Prisma.CallCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        createMany: {
+          args: Prisma.CallCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CallCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>[]
+        }
+        delete: {
+          args: Prisma.CallDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        update: {
+          args: Prisma.CallUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        deleteMany: {
+          args: Prisma.CallDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CallUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CallUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>[]
+        }
+        upsert: {
+          args: Prisma.CallUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallPayload>
+        }
+        aggregate: {
+          args: Prisma.CallAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCall>
+        }
+        groupBy: {
+          args: Prisma.CallGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CallCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallCountAggregateOutputType> | number
+        }
+      }
+    }
+    CallEvent: {
+      payload: Prisma.$CallEventPayload<ExtArgs>
+      fields: Prisma.CallEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CallEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CallEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        findFirst: {
+          args: Prisma.CallEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CallEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        findMany: {
+          args: Prisma.CallEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>[]
+        }
+        create: {
+          args: Prisma.CallEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        createMany: {
+          args: Prisma.CallEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CallEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>[]
+        }
+        delete: {
+          args: Prisma.CallEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        update: {
+          args: Prisma.CallEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.CallEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CallEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CallEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.CallEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CallEventPayload>
+        }
+        aggregate: {
+          args: Prisma.CallEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCallEvent>
+        }
+        groupBy: {
+          args: Prisma.CallEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CallEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CallEventCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1045,6 +1345,10 @@ export const PhoneNumberScalarFieldEnum = {
   e164: 'e164',
   label: 'label',
   isActive: 'isActive',
+  routingMode: 'routingMode',
+  primaryAgentProfileId: 'primaryAgentProfileId',
+  afterHoursAgentProfileId: 'afterHoursAgentProfileId',
+  enableMissedCallTextBack: 'enableMissedCallTextBack',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1069,12 +1373,83 @@ export const AgentProfileScalarFieldEnum = {
 export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
 
 
+export const BusinessHoursScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  weekday: 'weekday',
+  openTime: 'openTime',
+  closeTime: 'closeTime',
+  isClosed: 'isClosed',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BusinessHoursScalarFieldEnum = (typeof BusinessHoursScalarFieldEnum)[keyof typeof BusinessHoursScalarFieldEnum]
+
+
+export const ServiceAreaScalarFieldEnum = {
+  id: 'id',
+  businessId: 'businessId',
+  label: 'label',
+  city: 'city',
+  state: 'state',
+  postalCode: 'postalCode',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceAreaScalarFieldEnum = (typeof ServiceAreaScalarFieldEnum)[keyof typeof ServiceAreaScalarFieldEnum]
+
+
+export const CallScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  phoneNumberId: 'phoneNumberId',
+  agentProfileId: 'agentProfileId',
+  twilioCallSid: 'twilioCallSid',
+  direction: 'direction',
+  status: 'status',
+  routeKind: 'routeKind',
+  fromE164: 'fromE164',
+  toE164: 'toE164',
+  startedAt: 'startedAt',
+  answeredAt: 'answeredAt',
+  endedAt: 'endedAt',
+  durationSeconds: 'durationSeconds',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CallScalarFieldEnum = (typeof CallScalarFieldEnum)[keyof typeof CallScalarFieldEnum]
+
+
+export const CallEventScalarFieldEnum = {
+  id: 'id',
+  callId: 'callId',
+  type: 'type',
+  sequence: 'sequence',
+  payloadJson: 'payloadJson',
+  createdAt: 'createdAt'
+} as const
+
+export type CallEventScalarFieldEnum = (typeof CallEventScalarFieldEnum)[keyof typeof CallEventScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1091,6 +1466,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1177,6 +1561,20 @@ export type ListEnumPhoneNumberProviderFieldRefInput<$PrismaModel> = FieldRefInp
 
 
 /**
+ * Reference to a field of type 'PhoneRoutingMode'
+ */
+export type EnumPhoneRoutingModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PhoneRoutingMode'>
+    
+
+
+/**
+ * Reference to a field of type 'PhoneRoutingMode[]'
+ */
+export type ListEnumPhoneRoutingModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'PhoneRoutingMode[]'>
+    
+
+
+/**
  * Reference to a field of type 'AgentChannel'
  */
 export type EnumAgentChannelFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AgentChannel'>
@@ -1191,6 +1589,62 @@ export type ListEnumAgentChannelFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'Weekday'
+ */
+export type EnumWeekdayFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Weekday'>
+    
+
+
+/**
+ * Reference to a field of type 'Weekday[]'
+ */
+export type ListEnumWeekdayFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Weekday[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CallDirection'
+ */
+export type EnumCallDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallDirection'>
+    
+
+
+/**
+ * Reference to a field of type 'CallDirection[]'
+ */
+export type ListEnumCallDirectionFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallDirection[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CallStatus'
+ */
+export type EnumCallStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CallStatus[]'
+ */
+export type ListEnumCallStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallStatus[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CallRouteKind'
+ */
+export type EnumCallRouteKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallRouteKind'>
+    
+
+
+/**
+ * Reference to a field of type 'CallRouteKind[]'
+ */
+export type ListEnumCallRouteKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallRouteKind[]'>
+    
+
+
+/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -1201,6 +1655,34 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1305,6 +1787,10 @@ export type GlobalOmitConfig = {
   location?: Prisma.LocationOmit
   phoneNumber?: Prisma.PhoneNumberOmit
   agentProfile?: Prisma.AgentProfileOmit
+  businessHours?: Prisma.BusinessHoursOmit
+  serviceArea?: Prisma.ServiceAreaOmit
+  call?: Prisma.CallOmit
+  callEvent?: Prisma.CallEventOmit
 }
 
 /* Types for Logging */

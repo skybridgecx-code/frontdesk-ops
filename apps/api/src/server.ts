@@ -1,7 +1,18 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
-import { prisma } from '@frontdesk/db';
+import formbody from '@fastify/formbody';
+import { registerCoreRoutes } from './routes/core.js';
+import { registerTenantRoutes } from './routes/tenants.js';
+import { registerBusinessRoutes } from './routes/businesses.js';
+import { registerBusinessWriteRoutes } from './routes/business-write.js';
+import { registerBusinessHoursRoutes } from './routes/business-hours.js';
+import { registerServiceAreaRoutes } from './routes/service-areas.js';
+import { registerPhoneNumberRoutes } from './routes/phone-numbers.js';
+import { registerPhoneNumberWriteRoutes } from './routes/phone-numbers-write.js';
+import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
+import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
+import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
 
 export async function buildServer() {
   const app = Fastify({
@@ -13,86 +24,19 @@ export async function buildServer() {
   });
 
   await app.register(sensible);
+  await app.register(formbody);
 
-  app.get('/health', async () => {
-    return {
-      ok: true,
-      service: 'api'
-    };
-  });
-
-  app.get('/v1/ping', async () => {
-    return {
-      pong: true
-    };
-  });
-
-  app.get('/v1/bootstrap', async () => {
-    const tenant = await prisma.tenant.findFirst({
-      where: {
-        slug: 'demo-hvac'
-      },
-      select: {
-        id: true,
-        slug: true,
-        name: true,
-        businesses: {
-          orderBy: {
-            createdAt: 'asc'
-          },
-          select: {
-            id: true,
-            slug: true,
-            name: true,
-            vertical: true,
-            timezone: true,
-            locations: {
-              orderBy: {
-                createdAt: 'asc'
-              },
-              select: {
-                id: true,
-                name: true,
-                city: true,
-                state: true,
-                isPrimary: true
-              }
-            },
-            phoneNumbers: {
-              orderBy: {
-                createdAt: 'asc'
-              },
-              select: {
-                id: true,
-                e164: true,
-                label: true,
-                externalSid: true,
-                isActive: true
-              }
-            },
-            agentProfiles: {
-              orderBy: {
-                createdAt: 'asc'
-              },
-              select: {
-                id: true,
-                name: true,
-                channel: true,
-                language: true,
-                voiceName: true,
-                isActive: true
-              }
-            }
-          }
-        }
-      }
-    });
-
-    return {
-      ok: true,
-      tenant
-    };
-  });
+  await registerCoreRoutes(app);
+  await registerTenantRoutes(app);
+  await registerBusinessRoutes(app);
+  await registerBusinessWriteRoutes(app);
+  await registerBusinessHoursRoutes(app);
+  await registerServiceAreaRoutes(app);
+  await registerPhoneNumberRoutes(app);
+  await registerPhoneNumberWriteRoutes(app);
+  await registerVoiceWebhookRoutes(app);
+  await registerVoiceStatusWebhookRoutes(app);
+  await registerAgentProfileWriteRoutes(app);
 
   return app;
 }

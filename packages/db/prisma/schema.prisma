@@ -31,17 +31,57 @@ enum AgentChannel {
   SMS
 }
 
-model Tenant {
-  id           String        @id @default(cuid())
-  name         String
-  slug         String        @unique
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
+enum Weekday {
+  MONDAY
+  TUESDAY
+  WEDNESDAY
+  THURSDAY
+  FRIDAY
+  SATURDAY
+  SUNDAY
+}
 
-  memberships  Membership[]
-  businesses   Business[]
-  phoneNumbers PhoneNumber[]
+enum PhoneRoutingMode {
+  AI_ALWAYS
+  AI_AFTER_HOURS
+  HUMAN_ONLY
+  AI_OVERFLOW
+}
+
+enum CallDirection {
+  INBOUND
+  OUTBOUND
+}
+
+enum CallStatus {
+  RINGING
+  IN_PROGRESS
+  COMPLETED
+  NO_ANSWER
+  BUSY
+  FAILED
+  CANCELED
+}
+
+enum CallRouteKind {
+  AI
+  HUMAN
+  VOICEMAIL
+  REJECTED
+}
+
+model Tenant {
+  id            String         @id @default(cuid())
+  name          String
+  slug          String         @unique
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  memberships   Membership[]
+  businesses    Business[]
+  phoneNumbers  PhoneNumber[]
   agentProfiles AgentProfile[]
+  calls         Call[]
 
   @@index([slug])
 }
@@ -75,28 +115,31 @@ model Membership {
 }
 
 model Business {
-  id            String            @id @default(cuid())
-  tenantId      String
-  name          String
-  legalName     String?
-  slug          String
-  vertical      BusinessVertical  @default(OTHER)
-  websiteUrl    String?
-  timezone      String            @default("America/New_York")
-  createdAt     DateTime          @default(now())
-  updatedAt     DateTime          @updatedAt
+  id             String            @id @default(cuid())
+  tenantId       String
+  name           String
+  legalName      String?
+  slug           String
+  vertical       BusinessVertical  @default(OTHER)
+  websiteUrl     String?
+  timezone       String            @default("America/New_York")
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
 
-  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  locations     Location[]
-  phoneNumbers  PhoneNumber[]
-  agentProfiles AgentProfile[]
+  tenant         Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locations      Location[]
+  phoneNumbers   PhoneNumber[]
+  agentProfiles  AgentProfile[]
+  businessHours  BusinessHours[]
+  serviceAreas   ServiceArea[]
+  calls          Call[]
 
   @@unique([tenantId, slug])
   @@index([tenantId])
 }
 
 model Location {
-  id            String       @id @default(cuid())
+  id             String       @id @default(cuid())
   businessId     String
   name           String
   addressLine1   String?
@@ -116,44 +159,139 @@ model Location {
 }
 
 model PhoneNumber {
-  id               String              @id @default(cuid())
-  tenantId         String
-  businessId       String
-  locationId       String?
-  provider         PhoneNumberProvider @default(TWILIO)
-  externalSid      String?
-  e164             String              @unique
-  label            String?
-  isActive         Boolean             @default(true)
-  createdAt        DateTime            @default(now())
-  updatedAt        DateTime            @updatedAt
+  id                       String              @id @default(cuid())
+  tenantId                 String
+  businessId               String
+  locationId               String?
+  provider                 PhoneNumberProvider @default(TWILIO)
+  externalSid              String?
+  e164                     String              @unique
+  label                    String?
+  isActive                 Boolean             @default(true)
+  routingMode              PhoneRoutingMode    @default(AI_ALWAYS)
+  primaryAgentProfileId    String?
+  afterHoursAgentProfileId String?
+  enableMissedCallTextBack Boolean             @default(true)
+  createdAt                DateTime            @default(now())
+  updatedAt                DateTime            @updatedAt
 
-  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business         Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
-  location         Location?           @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  tenant                   Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business                 Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  location                 Location?           @relation(fields: [locationId], references: [id], onDelete: SetNull)
+  primaryAgentProfile      AgentProfile?       @relation("PhoneNumberPrimaryAgent", fields: [primaryAgentProfileId], references: [id], onDelete: SetNull)
+  afterHoursAgentProfile   AgentProfile?       @relation("PhoneNumberAfterHoursAgent", fields: [afterHoursAgentProfileId], references: [id], onDelete: SetNull)
+  calls                    Call[]
 
   @@index([tenantId])
   @@index([businessId])
   @@index([locationId])
   @@index([externalSid])
+  @@index([primaryAgentProfileId])
+  @@index([afterHoursAgentProfileId])
 }
 
 model AgentProfile {
-  id               String        @id @default(cuid())
-  tenantId         String
-  businessId       String
-  name             String
-  channel          AgentChannel  @default(VOICE)
-  language         String        @default("en")
-  voiceName        String?
-  systemPrompt     String?
-  isActive         Boolean       @default(true)
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  id                        String        @id @default(cuid())
+  tenantId                  String
+  businessId                String
+  name                      String
+  channel                   AgentChannel  @default(VOICE)
+  language                  String        @default("en")
+  voiceName                 String?
+  systemPrompt              String?
+  isActive                  Boolean       @default(true)
+  createdAt                 DateTime      @default(now())
+  updatedAt                 DateTime      @updatedAt
 
-  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-  business         Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  tenant                    Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business                  Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  primaryForPhoneNumbers    PhoneNumber[] @relation("PhoneNumberPrimaryAgent")
+  afterHoursForPhoneNumbers PhoneNumber[] @relation("PhoneNumberAfterHoursAgent")
+  calls                     Call[]
 
   @@index([tenantId])
   @@index([businessId])
+}
+
+model BusinessHours {
+  id              String    @id @default(cuid())
+  businessId      String
+  weekday         Weekday
+  openTime        String?
+  closeTime       String?
+  isClosed        Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business        Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@unique([businessId, weekday])
+  @@index([businessId])
+}
+
+model ServiceArea {
+  id              String    @id @default(cuid())
+  businessId      String
+  label           String
+  city            String?
+  state           String?
+  postalCode      String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  business        Business  @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([businessId])
+  @@index([city, state])
+  @@index([postalCode])
+}
+
+
+model Call {
+  id                String         @id @default(cuid())
+  tenantId          String
+  businessId        String
+  phoneNumberId     String
+  agentProfileId    String?
+  twilioCallSid     String         @unique
+  direction         CallDirection  @default(INBOUND)
+  status            CallStatus     @default(RINGING)
+  routeKind         CallRouteKind?
+  fromE164          String?
+  toE164            String?
+  startedAt         DateTime       @default(now())
+  answeredAt        DateTime?
+  endedAt           DateTime?
+  durationSeconds   Int?
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  tenant            Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business          Business       @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  phoneNumber       PhoneNumber    @relation(fields: [phoneNumberId], references: [id], onDelete: Cascade)
+  agentProfile      AgentProfile?  @relation(fields: [agentProfileId], references: [id], onDelete: SetNull)
+  events            CallEvent[]
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([phoneNumberId])
+  @@index([agentProfileId])
+  @@index([twilioCallSid])
+  @@index([status])
+  @@index([routeKind])
+}
+
+model CallEvent {
+  id                String      @id @default(cuid())
+  callId            String
+  type              String
+  sequence          Int
+  payloadJson       Json?
+  createdAt         DateTime    @default(now())
+
+  call              Call        @relation(fields: [callId], references: [id], onDelete: Cascade)
+
+  @@unique([callId, sequence])
+  @@index([callId])
+  @@index([type])
 }

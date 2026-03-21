@@ -34,6 +34,10 @@ export type PhoneNumberMinAggregateOutputType = {
   e164: string | null
   label: string | null
   isActive: boolean | null
+  routingMode: $Enums.PhoneRoutingMode | null
+  primaryAgentProfileId: string | null
+  afterHoursAgentProfileId: string | null
+  enableMissedCallTextBack: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -48,6 +52,10 @@ export type PhoneNumberMaxAggregateOutputType = {
   e164: string | null
   label: string | null
   isActive: boolean | null
+  routingMode: $Enums.PhoneRoutingMode | null
+  primaryAgentProfileId: string | null
+  afterHoursAgentProfileId: string | null
+  enableMissedCallTextBack: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -62,6 +70,10 @@ export type PhoneNumberCountAggregateOutputType = {
   e164: number
   label: number
   isActive: number
+  routingMode: number
+  primaryAgentProfileId: number
+  afterHoursAgentProfileId: number
+  enableMissedCallTextBack: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,6 +90,10 @@ export type PhoneNumberMinAggregateInputType = {
   e164?: true
   label?: true
   isActive?: true
+  routingMode?: true
+  primaryAgentProfileId?: true
+  afterHoursAgentProfileId?: true
+  enableMissedCallTextBack?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -92,6 +108,10 @@ export type PhoneNumberMaxAggregateInputType = {
   e164?: true
   label?: true
   isActive?: true
+  routingMode?: true
+  primaryAgentProfileId?: true
+  afterHoursAgentProfileId?: true
+  enableMissedCallTextBack?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -106,6 +126,10 @@ export type PhoneNumberCountAggregateInputType = {
   e164?: true
   label?: true
   isActive?: true
+  routingMode?: true
+  primaryAgentProfileId?: true
+  afterHoursAgentProfileId?: true
+  enableMissedCallTextBack?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -193,6 +217,10 @@ export type PhoneNumberGroupByOutputType = {
   e164: string
   label: string | null
   isActive: boolean
+  routingMode: $Enums.PhoneRoutingMode
+  primaryAgentProfileId: string | null
+  afterHoursAgentProfileId: string | null
+  enableMissedCallTextBack: boolean
   createdAt: Date
   updatedAt: Date
   _count: PhoneNumberCountAggregateOutputType | null
@@ -228,11 +256,18 @@ export type PhoneNumberWhereInput = {
   e164?: Prisma.StringFilter<"PhoneNumber"> | string
   label?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
   isActive?: Prisma.BoolFilter<"PhoneNumber"> | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFilter<"PhoneNumber"> | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  afterHoursAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  enableMissedCallTextBack?: Prisma.BoolFilter<"PhoneNumber"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
+  primaryAgentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
+  afterHoursAgentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
+  calls?: Prisma.CallListRelationFilter
 }
 
 export type PhoneNumberOrderByWithRelationInput = {
@@ -245,11 +280,18 @@ export type PhoneNumberOrderByWithRelationInput = {
   e164?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  routingMode?: Prisma.SortOrder
+  primaryAgentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  afterHoursAgentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  enableMissedCallTextBack?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
   location?: Prisma.LocationOrderByWithRelationInput
+  primaryAgentProfile?: Prisma.AgentProfileOrderByWithRelationInput
+  afterHoursAgentProfile?: Prisma.AgentProfileOrderByWithRelationInput
+  calls?: Prisma.CallOrderByRelationAggregateInput
 }
 
 export type PhoneNumberWhereUniqueInput = Prisma.AtLeast<{
@@ -265,11 +307,18 @@ export type PhoneNumberWhereUniqueInput = Prisma.AtLeast<{
   externalSid?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
   label?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
   isActive?: Prisma.BoolFilter<"PhoneNumber"> | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFilter<"PhoneNumber"> | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  afterHoursAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  enableMissedCallTextBack?: Prisma.BoolFilter<"PhoneNumber"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   location?: Prisma.XOR<Prisma.LocationNullableScalarRelationFilter, Prisma.LocationWhereInput> | null
+  primaryAgentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
+  afterHoursAgentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
+  calls?: Prisma.CallListRelationFilter
 }, "id" | "e164">
 
 export type PhoneNumberOrderByWithAggregationInput = {
@@ -282,6 +331,10 @@ export type PhoneNumberOrderByWithAggregationInput = {
   e164?: Prisma.SortOrder
   label?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  routingMode?: Prisma.SortOrder
+  primaryAgentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  afterHoursAgentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  enableMissedCallTextBack?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.PhoneNumberCountOrderByAggregateInput
@@ -302,6 +355,10 @@ export type PhoneNumberScalarWhereWithAggregatesInput = {
   e164?: Prisma.StringWithAggregatesFilter<"PhoneNumber"> | string
   label?: Prisma.StringNullableWithAggregatesFilter<"PhoneNumber"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"PhoneNumber"> | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeWithAggregatesFilter<"PhoneNumber"> | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.StringNullableWithAggregatesFilter<"PhoneNumber"> | string | null
+  afterHoursAgentProfileId?: Prisma.StringNullableWithAggregatesFilter<"PhoneNumber"> | string | null
+  enableMissedCallTextBack?: Prisma.BoolWithAggregatesFilter<"PhoneNumber"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PhoneNumber"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PhoneNumber"> | Date | string
 }
@@ -313,11 +370,16 @@ export type PhoneNumberCreateInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
   business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
   location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberUncheckedCreateInput = {
@@ -330,8 +392,13 @@ export type PhoneNumberUncheckedCreateInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberUpdateInput = {
@@ -341,11 +408,16 @@ export type PhoneNumberUpdateInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
   location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateInput = {
@@ -358,8 +430,13 @@ export type PhoneNumberUncheckedUpdateInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberCreateManyInput = {
@@ -372,6 +449,10 @@ export type PhoneNumberCreateManyInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -383,6 +464,8 @@ export type PhoneNumberUpdateManyMutationInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -397,6 +480,10 @@ export type PhoneNumberUncheckedUpdateManyInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -421,6 +508,10 @@ export type PhoneNumberCountOrderByAggregateInput = {
   e164?: Prisma.SortOrder
   label?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  routingMode?: Prisma.SortOrder
+  primaryAgentProfileId?: Prisma.SortOrder
+  afterHoursAgentProfileId?: Prisma.SortOrder
+  enableMissedCallTextBack?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -435,6 +526,10 @@ export type PhoneNumberMaxOrderByAggregateInput = {
   e164?: Prisma.SortOrder
   label?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  routingMode?: Prisma.SortOrder
+  primaryAgentProfileId?: Prisma.SortOrder
+  afterHoursAgentProfileId?: Prisma.SortOrder
+  enableMissedCallTextBack?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -449,8 +544,17 @@ export type PhoneNumberMinOrderByAggregateInput = {
   e164?: Prisma.SortOrder
   label?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  routingMode?: Prisma.SortOrder
+  primaryAgentProfileId?: Prisma.SortOrder
+  afterHoursAgentProfileId?: Prisma.SortOrder
+  enableMissedCallTextBack?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type PhoneNumberScalarRelationFilter = {
+  is?: Prisma.PhoneNumberWhereInput
+  isNot?: Prisma.PhoneNumberWhereInput
 }
 
 export type PhoneNumberCreateNestedManyWithoutTenantInput = {
@@ -583,6 +687,108 @@ export type EnumPhoneNumberProviderFieldUpdateOperationsInput = {
   set?: $Enums.PhoneNumberProvider
 }
 
+export type EnumPhoneRoutingModeFieldUpdateOperationsInput = {
+  set?: $Enums.PhoneRoutingMode
+}
+
+export type PhoneNumberCreateNestedManyWithoutPrimaryAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput> | Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyPrimaryAgentProfileInputEnvelope
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+}
+
+export type PhoneNumberCreateNestedManyWithoutAfterHoursAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput> | Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInputEnvelope
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+}
+
+export type PhoneNumberUncheckedCreateNestedManyWithoutPrimaryAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput> | Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyPrimaryAgentProfileInputEnvelope
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+}
+
+export type PhoneNumberUncheckedCreateNestedManyWithoutAfterHoursAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput> | Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInputEnvelope
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+}
+
+export type PhoneNumberUpdateManyWithoutPrimaryAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput> | Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput[]
+  upsert?: Prisma.PhoneNumberUpsertWithWhereUniqueWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpsertWithWhereUniqueWithoutPrimaryAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyPrimaryAgentProfileInputEnvelope
+  set?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  disconnect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  delete?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  update?: Prisma.PhoneNumberUpdateWithWhereUniqueWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpdateWithWhereUniqueWithoutPrimaryAgentProfileInput[]
+  updateMany?: Prisma.PhoneNumberUpdateManyWithWhereWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpdateManyWithWhereWithoutPrimaryAgentProfileInput[]
+  deleteMany?: Prisma.PhoneNumberScalarWhereInput | Prisma.PhoneNumberScalarWhereInput[]
+}
+
+export type PhoneNumberUpdateManyWithoutAfterHoursAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput> | Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput[]
+  upsert?: Prisma.PhoneNumberUpsertWithWhereUniqueWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpsertWithWhereUniqueWithoutAfterHoursAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInputEnvelope
+  set?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  disconnect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  delete?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  update?: Prisma.PhoneNumberUpdateWithWhereUniqueWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpdateWithWhereUniqueWithoutAfterHoursAgentProfileInput[]
+  updateMany?: Prisma.PhoneNumberUpdateManyWithWhereWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpdateManyWithWhereWithoutAfterHoursAgentProfileInput[]
+  deleteMany?: Prisma.PhoneNumberScalarWhereInput | Prisma.PhoneNumberScalarWhereInput[]
+}
+
+export type PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput> | Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput[]
+  upsert?: Prisma.PhoneNumberUpsertWithWhereUniqueWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpsertWithWhereUniqueWithoutPrimaryAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyPrimaryAgentProfileInputEnvelope
+  set?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  disconnect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  delete?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  update?: Prisma.PhoneNumberUpdateWithWhereUniqueWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpdateWithWhereUniqueWithoutPrimaryAgentProfileInput[]
+  updateMany?: Prisma.PhoneNumberUpdateManyWithWhereWithoutPrimaryAgentProfileInput | Prisma.PhoneNumberUpdateManyWithWhereWithoutPrimaryAgentProfileInput[]
+  deleteMany?: Prisma.PhoneNumberScalarWhereInput | Prisma.PhoneNumberScalarWhereInput[]
+}
+
+export type PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput> | Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput[] | Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput[]
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput[]
+  upsert?: Prisma.PhoneNumberUpsertWithWhereUniqueWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpsertWithWhereUniqueWithoutAfterHoursAgentProfileInput[]
+  createMany?: Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInputEnvelope
+  set?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  disconnect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  delete?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  connect?: Prisma.PhoneNumberWhereUniqueInput | Prisma.PhoneNumberWhereUniqueInput[]
+  update?: Prisma.PhoneNumberUpdateWithWhereUniqueWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpdateWithWhereUniqueWithoutAfterHoursAgentProfileInput[]
+  updateMany?: Prisma.PhoneNumberUpdateManyWithWhereWithoutAfterHoursAgentProfileInput | Prisma.PhoneNumberUpdateManyWithWhereWithoutAfterHoursAgentProfileInput[]
+  deleteMany?: Prisma.PhoneNumberScalarWhereInput | Prisma.PhoneNumberScalarWhereInput[]
+}
+
+export type PhoneNumberCreateNestedOneWithoutCallsInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutCallsInput, Prisma.PhoneNumberUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutCallsInput
+  connect?: Prisma.PhoneNumberWhereUniqueInput
+}
+
+export type PhoneNumberUpdateOneRequiredWithoutCallsNestedInput = {
+  create?: Prisma.XOR<Prisma.PhoneNumberCreateWithoutCallsInput, Prisma.PhoneNumberUncheckedCreateWithoutCallsInput>
+  connectOrCreate?: Prisma.PhoneNumberCreateOrConnectWithoutCallsInput
+  upsert?: Prisma.PhoneNumberUpsertWithoutCallsInput
+  connect?: Prisma.PhoneNumberWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PhoneNumberUpdateToOneWithWhereWithoutCallsInput, Prisma.PhoneNumberUpdateWithoutCallsInput>, Prisma.PhoneNumberUncheckedUpdateWithoutCallsInput>
+}
+
 export type PhoneNumberCreateWithoutTenantInput = {
   id?: string
   provider?: $Enums.PhoneNumberProvider
@@ -590,10 +796,15 @@ export type PhoneNumberCreateWithoutTenantInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
   location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberUncheckedCreateWithoutTenantInput = {
@@ -605,8 +816,13 @@ export type PhoneNumberUncheckedCreateWithoutTenantInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberCreateOrConnectWithoutTenantInput = {
@@ -648,6 +864,10 @@ export type PhoneNumberScalarWhereInput = {
   e164?: Prisma.StringFilter<"PhoneNumber"> | string
   label?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
   isActive?: Prisma.BoolFilter<"PhoneNumber"> | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFilter<"PhoneNumber"> | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  afterHoursAgentProfileId?: Prisma.StringNullableFilter<"PhoneNumber"> | string | null
+  enableMissedCallTextBack?: Prisma.BoolFilter<"PhoneNumber"> | boolean
   createdAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PhoneNumber"> | Date | string
 }
@@ -659,10 +879,15 @@ export type PhoneNumberCreateWithoutBusinessInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
   location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberUncheckedCreateWithoutBusinessInput = {
@@ -674,8 +899,13 @@ export type PhoneNumberUncheckedCreateWithoutBusinessInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberCreateOrConnectWithoutBusinessInput = {
@@ -711,10 +941,15 @@ export type PhoneNumberCreateWithoutLocationInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
   business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberUncheckedCreateWithoutLocationInput = {
@@ -726,8 +961,13 @@ export type PhoneNumberUncheckedCreateWithoutLocationInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
 }
 
 export type PhoneNumberCreateOrConnectWithoutLocationInput = {
@@ -756,6 +996,218 @@ export type PhoneNumberUpdateManyWithWhereWithoutLocationInput = {
   data: Prisma.XOR<Prisma.PhoneNumberUpdateManyMutationInput, Prisma.PhoneNumberUncheckedUpdateManyWithoutLocationInput>
 }
 
+export type PhoneNumberCreateWithoutPrimaryAgentProfileInput = {
+  id?: string
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
+  business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
+  location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
+}
+
+export type PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  locationId?: string | null
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
+}
+
+export type PhoneNumberCreateOrConnectWithoutPrimaryAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput>
+}
+
+export type PhoneNumberCreateManyPrimaryAgentProfileInputEnvelope = {
+  data: Prisma.PhoneNumberCreateManyPrimaryAgentProfileInput | Prisma.PhoneNumberCreateManyPrimaryAgentProfileInput[]
+  skipDuplicates?: boolean
+}
+
+export type PhoneNumberCreateWithoutAfterHoursAgentProfileInput = {
+  id?: string
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
+  business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
+  location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  calls?: Prisma.CallCreateNestedManyWithoutPhoneNumberInput
+}
+
+export type PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  locationId?: string | null
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutPhoneNumberInput
+}
+
+export type PhoneNumberCreateOrConnectWithoutAfterHoursAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput>
+}
+
+export type PhoneNumberCreateManyAfterHoursAgentProfileInputEnvelope = {
+  data: Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInput | Prisma.PhoneNumberCreateManyAfterHoursAgentProfileInput[]
+  skipDuplicates?: boolean
+}
+
+export type PhoneNumberUpsertWithWhereUniqueWithoutPrimaryAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  update: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedUpdateWithoutPrimaryAgentProfileInput>
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutPrimaryAgentProfileInput>
+}
+
+export type PhoneNumberUpdateWithWhereUniqueWithoutPrimaryAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  data: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutPrimaryAgentProfileInput, Prisma.PhoneNumberUncheckedUpdateWithoutPrimaryAgentProfileInput>
+}
+
+export type PhoneNumberUpdateManyWithWhereWithoutPrimaryAgentProfileInput = {
+  where: Prisma.PhoneNumberScalarWhereInput
+  data: Prisma.XOR<Prisma.PhoneNumberUpdateManyMutationInput, Prisma.PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileInput>
+}
+
+export type PhoneNumberUpsertWithWhereUniqueWithoutAfterHoursAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  update: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedUpdateWithoutAfterHoursAgentProfileInput>
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedCreateWithoutAfterHoursAgentProfileInput>
+}
+
+export type PhoneNumberUpdateWithWhereUniqueWithoutAfterHoursAgentProfileInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  data: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutAfterHoursAgentProfileInput, Prisma.PhoneNumberUncheckedUpdateWithoutAfterHoursAgentProfileInput>
+}
+
+export type PhoneNumberUpdateManyWithWhereWithoutAfterHoursAgentProfileInput = {
+  where: Prisma.PhoneNumberScalarWhereInput
+  data: Prisma.XOR<Prisma.PhoneNumberUpdateManyMutationInput, Prisma.PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileInput>
+}
+
+export type PhoneNumberCreateWithoutCallsInput = {
+  id?: string
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutPhoneNumbersInput
+  business: Prisma.BusinessCreateNestedOneWithoutPhoneNumbersInput
+  location?: Prisma.LocationCreateNestedOneWithoutPhoneNumbersInput
+  primaryAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutPrimaryForPhoneNumbersInput
+  afterHoursAgentProfile?: Prisma.AgentProfileCreateNestedOneWithoutAfterHoursForPhoneNumbersInput
+}
+
+export type PhoneNumberUncheckedCreateWithoutCallsInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  locationId?: string | null
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PhoneNumberCreateOrConnectWithoutCallsInput = {
+  where: Prisma.PhoneNumberWhereUniqueInput
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutCallsInput, Prisma.PhoneNumberUncheckedCreateWithoutCallsInput>
+}
+
+export type PhoneNumberUpsertWithoutCallsInput = {
+  update: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutCallsInput, Prisma.PhoneNumberUncheckedUpdateWithoutCallsInput>
+  create: Prisma.XOR<Prisma.PhoneNumberCreateWithoutCallsInput, Prisma.PhoneNumberUncheckedCreateWithoutCallsInput>
+  where?: Prisma.PhoneNumberWhereInput
+}
+
+export type PhoneNumberUpdateToOneWithWhereWithoutCallsInput = {
+  where?: Prisma.PhoneNumberWhereInput
+  data: Prisma.XOR<Prisma.PhoneNumberUpdateWithoutCallsInput, Prisma.PhoneNumberUncheckedUpdateWithoutCallsInput>
+}
+
+export type PhoneNumberUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+}
+
+export type PhoneNumberUncheckedUpdateWithoutCallsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type PhoneNumberCreateManyTenantInput = {
   id?: string
   businessId: string
@@ -765,6 +1217,10 @@ export type PhoneNumberCreateManyTenantInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -776,10 +1232,15 @@ export type PhoneNumberUpdateWithoutTenantInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
   location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateWithoutTenantInput = {
@@ -791,8 +1252,13 @@ export type PhoneNumberUncheckedUpdateWithoutTenantInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateManyWithoutTenantInput = {
@@ -804,6 +1270,10 @@ export type PhoneNumberUncheckedUpdateManyWithoutTenantInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -817,6 +1287,10 @@ export type PhoneNumberCreateManyBusinessInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -828,10 +1302,15 @@ export type PhoneNumberUpdateWithoutBusinessInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
   location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateWithoutBusinessInput = {
@@ -843,8 +1322,13 @@ export type PhoneNumberUncheckedUpdateWithoutBusinessInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateManyWithoutBusinessInput = {
@@ -856,6 +1340,10 @@ export type PhoneNumberUncheckedUpdateManyWithoutBusinessInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -869,6 +1357,10 @@ export type PhoneNumberCreateManyLocationInput = {
   e164: string
   label?: string | null
   isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -880,10 +1372,15 @@ export type PhoneNumberUpdateWithoutLocationInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateWithoutLocationInput = {
@@ -895,8 +1392,13 @@ export type PhoneNumberUncheckedUpdateWithoutLocationInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
 }
 
 export type PhoneNumberUncheckedUpdateManyWithoutLocationInput = {
@@ -908,10 +1410,183 @@ export type PhoneNumberUncheckedUpdateManyWithoutLocationInput = {
   e164?: Prisma.StringFieldUpdateOperationsInput | string
   label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type PhoneNumberCreateManyPrimaryAgentProfileInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  locationId?: string | null
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  afterHoursAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PhoneNumberCreateManyAfterHoursAgentProfileInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  locationId?: string | null
+  provider?: $Enums.PhoneNumberProvider
+  externalSid?: string | null
+  e164: string
+  label?: string | null
+  isActive?: boolean
+  routingMode?: $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: string | null
+  enableMissedCallTextBack?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type PhoneNumberUpdateWithoutPrimaryAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  afterHoursAgentProfile?: Prisma.AgentProfileUpdateOneWithoutAfterHoursForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
+}
+
+export type PhoneNumberUncheckedUpdateWithoutPrimaryAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
+}
+
+export type PhoneNumberUncheckedUpdateManyWithoutPrimaryAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  afterHoursAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type PhoneNumberUpdateWithoutAfterHoursAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutPhoneNumbersNestedInput
+  location?: Prisma.LocationUpdateOneWithoutPhoneNumbersNestedInput
+  primaryAgentProfile?: Prisma.AgentProfileUpdateOneWithoutPrimaryForPhoneNumbersNestedInput
+  calls?: Prisma.CallUpdateManyWithoutPhoneNumberNestedInput
+}
+
+export type PhoneNumberUncheckedUpdateWithoutAfterHoursAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  calls?: Prisma.CallUncheckedUpdateManyWithoutPhoneNumberNestedInput
+}
+
+export type PhoneNumberUncheckedUpdateManyWithoutAfterHoursAgentProfileInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  locationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  provider?: Prisma.EnumPhoneNumberProviderFieldUpdateOperationsInput | $Enums.PhoneNumberProvider
+  externalSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  e164?: Prisma.StringFieldUpdateOperationsInput | string
+  label?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  routingMode?: Prisma.EnumPhoneRoutingModeFieldUpdateOperationsInput | $Enums.PhoneRoutingMode
+  primaryAgentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  enableMissedCallTextBack?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type PhoneNumberCountOutputType
+ */
+
+export type PhoneNumberCountOutputType = {
+  calls: number
+}
+
+export type PhoneNumberCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  calls?: boolean | PhoneNumberCountOutputTypeCountCallsArgs
+}
+
+/**
+ * PhoneNumberCountOutputType without action
+ */
+export type PhoneNumberCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PhoneNumberCountOutputType
+   */
+  select?: Prisma.PhoneNumberCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * PhoneNumberCountOutputType without action
+ */
+export type PhoneNumberCountOutputTypeCountCallsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CallWhereInput
+}
 
 
 export type PhoneNumberSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -924,11 +1599,19 @@ export type PhoneNumberSelect<ExtArgs extends runtime.Types.Extensions.InternalA
   e164?: boolean
   label?: boolean
   isActive?: boolean
+  routingMode?: boolean
+  primaryAgentProfileId?: boolean
+  afterHoursAgentProfileId?: boolean
+  enableMissedCallTextBack?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
+  calls?: boolean | Prisma.PhoneNumber$callsArgs<ExtArgs>
+  _count?: boolean | Prisma.PhoneNumberCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["phoneNumber"]>
 
 export type PhoneNumberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -941,11 +1624,17 @@ export type PhoneNumberSelectCreateManyAndReturn<ExtArgs extends runtime.Types.E
   e164?: boolean
   label?: boolean
   isActive?: boolean
+  routingMode?: boolean
+  primaryAgentProfileId?: boolean
+  afterHoursAgentProfileId?: boolean
+  enableMissedCallTextBack?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
 }, ExtArgs["result"]["phoneNumber"]>
 
 export type PhoneNumberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -958,11 +1647,17 @@ export type PhoneNumberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.E
   e164?: boolean
   label?: boolean
   isActive?: boolean
+  routingMode?: boolean
+  primaryAgentProfileId?: boolean
+  afterHoursAgentProfileId?: boolean
+  enableMissedCallTextBack?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
 }, ExtArgs["result"]["phoneNumber"]>
 
 export type PhoneNumberSelectScalar = {
@@ -975,25 +1670,37 @@ export type PhoneNumberSelectScalar = {
   e164?: boolean
   label?: boolean
   isActive?: boolean
+  routingMode?: boolean
+  primaryAgentProfileId?: boolean
+  afterHoursAgentProfileId?: boolean
+  enableMissedCallTextBack?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type PhoneNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "locationId" | "provider" | "externalSid" | "e164" | "label" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["phoneNumber"]>
+export type PhoneNumberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "locationId" | "provider" | "externalSid" | "e164" | "label" | "isActive" | "routingMode" | "primaryAgentProfileId" | "afterHoursAgentProfileId" | "enableMissedCallTextBack" | "createdAt" | "updatedAt", ExtArgs["result"]["phoneNumber"]>
 export type PhoneNumberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
+  calls?: boolean | Prisma.PhoneNumber$callsArgs<ExtArgs>
+  _count?: boolean | Prisma.PhoneNumberCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PhoneNumberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
 }
 export type PhoneNumberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
   location?: boolean | Prisma.PhoneNumber$locationArgs<ExtArgs>
+  primaryAgentProfile?: boolean | Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>
+  afterHoursAgentProfile?: boolean | Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>
 }
 
 export type $PhoneNumberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1002,6 +1709,9 @@ export type $PhoneNumberPayload<ExtArgs extends runtime.Types.Extensions.Interna
     tenant: Prisma.$TenantPayload<ExtArgs>
     business: Prisma.$BusinessPayload<ExtArgs>
     location: Prisma.$LocationPayload<ExtArgs> | null
+    primaryAgentProfile: Prisma.$AgentProfilePayload<ExtArgs> | null
+    afterHoursAgentProfile: Prisma.$AgentProfilePayload<ExtArgs> | null
+    calls: Prisma.$CallPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1013,6 +1723,10 @@ export type $PhoneNumberPayload<ExtArgs extends runtime.Types.Extensions.Interna
     e164: string
     label: string | null
     isActive: boolean
+    routingMode: $Enums.PhoneRoutingMode
+    primaryAgentProfileId: string | null
+    afterHoursAgentProfileId: string | null
+    enableMissedCallTextBack: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["phoneNumber"]>
@@ -1412,6 +2126,9 @@ export interface Prisma__PhoneNumberClient<T, Null = never, ExtArgs extends runt
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   location<T extends Prisma.PhoneNumber$locationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PhoneNumber$locationArgs<ExtArgs>>): Prisma.Prisma__LocationClient<runtime.Types.Result.GetResult<Prisma.$LocationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  primaryAgentProfile<T extends Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PhoneNumber$primaryAgentProfileArgs<ExtArgs>>): Prisma.Prisma__AgentProfileClient<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  afterHoursAgentProfile<T extends Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PhoneNumber$afterHoursAgentProfileArgs<ExtArgs>>): Prisma.Prisma__AgentProfileClient<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  calls<T extends Prisma.PhoneNumber$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PhoneNumber$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1450,6 +2167,10 @@ export interface PhoneNumberFieldRefs {
   readonly e164: Prisma.FieldRef<"PhoneNumber", 'String'>
   readonly label: Prisma.FieldRef<"PhoneNumber", 'String'>
   readonly isActive: Prisma.FieldRef<"PhoneNumber", 'Boolean'>
+  readonly routingMode: Prisma.FieldRef<"PhoneNumber", 'PhoneRoutingMode'>
+  readonly primaryAgentProfileId: Prisma.FieldRef<"PhoneNumber", 'String'>
+  readonly afterHoursAgentProfileId: Prisma.FieldRef<"PhoneNumber", 'String'>
+  readonly enableMissedCallTextBack: Prisma.FieldRef<"PhoneNumber", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"PhoneNumber", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PhoneNumber", 'DateTime'>
 }
@@ -1869,6 +2590,68 @@ export type PhoneNumber$locationArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   include?: Prisma.LocationInclude<ExtArgs> | null
   where?: Prisma.LocationWhereInput
+}
+
+/**
+ * PhoneNumber.primaryAgentProfile
+ */
+export type PhoneNumber$primaryAgentProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgentProfile
+   */
+  select?: Prisma.AgentProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgentProfile
+   */
+  omit?: Prisma.AgentProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProfileInclude<ExtArgs> | null
+  where?: Prisma.AgentProfileWhereInput
+}
+
+/**
+ * PhoneNumber.afterHoursAgentProfile
+ */
+export type PhoneNumber$afterHoursAgentProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgentProfile
+   */
+  select?: Prisma.AgentProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgentProfile
+   */
+  omit?: Prisma.AgentProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProfileInclude<ExtArgs> | null
+  where?: Prisma.AgentProfileWhereInput
+}
+
+/**
+ * PhoneNumber.calls
+ */
+export type PhoneNumber$callsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Call
+   */
+  select?: Prisma.CallSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Call
+   */
+  omit?: Prisma.CallOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CallInclude<ExtArgs> | null
+  where?: Prisma.CallWhereInput
+  orderBy?: Prisma.CallOrderByWithRelationInput | Prisma.CallOrderByWithRelationInput[]
+  cursor?: Prisma.CallWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CallScalarFieldEnum | Prisma.CallScalarFieldEnum[]
 }
 
 /**
