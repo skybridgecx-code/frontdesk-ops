@@ -119,6 +119,7 @@ app.get(
     let openAIRealtimeSocket: ReturnType<typeof connectOpenAIRealtimeWebSocket> | null = null;
     let openAIReady = false;
     let currentStreamSid: string | null = null;
+    let assistantTranscriptBuffer = '';
     let pendingResponseTrigger: { callSid: string | null; streamSid: string | null } | null = null;
     const pendingAudio: Array<{
       payload: string;
@@ -399,6 +400,53 @@ app.get(
 
             return;
           }
+        }
+
+        if (eventType === 'response.output_audio_transcript.delta') {
+          const delta = getString(message, 'delta') ?? '';
+
+          if (delta) {
+            assistantTranscriptBuffer += delta;
+
+            app.log.info({
+              msg: 'openai output audio transcript delta received',
+              callSid: queryCallSid,
+              addedChars: delta.length,
+              totalChars: assistantTranscriptBuffer.length
+            });
+          }
+
+          return;
+        }
+
+        if (eventType === 'response.output_audio_transcript.done') {
+          const transcript = getString(message, 'transcript') ?? assistantTranscriptBuffer;
+
+          enqueue(async () => {
+            const context = await ensureCallContext();
+
+            if (context && transcript) {
+              await prisma.call.update({
+                where: { id: context.callId },
+                data: { assistantTranscript: transcript }
+              });
+            }
+
+            await persistEvent('openai.output_audio_transcript.done', {
+              callSid: queryCallSid,
+              streamSid: currentStreamSid,
+              transcriptLength: transcript.length
+            });
+          });
+
+          app.log.info({
+            msg: 'openai output audio transcript done',
+            callSid: queryCallSid,
+            transcriptLength: transcript.length
+          });
+
+          assistantTranscriptBuffer = '';
+          return;
         }
 
         if (eventType === 'response.output_audio.done') {

@@ -47,6 +47,8 @@ export type CallMinAggregateOutputType = {
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerTranscript: string | null
+  assistantTranscript: string | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -68,6 +70,8 @@ export type CallMaxAggregateOutputType = {
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerTranscript: string | null
+  assistantTranscript: string | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -89,6 +93,8 @@ export type CallCountAggregateOutputType = {
   routeKind: number
   fromE164: number
   toE164: number
+  callerTranscript: number
+  assistantTranscript: number
   startedAt: number
   answeredAt: number
   endedAt: number
@@ -120,6 +126,8 @@ export type CallMinAggregateInputType = {
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerTranscript?: true
+  assistantTranscript?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -141,6 +149,8 @@ export type CallMaxAggregateInputType = {
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerTranscript?: true
+  assistantTranscript?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -162,6 +172,8 @@ export type CallCountAggregateInputType = {
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerTranscript?: true
+  assistantTranscript?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -270,6 +282,8 @@ export type CallGroupByOutputType = {
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerTranscript: string | null
+  assistantTranscript: string | null
   startedAt: Date
   answeredAt: Date | null
   endedAt: Date | null
@@ -314,6 +328,8 @@ export type CallWhereInput = {
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -340,6 +356,8 @@ export type CallOrderByWithRelationInput = {
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
   fromE164?: Prisma.SortOrderInput | Prisma.SortOrder
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
+  assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -369,6 +387,8 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -395,6 +415,8 @@ export type CallOrderByWithAggregationInput = {
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
   fromE164?: Prisma.SortOrderInput | Prisma.SortOrder
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
+  assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -424,6 +446,8 @@ export type CallScalarWhereWithAggregatesInput = {
   routeKind?: Prisma.EnumCallRouteKindNullableWithAggregatesFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  callerTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  assistantTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
@@ -441,6 +465,8 @@ export type CallCreateInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -467,6 +493,8 @@ export type CallUncheckedCreateInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -485,6 +513,8 @@ export type CallUpdateInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -511,6 +541,8 @@ export type CallUncheckedUpdateInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -533,6 +565,8 @@ export type CallCreateManyInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -550,6 +584,8 @@ export type CallUpdateManyMutationInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -571,6 +607,8 @@ export type CallUncheckedUpdateManyInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -602,6 +640,8 @@ export type CallCountOrderByAggregateInput = {
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerTranscript?: Prisma.SortOrder
+  assistantTranscript?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -627,6 +667,8 @@ export type CallMaxOrderByAggregateInput = {
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerTranscript?: Prisma.SortOrder
+  assistantTranscript?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -648,6 +690,8 @@ export type CallMinOrderByAggregateInput = {
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerTranscript?: Prisma.SortOrder
+  assistantTranscript?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -880,6 +924,8 @@ export type CallCreateWithoutTenantInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -904,6 +950,8 @@ export type CallUncheckedCreateWithoutTenantInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -955,6 +1003,8 @@ export type CallScalarWhereInput = {
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -972,6 +1022,8 @@ export type CallCreateWithoutBusinessInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -996,6 +1048,8 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1040,6 +1094,8 @@ export type CallCreateWithoutPhoneNumberInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1064,6 +1120,8 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1108,6 +1166,8 @@ export type CallCreateWithoutAgentProfileInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1132,6 +1192,8 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1176,6 +1238,8 @@ export type CallCreateWithoutEventsInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1201,6 +1265,8 @@ export type CallUncheckedCreateWithoutEventsInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1234,6 +1300,8 @@ export type CallUpdateWithoutEventsInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1259,6 +1327,8 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1279,6 +1349,8 @@ export type CallCreateManyTenantInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1296,6 +1368,8 @@ export type CallUpdateWithoutTenantInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1320,6 +1394,8 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1341,6 +1417,8 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1361,6 +1439,8 @@ export type CallCreateManyBusinessInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1378,6 +1458,8 @@ export type CallUpdateWithoutBusinessInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1402,6 +1484,8 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1423,6 +1507,8 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1443,6 +1529,8 @@ export type CallCreateManyPhoneNumberInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1460,6 +1548,8 @@ export type CallUpdateWithoutPhoneNumberInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1484,6 +1574,8 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1505,6 +1597,8 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1525,6 +1619,8 @@ export type CallCreateManyAgentProfileInput = {
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerTranscript?: string | null
+  assistantTranscript?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1542,6 +1638,8 @@ export type CallUpdateWithoutAgentProfileInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1566,6 +1664,8 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1587,6 +1687,8 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1639,6 +1741,8 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerTranscript?: boolean
+  assistantTranscript?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1666,6 +1770,8 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerTranscript?: boolean
+  assistantTranscript?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1691,6 +1797,8 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerTranscript?: boolean
+  assistantTranscript?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1716,6 +1824,8 @@ export type CallSelectScalar = {
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerTranscript?: boolean
+  assistantTranscript?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1724,7 +1834,7 @@ export type CallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1768,6 +1878,8 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     routeKind: $Enums.CallRouteKind | null
     fromE164: string | null
     toE164: string | null
+    callerTranscript: string | null
+    assistantTranscript: string | null
     startedAt: Date
     answeredAt: Date | null
     endedAt: Date | null
@@ -2214,6 +2326,8 @@ export interface CallFieldRefs {
   readonly routeKind: Prisma.FieldRef<"Call", 'CallRouteKind'>
   readonly fromE164: Prisma.FieldRef<"Call", 'String'>
   readonly toE164: Prisma.FieldRef<"Call", 'String'>
+  readonly callerTranscript: Prisma.FieldRef<"Call", 'String'>
+  readonly assistantTranscript: Prisma.FieldRef<"Call", 'String'>
   readonly startedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly answeredAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Call", 'DateTime'>

@@ -227,6 +227,8 @@ export const CallScalarFieldEnum = {
   routeKind: 'routeKind',
   fromE164: 'fromE164',
   toE164: 'toE164',
+  callerTranscript: 'callerTranscript',
+  assistantTranscript: 'assistantTranscript',
   startedAt: 'startedAt',
   answeredAt: 'answeredAt',
   endedAt: 'endedAt',
