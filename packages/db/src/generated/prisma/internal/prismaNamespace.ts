@@ -1408,6 +1408,7 @@ export const CallScalarFieldEnum = {
   phoneNumberId: 'phoneNumberId',
   agentProfileId: 'agentProfileId',
   twilioCallSid: 'twilioCallSid',
+  twilioStreamSid: 'twilioStreamSid',
   direction: 'direction',
   status: 'status',
   routeKind: 'routeKind',

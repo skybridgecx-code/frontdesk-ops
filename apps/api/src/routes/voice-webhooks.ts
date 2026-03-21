@@ -14,6 +14,18 @@ function twimlSayAndHangup(message: string) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>${escapeXml(message)}</Say><Hangup/></Response>`;
 }
 
+function twimlConnectStream(input: {
+  streamBaseUrl: string;
+  callSid: string;
+  phoneNumberId: string;
+  agentProfileId: string | null;
+}) {
+  const base = input.streamBaseUrl.replace(/\/$/, '');
+  const url = `${base}?callSid=${encodeURIComponent(input.callSid)}&phoneNumberId=${encodeURIComponent(input.phoneNumberId)}&agentProfileId=${encodeURIComponent(input.agentProfileId ?? '')}`;
+
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect><Stream url="${escapeXml(url)}" /></Connect></Response>`;
+}
+
 function getWeekdayAndTime(timezone: string) {
   const weekdayParts = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
@@ -78,7 +90,7 @@ function resolveRoute(input: {
     return {
       routeKind: CallRouteKind.AI,
       agentProfileId: primaryAgentProfileId ?? afterHoursAgentProfileId ?? null,
-      message: 'Thanks for calling. Please hold while we connect you to our AI front desk.'
+      message: 'Connecting to AI front desk'
     };
   }
 
@@ -87,14 +99,14 @@ function resolveRoute(input: {
       return {
         routeKind: CallRouteKind.AI,
         agentProfileId: primaryAgentProfileId ?? null,
-        message: 'Thanks for calling. Please hold while we connect you to our main AI front desk.'
+        message: 'Connecting to main AI front desk'
       };
     }
 
     return {
       routeKind: CallRouteKind.AI,
       agentProfileId: afterHoursAgentProfileId ?? primaryAgentProfileId ?? null,
-      message: 'Thanks for calling after hours. Please hold while we connect you to our after-hours AI front desk.'
+      message: 'Connecting to after-hours AI front desk'
     };
   }
 
@@ -199,7 +211,9 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
         toE164
       },
       select: {
-        id: true
+        id: true,
+        phoneNumberId: true,
+        agentProfileId: true
       }
     });
 
@@ -217,6 +231,22 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
     });
 
     reply.header('Content-Type', 'text/xml; charset=utf-8');
+
+    if (route.routeKind === CallRouteKind.AI) {
+      const streamBaseUrl =
+        process.env.PUBLIC_REALTIME_WS_BASE_URL ??
+        'ws://127.0.0.1:4001/ws/media-stream';
+
+      return reply.send(
+        twimlConnectStream({
+          streamBaseUrl,
+          callSid: twilioCallSid,
+          phoneNumberId: call.phoneNumberId,
+          agentProfileId: call.agentProfileId ?? null
+        })
+      );
+    }
+
     return reply.send(twimlSayAndHangup(route.message));
   });
 }

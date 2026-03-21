@@ -41,6 +41,7 @@ export type CallMinAggregateOutputType = {
   phoneNumberId: string | null
   agentProfileId: string | null
   twilioCallSid: string | null
+  twilioStreamSid: string | null
   direction: $Enums.CallDirection | null
   status: $Enums.CallStatus | null
   routeKind: $Enums.CallRouteKind | null
@@ -61,6 +62,7 @@ export type CallMaxAggregateOutputType = {
   phoneNumberId: string | null
   agentProfileId: string | null
   twilioCallSid: string | null
+  twilioStreamSid: string | null
   direction: $Enums.CallDirection | null
   status: $Enums.CallStatus | null
   routeKind: $Enums.CallRouteKind | null
@@ -81,6 +83,7 @@ export type CallCountAggregateOutputType = {
   phoneNumberId: number
   agentProfileId: number
   twilioCallSid: number
+  twilioStreamSid: number
   direction: number
   status: number
   routeKind: number
@@ -111,6 +114,7 @@ export type CallMinAggregateInputType = {
   phoneNumberId?: true
   agentProfileId?: true
   twilioCallSid?: true
+  twilioStreamSid?: true
   direction?: true
   status?: true
   routeKind?: true
@@ -131,6 +135,7 @@ export type CallMaxAggregateInputType = {
   phoneNumberId?: true
   agentProfileId?: true
   twilioCallSid?: true
+  twilioStreamSid?: true
   direction?: true
   status?: true
   routeKind?: true
@@ -151,6 +156,7 @@ export type CallCountAggregateInputType = {
   phoneNumberId?: true
   agentProfileId?: true
   twilioCallSid?: true
+  twilioStreamSid?: true
   direction?: true
   status?: true
   routeKind?: true
@@ -258,6 +264,7 @@ export type CallGroupByOutputType = {
   phoneNumberId: string
   agentProfileId: string | null
   twilioCallSid: string
+  twilioStreamSid: string | null
   direction: $Enums.CallDirection
   status: $Enums.CallStatus
   routeKind: $Enums.CallRouteKind | null
@@ -301,6 +308,7 @@ export type CallWhereInput = {
   phoneNumberId?: Prisma.StringFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringFilter<"Call"> | string
+  twilioStreamSid?: Prisma.StringNullableFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFilter<"Call"> | $Enums.CallStatus
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
@@ -326,6 +334,7 @@ export type CallOrderByWithRelationInput = {
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
+  twilioStreamSid?: Prisma.SortOrderInput | Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -347,6 +356,7 @@ export type CallOrderByWithRelationInput = {
 export type CallWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   twilioCallSid?: string
+  twilioStreamSid?: string
   AND?: Prisma.CallWhereInput | Prisma.CallWhereInput[]
   OR?: Prisma.CallWhereInput[]
   NOT?: Prisma.CallWhereInput | Prisma.CallWhereInput[]
@@ -370,7 +380,7 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   phoneNumber?: Prisma.XOR<Prisma.PhoneNumberScalarRelationFilter, Prisma.PhoneNumberWhereInput>
   agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
   events?: Prisma.CallEventListRelationFilter
-}, "id" | "twilioCallSid">
+}, "id" | "twilioCallSid" | "twilioStreamSid">
 
 export type CallOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -379,6 +389,7 @@ export type CallOrderByWithAggregationInput = {
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
+  twilioStreamSid?: Prisma.SortOrderInput | Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -407,6 +418,7 @@ export type CallScalarWhereWithAggregatesInput = {
   phoneNumberId?: Prisma.StringWithAggregatesFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringWithAggregatesFilter<"Call"> | string
+  twilioStreamSid?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionWithAggregatesFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusWithAggregatesFilter<"Call"> | $Enums.CallStatus
   routeKind?: Prisma.EnumCallRouteKindNullableWithAggregatesFilter<"Call"> | $Enums.CallRouteKind | null
@@ -423,6 +435,7 @@ export type CallScalarWhereWithAggregatesInput = {
 export type CallCreateInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -448,6 +461,7 @@ export type CallUncheckedCreateInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -465,6 +479,7 @@ export type CallUncheckedCreateInput = {
 export type CallUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -490,6 +505,7 @@ export type CallUncheckedUpdateInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -511,6 +527,7 @@ export type CallCreateManyInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -527,6 +544,7 @@ export type CallCreateManyInput = {
 export type CallUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -547,6 +565,7 @@ export type CallUncheckedUpdateManyInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -577,6 +596,7 @@ export type CallCountOrderByAggregateInput = {
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
+  twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
@@ -601,6 +621,7 @@ export type CallMaxOrderByAggregateInput = {
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
+  twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
@@ -621,6 +642,7 @@ export type CallMinOrderByAggregateInput = {
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
+  twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
@@ -852,6 +874,7 @@ export type CallUpdateOneRequiredWithoutEventsNestedInput = {
 export type CallCreateWithoutTenantInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -875,6 +898,7 @@ export type CallUncheckedCreateWithoutTenantInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -925,6 +949,7 @@ export type CallScalarWhereInput = {
   phoneNumberId?: Prisma.StringFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringFilter<"Call"> | string
+  twilioStreamSid?: Prisma.StringNullableFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFilter<"Call"> | $Enums.CallStatus
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
@@ -941,6 +966,7 @@ export type CallScalarWhereInput = {
 export type CallCreateWithoutBusinessInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -964,6 +990,7 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1007,6 +1034,7 @@ export type CallUpdateManyWithWhereWithoutBusinessInput = {
 export type CallCreateWithoutPhoneNumberInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1030,6 +1058,7 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   businessId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1073,6 +1102,7 @@ export type CallUpdateManyWithWhereWithoutPhoneNumberInput = {
 export type CallCreateWithoutAgentProfileInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1096,6 +1126,7 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   businessId: string
   phoneNumberId: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1139,6 +1170,7 @@ export type CallUpdateManyWithWhereWithoutAgentProfileInput = {
 export type CallCreateWithoutEventsInput = {
   id?: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1163,6 +1195,7 @@ export type CallUncheckedCreateWithoutEventsInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1195,6 +1228,7 @@ export type CallUpdateToOneWithWhereWithoutEventsInput = {
 export type CallUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1219,6 +1253,7 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1238,6 +1273,7 @@ export type CallCreateManyTenantInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1254,6 +1290,7 @@ export type CallCreateManyTenantInput = {
 export type CallUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1277,6 +1314,7 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1297,6 +1335,7 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1316,6 +1355,7 @@ export type CallCreateManyBusinessInput = {
   phoneNumberId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1332,6 +1372,7 @@ export type CallCreateManyBusinessInput = {
 export type CallUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1355,6 +1396,7 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1375,6 +1417,7 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1394,6 +1437,7 @@ export type CallCreateManyPhoneNumberInput = {
   businessId: string
   agentProfileId?: string | null
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1410,6 +1454,7 @@ export type CallCreateManyPhoneNumberInput = {
 export type CallUpdateWithoutPhoneNumberInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1433,6 +1478,7 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1453,6 +1499,7 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1472,6 +1519,7 @@ export type CallCreateManyAgentProfileInput = {
   businessId: string
   phoneNumberId: string
   twilioCallSid: string
+  twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
   routeKind?: $Enums.CallRouteKind | null
@@ -1488,6 +1536,7 @@ export type CallCreateManyAgentProfileInput = {
 export type CallUpdateWithoutAgentProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1511,6 +1560,7 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1531,6 +1581,7 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
+  twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
@@ -1582,6 +1633,7 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   phoneNumberId?: boolean
   agentProfileId?: boolean
   twilioCallSid?: boolean
+  twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
   routeKind?: boolean
@@ -1608,6 +1660,7 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phoneNumberId?: boolean
   agentProfileId?: boolean
   twilioCallSid?: boolean
+  twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
   routeKind?: boolean
@@ -1632,6 +1685,7 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   phoneNumberId?: boolean
   agentProfileId?: boolean
   twilioCallSid?: boolean
+  twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
   routeKind?: boolean
@@ -1656,6 +1710,7 @@ export type CallSelectScalar = {
   phoneNumberId?: boolean
   agentProfileId?: boolean
   twilioCallSid?: boolean
+  twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
   routeKind?: boolean
@@ -1669,7 +1724,7 @@ export type CallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1707,6 +1762,7 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     phoneNumberId: string
     agentProfileId: string | null
     twilioCallSid: string
+    twilioStreamSid: string | null
     direction: $Enums.CallDirection
     status: $Enums.CallStatus
     routeKind: $Enums.CallRouteKind | null
@@ -2152,6 +2208,7 @@ export interface CallFieldRefs {
   readonly phoneNumberId: Prisma.FieldRef<"Call", 'String'>
   readonly agentProfileId: Prisma.FieldRef<"Call", 'String'>
   readonly twilioCallSid: Prisma.FieldRef<"Call", 'String'>
+  readonly twilioStreamSid: Prisma.FieldRef<"Call", 'String'>
   readonly direction: Prisma.FieldRef<"Call", 'CallDirection'>
   readonly status: Prisma.FieldRef<"Call", 'CallStatus'>
   readonly routeKind: Prisma.FieldRef<"Call", 'CallRouteKind'>

@@ -254,6 +254,7 @@ model Call {
   phoneNumberId     String
   agentProfileId    String?
   twilioCallSid     String         @unique
+  twilioStreamSid   String?        @unique
   direction         CallDirection  @default(INBOUND)
   status            CallStatus     @default(RINGING)
   routeKind         CallRouteKind?
@@ -277,6 +278,7 @@ model Call {
   @@index([phoneNumberId])
   @@index([agentProfileId])
   @@index([twilioCallSid])
+  @@index([twilioStreamSid])
   @@index([status])
   @@index([routeKind])
 }
