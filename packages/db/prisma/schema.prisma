@@ -1,0 +1,159 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MembershipRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum BusinessVertical {
+  HVAC
+  PLUMBING
+  ELECTRICAL
+  ROOFING
+  OTHER
+}
+
+enum PhoneNumberProvider {
+  TWILIO
+  OTHER
+}
+
+enum AgentChannel {
+  VOICE
+  SMS
+}
+
+model Tenant {
+  id           String        @id @default(cuid())
+  name         String
+  slug         String        @unique
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  memberships  Membership[]
+  businesses   Business[]
+  phoneNumbers PhoneNumber[]
+  agentProfiles AgentProfile[]
+
+  @@index([slug])
+}
+
+model User {
+  id           String       @id @default(cuid())
+  email        String       @unique
+  fullName     String?
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  memberships  Membership[]
+
+  @@index([email])
+}
+
+model Membership {
+  id           String         @id @default(cuid())
+  tenantId     String
+  userId       String
+  role         MembershipRole @default(MEMBER)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  tenant       Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([tenantId, userId])
+  @@index([tenantId])
+  @@index([userId])
+}
+
+model Business {
+  id            String            @id @default(cuid())
+  tenantId      String
+  name          String
+  legalName     String?
+  slug          String
+  vertical      BusinessVertical  @default(OTHER)
+  websiteUrl    String?
+  timezone      String            @default("America/New_York")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  tenant        Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  locations     Location[]
+  phoneNumbers  PhoneNumber[]
+  agentProfiles AgentProfile[]
+
+  @@unique([tenantId, slug])
+  @@index([tenantId])
+}
+
+model Location {
+  id            String       @id @default(cuid())
+  businessId     String
+  name           String
+  addressLine1   String?
+  addressLine2   String?
+  city           String?
+  state          String?
+  postalCode     String?
+  countryCode    String?      @default("US")
+  isPrimary      Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  business       Business     @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  phoneNumbers   PhoneNumber[]
+
+  @@index([businessId])
+}
+
+model PhoneNumber {
+  id               String              @id @default(cuid())
+  tenantId         String
+  businessId       String
+  locationId       String?
+  provider         PhoneNumberProvider @default(TWILIO)
+  externalSid      String?
+  e164             String              @unique
+  label            String?
+  isActive         Boolean             @default(true)
+  createdAt        DateTime            @default(now())
+  updatedAt        DateTime            @updatedAt
+
+  tenant           Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business         Business            @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  location         Location?           @relation(fields: [locationId], references: [id], onDelete: SetNull)
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([locationId])
+  @@index([externalSid])
+}
+
+model AgentProfile {
+  id               String        @id @default(cuid())
+  tenantId         String
+  businessId       String
+  name             String
+  channel          AgentChannel  @default(VOICE)
+  language         String        @default("en")
+  voiceName        String?
+  systemPrompt     String?
+  isActive         Boolean       @default(true)
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  tenant           Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business         Business      @relation(fields: [businessId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([businessId])
+}
