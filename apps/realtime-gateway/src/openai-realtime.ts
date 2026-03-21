@@ -34,6 +34,9 @@ export function buildRealtimeSessionConfig(input: {
           },
           turn_detection: {
             type: 'server_vad'
+          },
+          transcription: {
+            model: 'gpt-4o-mini-transcribe'
           }
         },
         output: {

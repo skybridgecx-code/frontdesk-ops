@@ -3,6 +3,7 @@ import websocket from '@fastify/websocket';
 import { prisma } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
 import { buildRealtimeSessionConfig, connectOpenAIRealtimeWebSocket } from './openai-realtime.js';
+import { extractCallData } from '@frontdesk/integrations/call-extraction';
 
 type WsRaw = Buffer | ArrayBuffer | Buffer[];
 type JsonRecord = Record<string, unknown>;
@@ -119,7 +120,9 @@ app.get(
     let openAIRealtimeSocket: ReturnType<typeof connectOpenAIRealtimeWebSocket> | null = null;
     let openAIReady = false;
     let currentStreamSid: string | null = null;
+    let currentInputItemId: string | null = null;
     let assistantTranscriptBuffer = '';
+    let callerTranscriptBuffer = '';
     let pendingResponseTrigger: { callSid: string | null; streamSid: string | null } | null = null;
     const pendingAudio: Array<{
       payload: string;
@@ -310,7 +313,7 @@ app.get(
               JSON.stringify({
                 type: 'response.create',
                 response: {
-                  instructions: 'Respond naturally and briefly to the caller.'
+                  instructions: 'Respond naturally, briefly, and only in English to the caller.'
                 }
               })
             );
@@ -402,6 +405,110 @@ app.get(
           }
         }
 
+        if (eventType === 'input_audio_buffer.committed') {
+          const itemId = getString(message, 'item_id');
+          currentInputItemId = itemId;
+
+          enqueue(async () => {
+            await persistEvent('openai.input_audio_buffer.committed', {
+              callSid: queryCallSid,
+              streamSid: currentStreamSid,
+              itemId
+            });
+          });
+
+          app.log.info({
+            msg: 'openai input audio buffer committed',
+            callSid: queryCallSid,
+            streamSid: currentStreamSid,
+            itemId
+          });
+
+          return;
+        }
+
+        if (eventType === 'conversation.item.input_audio_transcription.delta') {
+          const itemId = getString(message, 'item_id');
+          const delta = getString(message, 'delta') ?? '';
+
+          if (!currentInputItemId || !itemId || itemId === currentInputItemId) {
+            if (delta) {
+              callerTranscriptBuffer += delta;
+
+              app.log.info({
+                msg: 'caller transcript delta received',
+                callSid: queryCallSid,
+                itemId,
+                addedChars: delta.length,
+                totalChars: callerTranscriptBuffer.length
+              });
+            }
+          }
+
+          return;
+        }
+
+        if (eventType === 'conversation.item.input_audio_transcription.completed') {
+          const itemId = getString(message, 'item_id');
+          const transcript = getString(message, 'transcript') ?? callerTranscriptBuffer;
+
+          if (!currentInputItemId || !itemId || itemId === currentInputItemId) {
+            enqueue(async () => {
+              const context = await ensureCallContext();
+
+              if (context && transcript) {
+                await prisma.call.update({
+                  where: { id: context.callId },
+                  data: { callerTranscript: transcript }
+                });
+              }
+
+              await persistEvent('openai.input_audio_transcription.completed', {
+                callSid: queryCallSid,
+                streamSid: currentStreamSid,
+                itemId,
+                transcriptLength: transcript.length
+              });
+            });
+
+            app.log.info({
+              msg: 'caller transcript completed',
+              callSid: queryCallSid,
+              itemId,
+              transcriptLength: transcript.length
+            });
+
+            callerTranscriptBuffer = '';
+          }
+
+          return;
+        }
+
+        if (eventType === 'conversation.item.input_audio_transcription.failed') {
+          const errorObj = isRecord(message.error) ? message.error : null;
+
+          enqueue(async () => {
+            await persistEvent('openai.input_audio_transcription.failed', {
+              callSid: queryCallSid,
+              streamSid: currentStreamSid,
+              errorType: errorObj ? getString(errorObj, 'type') : null,
+              errorCode: errorObj ? getString(errorObj, 'code') : null,
+              errorMessage: errorObj ? getString(errorObj, 'message') : null
+            });
+          });
+
+          app.log.error({
+            msg: 'caller transcript failed',
+            callSid: queryCallSid,
+            errorType: errorObj ? getString(errorObj, 'type') : null,
+            errorCode: errorObj ? getString(errorObj, 'code') : null,
+            errorMessage: errorObj ? getString(errorObj, 'message') : null
+          });
+
+          callerTranscriptBuffer = '';
+          return;
+        }
+
         if (eventType === 'response.output_audio_transcript.delta') {
           const delta = getString(message, 'delta') ?? '';
 
@@ -437,6 +544,53 @@ app.get(
               streamSid: currentStreamSid,
               transcriptLength: transcript.length
             });
+
+            if (context) {
+              const currentCall = await prisma.call.findUnique({
+                where: { id: context.callId },
+                select: {
+                  callerTranscript: true,
+                  assistantTranscript: true
+                }
+              });
+
+              const extracted = await extractCallData({
+                callerTranscript: currentCall?.callerTranscript ?? null,
+                assistantTranscript: transcript
+              });
+
+              await prisma.call.update({
+                where: { id: context.callId },
+                data: {
+                  leadName: extracted.leadName,
+                  leadPhone: extracted.leadPhone,
+                  leadIntent: extracted.leadIntent,
+                  urgency: extracted.urgency,
+                  serviceAddress: extracted.serviceAddress,
+                  summary: extracted.summary
+                }
+              });
+
+              await persistEvent('openai.call_extraction.completed', {
+                callSid: queryCallSid,
+                streamSid: currentStreamSid,
+                leadName: extracted.leadName,
+                leadPhone: extracted.leadPhone,
+                leadIntent: extracted.leadIntent,
+                urgency: extracted.urgency,
+                serviceAddress: extracted.serviceAddress,
+                summaryLength: extracted.summary?.length ?? 0
+              });
+
+              app.log.info({
+                msg: 'call extraction completed',
+                callSid: queryCallSid,
+                leadName: extracted.leadName,
+                leadPhone: extracted.leadPhone,
+                leadIntent: extracted.leadIntent,
+                urgency: extracted.urgency
+              });
+            }
           });
 
           app.log.info({
@@ -498,12 +652,25 @@ app.get(
           return;
         }
 
-        enqueue(async () => {
-          await persistEvent('openai.server.event', {
-            callSid: queryCallSid,
-            eventType
+        const lowValueEventTypes = new Set([
+          'session.created',
+          'session.updated',
+          'conversation.item.added',
+          'response.content_part.added',
+          'response.content_part.done',
+          'conversation.item.done',
+          'response.output_item.done',
+          'rate_limits.updated'
+        ]);
+
+        if (!lowValueEventTypes.has(eventType)) {
+          enqueue(async () => {
+            await persistEvent('openai.server.event', {
+              callSid: queryCallSid,
+              eventType
+            });
           });
-        });
+        }
       });
 
       openAIRealtimeSocket.on('error', (error) => {
@@ -730,7 +897,7 @@ app.get(
               JSON.stringify({
                 type: 'response.create',
                 response: {
-                  instructions: 'Respond naturally and briefly to the caller.'
+                  instructions: 'Respond naturally, briefly, and only in English to the caller.'
                 }
               })
             );

@@ -49,6 +49,12 @@ export type CallMinAggregateOutputType = {
   toE164: string | null
   callerTranscript: string | null
   assistantTranscript: string | null
+  leadName: string | null
+  leadPhone: string | null
+  leadIntent: string | null
+  urgency: string | null
+  serviceAddress: string | null
+  summary: string | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -72,6 +78,12 @@ export type CallMaxAggregateOutputType = {
   toE164: string | null
   callerTranscript: string | null
   assistantTranscript: string | null
+  leadName: string | null
+  leadPhone: string | null
+  leadIntent: string | null
+  urgency: string | null
+  serviceAddress: string | null
+  summary: string | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -95,6 +107,12 @@ export type CallCountAggregateOutputType = {
   toE164: number
   callerTranscript: number
   assistantTranscript: number
+  leadName: number
+  leadPhone: number
+  leadIntent: number
+  urgency: number
+  serviceAddress: number
+  summary: number
   startedAt: number
   answeredAt: number
   endedAt: number
@@ -128,6 +146,12 @@ export type CallMinAggregateInputType = {
   toE164?: true
   callerTranscript?: true
   assistantTranscript?: true
+  leadName?: true
+  leadPhone?: true
+  leadIntent?: true
+  urgency?: true
+  serviceAddress?: true
+  summary?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -151,6 +175,12 @@ export type CallMaxAggregateInputType = {
   toE164?: true
   callerTranscript?: true
   assistantTranscript?: true
+  leadName?: true
+  leadPhone?: true
+  leadIntent?: true
+  urgency?: true
+  serviceAddress?: true
+  summary?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -174,6 +204,12 @@ export type CallCountAggregateInputType = {
   toE164?: true
   callerTranscript?: true
   assistantTranscript?: true
+  leadName?: true
+  leadPhone?: true
+  leadIntent?: true
+  urgency?: true
+  serviceAddress?: true
+  summary?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -284,6 +320,12 @@ export type CallGroupByOutputType = {
   toE164: string | null
   callerTranscript: string | null
   assistantTranscript: string | null
+  leadName: string | null
+  leadPhone: string | null
+  leadIntent: string | null
+  urgency: string | null
+  serviceAddress: string | null
+  summary: string | null
   startedAt: Date
   answeredAt: Date | null
   endedAt: Date | null
@@ -330,6 +372,12 @@ export type CallWhereInput = {
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadName?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadIntent?: Prisma.StringNullableFilter<"Call"> | string | null
+  urgency?: Prisma.StringNullableFilter<"Call"> | string | null
+  serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
+  summary?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -358,6 +406,12 @@ export type CallOrderByWithRelationInput = {
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
   callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadName?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadIntent?: Prisma.SortOrderInput | Prisma.SortOrder
+  urgency?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -389,6 +443,12 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadName?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadIntent?: Prisma.StringNullableFilter<"Call"> | string | null
+  urgency?: Prisma.StringNullableFilter<"Call"> | string | null
+  serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
+  summary?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -417,6 +477,12 @@ export type CallOrderByWithAggregationInput = {
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
   callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadName?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  leadIntent?: Prisma.SortOrderInput | Prisma.SortOrder
+  urgency?: Prisma.SortOrderInput | Prisma.SortOrder
+  serviceAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  summary?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -448,6 +514,12 @@ export type CallScalarWhereWithAggregatesInput = {
   toE164?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   callerTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  leadName?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  leadPhone?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  leadIntent?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  urgency?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  serviceAddress?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  summary?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
@@ -467,6 +539,12 @@ export type CallCreateInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -495,6 +573,12 @@ export type CallUncheckedCreateInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -515,6 +599,12 @@ export type CallUpdateInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -543,6 +633,12 @@ export type CallUncheckedUpdateInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -567,6 +663,12 @@ export type CallCreateManyInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -586,6 +688,12 @@ export type CallUpdateManyMutationInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -609,6 +717,12 @@ export type CallUncheckedUpdateManyInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -642,6 +756,12 @@ export type CallCountOrderByAggregateInput = {
   toE164?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
+  leadName?: Prisma.SortOrder
+  leadPhone?: Prisma.SortOrder
+  leadIntent?: Prisma.SortOrder
+  urgency?: Prisma.SortOrder
+  serviceAddress?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -669,6 +789,12 @@ export type CallMaxOrderByAggregateInput = {
   toE164?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
+  leadName?: Prisma.SortOrder
+  leadPhone?: Prisma.SortOrder
+  leadIntent?: Prisma.SortOrder
+  urgency?: Prisma.SortOrder
+  serviceAddress?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -692,6 +818,12 @@ export type CallMinOrderByAggregateInput = {
   toE164?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
+  leadName?: Prisma.SortOrder
+  leadPhone?: Prisma.SortOrder
+  leadIntent?: Prisma.SortOrder
+  urgency?: Prisma.SortOrder
+  serviceAddress?: Prisma.SortOrder
+  summary?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -926,6 +1058,12 @@ export type CallCreateWithoutTenantInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -952,6 +1090,12 @@ export type CallUncheckedCreateWithoutTenantInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1005,6 +1149,12 @@ export type CallScalarWhereInput = {
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadName?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  leadIntent?: Prisma.StringNullableFilter<"Call"> | string | null
+  urgency?: Prisma.StringNullableFilter<"Call"> | string | null
+  serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
+  summary?: Prisma.StringNullableFilter<"Call"> | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -1024,6 +1174,12 @@ export type CallCreateWithoutBusinessInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1050,6 +1206,12 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1096,6 +1258,12 @@ export type CallCreateWithoutPhoneNumberInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1122,6 +1290,12 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1168,6 +1342,12 @@ export type CallCreateWithoutAgentProfileInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1194,6 +1374,12 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1240,6 +1426,12 @@ export type CallCreateWithoutEventsInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1267,6 +1459,12 @@ export type CallUncheckedCreateWithoutEventsInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1302,6 +1500,12 @@ export type CallUpdateWithoutEventsInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1329,6 +1533,12 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1351,6 +1561,12 @@ export type CallCreateManyTenantInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1370,6 +1586,12 @@ export type CallUpdateWithoutTenantInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1396,6 +1618,12 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1419,6 +1647,12 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1441,6 +1675,12 @@ export type CallCreateManyBusinessInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1460,6 +1700,12 @@ export type CallUpdateWithoutBusinessInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1486,6 +1732,12 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1509,6 +1761,12 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1531,6 +1789,12 @@ export type CallCreateManyPhoneNumberInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1550,6 +1814,12 @@ export type CallUpdateWithoutPhoneNumberInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1576,6 +1846,12 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1599,6 +1875,12 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1621,6 +1903,12 @@ export type CallCreateManyAgentProfileInput = {
   toE164?: string | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
+  leadName?: string | null
+  leadPhone?: string | null
+  leadIntent?: string | null
+  urgency?: string | null
+  serviceAddress?: string | null
+  summary?: string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1640,6 +1928,12 @@ export type CallUpdateWithoutAgentProfileInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1666,6 +1960,12 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1689,6 +1989,12 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  leadIntent?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1743,6 +2049,12 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   toE164?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
+  leadName?: boolean
+  leadPhone?: boolean
+  leadIntent?: boolean
+  urgency?: boolean
+  serviceAddress?: boolean
+  summary?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1772,6 +2084,12 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   toE164?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
+  leadName?: boolean
+  leadPhone?: boolean
+  leadIntent?: boolean
+  urgency?: boolean
+  serviceAddress?: boolean
+  summary?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1799,6 +2117,12 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   toE164?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
+  leadName?: boolean
+  leadPhone?: boolean
+  leadIntent?: boolean
+  urgency?: boolean
+  serviceAddress?: boolean
+  summary?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1826,6 +2150,12 @@ export type CallSelectScalar = {
   toE164?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
+  leadName?: boolean
+  leadPhone?: boolean
+  leadIntent?: boolean
+  urgency?: boolean
+  serviceAddress?: boolean
+  summary?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -1834,7 +2164,7 @@ export type CallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1880,6 +2210,12 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     toE164: string | null
     callerTranscript: string | null
     assistantTranscript: string | null
+    leadName: string | null
+    leadPhone: string | null
+    leadIntent: string | null
+    urgency: string | null
+    serviceAddress: string | null
+    summary: string | null
     startedAt: Date
     answeredAt: Date | null
     endedAt: Date | null
@@ -2328,6 +2664,12 @@ export interface CallFieldRefs {
   readonly toE164: Prisma.FieldRef<"Call", 'String'>
   readonly callerTranscript: Prisma.FieldRef<"Call", 'String'>
   readonly assistantTranscript: Prisma.FieldRef<"Call", 'String'>
+  readonly leadName: Prisma.FieldRef<"Call", 'String'>
+  readonly leadPhone: Prisma.FieldRef<"Call", 'String'>
+  readonly leadIntent: Prisma.FieldRef<"Call", 'String'>
+  readonly urgency: Prisma.FieldRef<"Call", 'String'>
+  readonly serviceAddress: Prisma.FieldRef<"Call", 'String'>
+  readonly summary: Prisma.FieldRef<"Call", 'String'>
   readonly startedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly answeredAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Call", 'DateTime'>

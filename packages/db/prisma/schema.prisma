@@ -260,9 +260,15 @@ model Call {
   routeKind         CallRouteKind?
   fromE164          String?
   toE164            String?
-  callerTranscript  String?
+  callerTranscript    String?
   assistantTranscript String?
-  startedAt         DateTime       @default(now())
+  leadName           String?
+  leadPhone          String?
+  leadIntent         String?
+  urgency            String?
+  serviceAddress     String?
+  summary            String?
+  startedAt          DateTime       @default(now())
   answeredAt        DateTime?
   endedAt           DateTime?
   durationSeconds   Int?
