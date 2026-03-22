@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify';
-import { prisma, CallTriageStatus } from '@frontdesk/db';
+import { prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
 
 const callListSelect = {
@@ -9,8 +9,10 @@ const callListSelect = {
   status: true,
   routeKind: true,
   triageStatus: true,
+  reviewStatus: true,
   contactedAt: true,
   archivedAt: true,
+  reviewedAt: true,
   fromE164: true,
   toE164: true,
   leadName: true,
@@ -49,6 +51,7 @@ function parseLimit(value: string | undefined) {
 
 function buildCallWhere(query: {
   triageStatus?: string;
+  reviewStatus?: string;
   urgency?: string;
   q?: string;
 }) {
@@ -60,6 +63,14 @@ function buildCallWhere(query: {
     query.triageStatus === CallTriageStatus.ARCHIVED
   ) {
     where.triageStatus = query.triageStatus;
+  }
+
+  if (
+    query.reviewStatus === CallReviewStatus.UNREVIEWED ||
+    query.reviewStatus === CallReviewStatus.REVIEWED ||
+    query.reviewStatus === CallReviewStatus.NEEDS_REVIEW
+  ) {
+    where.reviewStatus = query.reviewStatus;
   }
 
   if (
@@ -94,6 +105,7 @@ export async function registerCallRoutes(app: FastifyInstance) {
       limit?: string;
       page?: string;
       triageStatus?: string;
+      reviewStatus?: string;
       urgency?: string;
       q?: string;
     };
@@ -129,6 +141,9 @@ export async function registerCallRoutes(app: FastifyInstance) {
       openCalls,
       contactedCalls,
       archivedCalls,
+      unreviewedCalls,
+      needsReviewCalls,
+      reviewedCalls,
       highUrgencyCalls,
       emergencyCalls
     ] = await prisma.$transaction([
@@ -136,6 +151,9 @@ export async function registerCallRoutes(app: FastifyInstance) {
       prisma.call.count({ where: { triageStatus: CallTriageStatus.OPEN } }),
       prisma.call.count({ where: { triageStatus: CallTriageStatus.CONTACTED } }),
       prisma.call.count({ where: { triageStatus: CallTriageStatus.ARCHIVED } }),
+      prisma.call.count({ where: { reviewStatus: CallReviewStatus.UNREVIEWED } }),
+      prisma.call.count({ where: { reviewStatus: CallReviewStatus.NEEDS_REVIEW } }),
+      prisma.call.count({ where: { reviewStatus: CallReviewStatus.REVIEWED } }),
       prisma.call.count({ where: { urgency: 'high' } }),
       prisma.call.count({ where: { urgency: 'emergency' } })
     ]);
@@ -146,6 +164,9 @@ export async function registerCallRoutes(app: FastifyInstance) {
       openCalls,
       contactedCalls,
       archivedCalls,
+      unreviewedCalls,
+      needsReviewCalls,
+      reviewedCalls,
       highUrgencyCalls,
       emergencyCalls
     };
@@ -164,8 +185,10 @@ export async function registerCallRoutes(app: FastifyInstance) {
         status: true,
         routeKind: true,
         triageStatus: true,
+        reviewStatus: true,
         contactedAt: true,
         archivedAt: true,
+        reviewedAt: true,
         fromE164: true,
         toE164: true,
         callerTranscript: true,
@@ -176,6 +199,7 @@ export async function registerCallRoutes(app: FastifyInstance) {
         urgency: true,
         serviceAddress: true,
         summary: true,
+        operatorNotes: true,
         startedAt: true,
         answeredAt: true,
         endedAt: true,

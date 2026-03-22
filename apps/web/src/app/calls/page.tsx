@@ -9,6 +9,7 @@ type CallRow = {
   twilioCallSid: string;
   status: string;
   triageStatus: string;
+  reviewStatus: string;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -42,12 +43,16 @@ type CallsSummary = {
   openCalls: number;
   contactedCalls: number;
   archivedCalls: number;
+  unreviewedCalls: number;
+  needsReviewCalls: number;
+  reviewedCalls: number;
   highUrgencyCalls: number;
   emergencyCalls: number;
 };
 
 type CallsSearchParams = {
   triageStatus?: string;
+  reviewStatus?: string;
   urgency?: string;
   q?: string;
   page?: string;
@@ -65,6 +70,7 @@ function normalizePage(value: string | undefined) {
 
 async function getCalls(input: {
   triageStatus?: string;
+  reviewStatus?: string;
   urgency?: string;
   q?: string;
   page?: string;
@@ -75,6 +81,7 @@ async function getCalls(input: {
   params.set('page', normalizePage(input.page));
 
   if (input.triageStatus) params.set('triageStatus', input.triageStatus);
+  if (input.reviewStatus) params.set('reviewStatus', input.reviewStatus);
   if (input.urgency) params.set('urgency', input.urgency);
   if (input.q?.trim()) params.set('q', input.q.trim());
 
@@ -105,6 +112,7 @@ async function getCallsSummary() {
 
 function buildFilterHref(input: {
   triageStatus?: string;
+  reviewStatus?: string;
   urgency?: string;
   q?: string;
   page?: string;
@@ -114,6 +122,7 @@ function buildFilterHref(input: {
   const params = new URLSearchParams();
 
   if (input.triageStatus) params.set('triageStatus', input.triageStatus);
+  if (input.reviewStatus) params.set('reviewStatus', input.reviewStatus);
   if (input.urgency) params.set('urgency', input.urgency);
   if (input.q?.trim()) params.set('q', input.q.trim());
 
@@ -192,6 +201,7 @@ export default async function CallsPage({
 }) {
   const resolved = await searchParams;
   const triageStatus = resolved.triageStatus;
+  const reviewStatus = resolved.reviewStatus;
   const urgency = resolved.urgency;
   const q = resolved.q?.trim() ?? '';
   const page = normalizePage(resolved.page);
@@ -202,6 +212,7 @@ export default async function CallsPage({
     redirect(
       buildFilterHref({
         triageStatus: 'OPEN',
+        reviewStatus,
         urgency,
         q,
         limit
@@ -211,6 +222,7 @@ export default async function CallsPage({
 
   const currentHref = buildFilterHref({
     triageStatus,
+    reviewStatus,
     urgency,
     q,
     page,
@@ -220,6 +232,7 @@ export default async function CallsPage({
   const [data, summary] = await Promise.all([
     getCalls({
       triageStatus,
+      reviewStatus,
       urgency,
       q,
       page,
@@ -234,6 +247,7 @@ export default async function CallsPage({
     currentPage > 1
       ? buildFilterHref({
           triageStatus,
+          reviewStatus,
           urgency,
           q,
           page: String(currentPage - 1),
@@ -244,6 +258,7 @@ export default async function CallsPage({
     currentPage < totalPages
       ? buildFilterHref({
           triageStatus,
+          reviewStatus,
           urgency,
           q,
           page: String(currentPage + 1),
@@ -383,6 +398,9 @@ export default async function CallsPage({
           <SummaryCard label="Open" value={summary.openCalls} />
           <SummaryCard label="Contacted" value={summary.contactedCalls} />
           <SummaryCard label="Archived" value={summary.archivedCalls} />
+          <SummaryCard label="Unreviewed" value={summary.unreviewedCalls} />
+          <SummaryCard label="Needs review" value={summary.needsReviewCalls} />
+          <SummaryCard label="Reviewed" value={summary.reviewedCalls} />
           <SummaryCard label="High urgency" value={summary.highUrgencyCalls} />
           <SummaryCard label="Emergency" value={summary.emergencyCalls} />
         </div>
@@ -393,8 +411,8 @@ export default async function CallsPage({
               <label htmlFor="q" className="mb-2 block text-sm font-medium">
                 Search queue
               </label>
-              <input
-                id="q"
+            <input
+              id="q"
                 name="q"
                 defaultValue={q}
                 placeholder="Search by caller, lead, address, summary, or Call SID"
@@ -402,13 +420,14 @@ export default async function CallsPage({
               />
             </div>
             <input type="hidden" name="triageStatus" value={triageStatus} />
+            {reviewStatus ? <input type="hidden" name="reviewStatus" value={reviewStatus} /> : null}
             <input type="hidden" name="limit" value={limit} />
             {urgency ? <input type="hidden" name="urgency" value={urgency} /> : null}
             <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
               Search
             </button>
             <a
-              href={buildFilterHref({ triageStatus, urgency, limit })}
+              href={buildFilterHref({ triageStatus, reviewStatus, urgency, limit })}
               className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
             >
               Clear
@@ -419,19 +438,45 @@ export default async function CallsPage({
             <div className="mb-2 text-sm font-medium">Triage</div>
             <div className="flex flex-wrap gap-2">
               <FilterLink
-                href={buildFilterHref({ triageStatus: 'OPEN', urgency, q, limit })}
+                href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus, urgency, q, limit })}
                 label="Open"
                 active={triageStatus === 'OPEN'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus: 'CONTACTED', urgency, q, limit })}
+                href={buildFilterHref({ triageStatus: 'CONTACTED', reviewStatus, urgency, q, limit })}
                 label="Contacted"
                 active={triageStatus === 'CONTACTED'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus: 'ARCHIVED', urgency, q, limit })}
+                href={buildFilterHref({ triageStatus: 'ARCHIVED', reviewStatus, urgency, q, limit })}
                 label="Archived"
                 active={triageStatus === 'ARCHIVED'}
+              />
+            </div>
+          </div>
+
+          <div>
+            <div className="mb-2 text-sm font-medium">Review</div>
+            <div className="flex flex-wrap gap-2">
+              <FilterLink
+                href={buildFilterHref({ triageStatus, urgency, q, limit })}
+                label="All"
+                active={!reviewStatus}
+              />
+              <FilterLink
+                href={buildFilterHref({ triageStatus, reviewStatus: 'UNREVIEWED', urgency, q, limit })}
+                label="Unreviewed"
+                active={reviewStatus === 'UNREVIEWED'}
+              />
+              <FilterLink
+                href={buildFilterHref({ triageStatus, reviewStatus: 'NEEDS_REVIEW', urgency, q, limit })}
+                label="Needs review"
+                active={reviewStatus === 'NEEDS_REVIEW'}
+              />
+              <FilterLink
+                href={buildFilterHref({ triageStatus, reviewStatus: 'REVIEWED', urgency, q, limit })}
+                label="Reviewed"
+                active={reviewStatus === 'REVIEWED'}
               />
             </div>
           </div>
@@ -440,27 +485,27 @@ export default async function CallsPage({
             <div className="mb-2 text-sm font-medium">Urgency</div>
             <div className="flex flex-wrap gap-2">
               <FilterLink
-                href={buildFilterHref({ triageStatus, q, limit })}
+                href={buildFilterHref({ triageStatus, reviewStatus, q, limit })}
                 label="All"
                 active={!urgency}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, urgency: 'low', q, limit })}
+                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'low', q, limit })}
                 label="Low"
                 active={urgency === 'low'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, urgency: 'medium', q, limit })}
+                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'medium', q, limit })}
                 label="Medium"
                 active={urgency === 'medium'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, urgency: 'high', q, limit })}
+                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'high', q, limit })}
                 label="High"
                 active={urgency === 'high'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, urgency: 'emergency', q, limit })}
+                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'emergency', q, limit })}
                 label="Emergency"
                 active={urgency === 'emergency'}
               />
@@ -481,7 +526,7 @@ export default async function CallsPage({
         <CallsQueueTable
           calls={data.calls}
           currentHref={currentHref}
-          queueState={{ triageStatus, urgency, q }}
+          queueState={{ triageStatus, reviewStatus, urgency, q }}
           limit={limit}
           markContactedAction={markContacted}
           archiveAction={archiveCall}

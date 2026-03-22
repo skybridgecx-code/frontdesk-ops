@@ -76,6 +76,12 @@ enum CallTriageStatus {
   ARCHIVED
 }
 
+enum CallReviewStatus {
+  UNREVIEWED
+  REVIEWED
+  NEEDS_REVIEW
+}
+
 model Tenant {
   id            String         @id @default(cuid())
   name          String
@@ -274,9 +280,12 @@ model Call {
   urgency            String?
   serviceAddress     String?
   summary            String?
+  operatorNotes      String?
   triageStatus       CallTriageStatus @default(OPEN)
+  reviewStatus       CallReviewStatus @default(UNREVIEWED)
   contactedAt        DateTime?
   archivedAt         DateTime?
+  reviewedAt         DateTime?
   startedAt          DateTime       @default(now())
   answeredAt        DateTime?
   endedAt           DateTime?

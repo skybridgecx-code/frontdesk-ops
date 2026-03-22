@@ -106,3 +106,12 @@ export const CallTriageStatus = {
 } as const
 
 export type CallTriageStatus = (typeof CallTriageStatus)[keyof typeof CallTriageStatus]
+
+
+export const CallReviewStatus = {
+  UNREVIEWED: 'UNREVIEWED',
+  REVIEWED: 'REVIEWED',
+  NEEDS_REVIEW: 'NEEDS_REVIEW'
+} as const
+
+export type CallReviewStatus = (typeof CallReviewStatus)[keyof typeof CallReviewStatus]

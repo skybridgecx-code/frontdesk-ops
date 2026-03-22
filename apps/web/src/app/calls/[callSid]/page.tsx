@@ -9,8 +9,10 @@ type CallDetail = {
   twilioStreamSid: string | null;
   status: string;
   triageStatus: string;
+  reviewStatus: string;
   contactedAt: string | null;
   archivedAt: string | null;
+  reviewedAt: string | null;
   fromE164: string | null;
   toE164: string | null;
   callerTranscript: string | null;
@@ -21,6 +23,7 @@ type CallDetail = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  operatorNotes: string | null;
   startedAt: string;
   endedAt: string | null;
   phoneNumber: {
@@ -49,6 +52,12 @@ function badgeClass(value: string | null | undefined) {
       return 'bg-blue-100 text-blue-900';
     case 'ARCHIVED':
       return 'bg-neutral-200 text-neutral-800';
+    case 'UNREVIEWED':
+      return 'bg-neutral-100 text-neutral-700';
+    case 'REVIEWED':
+      return 'bg-emerald-100 text-emerald-900';
+    case 'NEEDS_REVIEW':
+      return 'bg-rose-100 text-rose-900';
     case 'high':
       return 'bg-orange-100 text-orange-900';
     case 'emergency':
@@ -100,6 +109,8 @@ export default async function CallDetailPage({
         ? 'Call archived.'
         : resolvedSearchParams.notice === 'extracted'
           ? 'Extraction rerun queued.'
+          : resolvedSearchParams.notice === 'saved'
+            ? 'Call review details saved.'
           : null;
   const data = await getCall(callSid);
   const call = data.call;
@@ -144,6 +155,41 @@ export default async function CallDetailPage({
     redirect(`${detailHref}&notice=extracted`);
   }
 
+  async function saveReview(formData: FormData) {
+    'use server';
+
+    const reviewStatus = String(formData.get('reviewStatus') ?? '');
+    const urgency = String(formData.get('urgency') ?? '');
+
+    const payload = {
+      leadName: String(formData.get('leadName') ?? '').trim() || null,
+      leadPhone: String(formData.get('leadPhone') ?? '').trim() || null,
+      leadIntent: String(formData.get('leadIntent') ?? '').trim() || null,
+      urgency: urgency || null,
+      serviceAddress: String(formData.get('serviceAddress') ?? '').trim() || null,
+      summary: String(formData.get('summary') ?? '').trim() || null,
+      operatorNotes: String(formData.get('operatorNotes') ?? '').trim() || null,
+      reviewStatus
+    };
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        ...getInternalApiHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to save call review: ${res.status}`);
+    }
+
+    revalidatePath('/calls');
+    revalidatePath(`/calls/${callSid}`);
+    redirect(`${detailHref}&notice=saved`);
+  }
+
   return (
     <main className="min-h-screen bg-white text-black p-6">
       <div className="mx-auto max-w-5xl space-y-6">
@@ -165,6 +211,9 @@ export default async function CallDetailPage({
               </span>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.triageStatus)}`}>
                 {call.triageStatus}
+              </span>
+              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}>
+                {call.reviewStatus}
               </span>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}>
                 {call.urgency ?? 'no urgency'}
@@ -223,9 +272,113 @@ export default async function CallDetailPage({
               <div><span className="text-neutral-500">Active:</span> {call.agentProfile ? String(call.agentProfile.isActive) : '—'}</div>
               <div><span className="text-neutral-500">Contacted:</span> {call.contactedAt ? new Date(call.contactedAt).toLocaleString() : '—'}</div>
               <div><span className="text-neutral-500">Archived:</span> {call.archivedAt ? new Date(call.archivedAt).toLocaleString() : '—'}</div>
+              <div><span className="text-neutral-500">Reviewed:</span> {call.reviewedAt ? new Date(call.reviewedAt).toLocaleString() : '—'}</div>
             </div>
           </section>
         </div>
+
+        <section className="rounded-2xl border border-neutral-200 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-medium">Operator review</h2>
+              <p className="mt-1 text-sm text-neutral-600">
+                Correct extracted fields, add notes, and mark the review state.
+              </p>
+            </div>
+          </div>
+
+          <form action={saveReview} className="mt-4 grid gap-4 md:grid-cols-2">
+            <label className="text-sm">
+              <div className="mb-2 font-medium">Lead name</div>
+              <input
+                name="leadName"
+                defaultValue={call.leadName ?? ''}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm">
+              <div className="mb-2 font-medium">Lead phone</div>
+              <input
+                name="leadPhone"
+                defaultValue={call.leadPhone ?? ''}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm">
+              <div className="mb-2 font-medium">Lead intent</div>
+              <input
+                name="leadIntent"
+                defaultValue={call.leadIntent ?? ''}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm">
+              <div className="mb-2 font-medium">Urgency</div>
+              <select
+                name="urgency"
+                defaultValue={call.urgency ?? ''}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              >
+                <option value="">Unspecified</option>
+                <option value="low">Low</option>
+                <option value="medium">Medium</option>
+                <option value="high">High</option>
+                <option value="emergency">Emergency</option>
+              </select>
+            </label>
+
+            <label className="text-sm md:col-span-2">
+              <div className="mb-2 font-medium">Service address</div>
+              <input
+                name="serviceAddress"
+                defaultValue={call.serviceAddress ?? ''}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm md:col-span-2">
+              <div className="mb-2 font-medium">Summary</div>
+              <textarea
+                name="summary"
+                defaultValue={call.summary ?? ''}
+                rows={4}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm md:col-span-2">
+              <div className="mb-2 font-medium">Operator notes</div>
+              <textarea
+                name="operatorNotes"
+                defaultValue={call.operatorNotes ?? ''}
+                rows={4}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              />
+            </label>
+
+            <label className="text-sm">
+              <div className="mb-2 font-medium">Review status</div>
+              <select
+                name="reviewStatus"
+                defaultValue={call.reviewStatus}
+                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+              >
+                <option value="UNREVIEWED">Unreviewed</option>
+                <option value="NEEDS_REVIEW">Needs review</option>
+                <option value="REVIEWED">Reviewed</option>
+              </select>
+            </label>
+
+            <div className="flex items-end">
+              <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
+                Save review changes
+              </button>
+            </div>
+          </form>
+        </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Summary</h2>

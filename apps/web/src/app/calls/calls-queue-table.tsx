@@ -7,6 +7,7 @@ type CallRow = {
   twilioCallSid: string;
   status: string;
   triageStatus: string;
+  reviewStatus: string;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -27,6 +28,7 @@ type CallRow = {
 
 type QueueSearchState = {
   triageStatus: string;
+  reviewStatus?: string;
   urgency?: string;
   q?: string;
 };
@@ -39,6 +41,12 @@ function badgeClass(value: string | null | undefined) {
       return 'bg-blue-100 text-blue-900';
     case 'ARCHIVED':
       return 'bg-neutral-200 text-neutral-800';
+    case 'UNREVIEWED':
+      return 'bg-neutral-100 text-neutral-700';
+    case 'REVIEWED':
+      return 'bg-emerald-100 text-emerald-900';
+    case 'NEEDS_REVIEW':
+      return 'bg-rose-100 text-rose-900';
     case 'high':
       return 'bg-orange-100 text-orange-900';
     case 'emergency':
@@ -107,6 +115,7 @@ export function CallsQueueTable({
     params.set('triageStatus', queueState.triageStatus);
 
     if (queueState.urgency) params.set('urgency', queueState.urgency);
+    if (queueState.reviewStatus) params.set('reviewStatus', queueState.reviewStatus);
     if (queueState.q?.trim()) params.set('q', queueState.q.trim());
     params.set('limit', nextLimit);
 
@@ -178,6 +187,7 @@ export function CallsQueueTable({
               <th className="px-4 py-3 font-medium">Intent</th>
               <th className="px-4 py-3 font-medium">Urgency</th>
               <th className="px-4 py-3 font-medium">Triage</th>
+              <th className="px-4 py-3 font-medium">Review</th>
               <th className="px-4 py-3 font-medium">Started</th>
               <th className="px-4 py-3 font-medium">Actions</th>
             </tr>
@@ -185,7 +195,7 @@ export function CallsQueueTable({
           <tbody>
             {calls.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-10 text-center text-neutral-500">
+                <td colSpan={9} className="px-4 py-10 text-center text-neutral-500">
                   No calls matched this queue.
                 </td>
               </tr>
@@ -249,6 +259,13 @@ export function CallsQueueTable({
                           {call.status}
                         </span>
                       </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}
+                      >
+                        {call.reviewStatus}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       {new Date(call.startedAt).toLocaleString('en-US', {

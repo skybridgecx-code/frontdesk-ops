@@ -55,9 +55,12 @@ export type CallMinAggregateOutputType = {
   urgency: string | null
   serviceAddress: string | null
   summary: string | null
+  operatorNotes: string | null
   triageStatus: $Enums.CallTriageStatus | null
+  reviewStatus: $Enums.CallReviewStatus | null
   contactedAt: Date | null
   archivedAt: Date | null
+  reviewedAt: Date | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -87,9 +90,12 @@ export type CallMaxAggregateOutputType = {
   urgency: string | null
   serviceAddress: string | null
   summary: string | null
+  operatorNotes: string | null
   triageStatus: $Enums.CallTriageStatus | null
+  reviewStatus: $Enums.CallReviewStatus | null
   contactedAt: Date | null
   archivedAt: Date | null
+  reviewedAt: Date | null
   startedAt: Date | null
   answeredAt: Date | null
   endedAt: Date | null
@@ -119,9 +125,12 @@ export type CallCountAggregateOutputType = {
   urgency: number
   serviceAddress: number
   summary: number
+  operatorNotes: number
   triageStatus: number
+  reviewStatus: number
   contactedAt: number
   archivedAt: number
+  reviewedAt: number
   startedAt: number
   answeredAt: number
   endedAt: number
@@ -161,9 +170,12 @@ export type CallMinAggregateInputType = {
   urgency?: true
   serviceAddress?: true
   summary?: true
+  operatorNotes?: true
   triageStatus?: true
+  reviewStatus?: true
   contactedAt?: true
   archivedAt?: true
+  reviewedAt?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -193,9 +205,12 @@ export type CallMaxAggregateInputType = {
   urgency?: true
   serviceAddress?: true
   summary?: true
+  operatorNotes?: true
   triageStatus?: true
+  reviewStatus?: true
   contactedAt?: true
   archivedAt?: true
+  reviewedAt?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -225,9 +240,12 @@ export type CallCountAggregateInputType = {
   urgency?: true
   serviceAddress?: true
   summary?: true
+  operatorNotes?: true
   triageStatus?: true
+  reviewStatus?: true
   contactedAt?: true
   archivedAt?: true
+  reviewedAt?: true
   startedAt?: true
   answeredAt?: true
   endedAt?: true
@@ -344,9 +362,12 @@ export type CallGroupByOutputType = {
   urgency: string | null
   serviceAddress: string | null
   summary: string | null
+  operatorNotes: string | null
   triageStatus: $Enums.CallTriageStatus
+  reviewStatus: $Enums.CallReviewStatus
   contactedAt: Date | null
   archivedAt: Date | null
+  reviewedAt: Date | null
   startedAt: Date
   answeredAt: Date | null
   endedAt: Date | null
@@ -399,9 +420,12 @@ export type CallWhereInput = {
   urgency?: Prisma.StringNullableFilter<"Call"> | string | null
   serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
   summary?: Prisma.StringNullableFilter<"Call"> | string | null
+  operatorNotes?: Prisma.StringNullableFilter<"Call"> | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFilter<"Call"> | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFilter<"Call"> | $Enums.CallReviewStatus
   contactedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -436,9 +460,12 @@ export type CallOrderByWithRelationInput = {
   urgency?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  operatorNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   triageStatus?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
   contactedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -476,9 +503,12 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   urgency?: Prisma.StringNullableFilter<"Call"> | string | null
   serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
   summary?: Prisma.StringNullableFilter<"Call"> | string | null
+  operatorNotes?: Prisma.StringNullableFilter<"Call"> | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFilter<"Call"> | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFilter<"Call"> | $Enums.CallReviewStatus
   contactedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -513,9 +543,12 @@ export type CallOrderByWithAggregationInput = {
   urgency?: Prisma.SortOrderInput | Prisma.SortOrder
   serviceAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   summary?: Prisma.SortOrderInput | Prisma.SortOrder
+  operatorNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   triageStatus?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
   contactedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -553,9 +586,12 @@ export type CallScalarWhereWithAggregatesInput = {
   urgency?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   serviceAddress?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   summary?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  operatorNotes?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   triageStatus?: Prisma.EnumCallTriageStatusWithAggregatesFilter<"Call"> | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusWithAggregatesFilter<"Call"> | $Enums.CallReviewStatus
   contactedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
+  reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
@@ -581,9 +617,12 @@ export type CallCreateInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -618,9 +657,12 @@ export type CallUncheckedCreateInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -647,9 +689,12 @@ export type CallUpdateInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -684,9 +729,12 @@ export type CallUncheckedUpdateInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -717,9 +765,12 @@ export type CallCreateManyInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -745,9 +796,12 @@ export type CallUpdateManyMutationInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -777,9 +831,12 @@ export type CallUncheckedUpdateManyInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -819,9 +876,12 @@ export type CallCountOrderByAggregateInput = {
   urgency?: Prisma.SortOrder
   serviceAddress?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  operatorNotes?: Prisma.SortOrder
   triageStatus?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
   contactedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -855,9 +915,12 @@ export type CallMaxOrderByAggregateInput = {
   urgency?: Prisma.SortOrder
   serviceAddress?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  operatorNotes?: Prisma.SortOrder
   triageStatus?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
   contactedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -887,9 +950,12 @@ export type CallMinOrderByAggregateInput = {
   urgency?: Prisma.SortOrder
   serviceAddress?: Prisma.SortOrder
   summary?: Prisma.SortOrder
+  operatorNotes?: Prisma.SortOrder
   triageStatus?: Prisma.SortOrder
+  reviewStatus?: Prisma.SortOrder
   contactedAt?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
+  reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
@@ -1091,6 +1157,10 @@ export type EnumCallTriageStatusFieldUpdateOperationsInput = {
   set?: $Enums.CallTriageStatus
 }
 
+export type EnumCallReviewStatusFieldUpdateOperationsInput = {
+  set?: $Enums.CallReviewStatus
+}
+
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }
@@ -1134,9 +1204,12 @@ export type CallCreateWithoutTenantInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1169,9 +1242,12 @@ export type CallUncheckedCreateWithoutTenantInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1231,9 +1307,12 @@ export type CallScalarWhereInput = {
   urgency?: Prisma.StringNullableFilter<"Call"> | string | null
   serviceAddress?: Prisma.StringNullableFilter<"Call"> | string | null
   summary?: Prisma.StringNullableFilter<"Call"> | string | null
+  operatorNotes?: Prisma.StringNullableFilter<"Call"> | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFilter<"Call"> | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFilter<"Call"> | $Enums.CallReviewStatus
   contactedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   archivedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
@@ -1259,9 +1338,12 @@ export type CallCreateWithoutBusinessInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1294,9 +1376,12 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1349,9 +1434,12 @@ export type CallCreateWithoutPhoneNumberInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1384,9 +1472,12 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1439,9 +1530,12 @@ export type CallCreateWithoutAgentProfileInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1474,9 +1568,12 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1529,9 +1626,12 @@ export type CallCreateWithoutEventsInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1565,9 +1665,12 @@ export type CallUncheckedCreateWithoutEventsInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1609,9 +1712,12 @@ export type CallUpdateWithoutEventsInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1645,9 +1751,12 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1676,9 +1785,12 @@ export type CallCreateManyTenantInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1704,9 +1816,12 @@ export type CallUpdateWithoutTenantInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1739,9 +1854,12 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1771,9 +1889,12 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1802,9 +1923,12 @@ export type CallCreateManyBusinessInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1830,9 +1954,12 @@ export type CallUpdateWithoutBusinessInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1865,9 +1992,12 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1897,9 +2027,12 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1928,9 +2061,12 @@ export type CallCreateManyPhoneNumberInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -1956,9 +2092,12 @@ export type CallUpdateWithoutPhoneNumberInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1991,9 +2130,12 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2023,9 +2165,12 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2054,9 +2199,12 @@ export type CallCreateManyAgentProfileInput = {
   urgency?: string | null
   serviceAddress?: string | null
   summary?: string | null
+  operatorNotes?: string | null
   triageStatus?: $Enums.CallTriageStatus
+  reviewStatus?: $Enums.CallReviewStatus
   contactedAt?: Date | string | null
   archivedAt?: Date | string | null
+  reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
@@ -2082,9 +2230,12 @@ export type CallUpdateWithoutAgentProfileInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2117,9 +2268,12 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2149,9 +2303,12 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   urgency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   serviceAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  operatorNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   triageStatus?: Prisma.EnumCallTriageStatusFieldUpdateOperationsInput | $Enums.CallTriageStatus
+  reviewStatus?: Prisma.EnumCallReviewStatusFieldUpdateOperationsInput | $Enums.CallReviewStatus
   contactedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2212,9 +2369,12 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   urgency?: boolean
   serviceAddress?: boolean
   summary?: boolean
+  operatorNotes?: boolean
   triageStatus?: boolean
+  reviewStatus?: boolean
   contactedAt?: boolean
   archivedAt?: boolean
+  reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -2250,9 +2410,12 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   urgency?: boolean
   serviceAddress?: boolean
   summary?: boolean
+  operatorNotes?: boolean
   triageStatus?: boolean
+  reviewStatus?: boolean
   contactedAt?: boolean
   archivedAt?: boolean
+  reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -2286,9 +2449,12 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   urgency?: boolean
   serviceAddress?: boolean
   summary?: boolean
+  operatorNotes?: boolean
   triageStatus?: boolean
+  reviewStatus?: boolean
   contactedAt?: boolean
   archivedAt?: boolean
+  reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -2322,9 +2488,12 @@ export type CallSelectScalar = {
   urgency?: boolean
   serviceAddress?: boolean
   summary?: boolean
+  operatorNotes?: boolean
   triageStatus?: boolean
+  reviewStatus?: boolean
   contactedAt?: boolean
   archivedAt?: boolean
+  reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
   endedAt?: boolean
@@ -2333,7 +2502,7 @@ export type CallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "triageStatus" | "contactedAt" | "archivedAt" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "operatorNotes" | "triageStatus" | "reviewStatus" | "contactedAt" | "archivedAt" | "reviewedAt" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -2385,9 +2554,12 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     urgency: string | null
     serviceAddress: string | null
     summary: string | null
+    operatorNotes: string | null
     triageStatus: $Enums.CallTriageStatus
+    reviewStatus: $Enums.CallReviewStatus
     contactedAt: Date | null
     archivedAt: Date | null
+    reviewedAt: Date | null
     startedAt: Date
     answeredAt: Date | null
     endedAt: Date | null
@@ -2842,9 +3014,12 @@ export interface CallFieldRefs {
   readonly urgency: Prisma.FieldRef<"Call", 'String'>
   readonly serviceAddress: Prisma.FieldRef<"Call", 'String'>
   readonly summary: Prisma.FieldRef<"Call", 'String'>
+  readonly operatorNotes: Prisma.FieldRef<"Call", 'String'>
   readonly triageStatus: Prisma.FieldRef<"Call", 'CallTriageStatus'>
+  readonly reviewStatus: Prisma.FieldRef<"Call", 'CallReviewStatus'>
   readonly contactedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly archivedAt: Prisma.FieldRef<"Call", 'DateTime'>
+  readonly reviewedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly answeredAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Call", 'DateTime'>
