@@ -235,7 +235,7 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
     if (route.routeKind === CallRouteKind.AI) {
       const streamBaseUrl =
         process.env.PUBLIC_REALTIME_WS_BASE_URL ??
-        'ws://127.0.0.1:4001/ws/media-stream';
+        process.env.FRONTDESK_REALTIME_WS_BASE_URL ?? 'ws://127.0.0.1:4001/ws/media-stream';
 
       return reply.send(
         twimlConnectStream({

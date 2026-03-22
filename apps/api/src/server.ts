@@ -15,6 +15,7 @@ import { registerCallExtractionRoutes } from './routes/call-extract.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
 import { registerCallTriageRoutes } from './routes/call-triage.js';
 import { registerCallBackfillRoutes } from './routes/call-backfill.js';
+import { enforceBasicAuth, shouldSkipBasicAuth } from './lib/basic-auth.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
@@ -44,6 +45,17 @@ export async function buildServer() {
   await registerCallTranscriptRoutes(app);
   await registerCallTriageRoutes(app);
   await registerCallBackfillRoutes(app);
+  app.addHook('onRequest', async (request, reply) => {
+    if (shouldSkipBasicAuth(request.url)) {
+      return;
+    }
+
+    const ok = enforceBasicAuth(request, reply);
+    if (!ok) {
+      return reply;
+    }
+  });
+
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerAgentProfileWriteRoutes(app);

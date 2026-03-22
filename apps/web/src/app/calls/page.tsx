@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,9 +26,6 @@ type CallRow = {
   } | null;
 };
 
-function getApiBaseUrl() {
-  return process.env.FRONTDESK_API_BASE_URL ?? 'http://127.0.0.1:4000';
-}
 
 function badgeClass(value: string | null | undefined) {
   switch (value) {
@@ -66,7 +64,8 @@ async function getCalls(input: {
   if (input.urgency) params.set('urgency', input.urgency);
 
   const res = await fetch(`${getApiBaseUrl()}/v1/calls?${params.toString()}`, {
-    cache: 'no-store'
+    cache: 'no-store',
+    headers: getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -129,7 +128,8 @@ export default async function CallsPage({
     'use server';
 
     await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/mark-contacted`, {
-      method: 'POST'
+      method: 'POST',
+      headers: getInternalApiHeaders()
     });
 
     revalidatePath('/calls');
@@ -141,7 +141,8 @@ export default async function CallsPage({
     'use server';
 
     await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/archive`, {
-      method: 'POST'
+      method: 'POST',
+      headers: getInternalApiHeaders()
     });
 
     revalidatePath('/calls');
