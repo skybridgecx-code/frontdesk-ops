@@ -97,3 +97,12 @@ export const CallRouteKind = {
 } as const
 
 export type CallRouteKind = (typeof CallRouteKind)[keyof typeof CallRouteKind]
+
+
+export const CallTriageStatus = {
+  OPEN: 'OPEN',
+  CONTACTED: 'CONTACTED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type CallTriageStatus = (typeof CallTriageStatus)[keyof typeof CallTriageStatus]

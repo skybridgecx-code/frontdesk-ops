@@ -13,6 +13,8 @@ import { registerPhoneNumberWriteRoutes } from './routes/phone-numbers-write.js'
 import { registerCallRoutes } from './routes/calls.js';
 import { registerCallExtractionRoutes } from './routes/call-extract.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
+import { registerCallTriageRoutes } from './routes/call-triage.js';
+import { registerCallBackfillRoutes } from './routes/call-backfill.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
@@ -40,6 +42,8 @@ export async function buildServer() {
   await registerCallRoutes(app);
   await registerCallExtractionRoutes(app);
   await registerCallTranscriptRoutes(app);
+  await registerCallTriageRoutes(app);
+  await registerCallBackfillRoutes(app);
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerAgentProfileWriteRoutes(app);

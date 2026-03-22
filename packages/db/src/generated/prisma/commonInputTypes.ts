@@ -246,6 +246,13 @@ export type EnumCallRouteKindNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel> | $Enums.CallRouteKind | null
 }
 
+export type EnumCallTriageStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CallTriageStatus | Prisma.EnumCallTriageStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel> | $Enums.CallTriageStatus
+}
+
 export type DateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -296,6 +303,16 @@ export type EnumCallRouteKindNullableWithAggregatesFilter<$PrismaModel = never> 
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel>
+}
+
+export type EnumCallTriageStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CallTriageStatus | Prisma.EnumCallTriageStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCallTriageStatusWithAggregatesFilter<$PrismaModel> | $Enums.CallTriageStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel>
 }
 
 export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -651,6 +668,13 @@ export type NestedEnumCallRouteKindNullableFilter<$PrismaModel = never> = {
   not?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel> | $Enums.CallRouteKind | null
 }
 
+export type NestedEnumCallTriageStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.CallTriageStatus | Prisma.EnumCallTriageStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel> | $Enums.CallTriageStatus
+}
+
 export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
   equals?: Date | string | Prisma.DateTimeFieldRefInput<$PrismaModel> | null
   in?: Date[] | string[] | Prisma.ListDateTimeFieldRefInput<$PrismaModel> | null
@@ -690,6 +714,16 @@ export type NestedEnumCallRouteKindNullableWithAggregatesFilter<$PrismaModel = n
   _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
   _min?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel>
   _max?: Prisma.NestedEnumCallRouteKindNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumCallTriageStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.CallTriageStatus | Prisma.EnumCallTriageStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.CallTriageStatus[] | Prisma.ListEnumCallTriageStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumCallTriageStatusWithAggregatesFilter<$PrismaModel> | $Enums.CallTriageStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumCallTriageStatusFilter<$PrismaModel>
 }
 
 export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {

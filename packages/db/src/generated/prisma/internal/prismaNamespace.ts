@@ -1422,6 +1422,9 @@ export const CallScalarFieldEnum = {
   urgency: 'urgency',
   serviceAddress: 'serviceAddress',
   summary: 'summary',
+  triageStatus: 'triageStatus',
+  contactedAt: 'contactedAt',
+  archivedAt: 'archivedAt',
   startedAt: 'startedAt',
   answeredAt: 'answeredAt',
   endedAt: 'endedAt',
@@ -1650,6 +1653,20 @@ export type EnumCallRouteKindFieldRefInput<$PrismaModel> = FieldRefInputType<$Pr
  * Reference to a field of type 'CallRouteKind[]'
  */
 export type ListEnumCallRouteKindFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallRouteKind[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CallTriageStatus'
+ */
+export type EnumCallTriageStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallTriageStatus'>
+    
+
+
+/**
+ * Reference to a field of type 'CallTriageStatus[]'
+ */
+export type ListEnumCallTriageStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CallTriageStatus[]'>
     
 
 

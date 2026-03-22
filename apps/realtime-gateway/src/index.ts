@@ -863,6 +863,22 @@ app.get(
             size
           });
 
+          const context = await ensureCallContext();
+          if (context) {
+            await prisma.call.updateMany({
+              where: {
+                id: context.callId,
+                status: {
+                  in: ['RINGING', 'IN_PROGRESS']
+                }
+              },
+              data: {
+                status: 'COMPLETED',
+                endedAt: new Date()
+              }
+            });
+          }
+
           app.log.info({
             msg: 'media stream stop received',
             callSid: stopCallSid,
