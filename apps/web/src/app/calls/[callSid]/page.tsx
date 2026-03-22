@@ -81,13 +81,21 @@ async function getCall(callSid: string) {
 }
 
 export default async function CallDetailPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ callSid: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
 }) {
   const { callSid } = await params;
+  const resolvedSearchParams = await searchParams;
+  const returnTo =
+    resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/calls')
+      ? resolvedSearchParams.returnTo
+      : '/calls?triageStatus=OPEN';
   const data = await getCall(callSid);
   const call = data.call;
+  const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
 
   async function markContacted() {
     'use server';
@@ -99,7 +107,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`/calls/${callSid}`);
+    redirect(detailHref);
   }
 
   async function archiveCall() {
@@ -112,7 +120,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`/calls/${callSid}`);
+    redirect(detailHref);
   }
 
   async function rerunExtraction() {
@@ -125,7 +133,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`/calls/${callSid}`);
+    redirect(detailHref);
   }
 
   return (
@@ -133,8 +141,8 @@ export default async function CallDetailPage({
       <div className="mx-auto max-w-5xl space-y-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <a href="/calls" className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to calls
+            <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
+              ← Back to queue
             </a>
             <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
             <div className="mt-2 flex flex-wrap gap-2">
