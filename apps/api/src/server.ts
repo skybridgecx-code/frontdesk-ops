@@ -11,6 +11,7 @@ import { registerServiceAreaRoutes } from './routes/service-areas.js';
 import { registerPhoneNumberRoutes } from './routes/phone-numbers.js';
 import { registerPhoneNumberWriteRoutes } from './routes/phone-numbers-write.js';
 import { registerCallRoutes } from './routes/calls.js';
+import { registerCallBulkTriageRoutes } from './routes/call-bulk-triage.js';
 import { registerCallExtractionRoutes } from './routes/call-extract.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
 import { registerCallTriageRoutes } from './routes/call-triage.js';
@@ -40,6 +41,7 @@ export async function buildServer() {
   await registerServiceAreaRoutes(app);
   await registerPhoneNumberRoutes(app);
   await registerPhoneNumberWriteRoutes(app);
+  await registerCallBulkTriageRoutes(app);
   await registerCallRoutes(app);
   await registerCallExtractionRoutes(app);
   await registerCallTranscriptRoutes(app);

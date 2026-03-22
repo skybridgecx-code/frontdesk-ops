@@ -85,7 +85,7 @@ export default async function CallDetailPage({
   searchParams
 }: {
   params: Promise<{ callSid: string }>;
-  searchParams: Promise<{ returnTo?: string }>;
+  searchParams: Promise<{ returnTo?: string; notice?: string }>;
 }) {
   const { callSid } = await params;
   const resolvedSearchParams = await searchParams;
@@ -93,6 +93,14 @@ export default async function CallDetailPage({
     resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/calls')
       ? resolvedSearchParams.returnTo
       : '/calls?triageStatus=OPEN';
+  const notice =
+    resolvedSearchParams.notice === 'contacted'
+      ? 'Call marked contacted.'
+      : resolvedSearchParams.notice === 'archived'
+        ? 'Call archived.'
+        : resolvedSearchParams.notice === 'extracted'
+          ? 'Extraction rerun queued.'
+          : null;
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
@@ -107,7 +115,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(detailHref);
+    redirect(`${detailHref}&notice=contacted`);
   }
 
   async function archiveCall() {
@@ -120,7 +128,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(detailHref);
+    redirect(`${detailHref}&notice=archived`);
   }
 
   async function rerunExtraction() {
@@ -133,12 +141,18 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(detailHref);
+    redirect(`${detailHref}&notice=extracted`);
   }
 
   return (
     <main className="min-h-screen bg-white text-black p-6">
       <div className="mx-auto max-w-5xl space-y-6">
+        {notice ? (
+          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
+            {notice}
+          </div>
+        ) : null}
+
         <div className="flex items-start justify-between gap-4">
           <div>
             <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
