@@ -27,6 +27,7 @@ type CallDetail = {
   operatorNotes: string | null;
   startedAt: string;
   endedAt: string | null;
+  durationSeconds: number | null;
   phoneNumber: {
     e164: string;
     label: string | null;
@@ -88,6 +89,35 @@ async function getCall(callSid: string) {
   }
 
   return (await res.json()) as { ok: true; call: CallDetail };
+}
+
+function formatDateTime(value: string | null) {
+  return value ? new Date(value).toLocaleString() : '—';
+}
+
+function formatDuration(seconds: number | null) {
+  if (seconds == null) {
+    return '—';
+  }
+
+  const minutes = Math.floor(seconds / 60);
+  const remainingSeconds = seconds % 60;
+  return `${minutes}m ${String(remainingSeconds).padStart(2, '0')}s`;
+}
+
+function HistoryItem({
+  label,
+  value
+}: {
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
+      <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</div>
+      <div className="mt-1 text-sm text-black">{value}</div>
+    </div>
+  );
 }
 
 export default async function CallDetailPage({
@@ -326,8 +356,6 @@ export default async function CallDetailPage({
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">From:</span> {call.fromE164 ?? '—'}</div>
               <div><span className="text-neutral-500">To:</span> {call.toE164 ?? '—'}</div>
-              <div><span className="text-neutral-500">Started:</span> {new Date(call.startedAt).toLocaleString()}</div>
-              <div><span className="text-neutral-500">Ended:</span> {call.endedAt ? new Date(call.endedAt).toLocaleString() : '—'}</div>
               <div><span className="text-neutral-500">Number:</span> {call.phoneNumber.label ?? '—'} · {call.phoneNumber.e164}</div>
               <div><span className="text-neutral-500">Routing:</span> {call.phoneNumber.routingMode}</div>
             </div>
@@ -339,12 +367,29 @@ export default async function CallDetailPage({
               <div><span className="text-neutral-500">Name:</span> {call.agentProfile?.name ?? '—'}</div>
               <div><span className="text-neutral-500">Voice:</span> {call.agentProfile?.voiceName ?? '—'}</div>
               <div><span className="text-neutral-500">Active:</span> {call.agentProfile ? String(call.agentProfile.isActive) : '—'}</div>
-              <div><span className="text-neutral-500">Contacted:</span> {call.contactedAt ? new Date(call.contactedAt).toLocaleString() : '—'}</div>
-              <div><span className="text-neutral-500">Archived:</span> {call.archivedAt ? new Date(call.archivedAt).toLocaleString() : '—'}</div>
-              <div><span className="text-neutral-500">Reviewed:</span> {call.reviewedAt ? new Date(call.reviewedAt).toLocaleString() : '—'}</div>
             </div>
           </section>
         </div>
+
+        <section className="rounded-2xl border border-neutral-200 p-4">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-medium">Activity history</h2>
+              <p className="mt-1 text-sm text-neutral-600">
+                Read-only timeline from existing call and review timestamps.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
+            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
+            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
+            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
+            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
+            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
+            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
+          </div>
+        </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
