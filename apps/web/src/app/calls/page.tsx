@@ -8,6 +8,7 @@ export const dynamic = 'force-dynamic';
 type CallRow = {
   twilioCallSid: string;
   status: string;
+  routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
   fromE164: string | null;
@@ -18,6 +19,7 @@ type CallRow = {
   serviceAddress: string | null;
   summary: string | null;
   startedAt: string;
+  durationSeconds: number | null;
   phoneNumber: {
     e164: string;
     label: string | null;
@@ -153,6 +155,10 @@ function getNoticeMessage(notice: string | undefined) {
       return 'Selected calls marked contacted.';
     case 'bulk-archived':
       return 'Selected calls archived.';
+    case 'row-saved':
+      return 'Queue quick edit saved.';
+    case 'no-review-calls':
+      return 'No calls currently need review.';
     default:
       return null;
   }
@@ -181,16 +187,18 @@ function FilterLink({
 
 function SummaryCard({
   label,
-  value
+  value,
+  href
 }: {
   label: string;
   value: number;
+  href: string;
 }) {
   return (
-    <div className="rounded-2xl border border-neutral-200 p-4">
+    <a href={href} className="block rounded-2xl border border-neutral-200 p-4 hover:border-neutral-400">
       <div className="text-sm text-neutral-600">{label}</div>
       <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
-    </div>
+    </a>
   );
 }
 
@@ -265,6 +273,27 @@ export default async function CallsPage({
           limit
         })
       : null;
+
+  async function reviewNext() {
+    'use server';
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+      cache: 'no-store',
+      headers: getInternalApiHeaders()
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to load review-next call: ${res.status}`);
+    }
+
+    const data = (await res.json()) as { ok: true; callSid: string | null };
+
+    if (!data.callSid) {
+      redirect(buildNoticeHref(currentHref, 'no-review-calls'));
+    }
+
+    redirect(`/calls/${data.callSid}?returnTo=${encodeURIComponent(currentHref)}`);
+  }
 
   async function markContacted(formData: FormData) {
     'use server';
@@ -378,14 +407,55 @@ export default async function CallsPage({
     redirect(buildNoticeHref(currentHref, 'bulk-archived'));
   }
 
+  async function saveQueueQuickEdit(formData: FormData) {
+    'use server';
+
+    const callSid = String(formData.get('callSid') ?? '');
+
+    if (!callSid) {
+      redirect(currentHref);
+    }
+
+    const payload = {
+      leadName: String(formData.get('leadName') ?? '').trim() || null,
+      leadPhone: String(formData.get('leadPhone') ?? '').trim() || null,
+      reviewStatus: String(formData.get('reviewStatus') ?? 'UNREVIEWED')
+    };
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        ...getInternalApiHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to save queue quick edit: ${res.status}`);
+    }
+
+    revalidatePath('/calls');
+    revalidatePath(`/calls/${callSid}`);
+    redirect(buildNoticeHref(currentHref, 'row-saved'));
+  }
+
   return (
     <main className="min-h-screen bg-white p-6 text-black">
       <div className="mx-auto max-w-6xl space-y-6">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Frontdesk Ops</h1>
-          <p className="mt-1 text-sm text-neutral-600">
-            Searchable call queue with triage actions and urgency visibility.
-          </p>
+        <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+          <div>
+            <h1 className="text-3xl font-semibold tracking-tight">Frontdesk Ops</h1>
+            <p className="mt-1 text-sm text-neutral-600">
+              Searchable call queue with triage actions and urgency visibility.
+            </p>
+          </div>
+
+          <form action={reviewNext}>
+            <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
+              Review next
+            </button>
+          </form>
         </div>
 
         {noticeMessage ? (
@@ -394,15 +464,63 @@ export default async function CallsPage({
           </div>
         ) : null}
 
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+          <span className="font-medium text-black">Queue signals:</span>
+          <span className="rounded-full border border-rose-300 bg-rose-100 px-2.5 py-1 text-xs font-medium text-rose-900">
+            Needs review
+          </span>
+          <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
+            Unreviewed
+          </span>
+          <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
+            Missing data
+          </span>
+          <span className="rounded-full border border-red-300 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-900">
+            Emergency / High urgency
+          </span>
+        </div>
+
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <SummaryCard label="Open" value={summary.openCalls} />
-          <SummaryCard label="Contacted" value={summary.contactedCalls} />
-          <SummaryCard label="Archived" value={summary.archivedCalls} />
-          <SummaryCard label="Unreviewed" value={summary.unreviewedCalls} />
-          <SummaryCard label="Needs review" value={summary.needsReviewCalls} />
-          <SummaryCard label="Reviewed" value={summary.reviewedCalls} />
-          <SummaryCard label="High urgency" value={summary.highUrgencyCalls} />
-          <SummaryCard label="Emergency" value={summary.emergencyCalls} />
+          <SummaryCard
+            label="Open"
+            value={summary.openCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', limit })}
+          />
+          <SummaryCard
+            label="Contacted"
+            value={summary.contactedCalls}
+            href={buildFilterHref({ triageStatus: 'CONTACTED', limit })}
+          />
+          <SummaryCard
+            label="Archived"
+            value={summary.archivedCalls}
+            href={buildFilterHref({ triageStatus: 'ARCHIVED', limit })}
+          />
+          <SummaryCard
+            label="Unreviewed"
+            value={summary.unreviewedCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus: 'UNREVIEWED', limit })}
+          />
+          <SummaryCard
+            label="Needs review"
+            value={summary.needsReviewCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus: 'NEEDS_REVIEW', limit })}
+          />
+          <SummaryCard
+            label="Reviewed"
+            value={summary.reviewedCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus: 'REVIEWED', limit })}
+          />
+          <SummaryCard
+            label="High urgency"
+            value={summary.highUrgencyCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', urgency: 'high', limit })}
+          />
+          <SummaryCard
+            label="Emergency"
+            value={summary.emergencyCalls}
+            href={buildFilterHref({ triageStatus: 'OPEN', urgency: 'emergency', limit })}
+          />
         </div>
 
         <div className="space-y-4 rounded-2xl border border-neutral-200 p-4">
@@ -411,8 +529,8 @@ export default async function CallsPage({
               <label htmlFor="q" className="mb-2 block text-sm font-medium">
                 Search queue
               </label>
-            <input
-              id="q"
+              <input
+                id="q"
                 name="q"
                 defaultValue={q}
                 placeholder="Search by caller, lead, address, summary, or Call SID"
@@ -443,12 +561,24 @@ export default async function CallsPage({
                 active={triageStatus === 'OPEN'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus: 'CONTACTED', reviewStatus, urgency, q, limit })}
+                href={buildFilterHref({
+                  triageStatus: 'CONTACTED',
+                  reviewStatus,
+                  urgency,
+                  q,
+                  limit
+                })}
                 label="Contacted"
                 active={triageStatus === 'CONTACTED'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus: 'ARCHIVED', reviewStatus, urgency, q, limit })}
+                href={buildFilterHref({
+                  triageStatus: 'ARCHIVED',
+                  reviewStatus,
+                  urgency,
+                  q,
+                  limit
+                })}
                 label="Archived"
                 active={triageStatus === 'ARCHIVED'}
               />
@@ -464,17 +594,35 @@ export default async function CallsPage({
                 active={!reviewStatus}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus: 'UNREVIEWED', urgency, q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus: 'UNREVIEWED',
+                  urgency,
+                  q,
+                  limit
+                })}
                 label="Unreviewed"
                 active={reviewStatus === 'UNREVIEWED'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus: 'NEEDS_REVIEW', urgency, q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus: 'NEEDS_REVIEW',
+                  urgency,
+                  q,
+                  limit
+                })}
                 label="Needs review"
                 active={reviewStatus === 'NEEDS_REVIEW'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus: 'REVIEWED', urgency, q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus: 'REVIEWED',
+                  urgency,
+                  q,
+                  limit
+                })}
                 label="Reviewed"
                 active={reviewStatus === 'REVIEWED'}
               />
@@ -490,22 +638,46 @@ export default async function CallsPage({
                 active={!urgency}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'low', q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus,
+                  urgency: 'low',
+                  q,
+                  limit
+                })}
                 label="Low"
                 active={urgency === 'low'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'medium', q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus,
+                  urgency: 'medium',
+                  q,
+                  limit
+                })}
                 label="Medium"
                 active={urgency === 'medium'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'high', q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus,
+                  urgency: 'high',
+                  q,
+                  limit
+                })}
                 label="High"
                 active={urgency === 'high'}
               />
               <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus, urgency: 'emergency', q, limit })}
+                href={buildFilterHref({
+                  triageStatus,
+                  reviewStatus,
+                  urgency: 'emergency',
+                  q,
+                  limit
+                })}
                 label="Emergency"
                 active={urgency === 'emergency'}
               />
@@ -532,12 +704,11 @@ export default async function CallsPage({
           archiveAction={archiveCall}
           bulkMarkContactedAction={bulkMarkContacted}
           bulkArchiveAction={bulkArchive}
+          saveQueueQuickEditAction={saveQueueQuickEdit}
         />
 
         <div className="flex items-center justify-between gap-3">
-          <div className="text-sm text-neutral-600">
-            Total calls: {summary.totalCalls}
-          </div>
+          <div className="text-sm text-neutral-600">Total calls: {summary.totalCalls}</div>
           <div className="flex items-center gap-2">
             {previousHref ? (
               <a href={previousHref} className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">

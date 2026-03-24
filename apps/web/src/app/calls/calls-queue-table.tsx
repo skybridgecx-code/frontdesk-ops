@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 type CallRow = {
   twilioCallSid: string;
   status: string;
+  routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
   fromE164: string | null;
@@ -16,6 +17,7 @@ type CallRow = {
   serviceAddress: string | null;
   summary: string | null;
   startedAt: string;
+  durationSeconds: number | null;
   phoneNumber: {
     e164: string;
     label: string | null;
@@ -26,6 +28,12 @@ type CallRow = {
   } | null;
 };
 
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${m}m ${String(s).padStart(2, '0')}s`;
+}
+
 type QueueSearchState = {
   triageStatus: string;
   reviewStatus?: string;
@@ -33,36 +41,76 @@ type QueueSearchState = {
   q?: string;
 };
 
+type QuickEditDraft = {
+  leadName: string;
+  leadPhone: string;
+  reviewStatus: string;
+};
+
 function badgeClass(value: string | null | undefined) {
   switch (value) {
     case 'OPEN':
-      return 'bg-amber-100 text-amber-900';
+      return 'border border-amber-300 bg-amber-100 text-amber-900';
     case 'CONTACTED':
-      return 'bg-blue-100 text-blue-900';
+      return 'border border-blue-300 bg-blue-100 text-blue-900';
     case 'ARCHIVED':
-      return 'bg-neutral-200 text-neutral-800';
+      return 'border border-neutral-300 bg-neutral-200 text-neutral-800';
     case 'UNREVIEWED':
-      return 'bg-neutral-100 text-neutral-700';
+      return 'border border-neutral-300 bg-white text-neutral-700';
     case 'REVIEWED':
-      return 'bg-emerald-100 text-emerald-900';
+      return 'border border-emerald-300 bg-emerald-100 text-emerald-900';
     case 'NEEDS_REVIEW':
-      return 'bg-rose-100 text-rose-900';
+      return 'border border-rose-400 bg-rose-100 text-rose-900';
     case 'high':
-      return 'bg-orange-100 text-orange-900';
+      return 'border border-orange-300 bg-orange-100 text-orange-900';
     case 'emergency':
-      return 'bg-red-100 text-red-900';
+      return 'border border-red-400 bg-red-100 text-red-900';
     case 'medium':
-      return 'bg-yellow-100 text-yellow-900';
+      return 'border border-yellow-300 bg-yellow-100 text-yellow-900';
     case 'low':
-      return 'bg-green-100 text-green-900';
+      return 'border border-green-300 bg-green-100 text-green-900';
     case 'COMPLETED':
-      return 'bg-green-100 text-green-900';
+      return 'border border-green-300 bg-green-100 text-green-900';
     case 'RINGING':
     case 'IN_PROGRESS':
-      return 'bg-blue-100 text-blue-900';
+      return 'border border-blue-300 bg-blue-100 text-blue-900';
+    case 'AI':
+      return 'border border-sky-300 bg-sky-100 text-sky-900';
+    case 'VOICEMAIL':
+      return 'border border-purple-300 bg-purple-100 text-purple-900';
+    case 'HUMAN':
+      return 'border border-indigo-300 bg-indigo-100 text-indigo-900';
+    case 'REJECTED':
+      return 'border border-neutral-300 bg-neutral-100 text-neutral-500';
     default:
-      return 'bg-neutral-100 text-neutral-700';
+      return 'border border-neutral-200 bg-neutral-100 text-neutral-700';
   }
+}
+
+function getDataQualitySignals(call: CallRow) {
+  const missingData = !call.leadName || !call.leadPhone || !call.leadIntent;
+
+  return {
+    missingData,
+    needsReview: call.reviewStatus === 'NEEDS_REVIEW',
+    unreviewed: call.reviewStatus === 'UNREVIEWED'
+  };
+}
+
+function getRowClass(call: CallRow) {
+  if (call.reviewStatus === 'NEEDS_REVIEW') {
+    return 'border-t border-rose-200 bg-rose-50/50 align-top';
+  }
+
+  if (call.urgency === 'emergency') {
+    return 'border-t border-red-200 bg-red-50/40 align-top';
+  }
+
+  if (call.urgency === 'high') {
+    return 'border-t border-orange-200 bg-orange-50/40 align-top';
+  }
+
+  return 'border-t border-neutral-200 align-top';
 }
 
 export function CallsQueueTable({
@@ -73,7 +121,8 @@ export function CallsQueueTable({
   markContactedAction,
   archiveAction,
   bulkMarkContactedAction,
-  bulkArchiveAction
+  bulkArchiveAction,
+  saveQueueQuickEditAction
 }: {
   calls: CallRow[];
   currentHref: string;
@@ -83,9 +132,12 @@ export function CallsQueueTable({
   archiveAction: (formData: FormData) => void;
   bulkMarkContactedAction: (formData: FormData) => void;
   bulkArchiveAction: (formData: FormData) => void;
+  saveQueueQuickEditAction: (formData: FormData) => void;
 }) {
   const router = useRouter();
   const [selectedCallSids, setSelectedCallSids] = useState<string[]>([]);
+  const [editingCallSid, setEditingCallSid] = useState<string | null>(null);
+  const [drafts, setDrafts] = useState<Record<string, QuickEditDraft>>({});
   const visibleCallSids = useMemo(() => calls.map((call) => call.twilioCallSid), [calls]);
   const visibleSelection = selectedCallSids.filter((callSid) => visibleCallSids.includes(callSid));
   const allVisibleSelected =
@@ -120,6 +172,32 @@ export function CallsQueueTable({
     params.set('limit', nextLimit);
 
     router.push(`/calls?${params.toString()}`);
+  }
+
+  function startEditing(call: CallRow) {
+    setEditingCallSid(call.twilioCallSid);
+    setDrafts((current) => ({
+      ...current,
+      [call.twilioCallSid]: {
+        leadName: call.leadName ?? '',
+        leadPhone: call.leadPhone ?? '',
+        reviewStatus: call.reviewStatus
+      }
+    }));
+  }
+
+  function updateDraft(callSid: string, field: keyof QuickEditDraft, value: string) {
+    setDrafts((current) => ({
+      ...current,
+      [callSid]: {
+        ...(current[callSid] ?? {
+          leadName: '',
+          leadPhone: '',
+          reviewStatus: 'UNREVIEWED'
+        }),
+        [field]: value
+      }
+    }));
   }
 
   return (
@@ -186,7 +264,6 @@ export function CallsQueueTable({
               <th className="px-4 py-3 font-medium">Lead</th>
               <th className="px-4 py-3 font-medium">Intent</th>
               <th className="px-4 py-3 font-medium">Urgency</th>
-              <th className="px-4 py-3 font-medium">Triage</th>
               <th className="px-4 py-3 font-medium">Review</th>
               <th className="px-4 py-3 font-medium">Started</th>
               <th className="px-4 py-3 font-medium">Actions</th>
@@ -195,16 +272,23 @@ export function CallsQueueTable({
           <tbody>
             {calls.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-4 py-10 text-center text-neutral-500">
+                <td colSpan={8} className="px-4 py-10 text-center text-neutral-500">
                   No calls matched this queue.
                 </td>
               </tr>
             ) : (
               calls.map((call) => {
                 const selected = visibleSelection.includes(call.twilioCallSid);
+                const isEditing = editingCallSid === call.twilioCallSid;
+                const draft = drafts[call.twilioCallSid] ?? {
+                  leadName: call.leadName ?? '',
+                  leadPhone: call.leadPhone ?? '',
+                  reviewStatus: call.reviewStatus
+                };
+                const signals = getDataQualitySignals(call);
 
                 return (
-                  <tr key={call.twilioCallSid} className="border-t border-neutral-200 align-top">
+                  <tr key={call.twilioCallSid} className={getRowClass(call)}>
                     <td className="px-4 py-3">
                       <input
                         type="checkbox"
@@ -227,66 +311,158 @@ export function CallsQueueTable({
                         {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
                       </div>
                       <div className="mt-1 text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {call.routeKind ? (
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.routeKind)}`}
+                          >
+                            {call.routeKind}
+                          </span>
+                        ) : null}
+                        {signals.missingData ? (
+                          <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
+                            Missing data
+                          </span>
+                        ) : null}
+                        {signals.needsReview ? (
+                          <span className="rounded-full border border-rose-400 bg-rose-100 px-2.5 py-1 text-xs font-medium text-rose-900">
+                            Needs review
+                          </span>
+                        ) : null}
+                        {!signals.needsReview && signals.unreviewed ? (
+                          <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
+                            Unreviewed
+                          </span>
+                        ) : null}
+                      </div>
                     </td>
                     <td className="px-4 py-3">
-                      <div>{call.leadName ?? '—'}</div>
-                      <div className="mt-1 text-neutral-600">{call.leadPhone ?? '—'}</div>
-                      <div className="mt-1 text-neutral-600">{call.serviceAddress ?? '—'}</div>
+                      {isEditing ? (
+                        <div className="space-y-2">
+                          <input
+                            value={draft.leadName}
+                            onChange={(event) =>
+                              updateDraft(call.twilioCallSid, 'leadName', event.target.value)
+                            }
+                            placeholder="Lead name"
+                            className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm"
+                          />
+                          <input
+                            value={draft.leadPhone}
+                            onChange={(event) =>
+                              updateDraft(call.twilioCallSid, 'leadPhone', event.target.value)
+                            }
+                            placeholder="Lead phone"
+                            className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm"
+                          />
+                          <div className="text-neutral-600">{call.serviceAddress ?? '—'}</div>
+                        </div>
+                      ) : (
+                        <>
+                          <div>{call.leadName ?? '—'}</div>
+                          <div className="mt-1 text-neutral-600">{call.leadPhone ?? '—'}</div>
+                          <div className="mt-1 text-neutral-600">{call.serviceAddress ?? '—'}</div>
+                        </>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div>{call.leadIntent ?? '—'}</div>
                       <div className="mt-1 text-neutral-600">{call.summary ?? '—'}</div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}
-                      >
-                        {call.urgency ?? '—'}
-                      </span>
-                    </td>
-                    <td className="space-y-2 px-4 py-3">
-                      <div>
+                      <div className="flex flex-wrap gap-2">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}
+                        >
+                          {call.urgency ?? '—'}
+                        </span>
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.triageStatus)}`}
                         >
                           {call.triageStatus}
                         </span>
                       </div>
-                      <div>
-                        <span
-                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.status)}`}
-                        >
-                          {call.status}
-                        </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="space-y-2">
+                        {isEditing ? (
+                          <select
+                            value={draft.reviewStatus}
+                            onChange={(event) =>
+                              updateDraft(call.twilioCallSid, 'reviewStatus', event.target.value)
+                            }
+                            className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-sm"
+                          >
+                            <option value="UNREVIEWED">UNREVIEWED</option>
+                            <option value="NEEDS_REVIEW">NEEDS_REVIEW</option>
+                            <option value="REVIEWED">REVIEWED</option>
+                          </select>
+                        ) : (
+                          <span
+                            className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}
+                          >
+                            {call.reviewStatus}
+                          </span>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3">
-                      <span
-                        className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}
-                      >
-                        {call.reviewStatus}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      {new Date(call.startedAt).toLocaleString('en-US', {
-                        dateStyle: 'short',
-                        timeStyle: 'short'
-                      })}
+                      <div>
+                        {new Date(call.startedAt).toLocaleString('en-US', {
+                          dateStyle: 'short',
+                          timeStyle: 'short'
+                        })}
+                      </div>
+                      {call.durationSeconds != null && (
+                        <div className="mt-1 text-neutral-500">
+                          {formatDuration(call.durationSeconds)}
+                        </div>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex flex-col gap-2">
-                        <form action={markContactedAction}>
-                          <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                          <button className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm">
-                            Mark contacted
-                          </button>
-                        </form>
-                        <form action={archiveAction}>
-                          <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                          <button className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm">
-                            Archive
-                          </button>
-                        </form>
+                        {isEditing ? (
+                          <>
+                            <form action={saveQueueQuickEditAction}>
+                              <input type="hidden" name="callSid" value={call.twilioCallSid} />
+                              <input type="hidden" name="leadName" value={draft.leadName} />
+                              <input type="hidden" name="leadPhone" value={draft.leadPhone} />
+                              <input type="hidden" name="reviewStatus" value={draft.reviewStatus} />
+                              <button className="w-full rounded-xl border border-black bg-black px-3 py-2 text-left text-sm text-white">
+                                Save
+                              </button>
+                            </form>
+                            <button
+                              type="button"
+                              onClick={() => setEditingCallSid(null)}
+                              className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm"
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button
+                              type="button"
+                              onClick={() => startEditing(call)}
+                              className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm"
+                            >
+                              Edit
+                            </button>
+                            <form action={markContactedAction}>
+                              <input type="hidden" name="callSid" value={call.twilioCallSid} />
+                              <button className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm">
+                                Mark contacted
+                              </button>
+                            </form>
+                            <form action={archiveAction}>
+                              <input type="hidden" name="callSid" value={call.twilioCallSid} />
+                              <button className="w-full rounded-xl border border-neutral-300 px-3 py-2 text-left text-sm">
+                                Archive
+                              </button>
+                            </form>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
