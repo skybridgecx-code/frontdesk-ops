@@ -143,10 +143,10 @@ export default async function CallDetailPage({
           : resolvedSearchParams.notice === 'saved'
             ? 'Call review details saved.'
             : resolvedSearchParams.notice === 'saved-next'
-              ? 'Saved. Showing next call for review.'
-              : resolvedSearchParams.notice === 'no-review-calls'
-                ? 'No more calls need review.'
-          : null;
+                ? 'Saved. Showing next call for review.'
+                : resolvedSearchParams.notice === 'no-review-calls'
+                  ? 'No more calls need review.'
+                  : null;
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
@@ -411,107 +411,136 @@ export default async function CallDetailPage({
             <span>/ Focus notes</span>
           </div>
 
-          <form id={reviewFormId} action={saveReview} className="mt-4 grid gap-4 md:grid-cols-2">
-            <label className="text-sm">
-              <div className="mb-2 font-medium">Lead name</div>
-              <input
-                name="leadName"
-                defaultValue={call.leadName ?? ''}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+          <form id={reviewFormId} action={saveReview} className="mt-4 space-y-4">
+            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+              <div className="space-y-4">
+                <section className="rounded-2xl border border-neutral-200 p-4">
+                  <h3 className="text-sm font-medium text-black">Lead details</h3>
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    <label className="text-sm">
+                      <div className="mb-2 font-medium">Lead name</div>
+                      <input
+                        name="leadName"
+                        defaultValue={call.leadName ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
 
-            <label className="text-sm">
-              <div className="mb-2 font-medium">Lead phone</div>
-              <input
-                name="leadPhone"
-                defaultValue={call.leadPhone ?? ''}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+                    <label className="text-sm">
+                      <div className="mb-2 font-medium">Lead phone</div>
+                      <input
+                        name="leadPhone"
+                        defaultValue={call.leadPhone ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
 
-            <label className="text-sm">
-              <div className="mb-2 font-medium">Lead intent</div>
-              <input
-                name="leadIntent"
-                defaultValue={call.leadIntent ?? ''}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+                    <label className="text-sm md:col-span-2">
+                      <div className="mb-2 font-medium">Lead intent</div>
+                      <input
+                        name="leadIntent"
+                        defaultValue={call.leadIntent ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
 
-            <label className="text-sm">
-              <div className="mb-2 font-medium">Urgency</div>
-              <select
-                name="urgency"
-                defaultValue={call.urgency ?? ''}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              >
-                <option value="">Unspecified</option>
-                <option value="low">Low</option>
-                <option value="medium">Medium</option>
-                <option value="high">High</option>
-                <option value="emergency">Emergency</option>
-              </select>
-            </label>
+                    <label className="text-sm md:col-span-2">
+                      <div className="mb-2 font-medium">Service address</div>
+                      <input
+                        name="serviceAddress"
+                        defaultValue={call.serviceAddress ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
+                  </div>
+                </section>
 
-            <label className="text-sm md:col-span-2">
-              <div className="mb-2 font-medium">Service address</div>
-              <input
-                name="serviceAddress"
-                defaultValue={call.serviceAddress ?? ''}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+                <section className="rounded-2xl border border-neutral-200 p-4">
+                  <h3 className="text-sm font-medium text-black">Review summary</h3>
+                  <div className="mt-4 space-y-4">
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Summary</div>
+                      <textarea
+                        name="summary"
+                        defaultValue={call.summary ?? ''}
+                        rows={5}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
 
-            <label className="text-sm md:col-span-2">
-              <div className="mb-2 font-medium">Summary</div>
-              <textarea
-                name="summary"
-                defaultValue={call.summary ?? ''}
-                rows={4}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Operator notes</div>
+                      <textarea
+                        id={notesFieldId}
+                        name="operatorNotes"
+                        defaultValue={call.operatorNotes ?? ''}
+                        rows={8}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      />
+                    </label>
+                  </div>
+                </section>
+              </div>
 
-            <label className="text-sm md:col-span-2">
-              <div className="mb-2 font-medium">Operator notes</div>
-              <textarea
-                id={notesFieldId}
-                name="operatorNotes"
-                defaultValue={call.operatorNotes ?? ''}
-                rows={4}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              />
-            </label>
+              <div className="space-y-4">
+                <section className="rounded-2xl border border-neutral-200 p-4">
+                  <h3 className="text-sm font-medium text-black">Review controls</h3>
+                  <div className="mt-4 space-y-4">
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Urgency</div>
+                      <select
+                        name="urgency"
+                        defaultValue={call.urgency ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      >
+                        <option value="">Unspecified</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="emergency">Emergency</option>
+                      </select>
+                    </label>
 
-            <label className="text-sm">
-              <div className="mb-2 font-medium">Review status</div>
-              <select
-                id={reviewStatusFieldId}
-                name="reviewStatus"
-                defaultValue={call.reviewStatus}
-                className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-              >
-                <option value="UNREVIEWED">Unreviewed</option>
-                <option value="NEEDS_REVIEW">Needs review</option>
-                <option value="REVIEWED">Reviewed</option>
-              </select>
-            </label>
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Review status</div>
+                      <select
+                        id={reviewStatusFieldId}
+                        name="reviewStatus"
+                        defaultValue={call.reviewStatus}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      >
+                        <option value="UNREVIEWED">Unreviewed</option>
+                        <option value="NEEDS_REVIEW">Needs review</option>
+                        <option value="REVIEWED">Reviewed</option>
+                      </select>
+                    </label>
+                  </div>
+                </section>
 
-            <div className="flex items-end gap-2">
-              <button
-                id={saveButtonId}
-                className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
-              >
-                Save review changes
-              </button>
-              <button
-                id={saveNextButtonId}
-                formAction={saveAndReviewNext}
-                className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-              >
-                Save and review next
-              </button>
+                <div className="lg:sticky lg:top-4">
+                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-black">Actions</h3>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      Keep moving through review without losing your place.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <button
+                        id={saveButtonId}
+                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
+                      >
+                        Save review changes
+                      </button>
+                      <button
+                        id={saveNextButtonId}
+                        formAction={saveAndReviewNext}
+                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+                      >
+                        Save and review next
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              </div>
             </div>
           </form>
         </section>
