@@ -34,6 +34,32 @@ function formatDuration(seconds: number): string {
   return `${m}m ${String(s).padStart(2, '0')}s`;
 }
 
+function formatReviewStatusLabel(value: string) {
+  switch (value) {
+    case 'UNREVIEWED':
+      return 'Unreviewed';
+    case 'NEEDS_REVIEW':
+      return 'Needs review';
+    case 'REVIEWED':
+      return 'Reviewed';
+    default:
+      return value;
+  }
+}
+
+function formatTriageStatusLabel(value: string) {
+  switch (value) {
+    case 'OPEN':
+      return 'Open';
+    case 'CONTACTED':
+      return 'Contacted';
+    case 'ARCHIVED':
+      return 'Archived';
+    default:
+      return value;
+  }
+}
+
 type QueueSearchState = {
   triageStatus: string;
   reviewStatus?: string;
@@ -379,7 +405,7 @@ export function CallsQueueTable({
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.triageStatus)}`}
                         >
-                          {call.triageStatus}
+                          {formatTriageStatusLabel(call.triageStatus)}
                         </span>
                       </div>
                     </td>
@@ -401,7 +427,7 @@ export function CallsQueueTable({
                           <span
                             className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}
                           >
-                            {call.reviewStatus}
+                            {formatReviewStatusLabel(call.reviewStatus)}
                           </span>
                         )}
                       </div>

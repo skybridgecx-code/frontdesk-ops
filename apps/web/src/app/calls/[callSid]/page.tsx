@@ -120,6 +120,32 @@ function HistoryItem({
   );
 }
 
+function formatReviewStatusLabel(value: string) {
+  switch (value) {
+    case 'UNREVIEWED':
+      return 'Unreviewed';
+    case 'NEEDS_REVIEW':
+      return 'Needs review';
+    case 'REVIEWED':
+      return 'Reviewed';
+    default:
+      return value;
+  }
+}
+
+function formatTriageStatusLabel(value: string) {
+  switch (value) {
+    case 'OPEN':
+      return 'Open';
+    case 'CONTACTED':
+      return 'Contacted';
+    case 'ARCHIVED':
+      return 'Archived';
+    default:
+      return value;
+  }
+}
+
 export default async function CallDetailPage({
   params,
   searchParams
@@ -141,11 +167,11 @@ export default async function CallDetailPage({
         : resolvedSearchParams.notice === 'extracted'
           ? 'Extraction rerun queued.'
           : resolvedSearchParams.notice === 'saved'
-            ? 'Call review details saved.'
+            ? 'Review changes saved.'
             : resolvedSearchParams.notice === 'saved-next'
-                ? 'Saved. Showing next call for review.'
+                ? 'Review changes saved. Moved to the next call needing review.'
                 : resolvedSearchParams.notice === 'no-review-calls'
-                  ? 'No more calls need review.'
+                  ? 'Review changes saved. No more calls need review.'
                   : null;
   const data = await getCall(callSid);
   const call = data.call;
@@ -309,10 +335,10 @@ export default async function CallDetailPage({
                 {call.status}
               </span>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.triageStatus)}`}>
-                {call.triageStatus}
+                {formatTriageStatusLabel(call.triageStatus)}
               </span>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}>
-                {call.reviewStatus}
+                {formatReviewStatusLabel(call.reviewStatus)}
               </span>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}>
                 {call.urgency ?? 'no urgency'}

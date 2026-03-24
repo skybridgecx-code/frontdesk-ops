@@ -156,7 +156,7 @@ function getNoticeMessage(notice: string | undefined) {
     case 'bulk-archived':
       return 'Selected calls archived.';
     case 'row-saved':
-      return 'Queue quick edit saved.';
+      return 'Lead details and review state saved.';
     case 'no-review-calls':
       return 'No calls currently need review.';
     default:
@@ -447,7 +447,7 @@ export default async function CallsPage({
           <div>
             <h1 className="text-3xl font-semibold tracking-tight">Frontdesk Ops</h1>
             <p className="mt-1 text-sm text-neutral-600">
-              Searchable call queue with triage actions and urgency visibility.
+              Searchable call queue with clear review state, triage actions, and urgency visibility.
             </p>
           </div>
 
