@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { DetailReviewShortcuts } from './detail-review-shortcuts';
 
 export const dynamic = 'force-dynamic';
 
@@ -111,10 +112,19 @@ export default async function CallDetailPage({
           ? 'Extraction rerun queued.'
           : resolvedSearchParams.notice === 'saved'
             ? 'Call review details saved.'
+            : resolvedSearchParams.notice === 'saved-next'
+              ? 'Saved. Showing next call for review.'
+              : resolvedSearchParams.notice === 'no-review-calls'
+                ? 'No more calls need review.'
           : null;
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
+  const reviewFormId = 'call-review-form';
+  const notesFieldId = 'operator-notes';
+  const reviewStatusFieldId = 'review-status';
+  const saveButtonId = 'save-review-button';
+  const saveNextButtonId = 'save-review-next-button';
 
   async function markContacted() {
     'use server';
@@ -190,9 +200,68 @@ export default async function CallDetailPage({
     redirect(`${detailHref}&notice=saved`);
   }
 
+  async function saveAndReviewNext(formData: FormData) {
+    'use server';
+
+    const reviewStatus = String(formData.get('reviewStatus') ?? '');
+    const urgency = String(formData.get('urgency') ?? '');
+
+    const payload = {
+      leadName: String(formData.get('leadName') ?? '').trim() || null,
+      leadPhone: String(formData.get('leadPhone') ?? '').trim() || null,
+      leadIntent: String(formData.get('leadIntent') ?? '').trim() || null,
+      urgency: urgency || null,
+      serviceAddress: String(formData.get('serviceAddress') ?? '').trim() || null,
+      summary: String(formData.get('summary') ?? '').trim() || null,
+      operatorNotes: String(formData.get('operatorNotes') ?? '').trim() || null,
+      reviewStatus
+    };
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        ...getInternalApiHeaders()
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!res.ok) {
+      throw new Error(`Failed to save call review: ${res.status}`);
+    }
+
+    revalidatePath('/calls');
+    revalidatePath(`/calls/${callSid}`);
+
+    const nextRes = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+      cache: 'no-store',
+      headers: getInternalApiHeaders()
+    });
+
+    if (!nextRes.ok) {
+      throw new Error(`Failed to load review-next call: ${nextRes.status}`);
+    }
+
+    const nextData = (await nextRes.json()) as { ok: true; callSid: string | null };
+
+    if (!nextData.callSid) {
+      redirect(`${detailHref}&notice=no-review-calls`);
+    }
+
+    redirect(`/calls/${nextData.callSid}?returnTo=${encodeURIComponent(returnTo)}&notice=saved-next`);
+  }
+
   return (
     <main className="min-h-screen bg-white text-black p-6">
       <div className="mx-auto max-w-5xl space-y-6">
+        <DetailReviewShortcuts
+          formId={reviewFormId}
+          notesFieldId={notesFieldId}
+          reviewStatusFieldId={reviewStatusFieldId}
+          saveButtonId={saveButtonId}
+          saveNextButtonId={saveNextButtonId}
+        />
+
         {notice ? (
           <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
             {notice}
@@ -287,7 +356,17 @@ export default async function CallDetailPage({
             </div>
           </div>
 
-          <form action={saveReview} className="mt-4 grid gap-4 md:grid-cols-2">
+          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+            <span className="font-medium text-black">Shortcuts</span>{' '}
+            <span className="mr-3">Cmd/Ctrl+S Save</span>
+            <span className="mr-3">Cmd/Ctrl+Enter Save and review next</span>
+            <span className="mr-3">Alt+R Reviewed</span>
+            <span className="mr-3">Alt+N Needs review</span>
+            <span className="mr-3">Alt+U Unreviewed</span>
+            <span>/ Focus notes</span>
+          </div>
+
+          <form id={reviewFormId} action={saveReview} className="mt-4 grid gap-4 md:grid-cols-2">
             <label className="text-sm">
               <div className="mb-2 font-medium">Lead name</div>
               <input
@@ -352,6 +431,7 @@ export default async function CallDetailPage({
             <label className="text-sm md:col-span-2">
               <div className="mb-2 font-medium">Operator notes</div>
               <textarea
+                id={notesFieldId}
                 name="operatorNotes"
                 defaultValue={call.operatorNotes ?? ''}
                 rows={4}
@@ -362,6 +442,7 @@ export default async function CallDetailPage({
             <label className="text-sm">
               <div className="mb-2 font-medium">Review status</div>
               <select
+                id={reviewStatusFieldId}
                 name="reviewStatus"
                 defaultValue={call.reviewStatus}
                 className="w-full rounded-xl border border-neutral-300 px-3 py-2"
@@ -372,9 +453,19 @@ export default async function CallDetailPage({
               </select>
             </label>
 
-            <div className="flex items-end">
-              <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
+            <div className="flex items-end gap-2">
+              <button
+                id={saveButtonId}
+                className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
+              >
                 Save review changes
+              </button>
+              <button
+                id={saveNextButtonId}
+                formAction={saveAndReviewNext}
+                className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+              >
+                Save and review next
               </button>
             </div>
           </form>
