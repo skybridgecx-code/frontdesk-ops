@@ -120,7 +120,7 @@ function HistoryItem({
   );
 }
 
-function formatReviewStatusLabel(value: string) {
+function formatReviewStatusLabel(value: string | undefined) {
   switch (value) {
     case 'UNREVIEWED':
       return 'Unreviewed';
@@ -133,7 +133,7 @@ function formatReviewStatusLabel(value: string) {
   }
 }
 
-function formatTriageStatusLabel(value: string) {
+function formatTriageStatusLabel(value: string | undefined) {
   switch (value) {
     case 'OPEN':
       return 'Open';
@@ -144,6 +144,34 @@ function formatTriageStatusLabel(value: string) {
     default:
       return value;
   }
+}
+
+function formatUrgencyLabel(value: string | undefined) {
+  switch (value) {
+    case 'low':
+      return 'Low urgency';
+    case 'medium':
+      return 'Medium urgency';
+    case 'high':
+      return 'High urgency';
+    case 'emergency':
+      return 'Emergency';
+    default:
+      return null;
+  }
+}
+
+function buildReturnContextSummary(returnTo: string) {
+  const url = new URL(returnTo, 'http://localhost');
+  const parts = [
+    formatTriageStatusLabel(url.searchParams.get('triageStatus') ?? 'OPEN'),
+    formatReviewStatusLabel(url.searchParams.get('reviewStatus') ?? undefined),
+    formatUrgencyLabel(url.searchParams.get('urgency') ?? undefined),
+    url.searchParams.get('q')?.trim() ? `Search: "${url.searchParams.get('q')?.trim()}"` : null,
+    url.searchParams.get('page') ? `Page ${url.searchParams.get('page')}` : null
+  ].filter(Boolean);
+
+  return parts.join(' • ');
 }
 
 export default async function CallDetailPage({
@@ -181,6 +209,7 @@ export default async function CallDetailPage({
   const reviewStatusFieldId = 'review-status';
   const saveButtonId = 'save-review-button';
   const saveNextButtonId = 'save-review-next-button';
+  const returnContextSummary = buildReturnContextSummary(returnTo);
 
   async function markContacted() {
     'use server';
@@ -327,8 +356,9 @@ export default async function CallDetailPage({
         <div className="flex items-start justify-between gap-4">
           <div>
             <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to queue
+              ← Back to filtered queue
             </a>
+            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
             <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.status)}`}>

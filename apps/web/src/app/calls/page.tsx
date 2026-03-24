@@ -145,6 +145,65 @@ function buildNoticeHref(currentHref: string, notice: string) {
   return `${url.pathname}${url.search}`;
 }
 
+function formatReviewStatusLabel(value: string | undefined) {
+  switch (value) {
+    case 'UNREVIEWED':
+      return 'Unreviewed';
+    case 'NEEDS_REVIEW':
+      return 'Needs review';
+    case 'REVIEWED':
+      return 'Reviewed';
+    default:
+      return null;
+  }
+}
+
+function formatTriageStatusLabel(value: string | undefined) {
+  switch (value) {
+    case 'OPEN':
+      return 'Open';
+    case 'CONTACTED':
+      return 'Contacted';
+    case 'ARCHIVED':
+      return 'Archived';
+    default:
+      return null;
+  }
+}
+
+function formatUrgencyLabel(value: string | undefined) {
+  switch (value) {
+    case 'low':
+      return 'Low urgency';
+    case 'medium':
+      return 'Medium urgency';
+    case 'high':
+      return 'High urgency';
+    case 'emergency':
+      return 'Emergency';
+    default:
+      return null;
+  }
+}
+
+function buildQueueContextSummary(input: {
+  triageStatus?: string;
+  reviewStatus?: string;
+  urgency?: string;
+  q?: string;
+  page?: string;
+}) {
+  const parts = [
+    formatTriageStatusLabel(input.triageStatus),
+    formatReviewStatusLabel(input.reviewStatus),
+    formatUrgencyLabel(input.urgency),
+    input.q?.trim() ? `Search: "${input.q.trim()}"` : null,
+    input.page && input.page !== '1' ? `Page ${input.page}` : null
+  ].filter(Boolean);
+
+  return parts.length > 0 ? parts.join(' • ') : 'Open queue';
+}
+
 function getNoticeMessage(notice: string | undefined) {
   switch (notice) {
     case 'contacted':
@@ -215,6 +274,13 @@ export default async function CallsPage({
   const page = normalizePage(resolved.page);
   const limit = normalizeLimit(resolved.limit);
   const noticeMessage = getNoticeMessage(resolved.notice);
+  const queueContextSummary = buildQueueContextSummary({
+    triageStatus,
+    reviewStatus,
+    urgency,
+    q,
+    page
+  });
 
   if (!triageStatus) {
     redirect(
@@ -463,6 +529,11 @@ export default async function CallsPage({
             {noticeMessage}
           </div>
         ) : null}
+
+        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+          <span className="font-medium text-black">Queue context</span>{' '}
+          <span>Opening a call keeps this view: {queueContextSummary}</span>
+        </div>
 
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
           <span className="font-medium text-black">Queue signals:</span>
