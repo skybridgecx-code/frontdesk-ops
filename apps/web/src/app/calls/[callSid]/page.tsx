@@ -2,6 +2,12 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
+import {
+  buildDetailReviewNextRequestHref,
+  buildQueueNoticeHref,
+  buildSaveAndNextHref,
+  normalizeReturnTo
+} from '../workflow-urls';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +32,7 @@ type CallDetail = {
   summary: string | null;
   operatorNotes: string | null;
   startedAt: string;
+  answeredAt: string | null;
   endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
@@ -155,10 +162,7 @@ export default async function CallDetailPage({
 }) {
   const { callSid } = await params;
   const resolvedSearchParams = await searchParams;
-  const returnTo =
-    resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/calls')
-      ? resolvedSearchParams.returnTo
-      : '/calls?triageStatus=OPEN';
+  const returnTo = normalizeReturnTo(resolvedSearchParams.returnTo);
   const notice =
     resolvedSearchParams.notice === 'contacted'
       ? 'Call marked contacted.'
@@ -289,7 +293,7 @@ export default async function CallDetailPage({
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
 
-    const nextRes = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+    const nextRes = await fetch(`${getApiBaseUrl()}${buildDetailReviewNextRequestHref(returnTo, callSid)}`, {
       cache: 'no-store',
       headers: getInternalApiHeaders()
     });
@@ -300,11 +304,11 @@ export default async function CallDetailPage({
 
     const nextData = (await nextRes.json()) as { ok: true; callSid: string | null };
 
-    if (!nextData.callSid) {
-      redirect(`${detailHref}&notice=no-review-calls`);
+    if (!nextData.callSid || nextData.callSid === callSid) {
+      redirect(buildQueueNoticeHref(returnTo, 'no-review-calls'));
     }
 
-    redirect(`/calls/${nextData.callSid}?returnTo=${encodeURIComponent(returnTo)}&notice=saved-next`);
+    redirect(buildSaveAndNextHref(nextData.callSid, returnTo));
   }
 
   return (
@@ -344,6 +348,12 @@ export default async function CallDetailPage({
                 {call.urgency ?? 'no urgency'}
               </span>
             </div>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
+              <span>Started {formatDateTime(call.startedAt)}</span>
+              <span>Answered {formatDateTime(call.answeredAt)}</span>
+              <span>Ended {formatDateTime(call.endedAt)}</span>
+              <span>Duration {formatDuration(call.durationSeconds)}</span>
+            </div>
           </div>
 
           <div className="flex gap-2">
@@ -365,9 +375,19 @@ export default async function CallDetailPage({
           </div>
         </div>
 
+        <section className="rounded-2xl border border-neutral-200 p-4">
+          <h2 className="font-medium">Issue snapshot</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Best available summary of what happened and what the caller needs.
+          </p>
+          <p className="mt-3 text-sm whitespace-pre-wrap">
+            {call.summary ?? call.leadIntent ?? 'No summary yet. Use the transcripts below to review the call.'}
+          </p>
+        </section>
+
         <div className="grid gap-4 md:grid-cols-3">
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Lead</h2>
+            <h2 className="font-medium">Lead facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">Name:</span> {call.leadName ?? '—'}</div>
               <div><span className="text-neutral-500">Phone:</span> {call.leadPhone ?? '—'}</div>
@@ -378,7 +398,7 @@ export default async function CallDetailPage({
           </section>
 
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Call</h2>
+            <h2 className="font-medium">Call facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">From:</span> {call.fromE164 ?? '—'}</div>
               <div><span className="text-neutral-500">To:</span> {call.toE164 ?? '—'}</div>
@@ -388,7 +408,7 @@ export default async function CallDetailPage({
           </section>
 
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Agent</h2>
+            <h2 className="font-medium">Agent facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">Name:</span> {call.agentProfile?.name ?? '—'}</div>
               <div><span className="text-neutral-500">Voice:</span> {call.agentProfile?.voiceName ?? '—'}</div>
@@ -397,25 +417,27 @@ export default async function CallDetailPage({
           </section>
         </div>
 
-        <section className="rounded-2xl border border-neutral-200 p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-medium">Activity history</h2>
-              <p className="mt-1 text-sm text-neutral-600">
-                Read-only timeline from existing call and review timestamps.
-              </p>
-            </div>
-          </div>
+        <div className="grid gap-4 md:grid-cols-2">
+          <section className="rounded-2xl border border-neutral-200 p-4">
+            <h2 className="font-medium">Caller transcript</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Caller words first. Use this when the summary is missing or thin.
+            </p>
+            <p className="mt-3 text-sm whitespace-pre-wrap">
+              {call.callerTranscript ?? 'No caller transcript available.'}
+            </p>
+          </section>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
-            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
-            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
-            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
-            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
-            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
-          </div>
-        </section>
+          <section className="rounded-2xl border border-neutral-200 p-4">
+            <h2 className="font-medium">Assistant transcript</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Assistant responses and routing language captured during the call.
+            </p>
+            <p className="mt-3 text-sm whitespace-pre-wrap">
+              {call.assistantTranscript ?? 'No assistant transcript available.'}
+            </p>
+          </section>
+        </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
@@ -438,7 +460,84 @@ export default async function CallDetailPage({
           </div>
 
           <form id={reviewFormId} action={saveReview} className="mt-4 space-y-4">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
+            <div className="grid gap-4 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
+              <div className="space-y-4">
+                <section className="rounded-2xl border border-neutral-200 p-4">
+                  <h3 className="text-sm font-medium text-black">Disposition</h3>
+                  <p className="mt-1 text-sm text-neutral-600">
+                    Set the review state first, then use the follow-up actions above if the call needs outreach or archiving.
+                  </p>
+                  <div className="mt-4 space-y-4">
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Review status</div>
+                      <select
+                        id={reviewStatusFieldId}
+                        name="reviewStatus"
+                        defaultValue={call.reviewStatus}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      >
+                        <option value="UNREVIEWED">Unreviewed</option>
+                        <option value="NEEDS_REVIEW">Needs review</option>
+                        <option value="REVIEWED">Reviewed</option>
+                      </select>
+                    </label>
+
+                    <label className="text-sm block">
+                      <div className="mb-2 font-medium">Urgency</div>
+                      <select
+                        name="urgency"
+                        defaultValue={call.urgency ?? ''}
+                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
+                      >
+                        <option value="">Unspecified</option>
+                        <option value="low">Low</option>
+                        <option value="medium">Medium</option>
+                        <option value="high">High</option>
+                        <option value="emergency">Emergency</option>
+                      </select>
+                    </label>
+
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
+                      <div>
+                        <span className="font-medium text-black">Follow-up status:</span>{' '}
+                        {formatTriageStatusLabel(call.triageStatus)}
+                      </div>
+                      <div className="mt-1 text-neutral-600">
+                        {call.contactedAt
+                          ? `Marked contacted ${formatDateTime(call.contactedAt)}`
+                          : call.archivedAt
+                            ? `Archived ${formatDateTime(call.archivedAt)}`
+                            : 'No follow-up action recorded yet.'}
+                      </div>
+                    </div>
+                  </div>
+                </section>
+
+                <div className="lg:sticky lg:top-4">
+                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
+                    <h3 className="text-sm font-medium text-black">Actions</h3>
+                    <p className="mt-1 text-sm text-neutral-600">
+                      Save the review or move straight to the next call needing attention.
+                    </p>
+                    <div className="mt-4 flex flex-col gap-2">
+                      <button
+                        id={saveButtonId}
+                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
+                      >
+                        Save review changes
+                      </button>
+                      <button
+                        id={saveNextButtonId}
+                        formAction={saveAndReviewNext}
+                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+                      >
+                        Save and review next
+                      </button>
+                    </div>
+                  </section>
+                </div>
+              </div>
+
               <div className="space-y-4">
                 <section className="rounded-2xl border border-neutral-200 p-4">
                   <h3 className="text-sm font-medium text-black">Lead details</h3>
@@ -507,86 +606,30 @@ export default async function CallDetailPage({
                   </div>
                 </section>
               </div>
-
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review controls</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Urgency</div>
-                      <select
-                        name="urgency"
-                        defaultValue={call.urgency ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="">Unspecified</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="emergency">Emergency</option>
-                      </select>
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Review status</div>
-                      <select
-                        id={reviewStatusFieldId}
-                        name="reviewStatus"
-                        defaultValue={call.reviewStatus}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="UNREVIEWED">Unreviewed</option>
-                        <option value="NEEDS_REVIEW">Needs review</option>
-                        <option value="REVIEWED">Reviewed</option>
-                      </select>
-                    </label>
-                  </div>
-                </section>
-
-                <div className="lg:sticky lg:top-4">
-                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-black">Actions</h3>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Keep moving through review without losing your place.
-                    </p>
-                    <div className="mt-4 flex flex-col gap-2">
-                      <button
-                        id={saveButtonId}
-                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
-                      >
-                        Save review changes
-                      </button>
-                      <button
-                        id={saveNextButtonId}
-                        formAction={saveAndReviewNext}
-                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-                      >
-                        Save and review next
-                      </button>
-                    </div>
-                  </section>
-                </div>
-              </div>
             </div>
           </form>
         </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
-          <h2 className="font-medium">Summary</h2>
-          <p className="mt-3 text-sm whitespace-pre-wrap">{call.summary ?? '—'}</p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-medium">Activity history</h2>
+              <p className="mt-1 text-sm text-neutral-600">
+                Read-only timeline from existing call and review timestamps.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
+            <HistoryItem label="Answered" value={formatDateTime(call.answeredAt)} />
+            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
+            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
+            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
+            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
+            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
+          </div>
         </section>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Caller transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.callerTranscript ?? '—'}</p>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Assistant transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.assistantTranscript ?? '—'}</p>
-          </section>
-        </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Event timeline</h2>

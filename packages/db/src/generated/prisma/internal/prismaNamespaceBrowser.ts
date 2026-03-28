@@ -61,7 +61,9 @@ export const ModelName = {
   BusinessHours: 'BusinessHours',
   ServiceArea: 'ServiceArea',
   Call: 'Call',
-  CallEvent: 'CallEvent'
+  CallEvent: 'CallEvent',
+  Prospect: 'Prospect',
+  ProspectAttempt: 'ProspectAttempt'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -262,6 +264,46 @@ export const CallEventScalarFieldEnum = {
 } as const
 
 export type CallEventScalarFieldEnum = (typeof CallEventScalarFieldEnum)[keyof typeof CallEventScalarFieldEnum]
+
+
+export const ProspectScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  prospectSid: 'prospectSid',
+  companyName: 'companyName',
+  contactName: 'contactName',
+  contactPhone: 'contactPhone',
+  contactEmail: 'contactEmail',
+  city: 'city',
+  state: 'state',
+  sourceLabel: 'sourceLabel',
+  serviceInterest: 'serviceInterest',
+  notes: 'notes',
+  status: 'status',
+  priority: 'priority',
+  nextActionAt: 'nextActionAt',
+  lastAttemptAt: 'lastAttemptAt',
+  respondedAt: 'respondedAt',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProspectScalarFieldEnum = (typeof ProspectScalarFieldEnum)[keyof typeof ProspectScalarFieldEnum]
+
+
+export const ProspectAttemptScalarFieldEnum = {
+  id: 'id',
+  prospectId: 'prospectId',
+  channel: 'channel',
+  outcome: 'outcome',
+  note: 'note',
+  attemptedAt: 'attemptedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProspectAttemptScalarFieldEnum = (typeof ProspectAttemptScalarFieldEnum)[keyof typeof ProspectAttemptScalarFieldEnum]
 
 
 export const SortOrder = {

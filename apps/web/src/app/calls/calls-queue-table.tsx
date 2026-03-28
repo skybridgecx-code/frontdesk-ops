@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { buildCallDetailHref } from './workflow-urls';
 
 type CallRow = {
   twilioCallSid: string;
@@ -9,6 +10,8 @@ type CallRow = {
   routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
+  contactedAt: string | null;
+  reviewedAt: string | null;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -16,7 +19,10 @@ type CallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  callerTranscript: string | null;
   startedAt: string;
+  answeredAt: string | null;
+  endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
     e164: string;
@@ -32,6 +38,104 @@ function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}m ${String(s).padStart(2, '0')}s`;
+}
+
+function cleanPreviewText(value: string | null | undefined) {
+  if (!value) return null;
+
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (!normalized) return null;
+
+  const withoutLeadingPunctuation = normalized.replace(/^[\s"'.,!?-]+/, '').trim();
+  return withoutLeadingPunctuation || null;
+}
+
+function truncateText(value: string, maxLength: number) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function firstMeaningfulSentence(value: string | null | undefined) {
+  const cleaned = cleanPreviewText(value);
+  if (!cleaned) return null;
+
+  const line = cleaned.split(/\r?\n/).find((entry) => entry.trim().length > 0)?.trim() ?? cleaned;
+  const sentences = line
+    .split(/(?<=[.!?])\s+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (sentences.length === 0) {
+    return null;
+  }
+
+  const [firstSentence, secondSentence] = sentences;
+  const isIdentityOpener =
+    /^(hi|hello|hey)\b/i.test(firstSentence) &&
+    /\b(this is|my name is|it's|i am|i'm)\b/i.test(firstSentence);
+  const isBareIdentityOpener = /^(this is)\b/i.test(firstSentence);
+
+  const sentence =
+    (secondSentence && (isIdentityOpener || isBareIdentityOpener) ? secondSentence : firstSentence) ??
+    line;
+
+  return truncateText(sentence, 120);
+}
+
+function getCallerPreview(call: CallRow) {
+  const summaryPreview = cleanPreviewText(call.summary);
+  const leadIntentPreview = cleanPreviewText(call.leadIntent);
+
+  return (
+    firstMeaningfulSentence(call.callerTranscript) ??
+    (summaryPreview ? truncateText(summaryPreview, 120) : null) ??
+    (leadIntentPreview ? truncateText(leadIntentPreview, 120) : null) ??
+    '—'
+  );
+}
+
+function formatStatusLabel(value: string) {
+  switch (value) {
+    case 'COMPLETED':
+      return 'completed';
+    case 'IN_PROGRESS':
+      return 'in progress';
+    case 'RINGING':
+      return 'ringing';
+    case 'NO_ANSWER':
+      return 'no answer';
+    case 'BUSY':
+      return 'busy';
+    case 'FAILED':
+      return 'failed';
+    case 'CANCELED':
+      return 'canceled';
+    default:
+      return value.toLowerCase().replace(/_/g, ' ');
+  }
+}
+
+function getOutcomeMeta(call: CallRow) {
+  const parts = [formatStatusLabel(call.status)];
+
+  if (call.durationSeconds != null) {
+    parts.push(formatDuration(call.durationSeconds));
+  } else if (call.answeredAt) {
+    parts.push('answered');
+  } else if (call.endedAt) {
+    parts.push('ended');
+  }
+
+  if (call.contactedAt) {
+    parts.push('contacted');
+  } else if (call.reviewedAt) {
+    parts.push('reviewed');
+  }
+
+  return parts.join(' · ');
 }
 
 function formatReviewStatusLabel(value: string) {
@@ -327,7 +431,7 @@ export function CallsQueueTable({
                     </td>
                     <td className="px-4 py-3">
                       <a
-                        href={`/calls/${call.twilioCallSid}?returnTo=${encodeURIComponent(currentHref)}`}
+                        href={buildCallDetailHref(call.twilioCallSid, currentHref)}
                         className="font-medium underline underline-offset-2"
                       >
                         {call.twilioCallSid}
@@ -337,6 +441,8 @@ export function CallsQueueTable({
                         {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
                       </div>
                       <div className="mt-1 text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
+                      <div className="mt-2 text-neutral-900">{getCallerPreview(call)}</div>
+                      <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {call.routeKind ? (
                           <span

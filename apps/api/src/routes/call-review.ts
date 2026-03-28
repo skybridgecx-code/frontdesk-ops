@@ -37,16 +37,23 @@ export async function registerCallReviewRoutes(app: FastifyInstance) {
 
     const existing = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },
-      select: { id: true }
+      select: {
+        id: true,
+        reviewStatus: true,
+        reviewedAt: true
+      }
     });
 
     if (!existing) {
       return reply.notFound(`Call not found for callSid=${callSid}`);
     }
 
+    const nextReviewStatus = parsed.data.reviewStatus;
     const shouldStampReviewedAt =
-      parsed.data.reviewStatus === CallReviewStatus.REVIEWED ||
-      parsed.data.reviewStatus === CallReviewStatus.NEEDS_REVIEW;
+      (nextReviewStatus === CallReviewStatus.REVIEWED ||
+        nextReviewStatus === CallReviewStatus.NEEDS_REVIEW) &&
+      existing.reviewStatus !== nextReviewStatus;
+    const shouldClearReviewedAt = nextReviewStatus === CallReviewStatus.UNREVIEWED;
 
     const call = await prisma.call.update({
       where: { twilioCallSid: callSid },
@@ -58,8 +65,12 @@ export async function registerCallReviewRoutes(app: FastifyInstance) {
         serviceAddress: parsed.data.serviceAddress,
         summary: parsed.data.summary,
         operatorNotes: parsed.data.operatorNotes,
-        reviewStatus: parsed.data.reviewStatus,
-        reviewedAt: shouldStampReviewedAt ? new Date() : undefined
+        reviewStatus: nextReviewStatus,
+        reviewedAt: shouldClearReviewedAt
+          ? null
+          : shouldStampReviewedAt
+            ? new Date()
+            : undefined
       },
       select: {
         twilioCallSid: true,

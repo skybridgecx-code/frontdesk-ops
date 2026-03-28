@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "turbo run dev --parallel",
     "build": "turbo run build",
+    "validate:local-operator": "pnpm --filter @frontdesk/db test && pnpm --filter @frontdesk/api test && pnpm --filter web test && pnpm --filter @frontdesk/db reset:demo-calls && pnpm --filter @frontdesk/db smoke:demo-calls",
+    "validate:local-operator:full": "pnpm --filter @frontdesk/db test && pnpm --filter @frontdesk/api test && pnpm --filter web test && pnpm --filter @frontdesk/db build && pnpm --filter @frontdesk/api build && pnpm --filter web build && pnpm --filter @frontdesk/db reset:demo-calls && pnpm --filter @frontdesk/db smoke:demo-calls",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
     "format": "prettier --write ."

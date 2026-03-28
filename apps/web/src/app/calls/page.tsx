@@ -2,6 +2,14 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { CallsQueueTable } from './calls-queue-table';
+import {
+  buildCallDetailHref,
+  buildFilterHref,
+  buildNoticeHref,
+  buildQueueReviewNextRequestHref,
+  normalizeLimit,
+  normalizePage
+} from './workflow-urls';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,6 +19,8 @@ type CallRow = {
   routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
+  contactedAt: string | null;
+  reviewedAt: string | null;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -18,7 +28,10 @@ type CallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  callerTranscript: string | null;
   startedAt: string;
+  answeredAt: string | null;
+  endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
     e164: string;
@@ -62,14 +75,6 @@ type CallsSearchParams = {
   notice?: string;
 };
 
-function normalizeLimit(value: string | undefined) {
-  return String(Math.min(Math.max(Number(value ?? '25') || 25, 1), 100));
-}
-
-function normalizePage(value: string | undefined) {
-  return String(Math.max(Number(value ?? '1') || 1, 1));
-}
-
 async function getCalls(input: {
   triageStatus?: string;
   reviewStatus?: string;
@@ -110,39 +115,6 @@ async function getCallsSummary() {
   }
 
   return (await res.json()) as CallsSummary;
-}
-
-function buildFilterHref(input: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-  page?: string;
-  limit?: string;
-  notice?: string;
-}) {
-  const params = new URLSearchParams();
-
-  if (input.triageStatus) params.set('triageStatus', input.triageStatus);
-  if (input.reviewStatus) params.set('reviewStatus', input.reviewStatus);
-  if (input.urgency) params.set('urgency', input.urgency);
-  if (input.q?.trim()) params.set('q', input.q.trim());
-
-  const normalizedPage = normalizePage(input.page);
-  if (normalizedPage !== '1') params.set('page', normalizedPage);
-
-  const normalizedLimit = normalizeLimit(input.limit);
-  if (normalizedLimit !== '25') params.set('limit', normalizedLimit);
-  if (input.notice) params.set('notice', input.notice);
-
-  const query = params.toString();
-  return query ? `/calls?${query}` : '/calls';
-}
-
-function buildNoticeHref(currentHref: string, notice: string) {
-  const url = new URL(currentHref, 'http://localhost');
-  url.searchParams.set('notice', notice);
-  return `${url.pathname}${url.search}`;
 }
 
 function getNoticeMessage(notice: string | undefined) {
@@ -277,7 +249,7 @@ export default async function CallsPage({
   async function reviewNext() {
     'use server';
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+    const res = await fetch(`${getApiBaseUrl()}${buildQueueReviewNextRequestHref(currentHref)}`, {
       cache: 'no-store',
       headers: getInternalApiHeaders()
     });
@@ -292,7 +264,7 @@ export default async function CallsPage({
       redirect(buildNoticeHref(currentHref, 'no-review-calls'));
     }
 
-    redirect(`/calls/${data.callSid}?returnTo=${encodeURIComponent(currentHref)}`);
+    redirect(buildCallDetailHref(data.callSid, currentHref));
   }
 
   async function markContacted(formData: FormData) {

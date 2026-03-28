@@ -123,6 +123,11 @@ app.get(
     let currentInputItemId: string | null = null;
     let assistantTranscriptBuffer = '';
     let callerTranscriptBuffer = '';
+    let finalizationRequested = false;
+    let mediaSocketClosed = false;
+    let extractionCompleted = false;
+    let extractionInFlight: Promise<void> | null = null;
+    let finalizationTimeout: ReturnType<typeof setTimeout> | null = null;
     let pendingResponseTrigger: { callSid: string | null; streamSid: string | null } | null = null;
     const pendingAudio: Array<{
       payload: string;
@@ -187,6 +192,132 @@ app.get(
           payloadJson: payloadJson as Prisma.InputJsonValue
         }
       });
+    }
+
+    function closeOpenAIRealtimeSocket() {
+      if (openAIRealtimeSocket && openAIRealtimeSocket.readyState === 1) {
+        openAIRealtimeSocket.close();
+      }
+    }
+
+    function clearFinalizationTimeout() {
+      if (finalizationTimeout) {
+        clearTimeout(finalizationTimeout);
+        finalizationTimeout = null;
+      }
+    }
+
+    function scheduleFinalizationTimeout(reason: string) {
+      clearFinalizationTimeout();
+
+      finalizationTimeout = setTimeout(() => {
+        enqueue(async () => {
+          await persistEvent('openai.finalization.timeout', {
+            callSid: queryCallSid,
+            streamSid: currentStreamSid,
+            reason
+          });
+
+          await runCallExtraction(`timeout:${reason}`);
+          closeOpenAIRealtimeSocket();
+        });
+      }, 4000);
+    }
+
+    async function runCallExtraction(trigger: string) {
+      if (extractionCompleted) {
+        return;
+      }
+
+      if (extractionInFlight) {
+        await extractionInFlight;
+        return;
+      }
+
+      extractionInFlight = (async () => {
+        const context = await ensureCallContext();
+        if (!context) {
+          return;
+        }
+
+        const currentCall = await prisma.call.findUnique({
+          where: { id: context.callId },
+          select: {
+            callerTranscript: true,
+            assistantTranscript: true
+          }
+        });
+
+        const callerTranscript = currentCall?.callerTranscript ?? null;
+        const assistantTranscript = currentCall?.assistantTranscript ?? null;
+
+        if (!callerTranscript && !assistantTranscript) {
+          await persistEvent('openai.call_extraction.skipped', {
+            callSid: queryCallSid,
+            streamSid: currentStreamSid,
+            trigger,
+            reason: 'missing_transcript'
+          });
+
+          app.log.warn({
+            msg: 'call extraction skipped because transcripts were missing',
+            callSid: queryCallSid,
+            trigger
+          });
+
+          return;
+        }
+
+        const extracted = await extractCallData({
+          callerTranscript,
+          assistantTranscript
+        });
+
+        await prisma.call.update({
+          where: { id: context.callId },
+          data: {
+            leadName: extracted.leadName,
+            leadPhone: extracted.leadPhone,
+            leadIntent: extracted.leadIntent,
+            urgency: extracted.urgency,
+            serviceAddress: extracted.serviceAddress,
+            summary: extracted.summary
+          }
+        });
+
+        extractionCompleted = true;
+        clearFinalizationTimeout();
+
+        await persistEvent('openai.call_extraction.completed', {
+          callSid: queryCallSid,
+          streamSid: currentStreamSid,
+          trigger,
+          leadName: extracted.leadName,
+          leadPhone: extracted.leadPhone,
+          leadIntent: extracted.leadIntent,
+          urgency: extracted.urgency,
+          serviceAddress: extracted.serviceAddress,
+          summaryLength: extracted.summary?.length ?? 0
+        });
+
+        app.log.info({
+          msg: 'call extraction completed',
+          callSid: queryCallSid,
+          trigger,
+          leadName: extracted.leadName,
+          leadPhone: extracted.leadPhone,
+          leadIntent: extracted.leadIntent,
+          urgency: extracted.urgency
+        });
+      })().finally(() => {
+        extractionInFlight = null;
+
+        if (mediaSocketClosed && extractionCompleted) {
+          closeOpenAIRealtimeSocket();
+        }
+      });
+
+      await extractionInFlight;
     }
 
     app.log.info({
@@ -544,53 +675,6 @@ app.get(
               streamSid: currentStreamSid,
               transcriptLength: transcript.length
             });
-
-            if (context) {
-              const currentCall = await prisma.call.findUnique({
-                where: { id: context.callId },
-                select: {
-                  callerTranscript: true,
-                  assistantTranscript: true
-                }
-              });
-
-              const extracted = await extractCallData({
-                callerTranscript: currentCall?.callerTranscript ?? null,
-                assistantTranscript: transcript
-              });
-
-              await prisma.call.update({
-                where: { id: context.callId },
-                data: {
-                  leadName: extracted.leadName,
-                  leadPhone: extracted.leadPhone,
-                  leadIntent: extracted.leadIntent,
-                  urgency: extracted.urgency,
-                  serviceAddress: extracted.serviceAddress,
-                  summary: extracted.summary
-                }
-              });
-
-              await persistEvent('openai.call_extraction.completed', {
-                callSid: queryCallSid,
-                streamSid: currentStreamSid,
-                leadName: extracted.leadName,
-                leadPhone: extracted.leadPhone,
-                leadIntent: extracted.leadIntent,
-                urgency: extracted.urgency,
-                serviceAddress: extracted.serviceAddress,
-                summaryLength: extracted.summary?.length ?? 0
-              });
-
-              app.log.info({
-                msg: 'call extraction completed',
-                callSid: queryCallSid,
-                leadName: extracted.leadName,
-                leadPhone: extracted.leadPhone,
-                leadIntent: extracted.leadIntent,
-                urgency: extracted.urgency
-              });
-            }
           });
 
           app.log.info({
@@ -619,6 +703,10 @@ app.get(
               callSid: queryCallSid,
               streamSid: currentStreamSid
             });
+
+            if (finalizationRequested) {
+              await runCallExtraction('response.done');
+            }
           });
           return;
         }
@@ -704,6 +792,10 @@ app.get(
             code,
             reason: reason.toString()
           });
+
+          if (finalizationRequested && !extractionCompleted) {
+            await runCallExtraction('openai.ws.closed');
+          }
         });
       });
     });
@@ -856,6 +948,7 @@ app.get(
           const stop = isRecord(message.stop) ? message.stop : null;
           const stopCallSid = stop ? getString(stop, 'callSid') ?? queryCallSid ?? null : queryCallSid ?? null;
           const stopStreamSid = stop ? getString(stop, 'streamSid') : null;
+          finalizationRequested = true;
 
           await persistEvent('twilio.media.stop', {
             callSid: stopCallSid,
@@ -966,8 +1059,14 @@ app.get(
     });
 
     socket.on('close', () => {
+      mediaSocketClosed = true;
+
       if (openAIRealtimeSocket) {
-        openAIRealtimeSocket.close();
+        if (finalizationRequested && !extractionCompleted) {
+          scheduleFinalizationTimeout('media_socket_closed');
+        } else {
+          closeOpenAIRealtimeSocket();
+        }
       }
 
       app.log.info({

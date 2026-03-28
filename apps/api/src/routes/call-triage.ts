@@ -7,7 +7,12 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
 
     const existing = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },
-      select: { id: true }
+      select: {
+        id: true,
+        triageStatus: true,
+        contactedAt: true,
+        archivedAt: true
+      }
     });
 
     if (!existing) {
@@ -17,8 +22,11 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
     const call = await prisma.call.update({
       where: { twilioCallSid: callSid },
       data: {
-        triageStatus: CallTriageStatus.CONTACTED,
-        contactedAt: new Date()
+        triageStatus:
+          existing.triageStatus === CallTriageStatus.ARCHIVED || existing.archivedAt
+            ? CallTriageStatus.ARCHIVED
+            : CallTriageStatus.CONTACTED,
+        contactedAt: existing.contactedAt ?? new Date()
       },
       select: {
         twilioCallSid: true,
@@ -39,7 +47,12 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
 
     const existing = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },
-      select: { id: true }
+      select: {
+        id: true,
+        triageStatus: true,
+        contactedAt: true,
+        archivedAt: true
+      }
     });
 
     if (!existing) {
@@ -50,7 +63,7 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
       where: { twilioCallSid: callSid },
       data: {
         triageStatus: CallTriageStatus.ARCHIVED,
-        archivedAt: new Date()
+        archivedAt: existing.archivedAt ?? new Date()
       },
       select: {
         twilioCallSid: true,

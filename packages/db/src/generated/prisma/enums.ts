@@ -115,3 +115,47 @@ export const CallReviewStatus = {
 } as const
 
 export type CallReviewStatus = (typeof CallReviewStatus)[keyof typeof CallReviewStatus]
+
+
+export const ProspectStatus = {
+  NEW: 'NEW',
+  READY: 'READY',
+  IN_PROGRESS: 'IN_PROGRESS',
+  ATTEMPTED: 'ATTEMPTED',
+  RESPONDED: 'RESPONDED',
+  QUALIFIED: 'QUALIFIED',
+  DISQUALIFIED: 'DISQUALIFIED',
+  ARCHIVED: 'ARCHIVED'
+} as const
+
+export type ProspectStatus = (typeof ProspectStatus)[keyof typeof ProspectStatus]
+
+
+export const ProspectPriority = {
+  HIGH: 'HIGH',
+  MEDIUM: 'MEDIUM',
+  LOW: 'LOW'
+} as const
+
+export type ProspectPriority = (typeof ProspectPriority)[keyof typeof ProspectPriority]
+
+
+export const ProspectAttemptChannel = {
+  CALL: 'CALL',
+  EMAIL: 'EMAIL',
+  SMS: 'SMS'
+} as const
+
+export type ProspectAttemptChannel = (typeof ProspectAttemptChannel)[keyof typeof ProspectAttemptChannel]
+
+
+export const ProspectAttemptOutcome = {
+  NO_ANSWER: 'NO_ANSWER',
+  LEFT_VOICEMAIL: 'LEFT_VOICEMAIL',
+  SENT_EMAIL: 'SENT_EMAIL',
+  REPLIED: 'REPLIED',
+  BAD_FIT: 'BAD_FIT',
+  DO_NOT_CONTACT: 'DO_NOT_CONTACT'
+} as const
+
+export type ProspectAttemptOutcome = (typeof ProspectAttemptOutcome)[keyof typeof ProspectAttemptOutcome]

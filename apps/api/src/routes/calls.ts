@@ -1,6 +1,11 @@
 import type { FastifyInstance } from 'fastify';
-import { prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
-import type { Prisma } from '@frontdesk/db';
+import { prisma, Prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
+import {
+  buildCallScopeSql,
+  buildCallScopeWhere,
+  CALL_PRIORITY_ORDER_SQL,
+  normalizeCallScopeQuery
+} from '../lib/call-selectors.js';
 
 const callListSelect = {
   twilioCallSid: true,
@@ -41,62 +46,16 @@ const callListSelect = {
   }
 } satisfies Prisma.CallSelect;
 
+type CallListOrderRow = {
+  twilioCallSid: string;
+};
+
 function parsePage(value: string | undefined) {
   return Math.max(Number(value ?? '1') || 1, 1);
 }
 
 function parseLimit(value: string | undefined) {
   return Math.min(Math.max(Number(value ?? '25') || 25, 1), 100);
-}
-
-function buildCallWhere(query: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-}) {
-  const where: Prisma.CallWhereInput = {};
-
-  if (
-    query.triageStatus === CallTriageStatus.OPEN ||
-    query.triageStatus === CallTriageStatus.CONTACTED ||
-    query.triageStatus === CallTriageStatus.ARCHIVED
-  ) {
-    where.triageStatus = query.triageStatus;
-  }
-
-  if (
-    query.reviewStatus === CallReviewStatus.UNREVIEWED ||
-    query.reviewStatus === CallReviewStatus.REVIEWED ||
-    query.reviewStatus === CallReviewStatus.NEEDS_REVIEW
-  ) {
-    where.reviewStatus = query.reviewStatus;
-  }
-
-  if (
-    query.urgency === 'low' ||
-    query.urgency === 'medium' ||
-    query.urgency === 'high' ||
-    query.urgency === 'emergency'
-  ) {
-    where.urgency = query.urgency;
-  }
-
-  const q = query.q?.trim();
-  if (q) {
-    where.OR = [
-      { twilioCallSid: { contains: q, mode: 'insensitive' } },
-      { fromE164: { contains: q, mode: 'insensitive' } },
-      { toE164: { contains: q, mode: 'insensitive' } },
-      { leadName: { contains: q, mode: 'insensitive' } },
-      { leadPhone: { contains: q, mode: 'insensitive' } },
-      { leadIntent: { contains: q, mode: 'insensitive' } },
-      { serviceAddress: { contains: q, mode: 'insensitive' } },
-      { summary: { contains: q, mode: 'insensitive' } }
-    ];
-  }
-
-  return where;
 }
 
 export async function registerCallRoutes(app: FastifyInstance) {
@@ -112,22 +71,43 @@ export async function registerCallRoutes(app: FastifyInstance) {
 
     const page = parsePage(query.page);
     const limit = parseLimit(query.limit);
-    const where = buildCallWhere(query);
+    const skip = (page - 1) * limit;
+    const scope = normalizeCallScopeQuery(query);
+    const where = buildCallScopeWhere(scope);
 
-    const [total, calls] = await prisma.$transaction([
+    const [total, orderedRows] = await prisma.$transaction([
       prisma.call.count({ where }),
-      prisma.call.findMany({
-        where,
-        orderBy: { createdAt: 'desc' },
-        skip: (page - 1) * limit,
-        take: limit,
-        select: callListSelect
-      })
+      prisma.$queryRaw<CallListOrderRow[]>(Prisma.sql`
+        SELECT "twilioCallSid"
+        FROM "Call"
+        WHERE 1 = 1
+        ${buildCallScopeSql(scope)}
+        ${CALL_PRIORITY_ORDER_SQL}
+        OFFSET ${skip}
+        LIMIT ${limit}
+      `)
     ]);
+
+    const orderedCallSids = orderedRows.map((row) => row.twilioCallSid);
+    const calls =
+      orderedCallSids.length === 0
+        ? []
+        : await prisma.call.findMany({
+            where: {
+              twilioCallSid: {
+                in: orderedCallSids
+              }
+            },
+            select: callListSelect
+          });
+    const callsBySid = new Map(calls.map((call) => [call.twilioCallSid, call]));
+    const orderedCalls = orderedCallSids
+      .map((callSid) => callsBySid.get(callSid))
+      .filter((call): call is (typeof calls)[number] => Boolean(call));
 
     return {
       ok: true,
-      calls,
+      calls: orderedCalls,
       page,
       limit,
       total,

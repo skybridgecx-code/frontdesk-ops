@@ -1,5 +1,9 @@
 # Frontdesk Deploy Runbook
 
+## Related runbooks
+
+- Local operator validation workflow: [`docs/local-operator-validation.md`](./local-operator-validation.md)
+
 ## Service split
 
 - Vercel hosts `apps/web`
