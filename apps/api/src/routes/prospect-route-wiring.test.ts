@@ -143,10 +143,24 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       return [{ prospectSid: 'PR_DEMO_101' }, { prospectSid: 'PR_DEMO_102' }];
     }) as typeof prisma.$queryRaw,
     $transaction: (async (operations: unknown[]) => Promise.all(operations as Promise<unknown>[])) as typeof prisma.$transaction,
-    prospectFindMany: (async () => [
-      { prospectSid: 'PR_DEMO_102', companyName: 'Second Company' },
-      { prospectSid: 'PR_DEMO_101', companyName: 'First Company' }
-    ]) as typeof prisma.prospect.findMany
+    prospectFindMany: ((async () => [
+      {
+        prospectSid: 'PR_DEMO_102',
+        companyName: 'Second Company',
+        createdAt: new Date('2026-03-29T10:00:00.000Z'),
+        respondedAt: null,
+        archivedAt: null,
+        attempts: []
+      },
+      {
+        prospectSid: 'PR_DEMO_101',
+        companyName: 'First Company',
+        createdAt: new Date('2026-03-29T09:00:00.000Z'),
+        respondedAt: null,
+        archivedAt: null,
+        attempts: []
+      }
+    ]) as unknown as typeof prisma.prospect.findMany)
   });
   t.after(restore);
 
@@ -203,8 +217,32 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
   assert.deepEqual(response.json(), {
     ok: true,
     prospects: [
-      { prospectSid: 'PR_DEMO_101', companyName: 'First Company' },
-      { prospectSid: 'PR_DEMO_102', companyName: 'Second Company' }
+      {
+        prospectSid: 'PR_DEMO_101',
+        companyName: 'First Company',
+        createdAt: '2026-03-29T09:00:00.000Z',
+        respondedAt: null,
+        archivedAt: null,
+        attempts: [],
+        lastActivityPreview: {
+          lastActivityAt: '2026-03-29T09:00:00.000Z',
+          lastActivityTitle: 'Added to outbound work',
+          lastActivityDetail: null
+        }
+      },
+      {
+        prospectSid: 'PR_DEMO_102',
+        companyName: 'Second Company',
+        createdAt: '2026-03-29T10:00:00.000Z',
+        respondedAt: null,
+        archivedAt: null,
+        attempts: [],
+        lastActivityPreview: {
+          lastActivityAt: '2026-03-29T10:00:00.000Z',
+          lastActivityTitle: 'Added to outbound work',
+          lastActivityDetail: null
+        }
+      }
     ],
     page: 2,
     limit: 2,

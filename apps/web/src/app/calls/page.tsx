@@ -15,6 +15,12 @@ import {
 
 export const dynamic = 'force-dynamic';
 
+type QueueLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
 type ApiCallRow = {
   twilioCallSid: string;
   status: string;
@@ -43,6 +49,7 @@ type ApiCallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  lastActivityPreview: QueueLastActivityPreview;
 };
 
 type CallRow = ApiCallRow & {

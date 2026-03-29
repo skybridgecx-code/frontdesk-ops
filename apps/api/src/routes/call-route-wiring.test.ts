@@ -140,10 +140,28 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
       return [{ twilioCallSid: 'CA_DEMO_101' }, { twilioCallSid: 'CA_DEMO_102' }];
     }) as typeof prisma.$queryRaw,
     $transaction: (async (operations: unknown[]) => Promise.all(operations as Promise<unknown>[])) as typeof prisma.$transaction,
-    callFindMany: (async () => [
-      { twilioCallSid: 'CA_DEMO_102', summary: 'second' },
-      { twilioCallSid: 'CA_DEMO_101', summary: 'first' }
-    ]) as typeof prisma.call.findMany
+    callFindMany: ((async () => [
+      {
+        twilioCallSid: 'CA_DEMO_102',
+        summary: 'second',
+        startedAt: new Date('2026-03-29T10:00:00.000Z'),
+        endedAt: new Date('2026-03-29T10:05:00.000Z'),
+        reviewedAt: null,
+        contactedAt: null,
+        archivedAt: null,
+        events: []
+      },
+      {
+        twilioCallSid: 'CA_DEMO_101',
+        summary: 'first',
+        startedAt: new Date('2026-03-29T09:00:00.000Z'),
+        endedAt: new Date('2026-03-29T09:10:00.000Z'),
+        reviewedAt: null,
+        contactedAt: null,
+        archivedAt: null,
+        events: []
+      }
+    ]) as unknown as typeof prisma.call.findMany)
   });
   t.after(restore);
 
@@ -193,8 +211,34 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
   assert.deepEqual(response.json(), {
     ok: true,
     calls: [
-      { twilioCallSid: 'CA_DEMO_101', summary: 'first' },
-      { twilioCallSid: 'CA_DEMO_102', summary: 'second' }
+      {
+        twilioCallSid: 'CA_DEMO_101',
+        summary: 'first',
+        startedAt: '2026-03-29T09:00:00.000Z',
+        endedAt: '2026-03-29T09:10:00.000Z',
+        reviewedAt: null,
+        contactedAt: null,
+        archivedAt: null,
+        lastActivityPreview: {
+          lastActivityAt: '2026-03-29T09:10:00.000Z',
+          lastActivityTitle: 'Ended',
+          lastActivityDetail: null
+        }
+      },
+      {
+        twilioCallSid: 'CA_DEMO_102',
+        summary: 'second',
+        startedAt: '2026-03-29T10:00:00.000Z',
+        endedAt: '2026-03-29T10:05:00.000Z',
+        reviewedAt: null,
+        contactedAt: null,
+        archivedAt: null,
+        lastActivityPreview: {
+          lastActivityAt: '2026-03-29T10:05:00.000Z',
+          lastActivityTitle: 'Ended',
+          lastActivityDetail: null
+        }
+      }
     ],
     page: 2,
     limit: 2,

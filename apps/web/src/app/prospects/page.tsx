@@ -14,6 +14,12 @@ import { buildApolloImportPayload, buildGooglePlacesImportPayload } from './impo
 
 export const dynamic = 'force-dynamic';
 
+type QueueLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
 type ProspectAttempt = {
   channel: string;
   outcome: string;
@@ -41,7 +47,23 @@ type ProspectRow = {
   createdAt: string;
   updatedAt: string;
   attempts: ProspectAttempt[];
+  lastActivityPreview: QueueLastActivityPreview;
 };
+
+function formatQueueLastActivityPreview(preview: QueueLastActivityPreview) {
+  const time = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  }).format(new Date(preview.lastActivityAt));
+  const detail = preview.lastActivityDetail?.trim();
+
+  return {
+    title: preview.lastActivityTitle,
+    detailLine: detail ? `${detail} · ${time}` : time
+  };
+}
 
 type ProspectsResponse = {
   ok: true;
@@ -211,15 +233,6 @@ function formatDateTime(value: string | null) {
 function formatLocation(prospect: ProspectRow) {
   const parts = [prospect.city, prospect.state].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : null;
-}
-
-function getAttemptLabel(attempt: ProspectAttempt | undefined) {
-  if (!attempt) {
-    return 'No outreach attempts yet';
-  }
-
-  const time = formatDateTime(attempt.attemptedAt);
-  return `${attempt.channel.toLowerCase()} / ${attempt.outcome.toLowerCase().replaceAll('_', ' ')}${time ? ` · ${time}` : ''}`;
 }
 
 function getProspectHeadline(prospect: ProspectRow) {
@@ -963,7 +976,7 @@ export default async function ProspectsPage({
             <div>Prospect</div>
             <div>Priority / status</div>
             <div>Next step</div>
-            <div>Recent attempt</div>
+            <div>Last activity</div>
           </div>
 
           <div className="divide-y divide-neutral-200">
@@ -973,6 +986,7 @@ export default async function ProspectsPage({
               const location = formatLocation(prospect);
               const nextAction = formatDateTime(prospect.nextActionAt);
               const responseTime = formatDateTime(prospect.respondedAt);
+              const lastActivity = formatQueueLastActivityPreview(prospect.lastActivityPreview);
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
@@ -1037,7 +1051,8 @@ export default async function ProspectsPage({
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-700">
-                    <div>{getAttemptLabel(latestAttempt)}</div>
+                    <div className="font-medium text-neutral-900">{lastActivity.title}</div>
+                    <div>{lastActivity.detailLine}</div>
                     <div>{latestAttempt?.note?.trim() || 'No attempt note recorded.'}</div>
                   </div>
                 </div>

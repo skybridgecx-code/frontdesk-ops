@@ -1,7 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, Prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import { buildFrontdeskCallActionGuide } from '@frontdesk/domain';
-import { getLatestCallRoutingDecision } from '../lib/call-routing-decision.js';
+import {
+  getLatestCallRoutingDecision,
+  parseCallRoutingDecisionPayload
+} from '../lib/call-routing-decision.js';
 import {
   buildCallScopeSql,
   buildCallScopeWhere,
@@ -44,6 +47,19 @@ const callListSelect = {
     select: {
       name: true,
       voiceName: true
+    }
+  },
+  events: {
+    where: {
+      type: 'frontdesk.route.decision'
+    },
+    orderBy: {
+      createdAt: 'asc' as const
+    },
+    select: {
+      type: true,
+      createdAt: true,
+      payloadJson: true
     }
   }
 } satisfies Prisma.CallSelect;
@@ -93,6 +109,16 @@ export type CallOperatorTimelineItem = {
   statusLabel: string | null;
 };
 
+type CallLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
+type CallLastActivityCandidate = CallLastActivityPreview & {
+  priority: number;
+};
+
 function parsePage(value: string | undefined) {
   return Math.max(Number(value ?? '1') || 1, 1);
 }
@@ -107,6 +133,32 @@ function formatTimelineLabel(value: string | null | undefined) {
   }
 
   return value.toLowerCase().replaceAll('_', ' ').replace(/^\w/, (match) => match.toUpperCase());
+}
+
+function pickLatestCallActivity(candidates: CallLastActivityCandidate[]) {
+  const candidate = candidates
+    .filter((entry) => Boolean(entry.lastActivityAt))
+    .sort((left, right) => {
+      if (left.lastActivityAt === right.lastActivityAt) {
+        return right.priority - left.priority;
+      }
+
+      return right.lastActivityAt.localeCompare(left.lastActivityAt);
+    })[0];
+
+  if (!candidate) {
+    return {
+      lastActivityAt: new Date(0).toISOString(),
+      lastActivityTitle: 'Started',
+      lastActivityDetail: null
+    };
+  }
+
+  return {
+    lastActivityAt: candidate.lastActivityAt,
+    lastActivityTitle: candidate.lastActivityTitle,
+    lastActivityDetail: candidate.lastActivityDetail
+  };
 }
 
 function toTimelineInstant(value: Date | string | null | undefined) {
@@ -131,6 +183,71 @@ function getLatestTimelineEventInstant(events: CallTimelineEvent[], type: string
   }
 
   return null;
+}
+
+function buildCallLastActivityPreview(input: {
+  startedAt: Date | string | null;
+  endedAt: Date | string | null;
+  reviewedAt: Date | string | null;
+  contactedAt: Date | string | null;
+  archivedAt: Date | string | null;
+  events: Array<{
+    type: string;
+    createdAt: Date | string;
+    payloadJson?: unknown;
+  }>;
+}) {
+  const routeEvent = [...input.events]
+    .filter((event) => event.type === 'frontdesk.route.decision')
+    .sort((left, right) => {
+      const leftAt = toTimelineInstant(left.createdAt) ?? '';
+      const rightAt = toTimelineInstant(right.createdAt) ?? '';
+      return rightAt.localeCompare(leftAt);
+    })[0];
+  const routingDecision = parseCallRoutingDecisionPayload(routeEvent?.payloadJson);
+  const routingDetail =
+    [formatTimelineLabel(routingDecision?.routeKind), routingDecision?.phoneLineLabel]
+      .filter(Boolean)
+      .join(' · ') || null;
+
+  return pickLatestCallActivity([
+    {
+      lastActivityAt: toTimelineInstant(input.archivedAt) ?? '',
+      lastActivityTitle: 'Archived',
+      lastActivityDetail: null,
+      priority: 6
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.contactedAt) ?? '',
+      lastActivityTitle: 'Marked contacted',
+      lastActivityDetail: null,
+      priority: 5
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.reviewedAt) ?? '',
+      lastActivityTitle: 'Reviewed',
+      lastActivityDetail: null,
+      priority: 4
+    },
+    {
+      lastActivityAt: toTimelineInstant(routeEvent?.createdAt) ?? '',
+      lastActivityTitle: 'Routing decision recorded',
+      lastActivityDetail: routingDetail,
+      priority: 3
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.endedAt) ?? '',
+      lastActivityTitle: 'Ended',
+      lastActivityDetail: null,
+      priority: 2
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.startedAt) ?? '',
+      lastActivityTitle: 'Started',
+      lastActivityDetail: null,
+      priority: 1
+    }
+  ]);
 }
 
 function pushTimelineItem(
@@ -290,7 +407,21 @@ export async function registerCallRoutes(app: FastifyInstance) {
 
     return {
       ok: true,
-      calls: orderedCalls,
+      calls: orderedCalls.map((call) => {
+        const { events, ...rest } = call;
+
+        return {
+          ...rest,
+          lastActivityPreview: buildCallLastActivityPreview({
+            startedAt: call.startedAt,
+            endedAt: call.endedAt,
+            reviewedAt: call.reviewedAt,
+            contactedAt: call.contactedAt,
+            archivedAt: call.archivedAt,
+            events: call.events
+          })
+        };
+      }),
       page,
       limit,
       total,

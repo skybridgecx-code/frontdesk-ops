@@ -5,6 +5,12 @@ import { useRouter } from 'next/navigation';
 import type { QueueActionHint } from '@/app/queue-action-hints';
 import { buildCallDetailHref } from './workflow-urls';
 
+type QueueLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
 type CallRow = {
   twilioCallSid: string;
   status: string;
@@ -34,7 +40,23 @@ type CallRow = {
     voiceName: string | null;
   } | null;
   queueHint: QueueActionHint;
+  lastActivityPreview: QueueLastActivityPreview;
 };
+
+function formatQueueLastActivityPreview(preview: QueueLastActivityPreview) {
+  const time = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  }).format(new Date(preview.lastActivityAt));
+  const detail = preview.lastActivityDetail?.trim();
+
+  return {
+    title: preview.lastActivityTitle,
+    detailLine: detail ? `${detail} · ${time}` : time
+  };
+}
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
@@ -429,6 +451,7 @@ export function CallsQueueTable({
                   reviewStatus: call.reviewStatus
                 };
                 const signals = getDataQualitySignals(call);
+                const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -464,6 +487,10 @@ export function CallsQueueTable({
                         <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
+                        <span>{lastActivity.detailLine}</span>
+                      </div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {call.routeKind ? (
                           <span

@@ -32,6 +32,16 @@ export type ProspectOperatorTimelineItem = {
   statusLabel: string | null;
 };
 
+type ProspectLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
+type ProspectLastActivityCandidate = ProspectLastActivityPreview & {
+  priority: number;
+};
+
 function formatTimelineLabel(value: string | null | undefined) {
   if (!value) {
     return null;
@@ -50,6 +60,32 @@ function formatTimelineSourceLabel(value: string | null) {
   }
 
   return formatTimelineLabel(value);
+}
+
+function pickLatestProspectActivity(candidates: ProspectLastActivityCandidate[]) {
+  const candidate = candidates
+    .filter((entry) => Boolean(entry.lastActivityAt))
+    .sort((left, right) => {
+      if (left.lastActivityAt === right.lastActivityAt) {
+        return right.priority - left.priority;
+      }
+
+      return right.lastActivityAt.localeCompare(left.lastActivityAt);
+    })[0];
+
+  if (!candidate) {
+    return {
+      lastActivityAt: new Date(0).toISOString(),
+      lastActivityTitle: 'Added to outbound work',
+      lastActivityDetail: null
+    };
+  }
+
+  return {
+    lastActivityAt: candidate.lastActivityAt,
+    lastActivityTitle: candidate.lastActivityTitle,
+    lastActivityDetail: candidate.lastActivityDetail
+  };
 }
 
 function toTimelineInstant(value: Date | string | null | undefined) {
@@ -78,6 +114,53 @@ function pushTimelineItem(
     ...item,
     occurredAt: item.occurredAt
   });
+}
+
+function buildProspectLastActivityPreview(input: {
+  createdAt: Date | string;
+  respondedAt: Date | string | null;
+  archivedAt: Date | string | null;
+  attempts: ProspectTimelineAttempt[];
+}) {
+  const latestAttempt = [...input.attempts]
+    .sort((left, right) => {
+      const leftAt = toTimelineInstant(left.attemptedAt) ?? '';
+      const rightAt = toTimelineInstant(right.attemptedAt) ?? '';
+      return rightAt.localeCompare(leftAt);
+    })[0];
+  const attemptDetail = latestAttempt
+    ? [formatTimelineLabel(latestAttempt.channel), formatTimelineLabel(latestAttempt.outcome)]
+        .filter(Boolean)
+        .join(' · ') || null
+    : null;
+  const isReplyOutcome = latestAttempt?.outcome.toUpperCase().includes('REPL') ?? false;
+
+  return pickLatestProspectActivity([
+    {
+      lastActivityAt: toTimelineInstant(input.archivedAt) ?? '',
+      lastActivityTitle: 'Archived',
+      lastActivityDetail: null,
+      priority: 4
+    },
+    {
+      lastActivityAt: toTimelineInstant(latestAttempt?.attemptedAt) ?? '',
+      lastActivityTitle: isReplyOutcome ? 'Reply logged' : 'Attempt logged',
+      lastActivityDetail: attemptDetail,
+      priority: 3
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.respondedAt) ?? '',
+      lastActivityTitle: 'Responded',
+      lastActivityDetail: null,
+      priority: 2
+    },
+    {
+      lastActivityAt: toTimelineInstant(input.createdAt) ?? '',
+      lastActivityTitle: 'Added to outbound work',
+      lastActivityDetail: null,
+      priority: 1
+    }
+  ]);
 }
 
 export function buildProspectOperatorTimeline(input: ProspectOperatorTimelineInput) {
@@ -167,7 +250,16 @@ export async function registerProspectRoutes(app: FastifyInstance) {
 
     return {
       ok: true,
-      ...result
+      ...result,
+      prospects: result.prospects.map((prospect) => ({
+        ...prospect,
+        lastActivityPreview: buildProspectLastActivityPreview({
+          createdAt: prospect.createdAt,
+          respondedAt: prospect.respondedAt,
+          archivedAt: prospect.archivedAt,
+          attempts: prospect.attempts
+        })
+      }))
     };
   });
 
