@@ -64,3 +64,42 @@ export function getWorkItemSaveNoticeMessage(input: {
       return null;
   }
 }
+
+export function getWorkItemDetailNoticeMessage(input: {
+  notice: string | undefined;
+  itemSingular: string;
+  itemPlural: string;
+  customMessages?: Record<string, string>;
+}) {
+  const customMessage = input.notice ? input.customMessages?.[input.notice] : null;
+  if (customMessage) {
+    return customMessage;
+  }
+
+  return getWorkItemSaveNoticeMessage({
+    notice: input.notice,
+    itemSingular: input.itemSingular,
+    itemPlural: input.itemPlural
+  });
+}
+
+export function buildDetailNoticeHref(detailHref: string, notice: string) {
+  const url = new URL(detailHref, 'http://localhost');
+  url.searchParams.set('notice', notice);
+  return `${url.pathname}${url.search}`;
+}
+
+export function resolveReviewNextDetailHref(input: {
+  currentItemId: string;
+  nextItemId: string | null;
+  returnTo: string;
+  noReviewNotice: string;
+  buildQueueNoticeHref: (returnTo: string, notice: string) => string;
+  buildSaveAndNextHref: (nextItemId: string, returnTo: string) => string;
+}) {
+  if (!input.nextItemId || input.nextItemId === input.currentItemId) {
+    return input.buildQueueNoticeHref(input.returnTo, input.noReviewNotice);
+  }
+
+  return input.buildSaveAndNextHref(input.nextItemId, input.returnTo);
+}

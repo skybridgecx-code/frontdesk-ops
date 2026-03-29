@@ -1,8 +1,10 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
+  buildDetailNoticeHref,
   buildQueueContextSummary,
-  getWorkItemSaveNoticeMessage
+  getWorkItemDetailNoticeMessage,
+  resolveReviewNextDetailHref
 } from '@/app/operator-workflow';
 import {
   OperatorActionGuideCard,
@@ -206,18 +208,16 @@ export default async function CallDetailPage({
   const { callSid } = await params;
   const resolvedSearchParams = await searchParams;
   const returnTo = normalizeReturnTo(resolvedSearchParams.returnTo);
-  const notice =
-    resolvedSearchParams.notice === 'contacted'
-      ? 'Call marked contacted.'
-      : resolvedSearchParams.notice === 'archived'
-        ? 'Call archived.'
-        : resolvedSearchParams.notice === 'extracted'
-          ? 'Extraction rerun queued.'
-          : getWorkItemSaveNoticeMessage({
-              notice: resolvedSearchParams.notice,
-              itemSingular: 'call',
-              itemPlural: 'calls'
-            });
+  const notice = getWorkItemDetailNoticeMessage({
+    notice: resolvedSearchParams.notice,
+    itemSingular: 'call',
+    itemPlural: 'calls',
+    customMessages: {
+      contacted: 'Call marked contacted.',
+      archived: 'Call archived.',
+      extracted: 'Extraction rerun queued.'
+    }
+  });
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
@@ -246,7 +246,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=contacted`);
+    redirect(buildDetailNoticeHref(detailHref, 'contacted'));
   }
 
   async function archiveCall() {
@@ -259,7 +259,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=archived`);
+    redirect(buildDetailNoticeHref(detailHref, 'archived'));
   }
 
   async function rerunExtraction() {
@@ -272,7 +272,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=extracted`);
+    redirect(buildDetailNoticeHref(detailHref, 'extracted'));
   }
 
   async function saveReview(formData: FormData) {
@@ -307,7 +307,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=saved`);
+    redirect(buildDetailNoticeHref(detailHref, 'saved'));
   }
 
   async function saveAndReviewNext(formData: FormData) {
@@ -354,11 +354,16 @@ export default async function CallDetailPage({
 
     const nextData = (await nextRes.json()) as { ok: true; callSid: string | null };
 
-    if (!nextData.callSid || nextData.callSid === callSid) {
-      redirect(buildQueueNoticeHref(returnTo, 'no-review-calls'));
-    }
-
-    redirect(buildSaveAndNextHref(nextData.callSid, returnTo));
+    redirect(
+      resolveReviewNextDetailHref({
+        currentItemId: callSid,
+        nextItemId: nextData.callSid,
+        returnTo,
+        noReviewNotice: 'no-review-calls',
+        buildQueueNoticeHref,
+        buildSaveAndNextHref
+      })
+    );
   }
 
   return (

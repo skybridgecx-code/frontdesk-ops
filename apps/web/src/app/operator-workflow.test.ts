@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
+  buildDetailNoticeHref,
   buildNoticeHref,
   buildQueueContextSummary,
+  getWorkItemDetailNoticeMessage,
   getWorkItemSaveNoticeMessage,
   normalizeLimit,
-  normalizePage
+  normalizePage,
+  resolveReviewNextDetailHref
 } from './operator-workflow.js';
 
 test('normalizePage and normalizeLimit clamp invalid values', () => {
@@ -54,5 +57,66 @@ test('getWorkItemSaveNoticeMessage aligns shared save-and-next semantics without
       itemPlural: 'prospects'
     }),
     'Changes saved. No more prospects need attention.'
+  );
+});
+
+test('getWorkItemDetailNoticeMessage combines custom mutation notices with shared save notices', () => {
+  assert.equal(
+    getWorkItemDetailNoticeMessage({
+      notice: 'archived',
+      itemSingular: 'call',
+      itemPlural: 'calls',
+      customMessages: {
+        archived: 'Call archived.'
+      }
+    }),
+    'Call archived.'
+  );
+
+  assert.equal(
+    getWorkItemDetailNoticeMessage({
+      notice: 'saved-next',
+      itemSingular: 'prospect',
+      itemPlural: 'prospects',
+      customMessages: {
+        archived: 'Prospect archived.'
+      }
+    }),
+    'Changes saved. Moved to the next prospect needing attention.'
+  );
+});
+
+test('buildDetailNoticeHref preserves return context while adding a notice', () => {
+  assert.equal(
+    buildDetailNoticeHref('/calls/CA_DEMO_101?returnTo=%2Fcalls%3FtriageStatus%3DOPEN', 'archived'),
+    '/calls/CA_DEMO_101?returnTo=%2Fcalls%3FtriageStatus%3DOPEN&notice=archived'
+  );
+});
+
+test('resolveReviewNextDetailHref shares save-and-review-next redirect semantics', () => {
+  assert.equal(
+    resolveReviewNextDetailHref({
+      currentItemId: 'CA_DEMO_101',
+      nextItemId: null,
+      returnTo: '/calls?triageStatus=OPEN',
+      noReviewNotice: 'no-review-calls',
+      buildQueueNoticeHref: (returnTo, notice) => buildNoticeHref(returnTo, notice),
+      buildSaveAndNextHref: (nextItemId, returnTo) =>
+        `/calls/${nextItemId}?returnTo=${encodeURIComponent(returnTo)}&notice=saved-next`
+    }),
+    '/calls?triageStatus=OPEN&notice=no-review-calls'
+  );
+
+  assert.equal(
+    resolveReviewNextDetailHref({
+      currentItemId: 'PR_DEMO_101',
+      nextItemId: 'PR_DEMO_102',
+      returnTo: '/prospects?tenantId=tenant_demo&status=READY',
+      noReviewNotice: 'no-review-prospects',
+      buildQueueNoticeHref: (returnTo, notice) => buildNoticeHref(returnTo, notice),
+      buildSaveAndNextHref: (nextItemId, returnTo) =>
+        `/prospects/${nextItemId}?returnTo=${encodeURIComponent(returnTo)}&notice=saved-next`
+    }),
+    '/prospects/PR_DEMO_102?returnTo=%2Fprospects%3FtenantId%3Dtenant_demo%26status%3DREADY&notice=saved-next'
   );
 });

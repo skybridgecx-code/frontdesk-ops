@@ -1,8 +1,10 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import {
+  buildDetailNoticeHref,
   buildQueueContextSummary,
-  getWorkItemSaveNoticeMessage
+  getWorkItemDetailNoticeMessage,
+  resolveReviewNextDetailHref
 } from '@/app/operator-workflow';
 import {
   OperatorActionGuideCard,
@@ -280,16 +282,15 @@ export default async function ProspectDetailPage({
   const data = await getProspect(prospectSid, scope);
   const prospect = data.prospect;
   const detailHref = buildProspectDetailHref(prospectSid, returnTo);
-  const notice =
-    resolvedSearchParams.notice === 'attempt-logged'
-      ? 'Activity logged.'
-      : resolvedSearchParams.notice === 'archived'
-        ? 'Prospect archived.'
-        : getWorkItemSaveNoticeMessage({
-            notice: resolvedSearchParams.notice,
-            itemSingular: 'prospect',
-            itemPlural: 'prospects'
-          });
+  const notice = getWorkItemDetailNoticeMessage({
+    notice: resolvedSearchParams.notice,
+    itemSingular: 'prospect',
+    itemPlural: 'prospects',
+    customMessages: {
+      'attempt-logged': 'Activity logged.',
+      archived: 'Prospect archived.'
+    }
+  });
   const returnContextSummary = buildQueueContextSummary({
     currentHref: returnTo,
     fallbackLabel: 'Ready work queue',
@@ -313,7 +314,7 @@ export default async function ProspectDetailPage({
 
     revalidatePath('/prospects');
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`${detailHref}&notice=saved`);
+    redirect(buildDetailNoticeHref(detailHref, 'saved'));
   }
 
   async function saveAndReviewNext(formData: FormData) {
@@ -343,11 +344,16 @@ export default async function ProspectDetailPage({
 
     const nextData = (await nextRes.json()) as { ok: true; prospectSid: string | null };
 
-    if (!nextData.prospectSid || nextData.prospectSid === prospectSid) {
-      redirect(buildQueueNoticeHref(returnTo, 'no-review-prospects'));
-    }
-
-    redirect(buildSaveAndNextHref(nextData.prospectSid, returnTo));
+    redirect(
+      resolveReviewNextDetailHref({
+        currentItemId: prospectSid,
+        nextItemId: nextData.prospectSid,
+        returnTo,
+        noReviewNotice: 'no-review-prospects',
+        buildQueueNoticeHref,
+        buildSaveAndNextHref
+      })
+    );
   }
 
   async function logAttempt(formData: FormData) {
@@ -378,7 +384,7 @@ export default async function ProspectDetailPage({
 
     revalidatePath('/prospects');
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`${detailHref}&notice=attempt-logged`);
+    redirect(buildDetailNoticeHref(detailHref, 'attempt-logged'));
   }
 
   async function archiveProspect() {
@@ -399,7 +405,7 @@ export default async function ProspectDetailPage({
 
     revalidatePath('/prospects');
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`${detailHref}&notice=archived`);
+    redirect(buildDetailNoticeHref(detailHref, 'archived'));
   }
 
   return (
