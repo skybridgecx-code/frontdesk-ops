@@ -52,12 +52,193 @@ type CallListOrderRow = {
   twilioCallSid: string;
 };
 
+type CallRoutingDecisionSummary = {
+  routingMode: string | null;
+  isOpen: boolean | null;
+  routeKind: string | null;
+  agentProfileId: string | null;
+  reason: string | null;
+  message: string | null;
+  phoneLineLabel: string | null;
+  businessTimezone: string | null;
+} | null;
+
+type CallTimelineEvent = {
+  type: string;
+  createdAt: Date | string;
+};
+
+type CallOperatorTimelineInput = {
+  startedAt: Date | string;
+  answeredAt: Date | string | null;
+  endedAt: Date | string | null;
+  durationSeconds: number | null;
+  fromE164: string | null;
+  toE164: string | null;
+  reviewStatus: string;
+  contactedAt: Date | string | null;
+  archivedAt: Date | string | null;
+  reviewedAt: Date | string | null;
+  phoneNumberLabel: string | null;
+  routingDecision: CallRoutingDecisionSummary;
+  events: CallTimelineEvent[];
+};
+
+export type CallOperatorTimelineItem = {
+  type: string;
+  occurredAt: string;
+  title: string;
+  description: string;
+  actorLabel: string | null;
+  statusLabel: string | null;
+};
+
 function parsePage(value: string | undefined) {
   return Math.max(Number(value ?? '1') || 1, 1);
 }
 
 function parseLimit(value: string | undefined) {
   return Math.min(Math.max(Number(value ?? '25') || 25, 1), 100);
+}
+
+function formatTimelineLabel(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  return value.toLowerCase().replaceAll('_', ' ').replace(/^\w/, (match) => match.toUpperCase());
+}
+
+function toTimelineInstant(value: Date | string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+
+  const date = value instanceof Date ? value : new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  return date.toISOString();
+}
+
+function getLatestTimelineEventInstant(events: CallTimelineEvent[], type: string) {
+  for (let index = events.length - 1; index >= 0; index -= 1) {
+    if (events[index]?.type === type) {
+      return toTimelineInstant(events[index]?.createdAt);
+    }
+  }
+
+  return null;
+}
+
+function pushTimelineItem(
+  items: CallOperatorTimelineItem[],
+  item: Omit<CallOperatorTimelineItem, 'occurredAt'> & { occurredAt: string | null }
+) {
+  if (!item.occurredAt) {
+    return;
+  }
+
+  items.push({
+    ...item,
+    occurredAt: item.occurredAt
+  });
+}
+
+function formatCallDuration(durationSeconds: number | null) {
+  if (durationSeconds == null) {
+    return null;
+  }
+
+  const minutes = Math.floor(durationSeconds / 60);
+  const seconds = durationSeconds % 60;
+  return `${minutes}m ${String(seconds).padStart(2, '0')}s`;
+}
+
+export function buildCallOperatorTimeline(input: CallOperatorTimelineInput) {
+  const items: CallOperatorTimelineItem[] = [];
+
+  const startContext = [input.fromE164 ? `from ${input.fromE164}` : null, input.toE164 ? `to ${input.toE164}` : null]
+    .filter(Boolean)
+    .join(' ');
+
+  pushTimelineItem(items, {
+    type: 'call.started',
+    occurredAt: toTimelineInstant(input.startedAt),
+    title: 'Inbound call started',
+    description: startContext ? `Inbound call received ${startContext}.` : 'Inbound call received.',
+    actorLabel: input.phoneNumberLabel ?? null,
+    statusLabel: null
+  });
+
+  pushTimelineItem(items, {
+    type: 'call.answered',
+    occurredAt: toTimelineInstant(input.answeredAt),
+    title: 'Frontdesk answered the call',
+    description: 'The frontdesk agent picked up and handled the caller.',
+    actorLabel: input.phoneNumberLabel ?? null,
+    statusLabel: null
+  });
+
+  const routingOccurredAt = getLatestTimelineEventInstant(input.events, 'frontdesk.route.decision');
+  const routingDescription =
+    input.routingDecision?.message ??
+    ([
+      input.routingDecision?.routeKind ? `Route ${formatTimelineLabel(input.routingDecision.routeKind)}` : null,
+      input.routingDecision?.reason ? `Reason ${formatTimelineLabel(input.routingDecision.reason)}` : null
+    ]
+      .filter(Boolean)
+      .join(' · ') || 'Routing policy decision recorded for operator review.');
+
+  pushTimelineItem(items, {
+    type: 'frontdesk.route.decision',
+    occurredAt: routingOccurredAt,
+    title: 'Routing decision recorded',
+    description: routingDescription,
+    actorLabel: input.routingDecision?.phoneLineLabel ?? input.phoneNumberLabel ?? 'Routing policy',
+    statusLabel: formatTimelineLabel(input.routingDecision?.routeKind)
+  });
+
+  pushTimelineItem(items, {
+    type: 'call.reviewed',
+    occurredAt: toTimelineInstant(input.reviewedAt),
+    title: 'Operator reviewed the call',
+    description: `Current review state: ${formatTimelineLabel(input.reviewStatus) ?? 'Unknown'}.`,
+    actorLabel: 'Operator',
+    statusLabel: formatTimelineLabel(input.reviewStatus)
+  });
+
+  pushTimelineItem(items, {
+    type: 'call.contacted',
+    occurredAt: toTimelineInstant(input.contactedAt),
+    title: 'Caller marked contacted',
+    description: 'An operator marked this caller as contacted.',
+    actorLabel: 'Operator',
+    statusLabel: 'Contacted'
+  });
+
+  pushTimelineItem(items, {
+    type: 'call.archived',
+    occurredAt: toTimelineInstant(input.archivedAt),
+    title: 'Call archived',
+    description: 'This call was archived and removed from active operator work.',
+    actorLabel: 'Operator',
+    statusLabel: 'Archived'
+  });
+
+  const durationLabel = formatCallDuration(input.durationSeconds);
+  pushTimelineItem(items, {
+    type: 'call.ended',
+    occurredAt: toTimelineInstant(input.endedAt),
+    title: 'Call ended',
+    description: durationLabel ? `The live call completed after ${durationLabel}.` : 'The live call completed.',
+    actorLabel: input.phoneNumberLabel ?? null,
+    statusLabel: null
+  });
+
+  return items.sort((left, right) => right.occurredAt.localeCompare(left.occurredAt));
 }
 
 export async function registerCallRoutes(app: FastifyInstance) {
@@ -234,13 +415,29 @@ export async function registerCallRoutes(app: FastifyInstance) {
       assistantTranscript: call.assistantTranscript
     });
     const routingDecision = getLatestCallRoutingDecision(call.events);
+    const timeline = buildCallOperatorTimeline({
+      startedAt: call.startedAt,
+      answeredAt: call.answeredAt,
+      endedAt: call.endedAt,
+      durationSeconds: call.durationSeconds,
+      fromE164: call.fromE164,
+      toE164: call.toE164,
+      reviewStatus: call.reviewStatus,
+      contactedAt: call.contactedAt,
+      archivedAt: call.archivedAt,
+      reviewedAt: call.reviewedAt,
+      phoneNumberLabel: call.phoneNumber.label,
+      routingDecision,
+      events: call.events
+    });
 
     return {
       ok: true,
       call: {
         ...call,
         actionGuide,
-        routingDecision
+        routingDecision,
+        timeline
       }
     };
   });

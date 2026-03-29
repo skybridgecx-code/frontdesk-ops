@@ -1,5 +1,18 @@
 import type { ReactNode } from 'react';
 
+export type OperatorTimelineItem = {
+  type: string;
+  occurredAt: string;
+  title: string;
+  description: string;
+  actorLabel: string | null;
+  statusLabel: string | null;
+};
+
+function formatTimelineDateTime(value: string) {
+  return new Date(value).toLocaleString();
+}
+
 export function OperatorDetailPageShell({
   notice,
   children
@@ -84,6 +97,61 @@ export function OperatorActionGuideCard({
         <span className="font-medium">Missing info:</span>{' '}
         {missingInfo.length > 0 ? missingInfo.join(', ') : 'None blocking.'}
       </div>
+    </section>
+  );
+}
+
+export function OperatorTimelineSection({
+  title,
+  description,
+  items,
+  emptyMessage
+}: {
+  title: string;
+  description: string;
+  items: OperatorTimelineItem[];
+  emptyMessage: string;
+}) {
+  return (
+    <section className="rounded-2xl border border-neutral-200 p-4">
+      <h2 className="font-medium">{title}</h2>
+      <p className="mt-1 text-sm text-neutral-600">{description}</p>
+
+      {items.length === 0 ? (
+        <p className="mt-3 text-sm text-neutral-600">{emptyMessage}</p>
+      ) : (
+        <ol className="mt-4 space-y-3">
+          {items.map((item, index) => (
+            <li
+              key={`${item.type}-${item.occurredAt}-${index}`}
+              className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3"
+            >
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <div className="text-sm font-medium text-black">{item.title}</div>
+                  <p className="mt-1 text-sm text-neutral-700">{item.description}</p>
+                </div>
+                <div className="text-xs text-neutral-500">{formatTimelineDateTime(item.occurredAt)}</div>
+              </div>
+
+              {item.actorLabel || item.statusLabel ? (
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {item.actorLabel ? (
+                    <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                      {item.actorLabel}
+                    </span>
+                  ) : null}
+                  {item.statusLabel ? (
+                    <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                      {item.statusLabel}
+                    </span>
+                  ) : null}
+                </div>
+              ) : null}
+            </li>
+          ))}
+        </ol>
+      )}
     </section>
   );
 }

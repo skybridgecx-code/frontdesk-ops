@@ -300,6 +300,32 @@ test('GET /v1/calls/:callSid returns call detail with a deterministic action gui
         isActive: true
       },
       events: [],
+      timeline: [
+        {
+          type: 'call.ended',
+          occurredAt: '2026-03-29T10:10:00.000Z',
+          title: 'Call ended',
+          description: 'The live call completed after 9m 00s.',
+          actorLabel: 'Main line',
+          statusLabel: null
+        },
+        {
+          type: 'call.answered',
+          occurredAt: '2026-03-29T10:01:00.000Z',
+          title: 'Frontdesk answered the call',
+          description: 'The frontdesk agent picked up and handled the caller.',
+          actorLabel: 'Main line',
+          statusLabel: null
+        },
+        {
+          type: 'call.started',
+          occurredAt: '2026-03-29T10:00:00.000Z',
+          title: 'Inbound call started',
+          description: 'Inbound call received from +17035550100 to +17035550199.',
+          actorLabel: 'Main line',
+          statusLabel: null
+        }
+      ],
       routingDecision: null,
       actionGuide: {
         primaryAction: 'Call back now and confirm the situation.',

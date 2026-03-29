@@ -9,7 +9,9 @@ import {
 import {
   OperatorActionGuideCard,
   OperatorDetailHeader,
-  OperatorDetailPageShell
+  OperatorDetailPageShell,
+  OperatorTimelineSection,
+  type OperatorTimelineItem
 } from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
@@ -57,6 +59,7 @@ type ProspectDetail = {
   createdAt: string;
   updatedAt: string;
   attempts: ProspectAttempt[];
+  timeline: OperatorTimelineItem[];
   actionGuide: {
     primaryAction: string;
     reason: string;
@@ -483,6 +486,13 @@ export default async function ProspectDetailPage({
           primaryAction={prospect.actionGuide.primaryAction}
           reason={prospect.actionGuide.reason}
           missingInfo={prospect.actionGuide.missingInfo}
+        />
+
+        <OperatorTimelineSection
+          title="Operator timeline"
+          description="Operator-visible history for this prospect, newest first."
+          items={prospect.timeline}
+          emptyMessage="No operator-visible history recorded for this prospect yet."
         />
 
         <div className="grid gap-4 md:grid-cols-3">

@@ -9,7 +9,9 @@ import {
 import {
   OperatorActionGuideCard,
   OperatorDetailHeader,
-  OperatorDetailPageShell
+  OperatorDetailPageShell,
+  OperatorTimelineSection,
+  type OperatorTimelineItem
 } from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
@@ -71,6 +73,7 @@ type CallDetail = {
     sequence: number;
     createdAt: string;
   }>;
+  timeline: OperatorTimelineItem[];
   actionGuide: {
     primaryAction: string;
     reason: string;
@@ -473,6 +476,13 @@ export default async function CallDetailPage({
           primaryAction={call.actionGuide.primaryAction}
           reason={call.actionGuide.reason}
           missingInfo={call.actionGuide.missingInfo}
+        />
+
+        <OperatorTimelineSection
+          title="Operator timeline"
+          description="Operator-visible history for this call, newest first."
+          items={call.timeline}
+          emptyMessage="No operator-visible history recorded for this call yet."
         />
 
         <div className="grid gap-4 md:grid-cols-3">

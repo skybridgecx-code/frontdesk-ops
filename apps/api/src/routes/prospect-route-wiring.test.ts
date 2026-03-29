@@ -368,6 +368,40 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
           createdAt: '2026-03-25T11:00:00.000Z'
         }
       ],
+      timeline: [
+        {
+          type: 'prospect.attempt',
+          occurredAt: '2026-03-25T14:15:00.000Z',
+          title: 'Outreach attempt logged',
+          description: 'Email · Replied — Prospect replied asking for pricing.',
+          actorLabel: 'Operator',
+          statusLabel: 'Attempted'
+        },
+        {
+          type: 'prospect.responded',
+          occurredAt: '2026-03-25T14:15:00.000Z',
+          title: 'Prospect responded',
+          description: 'A response was recorded and the prospect moved into reply handling.',
+          actorLabel: 'Prospect',
+          statusLabel: 'Responded'
+        },
+        {
+          type: 'prospect.attempt',
+          occurredAt: '2026-03-25T11:00:00.000Z',
+          title: 'Outreach attempt logged',
+          description: 'Email · Sent email — Sent intro email with short product summary.',
+          actorLabel: 'Operator',
+          statusLabel: 'Attempted'
+        },
+        {
+          type: 'prospect.created',
+          occurredAt: '2026-03-24T10:00:00.000Z',
+          title: 'Prospect added to outbound work',
+          description: 'Added from Website inquiry.',
+          actorLabel: 'Website inquiry',
+          statusLabel: null
+        }
+      ],
       actionGuide: {
         primaryAction: 'Review the reply and decide whether to qualify, answer questions, or disqualify.',
         reason: 'A response is already on record, so the next operator step is reply handling and qualification rather than another blind touch.',
