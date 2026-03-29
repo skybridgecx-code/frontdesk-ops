@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import { buildFrontdeskProspectActionGuide } from '@frontdesk/domain';
 import { getRequiredProspectScopeError, normalizeProspectScopeQuery } from '../lib/prospect-selectors.js';
 import {
   type RequiredProspectScope,
@@ -111,9 +112,31 @@ export async function registerProspectRoutes(app: FastifyInstance) {
       return reply.notFound(`Prospect not found for prospectSid=${prospectSid}`);
     }
 
+    const actionGuide = buildFrontdeskProspectActionGuide({
+      status: prospect.status,
+      priority: prospect.priority,
+      nextActionAt: prospect.nextActionAt,
+      lastAttemptAt: prospect.lastAttemptAt,
+      respondedAt: prospect.respondedAt,
+      archivedAt: prospect.archivedAt,
+      contactPhone: prospect.contactPhone,
+      contactEmail: prospect.contactEmail,
+      contactName: prospect.contactName,
+      companyName: prospect.companyName,
+      serviceInterest: prospect.serviceInterest,
+      notes: prospect.notes,
+      sourceLabel: prospect.sourceLabel,
+      sourceCategory: prospect.sourceCategory,
+      sourceRoleTitle: prospect.sourceRoleTitle,
+      attempts: prospect.attempts
+    });
+
     return {
       ok: true,
-      prospect
+      prospect: {
+        ...prospect,
+        actionGuide
+      }
     };
   });
 }

@@ -50,6 +50,15 @@ type ProspectDetail = {
   createdAt: string;
   updatedAt: string;
   attempts: ProspectAttempt[];
+  actionGuide: {
+    primaryAction: string;
+    reason: string;
+    attentionLevel: 'high' | 'normal' | 'low';
+    missingInfo: string[];
+    readyForOutreach: boolean;
+    needsReplyHandling: boolean;
+    needsQualificationReview: boolean;
+  };
 };
 
 type ProspectScope = {
@@ -210,6 +219,17 @@ function SourceLink({
       )}
     </div>
   );
+}
+
+function actionGuideToneClass(value: 'high' | 'normal' | 'low') {
+  switch (value) {
+    case 'high':
+      return 'border-red-200 bg-red-50 text-red-900';
+    case 'low':
+      return 'border-neutral-200 bg-neutral-50 text-neutral-700';
+    default:
+      return 'border-blue-200 bg-blue-50 text-blue-900';
+  }
 }
 
 export default async function ProspectDetailPage({
@@ -431,6 +451,38 @@ export default async function ProspectDetailPage({
           <p className="mt-3 text-sm whitespace-pre-wrap">
             {prospect.serviceInterest ?? prospect.notes ?? 'No service-interest summary recorded yet.'}
           </p>
+        </section>
+
+        <section className={`rounded-2xl border p-4 ${actionGuideToneClass(prospect.actionGuide.attentionLevel)}`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-medium">Operator next action</h2>
+            <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium uppercase tracking-wide">
+              {prospect.actionGuide.attentionLevel}
+            </span>
+            {prospect.actionGuide.readyForOutreach ? (
+              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                Ready for outreach
+              </span>
+            ) : null}
+            {prospect.actionGuide.needsReplyHandling ? (
+              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                Handle reply
+              </span>
+            ) : null}
+            {prospect.actionGuide.needsQualificationReview ? (
+              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                Qualification review
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-3 text-base font-medium">{prospect.actionGuide.primaryAction}</div>
+          <p className="mt-2 text-sm">{prospect.actionGuide.reason}</p>
+          <div className="mt-3 text-sm">
+            <span className="font-medium">Missing info:</span>{' '}
+            {prospect.actionGuide.missingInfo.length > 0
+              ? prospect.actionGuide.missingInfo.join(', ')
+              : 'None blocking.'}
+          </div>
         </section>
 
         <div className="grid gap-4 md:grid-cols-3">

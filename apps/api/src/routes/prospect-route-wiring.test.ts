@@ -367,7 +367,16 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
           attemptedAt: '2026-03-25T11:00:00.000Z',
           createdAt: '2026-03-25T11:00:00.000Z'
         }
-      ]
+      ],
+      actionGuide: {
+        primaryAction: 'Review the reply and decide whether to qualify, answer questions, or disqualify.',
+        reason: 'A response is already on record, so the next operator step is reply handling and qualification rather than another blind touch.',
+        attentionLevel: 'high',
+        missingInfo: [],
+        readyForOutreach: false,
+        needsReplyHandling: true,
+        needsQualificationReview: true
+      }
     }
   });
 });
