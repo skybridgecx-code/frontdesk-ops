@@ -183,6 +183,17 @@ FRONTDESK_API_BASE_URL=http://127.0.0.1:4000
 FRONTDESK_APP_BASE_URL=http://127.0.0.1:3001
 ```
 
+Optional explicit operator workspace selection:
+
+```bash
+FRONTDESK_ACTIVE_TENANT_SLUG=<tenant-slug>
+FRONTDESK_ACTIVE_BUSINESS_SLUG=<business-slug>
+```
+
+If `FRONTDESK_ACTIVE_TENANT_SLUG` is set, `/v1/bootstrap` will only resolve that tenant.
+If the tenant slug does not exist, bootstrap returns `tenant: null` instead of silently selecting a different tenant.
+If `FRONTDESK_ACTIVE_BUSINESS_SLUG` is also set, that business is surfaced first in the returned tenant payload.
+
 Optional operator notification:
 
 ```bash
@@ -207,4 +218,3 @@ pnpm --filter @frontdesk/db smoke:demo-calls
 5. reopen:
    - `/calls?triageStatus=OPEN`
    - `/prospects?status=READY`
-

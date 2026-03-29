@@ -29,6 +29,7 @@ pnpm --filter web exec next start -H 127.0.0.1 -p 3001
 
 The local smoke checks expect the API at `http://127.0.0.1:4000`.
 The stable local pilot/demo web port is `http://127.0.0.1:3001`.
+If you are running against a non-demo tenant, set `FRONTDESK_ACTIVE_TENANT_SLUG` and optionally `FRONTDESK_ACTIVE_BUSINESS_SLUG` so `/v1/bootstrap` resolves the intended active workspace.
 
 ## Fast Local Validation
 
