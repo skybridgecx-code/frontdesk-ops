@@ -12,6 +12,16 @@ type ProspectReviewNextResponse = {
   prospectSid: string | null;
 };
 
+type BootstrapResponse = {
+  ok: true;
+  tenant: {
+    id: string;
+    businesses: Array<{
+      id: string;
+    }>;
+  } | null;
+};
+
 type CallListItem = {
   twilioCallSid: string;
   triageStatus: string;
@@ -94,6 +104,15 @@ async function main() {
   const failures: string[] = [];
 
   try {
+    const bootstrap = await getJson<BootstrapResponse>('/v1/bootstrap');
+    const tenantId = bootstrap.tenant?.id;
+    const businessId = bootstrap.tenant?.businesses[0]?.id;
+
+    if (!tenantId || !businessId) {
+      throw new Error('Bootstrap did not return an active tenant/business scope');
+    }
+
+    const scopedProspectQuery = `tenantId=${encodeURIComponent(tenantId)}&businessId=${encodeURIComponent(businessId)}`;
     const [
       reviewNext,
       prospectReviewNext,
@@ -107,15 +126,15 @@ async function main() {
       prospect106
     ] = await Promise.all([
       getJson<ReviewNextResponse>('/v1/calls/review-next'),
-      getJson<ProspectReviewNextResponse>('/v1/prospects/review-next'),
+      getJson<ProspectReviewNextResponse>(`/v1/prospects/review-next?${scopedProspectQuery}`),
       getJson<CallsResponse>('/v1/calls?limit=5&page=1'),
-      getJson<ProspectsResponse>('/v1/prospects?limit=5&page=1'),
+      getJson<ProspectsResponse>(`/v1/prospects?${scopedProspectQuery}&limit=5&page=1`),
       getJson<CallDetailResponse>('/v1/calls/CA_DEMO_101'),
       getJson<CallDetailResponse>('/v1/calls/CA_DEMO_103'),
       getJson<CallDetailResponse>('/v1/calls/CA_DEMO_106'),
-      getJson<ProspectDetailResponse>('/v1/prospects/PR_DEMO_101'),
-      getJson<ProspectDetailResponse>('/v1/prospects/PR_DEMO_103'),
-      getJson<ProspectDetailResponse>('/v1/prospects/PR_DEMO_106')
+      getJson<ProspectDetailResponse>(`/v1/prospects/PR_DEMO_101?${scopedProspectQuery}`),
+      getJson<ProspectDetailResponse>(`/v1/prospects/PR_DEMO_103?${scopedProspectQuery}`),
+      getJson<ProspectDetailResponse>(`/v1/prospects/PR_DEMO_106?${scopedProspectQuery}`)
     ]);
 
     assertCheck(reviewNext.callSid === 'CA_DEMO_101', `review-next expected CA_DEMO_101, got ${reviewNext.callSid}`, failures);

@@ -9,33 +9,33 @@ import {
 } from '@frontdesk/db';
 import { buildServer } from '../server.js';
 
-type ProspectFindUnique = typeof prisma.prospect.findUnique;
+type ProspectFindFirst = typeof prisma.prospect.findFirst;
 type ProspectUpdate = typeof prisma.prospect.update;
 type ProspectAttemptCreate = typeof prisma.prospectAttempt.create;
 type PrismaTransaction = typeof prisma.$transaction;
 
 function stubProspectPrisma(
   stubs: Partial<{
-    findUnique: ProspectFindUnique;
+    findFirst: ProspectFindFirst;
     update: ProspectUpdate;
     createAttempt: ProspectAttemptCreate;
     transaction: PrismaTransaction;
   }>
 ) {
   const original = {
-    findUnique: prisma.prospect.findUnique,
+    findFirst: prisma.prospect.findFirst,
     update: prisma.prospect.update,
     createAttempt: prisma.prospectAttempt.create,
     transaction: prisma.$transaction
   };
 
-  if (stubs.findUnique) prisma.prospect.findUnique = stubs.findUnique;
+  if (stubs.findFirst) prisma.prospect.findFirst = stubs.findFirst;
   if (stubs.update) prisma.prospect.update = stubs.update;
   if (stubs.createAttempt) prisma.prospectAttempt.create = stubs.createAttempt;
   if (stubs.transaction) prisma.$transaction = stubs.transaction;
 
   return () => {
-    prisma.prospect.findUnique = original.findUnique;
+    prisma.prospect.findFirst = original.findFirst;
     prisma.prospect.update = original.update;
     prisma.prospectAttempt.create = original.createAttempt;
     prisma.$transaction = original.transaction;
@@ -44,14 +44,18 @@ function stubProspectPrisma(
 
 test('PATCH /v1/prospects/:prospectSid stamps archivedAt when status moves to ARCHIVED', async (t) => {
   let capturedUpdateData: unknown;
+  let capturedFindWhere: unknown;
 
   const restore = stubProspectPrisma({
-    findUnique: (async () => ({
-      id: 'prospect_1',
-      status: ProspectStatus.READY,
-      archivedAt: null,
-      respondedAt: null
-    })) as unknown as ProspectFindUnique,
+    findFirst: (async (args?: unknown) => {
+      capturedFindWhere = (args as { where?: unknown } | undefined)?.where;
+      return {
+        id: 'prospect_1',
+        status: ProspectStatus.READY,
+        archivedAt: null,
+        respondedAt: null
+      };
+    }) as unknown as ProspectFindFirst,
     update: (async (args: unknown) => {
       capturedUpdateData = (args as { data: unknown }).data;
       return {
@@ -81,13 +85,18 @@ test('PATCH /v1/prospects/:prospectSid stamps archivedAt when status moves to AR
 
   const response = await app.inject({
     method: 'PATCH',
-    url: '/v1/prospects/PR_DEMO_101',
+    url: '/v1/prospects/PR_DEMO_101?tenantId=tenant_demo&businessId=biz_demo',
     payload: {
       status: 'ARCHIVED'
     }
   });
 
   assert.equal(response.statusCode, 200);
+  assert.deepEqual(capturedFindWhere, {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
+    prospectSid: 'PR_DEMO_101'
+  });
   assert.equal((capturedUpdateData as { status: string }).status, 'ARCHIVED');
   assert.ok((capturedUpdateData as { archivedAt: unknown }).archivedAt instanceof Date);
   assert.equal(response.json().prospect.status, 'ARCHIVED');
@@ -98,12 +107,12 @@ test('POST /v1/prospects/:prospectSid/log-attempt moves prospect to ATTEMPTED an
   let capturedUpdateData: unknown;
 
   const restore = stubProspectPrisma({
-    findUnique: (async () => ({
+    findFirst: (async () => ({
       id: 'prospect_2',
       status: ProspectStatus.READY,
       archivedAt: null,
       respondedAt: null
-    })) as unknown as ProspectFindUnique,
+    })) as unknown as ProspectFindFirst,
     createAttempt: (async (args: unknown) => {
       capturedAttemptData = (args as { data: unknown }).data;
       return {
@@ -140,7 +149,7 @@ test('POST /v1/prospects/:prospectSid/log-attempt moves prospect to ATTEMPTED an
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/prospects/PR_DEMO_103/log-attempt',
+    url: '/v1/prospects/PR_DEMO_103/log-attempt?tenantId=tenant_demo&businessId=biz_demo',
     payload: {
       channel: 'CALL',
       outcome: 'LEFT_VOICEMAIL',
@@ -160,12 +169,12 @@ test('POST /v1/prospects/:prospectSid/log-attempt moves prospect to RESPONDED an
   let capturedUpdateData: unknown;
 
   const restore = stubProspectPrisma({
-    findUnique: (async () => ({
+    findFirst: (async () => ({
       id: 'prospect_4',
       status: ProspectStatus.ATTEMPTED,
       archivedAt: null,
       respondedAt: null
-    })) as unknown as ProspectFindUnique,
+    })) as unknown as ProspectFindFirst,
     createAttempt: (async () => ({ id: 'attempt_2' })) as unknown as ProspectAttemptCreate,
     update: (async (args: unknown) => {
       capturedUpdateData = (args as { data: unknown }).data;
@@ -190,7 +199,7 @@ test('POST /v1/prospects/:prospectSid/log-attempt moves prospect to RESPONDED an
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/prospects/PR_DEMO_104/log-attempt',
+    url: '/v1/prospects/PR_DEMO_104/log-attempt?tenantId=tenant_demo&businessId=biz_demo',
     payload: {
       channel: 'EMAIL',
       outcome: 'REPLIED'
@@ -205,12 +214,12 @@ test('POST /v1/prospects/:prospectSid/log-attempt moves prospect to RESPONDED an
 
 test('POST /v1/prospects/:prospectSid/log-attempt rejects archived prospects', async (t) => {
   const restore = stubProspectPrisma({
-    findUnique: (async () => ({
+    findFirst: (async () => ({
       id: 'prospect_6',
       status: ProspectStatus.ARCHIVED,
       archivedAt: new Date('2026-03-21T12:00:00.000Z'),
       respondedAt: null
-    })) as unknown as ProspectFindUnique
+    })) as unknown as ProspectFindFirst
   });
   t.after(restore);
 
@@ -219,7 +228,7 @@ test('POST /v1/prospects/:prospectSid/log-attempt rejects archived prospects', a
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/prospects/PR_DEMO_106/log-attempt',
+    url: '/v1/prospects/PR_DEMO_106/log-attempt?tenantId=tenant_demo&businessId=biz_demo',
     payload: {
       channel: 'EMAIL',
       outcome: 'SENT_EMAIL'
@@ -238,13 +247,13 @@ test('POST /v1/prospects/:prospectSid/archive preserves an existing archivedAt t
   const existingArchivedAt = new Date('2026-03-21T12:00:00.000Z');
 
   const restore = stubProspectPrisma({
-    findUnique: (async () => ({
+    findFirst: (async () => ({
       id: 'prospect_6',
       status: ProspectStatus.DISQUALIFIED,
       archivedAt: existingArchivedAt,
       respondedAt: null,
       lastAttemptAt: new Date('2026-03-20T15:00:00.000Z')
-    })) as unknown as ProspectFindUnique,
+    })) as unknown as ProspectFindFirst,
     update: (async (args: unknown) => {
       capturedUpdateData = (args as { data: unknown }).data;
       return {
@@ -263,7 +272,7 @@ test('POST /v1/prospects/:prospectSid/archive preserves an existing archivedAt t
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/prospects/PR_DEMO_106/archive'
+    url: '/v1/prospects/PR_DEMO_106/archive?tenantId=tenant_demo&businessId=biz_demo'
   });
 
   assert.equal(response.statusCode, 200);

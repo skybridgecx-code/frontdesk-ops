@@ -27,11 +27,16 @@ export type ApolloProspect = {
   city: string | null;
   state: string | null;
   sourceLabel: string;
-  notes: string | null;
+  sourceProviderRecordId: string | null;
+  sourceWebsiteUrl: string | null;
+  sourceLinkedinUrl: string | null;
+  sourceRoleTitle: string | null;
+  sourceMetadataJson: Record<string, string | null>;
 };
 
 type ApolloSearchResponse = {
   people?: Array<{
+    id?: string;
     name?: string;
     first_name?: string;
     last_name?: string;
@@ -80,7 +85,7 @@ function buildContactName(person: NonNullable<ApolloSearchResponse['people']>[nu
   );
 }
 
-function buildApolloNotes(person: NonNullable<ApolloSearchResponse['people']>[number]) {
+function buildSourceSnippet(person: NonNullable<ApolloSearchResponse['people']>[number]) {
   const parts = [
     cleanNullableString(person.title),
     cleanNullableString(person.organization?.website_url),
@@ -156,7 +161,16 @@ export async function searchApolloPeopleProspects(input: ApolloPeopleSearchInput
         state:
           cleanNullableString(person.organization?.state) ?? cleanNullableString(person.state),
         sourceLabel: 'apollo_people_search',
-        notes: buildApolloNotes(person)
+        sourceProviderRecordId: cleanNullableString(person.id),
+        sourceWebsiteUrl: cleanNullableString(person.organization?.website_url),
+        sourceLinkedinUrl: cleanNullableString(person.linkedin_url),
+        sourceRoleTitle: cleanNullableString(person.title),
+        sourceMetadataJson: {
+          title: cleanNullableString(person.title),
+          websiteUrl: cleanNullableString(person.organization?.website_url),
+          linkedinUrl: cleanNullableString(person.linkedin_url),
+          sourceSnippet: buildSourceSnippet(person)
+        }
       };
     })
     .filter((prospect): prospect is ApolloProspect => Boolean(prospect));

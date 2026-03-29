@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { buildQueueContextSummary } from '@/app/operator-workflow';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { CallsQueueTable } from './calls-queue-table';
 import {
@@ -158,23 +159,6 @@ function formatUrgencyLabel(value: string | undefined) {
   }
 }
 
-function buildQueueContextSummary(input: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-  page?: string;
-}) {
-  const parts = [
-    formatTriageStatusLabel(input.triageStatus),
-    formatReviewStatusLabel(input.reviewStatus),
-    formatUrgencyLabel(input.urgency),
-    input.q?.trim() ? `Search: "${input.q.trim()}"` : null,
-    input.page && input.page !== '1' ? `Page ${input.page}` : null
-  ].filter(Boolean);
-
-  return parts.length > 0 ? parts.join(' • ') : 'Open queue';
-}
 function getNoticeMessage(notice: string | undefined) {
   switch (notice) {
     case 'contacted':
@@ -188,7 +172,7 @@ function getNoticeMessage(notice: string | undefined) {
     case 'row-saved':
       return 'Lead details and review state saved.';
     case 'no-review-calls':
-      return 'No calls currently need review.';
+      return 'No calls currently need attention.';
     default:
       return null;
   }
@@ -245,13 +229,6 @@ export default async function CallsPage({
   const page = normalizePage(resolved.page);
   const limit = normalizeLimit(resolved.limit);
   const noticeMessage = getNoticeMessage(resolved.notice);
-  const queueContextSummary = buildQueueContextSummary({
-    triageStatus,
-    reviewStatus,
-    urgency,
-    q,
-    page
-  });
 
   if (!triageStatus) {
     redirect(
@@ -272,6 +249,15 @@ export default async function CallsPage({
     q,
     page,
     limit
+  });
+  const queueContextSummary = buildQueueContextSummary({
+    currentHref,
+    fallbackLabel: 'Open work queue',
+    formatters: {
+      triageStatus: formatTriageStatusLabel,
+      reviewStatus: formatReviewStatusLabel,
+      urgency: formatUrgencyLabel
+    }
   });
 
   const [data, summary] = await Promise.all([
@@ -482,9 +468,9 @@ export default async function CallsPage({
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Frontdesk Ops</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Inbound work</h1>
             <p className="mt-1 text-sm text-neutral-600">
-              Searchable call queue with clear review state, triage actions, and urgency visibility.
+              Searchable call queue with clear review state, next actions, and urgency visibility.
             </p>
           </div>
 
@@ -504,6 +490,15 @@ export default async function CallsPage({
         <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
           <span className="font-medium text-black">Queue context</span>{' '}
           <span>Opening a call keeps this view: {queueContextSummary}</span>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-sm text-neutral-700">
+          <div className="font-medium text-black">Start here</div>
+          <div className="mt-2 grid gap-2 md:grid-cols-3">
+            <div>1. Start with the first open call, usually `CA_DEMO_101` after reset.</div>
+            <div>2. Review urgency, summary, and contact state before making changes.</div>
+            <div>3. Save, mark contacted, or use `Review next` to keep moving.</div>
+          </div>
         </div>
 
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">

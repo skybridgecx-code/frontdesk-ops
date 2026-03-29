@@ -140,6 +140,16 @@ export const ProspectPriority = {
 export type ProspectPriority = (typeof ProspectPriority)[keyof typeof ProspectPriority]
 
 
+export const ProspectSourceProvider = {
+  MANUAL: 'MANUAL',
+  PUBLIC_INTAKE: 'PUBLIC_INTAKE',
+  GOOGLE_PLACES: 'GOOGLE_PLACES',
+  APOLLO_PEOPLE_SEARCH: 'APOLLO_PEOPLE_SEARCH'
+} as const
+
+export type ProspectSourceProvider = (typeof ProspectSourceProvider)[keyof typeof ProspectSourceProvider]
+
+
 export const ProspectAttemptChannel = {
   CALL: 'CALL',
   EMAIL: 'EMAIL',

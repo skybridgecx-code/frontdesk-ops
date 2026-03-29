@@ -3,9 +3,9 @@ import type { Metadata } from 'next';
 const serviceLines = [
   {
     eyebrow: 'Lead intake design',
-    title: 'Turn first contact into a dependable operating flow',
+    title: 'Turn first contact into visible work',
     description:
-      'We help service businesses tighten the moment demand first appears, whether it comes through calls, website requests, imports, or manual outreach. The goal is simple: fewer lost opportunities and less ambiguity about what happens next.',
+      'We help service businesses tighten the moment demand first appears, whether it comes through calls, website requests, imports, or manual outreach. The goal is simple: less leakage after first contact and less ambiguity about what happens next.',
     bullets: [
       'Public lead capture that routes into a real working queue',
       'Cleaner inbound intake structure for operators and dispatch teams',
@@ -45,26 +45,14 @@ const engagementPoints = [
 const outcomes = [
   'Fewer leads dropped between first contact and follow-up',
   'Clearer operator decisions around review, outreach, and archive',
-  'A more premium customer-facing front door backed by a real operating system'
+  'A customer-facing front door tied to a real operating system'
 ];
 
 const clientTypes = ['HVAC and plumbing teams', 'Home-service operators', 'Founder-led local businesses', 'Dispatch-first service orgs'];
-
-const testimonials = [
-  {
-    quote:
-      'Before MoLeads, the problem was not effort. It was that nobody could see the same lead in the same state at the same time.',
-    name: 'Patricia Shah',
-    role: 'Operations director',
-    company: 'Nova Pediatrics'
-  },
-  {
-    quote:
-      'The system made our front door feel more premium, but the bigger win was how much calmer the team felt behind the scenes.',
-    name: 'Evan Brooks',
-    role: 'Founder',
-    company: 'Old Town Roofing'
-  }
+const systemTruths = [
+  'Inbound calls can be reviewed and worked from a live queue instead of disappearing after the ring stops.',
+  'Outbound prospects keep status, attempt history, and next-step visibility in one place.',
+  'Public requests do not vanish into a disconnected contact form; they enter the same operator workflow.'
 ];
 
 export const metadata: Metadata = {
@@ -94,21 +82,20 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-5 py-2.5 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request consultation
+                Request workflow review
               </a>
             </div>
           </header>
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              Premium workflow services
+              Workflow review and build-out
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              We help service businesses build a cleaner lead engine from first contact to follow-up.
+              We help service businesses stop losing leads after first contact.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              MoLeads is not just a homepage or a form. It is the service layer behind better lead handling: intake,
-              queueing, review, outreach, and operator clarity.
+              MoLeads is not just a homepage or a form. It is the working layer behind better lead handling: intake, queueing, review, outreach, and operator clarity.
             </p>
           </div>
         </div>
@@ -174,7 +161,7 @@ export default function ServicesPage() {
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#866749]">What better looks like</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Better follow-up, calmer operations, and a front door that feels premium.
+              Better follow-up, calmer operations, and less ambiguity about what happens next.
             </h2>
             <div className="mt-8 grid gap-3">
               {outcomes.map((outcome) => (
@@ -190,30 +177,23 @@ export default function ServicesPage() {
       <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What clients notice</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What is real today</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Better structure changes the feel of the business.
+              The strongest proof is whether the workflow stays visible when real work hits it.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              The company sounds clearer. The team feels less reactive. And new opportunities are easier to work without
-              improvising every step.
+              We are not leaning on made-up quotes here. The more useful proof is the actual system behavior that exists in the product right now.
             </p>
           </div>
 
           <div className="grid gap-5 md:grid-cols-2">
-            {testimonials.map((item) => (
+            {systemTruths.map((item) => (
               <article
-                key={`${item.name}-${item.company}`}
+                key={item}
                 className="rounded-[1.9rem] border border-[#d9cdc0] bg-[#fffaf3] p-6 shadow-[0_18px_60px_rgba(16,24,40,0.06)]"
               >
-                <div className="text-4xl leading-none text-[#c89c54]">“</div>
-                <p className="mt-4 text-base leading-8 text-[#3f3127]">{item.quote}</p>
-                <div className="mt-6 border-t border-[#e6dbcf] pt-4">
-                  <div className="font-medium text-[#17120f]">{item.name}</div>
-                  <div className="mt-1 text-sm text-[#6f5a48]">
-                    {item.role}, {item.company}
-                  </div>
-                </div>
+                <div className="text-lg font-semibold tracking-[-0.03em] text-[#17120f]">Workflow truth</div>
+                <p className="mt-4 text-base leading-8 text-[#3f3127]">{item}</p>
               </article>
             ))}
           </div>
@@ -236,7 +216,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request consultation
+                Request workflow review
               </a>
               <a
                 href="/"

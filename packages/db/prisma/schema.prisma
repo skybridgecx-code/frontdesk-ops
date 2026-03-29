@@ -99,6 +99,13 @@ enum ProspectPriority {
   LOW
 }
 
+enum ProspectSourceProvider {
+  MANUAL
+  PUBLIC_INTAKE
+  GOOGLE_PLACES
+  APOLLO_PEOPLE_SEARCH
+}
+
 enum ProspectAttemptChannel {
   CALL
   EMAIL
@@ -127,6 +134,7 @@ model Tenant {
   agentProfiles AgentProfile[]
   calls         Call[]
   prospects     Prospect[]
+  prospectImportBatches ProspectImportBatch[]
 
   @@index([slug])
 }
@@ -179,6 +187,7 @@ model Business {
   serviceAreas   ServiceArea[]
   calls          Call[]
   prospects      Prospect[]
+  prospectImportBatches ProspectImportBatch[]
 
   @@unique([tenantId, slug])
   @@index([tenantId])
@@ -370,6 +379,18 @@ model Prospect {
   city            String?
   state           String?
   sourceLabel     String?
+  sourceProvider  ProspectSourceProvider @default(MANUAL)
+  sourceProviderRecordId String?
+  sourceFingerprint String?
+  sourceWebsiteUrl String?
+  sourceMapsUrl   String?
+  sourceLinkedinUrl String?
+  sourceCategory  String?
+  sourceRoleTitle String?
+  sourceMetadataJson Json?
+  lastImportBatchId String?
+  firstSeenAt     DateTime          @default(now())
+  lastSeenAt      DateTime          @default(now())
   serviceInterest String?
   notes           String?
   status          ProspectStatus    @default(NEW)
@@ -383,14 +404,19 @@ model Prospect {
 
   tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   business        Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  lastImportBatch ProspectImportBatch? @relation(fields: [lastImportBatchId], references: [id], onDelete: SetNull)
   attempts        ProspectAttempt[]
 
   @@index([tenantId])
   @@index([businessId])
+  @@index([sourceProvider])
+  @@index([lastImportBatchId])
   @@index([status])
   @@index([priority])
   @@index([nextActionAt])
   @@index([lastAttemptAt])
+  @@unique([tenantId, businessId, sourceProvider, sourceProviderRecordId])
+  @@unique([tenantId, businessId, sourceProvider, sourceFingerprint])
 }
 
 model ProspectAttempt {
@@ -408,4 +434,26 @@ model ProspectAttempt {
   @@index([channel])
   @@index([outcome])
   @@index([attemptedAt])
+}
+
+model ProspectImportBatch {
+  id            String                 @id @default(cuid())
+  tenantId      String
+  businessId    String
+  sourceProvider ProspectSourceProvider
+  sourceLabel   String?
+  createdCount  Int                    @default(0)
+  updatedCount  Int                    @default(0)
+  skippedCount  Int                    @default(0)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  prospects     Prospect[]
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([sourceProvider])
+  @@index([createdAt])
 }

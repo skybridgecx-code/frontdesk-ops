@@ -5,70 +5,48 @@ import { buildOperatorLeadWebhookPayload } from './home-lead-notification';
 
 const capabilities = [
   {
-    title: 'Inbound capture that does not leak demand',
+    title: 'Stop the drop-off after first contact',
     body:
-      'MoLeads helps service businesses capture calls, qualify urgency, and keep new demand from disappearing into voicemail or scattered notes.'
+      'MoLeads is built for the moment after interest appears. Calls, web requests, and outbound follow-up should become visible work instead of disappearing into inboxes, sticky notes, or vague handoffs.'
   },
   {
-    title: 'Outbound follow-up with real operator discipline',
+    title: 'Give operators a next action they can trust',
     body:
-      'Prospects land in a working queue with next actions, attempt logging, and clean state transitions so teams can actually follow through.'
+      'The system keeps queues, status changes, and activity history clear enough for a real operator to work without guessing what happens next.'
   },
   {
-    title: 'A public front door tied to the same workflow',
+    title: 'Keep the front door tied to the same workflow',
     body:
-      'Website requests, imported lists, and operator review all connect to one system, so the handoff from interest to action stays visible.'
+      'Website requests, imported prospects, and operator review all feed the same operating flow, so the handoff from interest to follow-up stays inspectable.'
   }
 ];
 
 const servicePillars = [
-  'Lead intake workflow design',
-  'Inbound call capture systems',
-  'Outbound prospect follow-up',
-  'Operator queue implementation'
+  'Inbound work queue',
+  'Outbound work queue',
+  'Public request capture',
+  'Visible next actions'
 ];
 
 const proofPoints = [
-  'Built for home-service and local-service teams',
-  'Works across inbound and outbound lead flow',
-  'Designed around operator trust, not vanity dashboards'
+  'Calls and prospects stay visible in real working queues',
+  'Public requests create live operator work items',
+  'Built for follow-through, not reporting theater'
 ];
 
-const trustMarkers = [
-  'Field service teams',
-  'Home-service operators',
-  'Founder-led service companies',
-  'Dispatch-heavy local businesses'
-];
-
-const testimonials = [
+const workflowProof = [
   {
-    quote:
-      'We stopped guessing which lead needed attention next. The team finally had one place to work from instead of bouncing between notes, missed calls, and inboxes.',
-    name: 'Alicia Grant',
-    role: 'Operations lead',
-    company: 'Sterling Dental Group'
+    title: 'Inbound work stays visible',
+    body: 'Completed calls can still be reviewed, triaged, and worked from the queue instead of getting buried after the phone stops ringing.'
   },
   {
-    quote:
-      'The big difference was follow-through. New requests stopped dying after the first touch because the next action was clear and visible to the person doing the work.',
-    name: 'Marcus Reed',
-    role: 'Founder',
-    company: 'Sterling Property Group'
+    title: 'Outbound work stays accountable',
+    body: 'Prospects carry clear state, attempt history, and review-next behavior so follow-up is easier to execute and inspect.'
   },
   {
-    quote:
-      'It felt more premium on the customer side and more disciplined on the team side. That combination is rare.',
-    name: 'Dana Brooks',
-    role: 'General manager',
-    company: 'Herndon Animal Clinic'
+    title: 'The public site is not a dead-end form',
+    body: 'A request from the homepage or contact page becomes a live prospect that lands in the same operator system.'
   }
-];
-
-const metrics = [
-  { value: '1', label: 'shared queue for intake and follow-up' },
-  { value: '0', label: 'guesswork about what happens next' },
-  { value: '100%', label: 'lead visibility from first request onward' }
 ];
 
 const processSteps = [
@@ -93,17 +71,17 @@ const faqs = [
   {
     question: 'Who is MoLeads for?',
     answer:
-      'Teams that rely on new service demand and need a tighter operating system behind intake, qualification, and follow-up.'
+      'Service businesses that already generate demand but do not trust what happens between first contact and follow-up.'
   },
   {
     question: 'Is this just a website form?',
     answer:
-      'No. The site is the front door, but the real value is the workflow behind it: queueing, review, attempt logging, and clear next steps.'
+      'No. The site is the front door, but the real product is the operator workflow behind it: queues, review, activity history, and clear next actions.'
   },
   {
     question: 'What happens after someone submits?',
     answer:
-      'The request becomes a real lead in the workflow so the team can review it, contact it, and keep the conversation moving.'
+      'The request becomes a real work item in the prospect workflow so the team can review it, prioritize it, and start follow-up.'
   }
 ];
 
@@ -117,6 +95,7 @@ type HomeSearchParams = {
 type BootstrapResponse = {
   ok: true;
   tenant: {
+    id: string;
     businesses: Array<{
       id: string;
       name: string;
@@ -219,6 +198,7 @@ export default async function Home({
   const resolved = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap.tenant?.businesses[0] ?? null;
+  const tenantId = bootstrap.tenant?.id ?? null;
   const noticeMessage = getNoticeMessage(resolved.notice, resolved.error?.trim());
   const requestedCompany = resolved.company?.trim() || 'Your request';
   const successWarning = resolved.warning?.trim() || null;
@@ -227,7 +207,7 @@ export default async function Home({
   async function requestConsultation(formData: FormData) {
     'use server';
 
-    if (!activeBusiness) {
+    if (!activeBusiness || !tenantId) {
       redirect(
         buildHomeNoticeHref('lead-request-failed', {
           error: 'No active business is configured for lead capture.'
@@ -247,7 +227,9 @@ export default async function Home({
       );
     }
 
-    const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import`, {
+    const response = await fetch(
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import?tenantId=${encodeURIComponent(tenantId)}`,
+      {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -257,7 +239,8 @@ export default async function Home({
       body: JSON.stringify({
         prospects: [prospect]
       })
-    });
+      }
+    );
 
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -306,7 +289,7 @@ export default async function Home({
                 href="/contact"
                 className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-[#f8f1e7] transition hover:border-white/40 hover:bg-white/6"
               >
-                Request consultation
+                Request workflow review
               </a>
               <a
                 href="/services"
@@ -326,14 +309,13 @@ export default async function Home({
           <div className="grid gap-14 py-16 lg:grid-cols-[minmax(0,1.08fr)_420px] lg:items-end lg:py-24">
             <div>
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-                Inbound capture • outbound follow-up • operator clarity
+                Calls in • requests in • follow-up out
               </div>
               <h1 className="mt-7 max-w-5xl text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-                We build the lead engine behind service businesses that cannot afford slow follow-up.
+                We stop leads from dying between first contact and follow-up.
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-                MoLeads helps service teams turn calls, website requests, and prospect lists into an operating system
-                that someone can actually work. Clear queues. Clear next actions. Fewer lost opportunities.
+                MoLeads gives service teams one working system for inbound calls, public requests, and outbound prospect follow-up. If interest shows up, someone should know what to do next and be able to prove it.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs uppercase tracking-[0.22em] text-[#cdb89a]">
                 {proofPoints.map((point) => (
@@ -345,7 +327,7 @@ export default async function Home({
                   href="/contact"
                   className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
                 >
-                  Book a strategy call
+                  Request workflow review
                 </a>
                 <a
                   href="/services"
@@ -362,10 +344,12 @@ export default async function Home({
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <div className="text-xs uppercase tracking-[0.28em] text-[#dcc8ac]">How MoLeads works</div>
-                    <div className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Demand in. Follow-up out.</div>
+                    <div className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
+                      First contact should create visible work.
+                    </div>
                   </div>
                   <div className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.22em] text-[#f2e5d2]">
-                    Premium ops
+                    Operator-first
                   </div>
                 </div>
 
@@ -400,8 +384,13 @@ export default async function Home({
       <section className="border-y border-[#ddd0c2] bg-[#efe6da]">
         <div className="mx-auto max-w-7xl px-6 py-8 md:px-10 lg:px-12">
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-[#8a6a4d]">
-            <span className="mr-2 text-[#5a4738]">Built for</span>
-            {trustMarkers.map((marker) => (
+            <span className="mr-2 text-[#5a4738]">Best fit</span>
+            {[
+              'Teams handling inbound demand every day',
+              'Operators who need cleaner next actions',
+              'Service businesses tired of dropped follow-up',
+              'Founders who want visible execution, not just more leads'
+            ].map((marker) => (
               <span key={marker} className="rounded-full border border-[#d7c7b6] bg-[#f7f0e7] px-4 py-2">
                 {marker}
               </span>
@@ -414,11 +403,10 @@ export default async function Home({
         <div className="max-w-3xl">
           <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What we do</div>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-6xl">
-            The company page should feel like a serious business, not a software sandbox.
+            If interest shows up, it should become visible work instead of loose follow-up.
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5d4b3d]">
-            So MoLeads is positioned here as the company behind the system: we help service operators tighten lead
-            intake, outbound follow-up, and day-to-day execution with a workflow people can actually trust.
+            MoLeads helps service operators tighten the handoff between first contact and the next real action. That means clearer intake, clearer follow-up, and less room for demand to disappear.
           </p>
         </div>
 
@@ -438,38 +426,23 @@ export default async function Home({
       <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Proof and trust</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What is real today</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              The work should feel sharper to both the team and the customer.
+              The strongest proof is workflow truth, not placeholder marketing.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              The best signal is not a dashboard screenshot. It is whether the team knows what to do next, whether
-              the lead is still visible, and whether the front door of the company feels more serious.
+              The product is credible when a buyer can see how work enters the system, how it stays visible, and how an operator can move it forward without guessing.
             </p>
-            <div className="mt-8 grid gap-4">
-              {metrics.map((metric) => (
-                <div key={metric.label} className="rounded-[1.6rem] border border-[#dbd0c3] bg-[#fff9f1] px-5 py-5">
-                  <div className="text-4xl font-semibold tracking-[-0.05em] text-[#17120f]">{metric.value}</div>
-                  <div className="mt-2 text-sm leading-7 text-[#5d4b3d]">{metric.label}</div>
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="grid gap-5 lg:grid-cols-3">
-            {testimonials.map((item) => (
+            {workflowProof.map((item) => (
               <article
-                key={`${item.name}-${item.company}`}
+                key={item.title}
                 className="flex flex-col rounded-[1.9rem] border border-[#d9cdc0] bg-[#fffaf3] p-6 shadow-[0_18px_60px_rgba(16,24,40,0.06)]"
               >
-                <div className="text-4xl leading-none text-[#c89c54]">“</div>
-                <p className="mt-4 flex-1 text-base leading-8 text-[#3f3127]">{item.quote}</p>
-                <div className="mt-6 border-t border-[#e6dbcf] pt-4">
-                  <div className="font-medium text-[#17120f]">{item.name}</div>
-                  <div className="mt-1 text-sm text-[#6f5a48]">
-                    {item.role}, {item.company}
-                  </div>
-                </div>
+                <div className="text-lg font-semibold tracking-[-0.03em] text-[#17120f]">{item.title}</div>
+                <p className="mt-4 flex-1 text-base leading-8 text-[#3f3127]">{item.body}</p>
               </article>
             ))}
           </div>
@@ -490,8 +463,7 @@ export default async function Home({
               qualification, and follow-up live in different places and nobody trusts what should happen next.
             </p>
             <p>
-              MoLeads brings those moments together. The result is not just prettier software. It is a calmer
-              operating cadence: better handoffs, tighter queues, and fewer leads aging out because the process was vague.
+              MoLeads brings those moments together. The result is not just prettier software. It is a tighter operating cadence: clearer handoffs, visible queues, and fewer leads aging out because the process was vague.
             </p>
           </div>
         </div>
@@ -543,11 +515,10 @@ export default async function Home({
           <div className="max-w-xl">
             <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Start the conversation</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Tell us how leads are showing up today and where the current process breaks down.
+              Tell us where leads are getting delayed, dropped, or worked inconsistently.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#5d4b3d]">
-              Use the form to request a strategy call. The request becomes a real lead inside the MoLeads workflow,
-              so the same operational system is visible from the very first touchpoint.
+              Use the form to request a workflow review. The request becomes a real work item inside the operator system, so the handoff starts the moment you submit it.
             </p>
           </div>
 
@@ -555,7 +526,7 @@ export default async function Home({
             <div className="grid gap-4 rounded-[2rem] border border-emerald-300/30 bg-[linear-gradient(180deg,_rgba(16,185,129,0.12),_rgba(255,255,255,0.82))] p-7 shadow-[0_24px_80px_rgba(16,24,40,0.08)]">
               <div className="text-xs uppercase tracking-[0.28em] text-[#147557]">Request received</div>
               <div className="max-w-2xl text-3xl font-semibold tracking-[-0.04em] text-[#17120f]">
-                {requestedCompany} is now in the MoLeads workflow.
+                {requestedCompany} is now in the operator workflow.
               </div>
               {successWarning ? (
                 <div className="rounded-2xl border border-amber-300/40 bg-amber-100/70 px-4 py-3 text-sm text-[#6d4f0e]">
@@ -563,8 +534,7 @@ export default async function Home({
                 </div>
               ) : null}
               <p className="max-w-2xl text-base leading-8 text-[#4b3a2d]">
-                The request has been captured as a live lead. From here, the operator queue can review it, triage
-                it, and move it into follow-up with clear next actions.
+                The request has been captured as a live work item. From here, the operator queue can review it, prioritize it, and move it into follow-up with clear next actions.
               </p>
               <div className="grid gap-3 text-sm text-[#17120f] md:grid-cols-3">
                 <div className="rounded-xl border border-[#d6d0c6] bg-white/70 px-4 py-3">1. Request entered the queue</div>
@@ -665,10 +635,10 @@ export default async function Home({
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-md text-sm leading-6 text-[#5d4b3d]">
-                  This request becomes a real lead inside MoLeads, so the workflow starts the moment you submit it.
+                  This request becomes a real work item in the operator workflow, so the handoff starts the moment you submit it.
                 </p>
                 <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                  Request consultation
+                  Request workflow review
                 </button>
               </div>
             </form>

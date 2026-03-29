@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation';
+import { buildQueueContextSummary } from '@/app/operator-workflow';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
   buildFilterHref,
@@ -83,6 +84,8 @@ type BootstrapResponse = {
 };
 
 type ProspectsSearchParams = {
+  tenantId?: string;
+  businessId?: string;
   status?: string;
   priority?: string;
   q?: string;
@@ -93,6 +96,8 @@ type ProspectsSearchParams = {
 };
 
 async function getProspects(input: {
+  tenantId: string;
+  businessId: string;
   status?: string;
   priority?: string;
   q?: string;
@@ -100,6 +105,8 @@ async function getProspects(input: {
   limit?: string;
 }) {
   const params = new URLSearchParams();
+  params.set('tenantId', input.tenantId);
+  params.set('businessId', input.businessId);
   params.set('limit', normalizeLimit(input.limit));
   params.set('page', normalizePage(input.page));
 
@@ -119,8 +126,12 @@ async function getProspects(input: {
   return (await res.json()) as ProspectsResponse;
 }
 
-async function getProspectsSummary() {
-  const res = await fetch(`${getApiBaseUrl()}/v1/prospects/summary`, {
+async function getProspectsSummary(input: { tenantId: string; businessId: string }) {
+  const params = new URLSearchParams();
+  params.set('tenantId', input.tenantId);
+  params.set('businessId', input.businessId);
+
+  const res = await fetch(`${getApiBaseUrl()}/v1/prospects/summary?${params.toString()}`, {
     cache: 'no-store',
     headers: getInternalApiHeaders()
   });
@@ -245,7 +256,7 @@ function sourceBadgeClass(sourceLabel: string | null) {
 function getNoticeMessage(notice: string | undefined, detail: string | undefined) {
   switch (notice) {
     case 'no-review-prospects':
-      return 'No prospects currently need follow-up.';
+      return 'No prospects currently need attention.';
     case 'google-imported':
       return 'Google Places prospects imported into the outbound queue.';
     case 'apollo-imported':
@@ -265,6 +276,14 @@ export default async function ProspectsPage({
   searchParams: Promise<ProspectsSearchParams>;
 }) {
   const resolved = await searchParams;
+  const bootstrap = await getBootstrap();
+  const bootstrapTenant = bootstrap.tenant;
+  const canonicalTenantId = bootstrapTenant?.id ?? null;
+  const activeBusiness =
+    bootstrapTenant?.businesses.find((business) => business.id === resolved.businessId) ??
+    bootstrapTenant?.businesses[0] ??
+    null;
+  const canonicalBusinessId = activeBusiness?.id ?? null;
   const status = resolved.status;
   const priority = resolved.priority;
   const q = resolved.q?.trim() ?? '';
@@ -272,37 +291,65 @@ export default async function ProspectsPage({
   const limit = normalizeLimit(resolved.limit);
   const noticeMessage = getNoticeMessage(resolved.notice, resolved.error?.trim());
 
-  if (!status) {
+  if (!canonicalTenantId || !canonicalBusinessId) {
+    throw new Error('No active tenant/business scope is configured for prospects.');
+  }
+
+  const activeScope = {
+    tenantId: canonicalTenantId,
+    businessId: canonicalBusinessId
+  };
+
+  if (
+    !status ||
+    resolved.tenantId !== canonicalTenantId ||
+    resolved.businessId !== canonicalBusinessId
+  ) {
     redirect(
       buildFilterHref({
+        tenantId: canonicalTenantId,
+        businessId: canonicalBusinessId,
         status: 'READY',
         priority,
         q,
+        page,
         limit
       })
     );
   }
 
-  const [data, summary, bootstrap] = await Promise.all([
+  const [data, summary] = await Promise.all([
     getProspects({
+      tenantId: canonicalTenantId,
+      businessId: canonicalBusinessId,
       status,
       priority,
       q,
       page,
       limit
     }),
-    getProspectsSummary(),
-    getBootstrap()
+    getProspectsSummary({
+      tenantId: canonicalTenantId,
+      businessId: canonicalBusinessId
+    })
   ]);
 
-  const activeBusiness = bootstrap.tenant?.businesses[0] ?? null;
-
   const currentHref = buildFilterHref({
+    tenantId: canonicalTenantId,
+    businessId: canonicalBusinessId,
     status,
     priority,
     q,
     page,
     limit
+  });
+  const queueContextSummary = buildQueueContextSummary({
+    currentHref,
+    fallbackLabel: 'Ready work queue',
+    formatters: {
+      status: (value) => (value ? value.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (m) => m.toUpperCase()) : null),
+      priority: (value) => (value ? `${value.toLowerCase().replace(/^\w/, (m) => m.toUpperCase())} priority` : null)
+    }
   });
 
   const currentPage = data.page;
@@ -310,6 +357,8 @@ export default async function ProspectsPage({
   const previousHref =
     currentPage > 1
       ? buildFilterHref({
+          tenantId: canonicalTenantId,
+          businessId: canonicalBusinessId,
           status,
           priority,
           q,
@@ -320,6 +369,8 @@ export default async function ProspectsPage({
   const nextHref =
     currentPage < totalPages
       ? buildFilterHref({
+          tenantId: canonicalTenantId,
+          businessId: canonicalBusinessId,
           status,
           priority,
           q,
@@ -368,7 +419,9 @@ export default async function ProspectsPage({
       );
     }
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import/google-places`, {
+    const res = await fetch(
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import/google-places?tenantId=${encodeURIComponent(activeScope.tenantId)}`,
+      {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -376,7 +429,8 @@ export default async function ProspectsPage({
         'content-type': 'application/json'
       },
       body: JSON.stringify(payload)
-    });
+      }
+    );
 
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -409,7 +463,9 @@ export default async function ProspectsPage({
       );
     }
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import/apollo`, {
+    const res = await fetch(
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import/apollo?tenantId=${encodeURIComponent(activeScope.tenantId)}`,
+      {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -417,7 +473,8 @@ export default async function ProspectsPage({
         'content-type': 'application/json'
       },
       body: JSON.stringify(payload)
-    });
+      }
+    );
 
     if (!res.ok) {
       const body = (await res.json().catch(() => null)) as { error?: string } | null;
@@ -436,9 +493,9 @@ export default async function ProspectsPage({
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Outbound Prospects</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Outbound work</h1>
             <p className="mt-1 text-sm text-neutral-600">
-              Read-only prospect queue grounded in the outbound selector and state model.
+              Prospect queue with clear status, next actions, and provider-aware follow-up context.
             </p>
           </div>
 
@@ -454,6 +511,20 @@ export default async function ProspectsPage({
             {noticeMessage}
           </div>
         ) : null}
+
+        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
+          <span className="font-medium text-black">Queue context</span>{' '}
+          <span>Opening a prospect keeps this view: {queueContextSummary}</span>
+        </div>
+
+        <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-sm text-neutral-700">
+          <div className="font-medium text-black">Start here</div>
+          <div className="mt-2 grid gap-2 md:grid-cols-3">
+            <div>1. Start with the first ready prospect, usually `PR_DEMO_101` after reset.</div>
+            <div>2. Review contact details, source intelligence, and the latest activity.</div>
+            <div>3. Save, log activity, or use `Review next` to keep follow-up moving.</div>
+          </div>
+        </div>
 
         <div className="grid gap-4 xl:grid-cols-2">
           <form action={importGooglePlaces} className="space-y-3 rounded-2xl border border-neutral-200 p-4">
@@ -588,42 +659,88 @@ export default async function ProspectsPage({
         </div>
 
         <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-          <SummaryCard label="Ready" value={summary.readyProspects} href={buildFilterHref({ status: 'READY', limit })} />
-          <SummaryCard label="New" value={summary.newProspects} href={buildFilterHref({ status: 'NEW', limit })} />
+          <SummaryCard
+            label="Ready"
+            value={summary.readyProspects}
+            href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'READY', limit })}
+          />
+          <SummaryCard
+            label="New"
+            value={summary.newProspects}
+            href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'NEW', limit })}
+          />
           <SummaryCard
             label="Attempted"
             value={summary.attemptedProspects}
-            href={buildFilterHref({ status: 'ATTEMPTED', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status: 'ATTEMPTED',
+              limit
+            })}
           />
           <SummaryCard
             label="Responded"
             value={summary.respondedProspects}
-            href={buildFilterHref({ status: 'RESPONDED', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status: 'RESPONDED',
+              limit
+            })}
           />
           <SummaryCard
             label="Qualified"
             value={summary.qualifiedProspects}
-            href={buildFilterHref({ status: 'QUALIFIED', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status: 'QUALIFIED',
+              limit
+            })}
           />
           <SummaryCard
             label="Archived"
             value={summary.archivedProspects}
-            href={buildFilterHref({ status: 'ARCHIVED', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status: 'ARCHIVED',
+              limit
+            })}
           />
           <SummaryCard
             label="High priority"
             value={summary.highPriorityProspects}
-            href={buildFilterHref({ status, priority: 'HIGH', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status,
+              priority: 'HIGH',
+              limit
+            })}
           />
           <SummaryCard
             label="Medium priority"
             value={summary.mediumPriorityProspects}
-            href={buildFilterHref({ status, priority: 'MEDIUM', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status,
+              priority: 'MEDIUM',
+              limit
+            })}
           />
           <SummaryCard
             label="Low priority"
             value={summary.lowPriorityProspects}
-            href={buildFilterHref({ status, priority: 'LOW', limit })}
+            href={buildFilterHref({
+              tenantId: canonicalTenantId,
+              businessId: canonicalBusinessId,
+              status,
+              priority: 'LOW',
+              limit
+            })}
           />
         </div>
 
@@ -642,12 +759,23 @@ export default async function ProspectsPage({
               />
             </div>
             <input type="hidden" name="status" value={status} />
+            <input type="hidden" name="tenantId" value={canonicalTenantId} />
+            <input type="hidden" name="businessId" value={canonicalBusinessId} />
             {priority ? <input type="hidden" name="priority" value={priority} /> : null}
             <input type="hidden" name="limit" value={limit} />
             <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
               Search
             </button>
-            <a href={buildFilterHref({ status, priority, limit })} className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
+            <a
+              href={buildFilterHref({
+                tenantId: canonicalTenantId,
+                businessId: canonicalBusinessId,
+                status,
+                priority,
+                limit
+              })}
+              className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+            >
               Clear
             </a>
           </form>
@@ -655,30 +783,73 @@ export default async function ProspectsPage({
           <div>
             <div className="mb-2 text-sm font-medium">Status</div>
             <div className="flex flex-wrap gap-2">
-              <FilterLink href={buildFilterHref({ status: 'READY', priority, q, limit })} label="Ready" active={status === 'READY'} />
-              <FilterLink href={buildFilterHref({ status: 'NEW', priority, q, limit })} label="New" active={status === 'NEW'} />
               <FilterLink
-                href={buildFilterHref({ status: 'ATTEMPTED', priority, q, limit })}
+                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'READY', priority, q, limit })}
+                label="Ready"
+                active={status === 'READY'}
+              />
+              <FilterLink
+                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'NEW', priority, q, limit })}
+                label="New"
+                active={status === 'NEW'}
+              />
+              <FilterLink
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status: 'ATTEMPTED',
+                  priority,
+                  q,
+                  limit
+                })}
                 label="Attempted"
                 active={status === 'ATTEMPTED'}
               />
               <FilterLink
-                href={buildFilterHref({ status: 'RESPONDED', priority, q, limit })}
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status: 'RESPONDED',
+                  priority,
+                  q,
+                  limit
+                })}
                 label="Responded"
                 active={status === 'RESPONDED'}
               />
               <FilterLink
-                href={buildFilterHref({ status: 'QUALIFIED', priority, q, limit })}
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status: 'QUALIFIED',
+                  priority,
+                  q,
+                  limit
+                })}
                 label="Qualified"
                 active={status === 'QUALIFIED'}
               />
               <FilterLink
-                href={buildFilterHref({ status: 'DISQUALIFIED', priority, q, limit })}
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status: 'DISQUALIFIED',
+                  priority,
+                  q,
+                  limit
+                })}
                 label="Disqualified"
                 active={status === 'DISQUALIFIED'}
               />
               <FilterLink
-                href={buildFilterHref({ status: 'ARCHIVED', priority, q, limit })}
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status: 'ARCHIVED',
+                  priority,
+                  q,
+                  limit
+                })}
                 label="Archived"
                 active={status === 'ARCHIVED'}
               />
@@ -688,14 +859,47 @@ export default async function ProspectsPage({
           <div>
             <div className="mb-2 text-sm font-medium">Priority</div>
             <div className="flex flex-wrap gap-2">
-              <FilterLink href={buildFilterHref({ status, q, limit })} label="All" active={!priority} />
-              <FilterLink href={buildFilterHref({ status, priority: 'HIGH', q, limit })} label="High" active={priority === 'HIGH'} />
               <FilterLink
-                href={buildFilterHref({ status, priority: 'MEDIUM', q, limit })}
+                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status, q, limit })}
+                label="All"
+                active={!priority}
+              />
+              <FilterLink
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status,
+                  priority: 'HIGH',
+                  q,
+                  limit
+                })}
+                label="High"
+                active={priority === 'HIGH'}
+              />
+              <FilterLink
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status,
+                  priority: 'MEDIUM',
+                  q,
+                  limit
+                })}
                 label="Medium"
                 active={priority === 'MEDIUM'}
               />
-              <FilterLink href={buildFilterHref({ status, priority: 'LOW', q, limit })} label="Low" active={priority === 'LOW'} />
+              <FilterLink
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status,
+                  priority: 'LOW',
+                  q,
+                  limit
+                })}
+                label="Low"
+                active={priority === 'LOW'}
+              />
             </div>
           </div>
         </div>

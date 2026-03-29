@@ -1,25 +1,37 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { prisma } from '@frontdesk/db';
+import { ProspectSourceProvider, prisma } from '@frontdesk/db';
 import { buildServer } from '../server.js';
 
 type PrismaStubSet = Partial<{
-  businessFindUnique: typeof prisma.business.findUnique;
-  prospectCreateMany: typeof prisma.prospect.createMany;
+  businessFindFirst: typeof prisma.business.findFirst;
+  prospectFindFirst: typeof prisma.prospect.findFirst;
+  prospectCreate: typeof prisma.prospect.create;
+  prospectImportBatchCreate: typeof prisma.prospectImportBatch.create;
+  prospectImportBatchUpdate: typeof prisma.prospectImportBatch.update;
 }>;
 
 function stubPrisma(stubs: PrismaStubSet) {
   const original = {
-    businessFindUnique: prisma.business.findUnique,
-    prospectCreateMany: prisma.prospect.createMany
+    businessFindFirst: prisma.business.findFirst,
+    prospectFindFirst: prisma.prospect.findFirst,
+    prospectCreate: prisma.prospect.create,
+    prospectImportBatchCreate: prisma.prospectImportBatch.create,
+    prospectImportBatchUpdate: prisma.prospectImportBatch.update
   };
 
-  if (stubs.businessFindUnique) prisma.business.findUnique = stubs.businessFindUnique;
-  if (stubs.prospectCreateMany) prisma.prospect.createMany = stubs.prospectCreateMany;
+  if (stubs.businessFindFirst) prisma.business.findFirst = stubs.businessFindFirst;
+  if (stubs.prospectFindFirst) prisma.prospect.findFirst = stubs.prospectFindFirst;
+  if (stubs.prospectCreate) prisma.prospect.create = stubs.prospectCreate;
+  if (stubs.prospectImportBatchCreate) prisma.prospectImportBatch.create = stubs.prospectImportBatchCreate;
+  if (stubs.prospectImportBatchUpdate) prisma.prospectImportBatch.update = stubs.prospectImportBatchUpdate;
 
   return () => {
-    prisma.business.findUnique = original.businessFindUnique;
-    prisma.prospect.createMany = original.prospectCreateMany;
+    prisma.business.findFirst = original.businessFindFirst;
+    prisma.prospect.findFirst = original.prospectFindFirst;
+    prisma.prospect.create = original.prospectCreate;
+    prisma.prospectImportBatch.create = original.prospectImportBatchCreate;
+    prisma.prospectImportBatch.update = original.prospectImportBatchUpdate;
   };
 }
 
@@ -36,20 +48,38 @@ function stubFetch(
   };
 }
 
-test('POST /v1/businesses/:businessId/prospects/import/google-places imports mapped places results', async (t) => {
+test('POST /v1/businesses/:businessId/prospects/import/google-places imports mapped places results with provenance', async (t) => {
   process.env.GOOGLE_PLACES_API_KEY = 'google_test_key';
-  let capturedData: unknown[] = [];
   let capturedRequest: { url: string; headers: Headers; body: string | null } | null = null;
+  let capturedBusinessWhere: unknown;
+  let capturedCreateData: Record<string, unknown> | null = null;
+  let capturedBatchCreateData: unknown;
+  let capturedBatchUpdateData: unknown;
 
   const restorePrisma = stubPrisma({
-    businessFindUnique: ((async () => ({
-      id: 'biz_demo',
-      tenantId: 'tenant_demo'
-    })) as unknown) as typeof prisma.business.findUnique,
-    prospectCreateMany: (async (args?: unknown) => {
-      capturedData = ((args as { data?: unknown[] } | undefined)?.data ?? []) as unknown[];
-      return { count: capturedData.length };
-    }) as typeof prisma.prospect.createMany
+    businessFindFirst: ((async (args?: unknown) => {
+      capturedBusinessWhere = (args as { where?: unknown } | undefined)?.where;
+      return {
+        id: 'biz_demo',
+        tenantId: 'tenant_demo'
+      };
+    }) as unknown) as typeof prisma.business.findFirst,
+    prospectFindFirst: (async () => null) as typeof prisma.prospect.findFirst,
+    prospectImportBatchCreate: ((async (args?: unknown) => {
+      capturedBatchCreateData = (args as { data?: unknown } | undefined)?.data;
+      return { id: 'batch_google' };
+    }) as unknown) as typeof prisma.prospectImportBatch.create,
+    prospectImportBatchUpdate: ((async (args?: unknown) => {
+      capturedBatchUpdateData = (args as { data?: unknown } | undefined)?.data;
+      return { id: 'batch_google' };
+    }) as unknown) as typeof prisma.prospectImportBatch.update,
+    prospectCreate: (async (args?: unknown) => {
+      capturedCreateData = ((args as { data?: Record<string, unknown> } | undefined)?.data ?? null) as Record<
+        string,
+        unknown
+      > | null;
+      return { prospectSid: 'PR_CREATED_GOOGLE' };
+    }) as typeof prisma.prospect.create
   });
   t.after(restorePrisma);
 
@@ -67,6 +97,7 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places imports map
       json: async () => ({
         places: [
           {
+            id: 'places/abc123',
             displayName: { text: 'Reston Family Dental' },
             nationalPhoneNumber: '(703) 555-0101',
             formattedAddress: '123 Main St, Reston, VA 20190',
@@ -85,7 +116,7 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places imports map
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/businesses/biz_demo/prospects/import/google-places',
+    url: '/v1/businesses/biz_demo/prospects/import/google-places?tenantId=tenant_demo',
     payload: {
       textQuery: ' dentists in Reston VA ',
       pageSize: 5,
@@ -97,15 +128,21 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places imports map
   });
 
   assert.equal(response.statusCode, 200);
-
-  const body = response.json();
-  assert.equal(body.ok, true);
-  assert.equal(body.importedCount, 1);
-  assert.equal(body.prospects[0].companyName, 'Reston Family Dental');
-  assert.equal(body.prospects[0].status, 'READY');
-  assert.equal(body.prospects[0].priority, 'HIGH');
-  assert.equal(body.prospects[0].sourceLabel, 'google_places');
-  assert.match(body.prospects[0].prospectSid, /^PR_[A-Z0-9]{12}$/);
+  assert.deepEqual(capturedBusinessWhere, {
+    id: 'biz_demo',
+    tenantId: 'tenant_demo'
+  });
+  assert.deepEqual(capturedBatchCreateData, {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
+    sourceProvider: ProspectSourceProvider.GOOGLE_PLACES,
+    sourceLabel: null
+  });
+  assert.deepEqual(capturedBatchUpdateData, {
+    createdCount: 1,
+    updatedCount: 0,
+    skippedCount: 0
+  });
 
   assert.ok(capturedRequest);
   const googleRequest = capturedRequest as {
@@ -116,7 +153,7 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places imports map
 
   assert.equal(googleRequest.url, 'https://places.googleapis.com/v1/places:searchText');
   assert.equal(googleRequest.headers.get('x-goog-api-key'), 'google_test_key');
-  assert.match(googleRequest.headers.get('x-goog-fieldmask') ?? '', /places\.displayName/);
+  assert.match(googleRequest.headers.get('x-goog-fieldmask') ?? '', /places\.id/);
   assert.deepEqual(JSON.parse(googleRequest.body ?? '{}'), {
     textQuery: 'dentists in Reston VA',
     pageSize: 5,
@@ -124,41 +161,67 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places imports map
     includePureServiceAreaBusinesses: true
   });
 
-  assert.deepEqual(capturedData, [
-    {
-      tenantId: 'tenant_demo',
-      businessId: 'biz_demo',
-      prospectSid: body.prospects[0].prospectSid,
-      companyName: 'Reston Family Dental',
-      contactName: null,
-      contactPhone: '(703) 555-0101',
-      contactEmail: null,
-      city: null,
-      state: null,
-      sourceLabel: 'google_places',
-      serviceInterest: 'New outbound list',
-      notes: 'Dentist | 123 Main St, Reston, VA 20190 | https://restondental.example | https://maps.google.com/?cid=demo',
-      status: 'READY',
-      priority: 'HIGH',
-      nextActionAt: null
-    }
-  ]);
+  assert.ok(capturedCreateData);
+  const createdGoogleData = capturedCreateData as unknown as Record<string, unknown>;
+  assert.equal(createdGoogleData.tenantId, 'tenant_demo');
+  assert.equal(createdGoogleData.businessId, 'biz_demo');
+  assert.equal(createdGoogleData.sourceProvider, ProspectSourceProvider.GOOGLE_PLACES);
+  assert.equal(createdGoogleData.sourceProviderRecordId, 'places/abc123');
+  assert.equal(createdGoogleData.sourceLabel, 'google_places');
+  assert.equal(createdGoogleData.sourceWebsiteUrl, 'https://restondental.example');
+  assert.equal(createdGoogleData.sourceMapsUrl, 'https://maps.google.com/?cid=demo');
+  assert.equal(createdGoogleData.sourceCategory, 'Dentist');
+  assert.equal(createdGoogleData.serviceInterest, 'New outbound list');
+  assert.equal(createdGoogleData.notes, null);
+  assert.deepEqual(createdGoogleData.sourceMetadataJson, {
+    primaryType: 'Dentist',
+    formattedAddress: '123 Main St, Reston, VA 20190',
+    websiteUri: 'https://restondental.example',
+    googleMapsUri: 'https://maps.google.com/?cid=demo',
+    sourceSnippet:
+      'Dentist | 123 Main St, Reston, VA 20190 | https://restondental.example | https://maps.google.com/?cid=demo'
+  });
+
+  assert.deepEqual(response.json(), {
+    ok: true,
+    importBatchId: 'batch_google',
+    importedCount: 1,
+    createdCount: 1,
+    updatedCount: 0,
+    skippedCount: 0,
+    prospects: [
+      {
+        prospectSid: 'PR_CREATED_GOOGLE',
+        companyName: 'Reston Family Dental',
+        status: 'READY',
+        priority: 'HIGH',
+        sourceLabel: 'google_places',
+        result: 'created'
+      }
+    ]
+  });
 });
 
-test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped people search results', async (t) => {
+test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped people search results with provenance', async (t) => {
   process.env.APOLLO_API_KEY = 'apollo_test_key';
-  let capturedData: unknown[] = [];
   let capturedRequest: { url: string; headers: Headers } | null = null;
+  let capturedCreateData: Record<string, unknown> | null = null;
 
   const restorePrisma = stubPrisma({
-    businessFindUnique: ((async () => ({
+    businessFindFirst: ((async () => ({
       id: 'biz_demo',
       tenantId: 'tenant_demo'
-    })) as unknown) as typeof prisma.business.findUnique,
-    prospectCreateMany: (async (args?: unknown) => {
-      capturedData = ((args as { data?: unknown[] } | undefined)?.data ?? []) as unknown[];
-      return { count: capturedData.length };
-    }) as typeof prisma.prospect.createMany
+    })) as unknown) as typeof prisma.business.findFirst,
+    prospectFindFirst: (async () => null) as typeof prisma.prospect.findFirst,
+    prospectImportBatchCreate: ((async () => ({ id: 'batch_apollo' })) as unknown) as typeof prisma.prospectImportBatch.create,
+    prospectImportBatchUpdate: ((async () => ({ id: 'batch_apollo' })) as unknown) as typeof prisma.prospectImportBatch.update,
+    prospectCreate: (async (args?: unknown) => {
+      capturedCreateData = ((args as { data?: Record<string, unknown> } | undefined)?.data ?? null) as Record<
+        string,
+        unknown
+      > | null;
+      return { prospectSid: 'PR_CREATED_APOLLO' };
+    }) as typeof prisma.prospect.create
   });
   t.after(restorePrisma);
 
@@ -175,6 +238,7 @@ test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped peo
       json: async () => ({
         people: [
           {
+            id: 'apollo_person_123',
             name: 'Alicia Grant',
             title: 'Director of Operations',
             city: 'Reston',
@@ -198,7 +262,7 @@ test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped peo
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/businesses/biz_demo/prospects/import/apollo',
+    url: '/v1/businesses/biz_demo/prospects/import/apollo?tenantId=tenant_demo',
     payload: {
       qKeywords: 'dentists',
       personTitles: ['operations manager'],
@@ -210,14 +274,6 @@ test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped peo
   });
 
   assert.equal(response.statusCode, 200);
-
-  const body = response.json();
-  assert.equal(body.ok, true);
-  assert.equal(body.importedCount, 1);
-  assert.equal(body.prospects[0].companyName, 'Reston Family Dental');
-  assert.equal(body.prospects[0].sourceLabel, 'apollo_people_search');
-  assert.equal(body.prospects[0].status, 'READY');
-  assert.equal(body.prospects[0].priority, 'MEDIUM');
 
   assert.ok(capturedRequest);
   const apolloRequest = capturedRequest as {
@@ -231,25 +287,25 @@ test('POST /v1/businesses/:businessId/prospects/import/apollo imports mapped peo
   assert.match(apolloRequest.url, /organization_locations%5B%5D=Virginia%2C(\+|%20)US/);
   assert.equal(apolloRequest.headers.get('x-api-key'), 'apollo_test_key');
 
-  assert.deepEqual(capturedData, [
-    {
-      tenantId: 'tenant_demo',
-      businessId: 'biz_demo',
-      prospectSid: body.prospects[0].prospectSid,
-      companyName: 'Reston Family Dental',
-      contactName: 'Alicia Grant',
-      contactPhone: null,
-      contactEmail: null,
-      city: 'Reston',
-      state: 'VA',
-      sourceLabel: 'apollo_people_search',
-      serviceInterest: null,
-      notes: 'Director of Operations | https://restondental.example | https://linkedin.com/in/alicia-grant',
-      status: 'READY',
-      priority: 'MEDIUM',
-      nextActionAt: null
-    }
-  ]);
+  assert.ok(capturedCreateData);
+  const createdApolloData = capturedCreateData as unknown as Record<string, unknown>;
+  assert.equal(createdApolloData.sourceProvider, ProspectSourceProvider.APOLLO_PEOPLE_SEARCH);
+  assert.equal(createdApolloData.sourceProviderRecordId, 'apollo_person_123');
+  assert.equal(createdApolloData.sourceLabel, 'apollo_people_search');
+  assert.equal(createdApolloData.sourceWebsiteUrl, 'https://restondental.example');
+  assert.equal(createdApolloData.sourceLinkedinUrl, 'https://linkedin.com/in/alicia-grant');
+  assert.equal(createdApolloData.sourceRoleTitle, 'Director of Operations');
+  assert.equal(createdApolloData.notes, null);
+  assert.deepEqual(createdApolloData.sourceMetadataJson, {
+    title: 'Director of Operations',
+    websiteUrl: 'https://restondental.example',
+    linkedinUrl: 'https://linkedin.com/in/alicia-grant',
+    sourceSnippet:
+      'Director of Operations | https://restondental.example | https://linkedin.com/in/alicia-grant'
+  });
+
+  assert.equal(response.json().prospects[0].sourceLabel, 'apollo_people_search');
+  assert.equal(response.json().prospects[0].result, 'created');
 });
 
 test('POST /v1/businesses/:businessId/prospects/import/google-places fails clearly when provider key is missing', async (t) => {
@@ -260,7 +316,7 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places fails clear
 
   const response = await app.inject({
     method: 'POST',
-    url: '/v1/businesses/biz_demo/prospects/import/google-places',
+    url: '/v1/businesses/biz_demo/prospects/import/google-places?tenantId=tenant_demo',
     payload: {
       textQuery: 'dentists in Reston VA'
     }
@@ -269,4 +325,25 @@ test('POST /v1/businesses/:businessId/prospects/import/google-places fails clear
   assert.equal(response.statusCode, 503);
   assert.equal(response.json().ok, false);
   assert.match(response.json().error, /GOOGLE_PLACES_API_KEY/);
+});
+
+test('POST provider import routes require tenant scope', async (t) => {
+  process.env.APOLLO_API_KEY = 'apollo_test_key';
+
+  const app = await buildServer();
+  t.after(() => app.close());
+
+  const response = await app.inject({
+    method: 'POST',
+    url: '/v1/businesses/biz_demo/prospects/import/apollo',
+    payload: {
+      qKeywords: 'dentists'
+    }
+  });
+
+  assert.equal(response.statusCode, 400);
+  assert.deepEqual(response.json(), {
+    ok: false,
+    error: 'tenantId is required'
+  });
 });

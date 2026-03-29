@@ -1,7 +1,12 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import {
+  buildQueueContextSummary,
+  getWorkItemSaveNoticeMessage
+} from '@/app/operator-workflow';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
+  buildFilterHref,
   buildDetailReviewNextRequestHref,
   buildProspectDetailHref,
   buildQueueNoticeHref,
@@ -29,6 +34,11 @@ type ProspectDetail = {
   city: string | null;
   state: string | null;
   sourceLabel: string | null;
+  sourceWebsiteUrl: string | null;
+  sourceMapsUrl: string | null;
+  sourceLinkedinUrl: string | null;
+  sourceCategory: string | null;
+  sourceRoleTitle: string | null;
   serviceInterest: string | null;
   notes: string | null;
   status: string;
@@ -42,8 +52,44 @@ type ProspectDetail = {
   attempts: ProspectAttempt[];
 };
 
-async function getProspect(prospectSid: string) {
-  const res = await fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}`, {
+type ProspectScope = {
+  tenantId: string;
+  businessId: string;
+};
+
+type BootstrapResponse = {
+  ok: true;
+  tenant: {
+    id: string;
+    businesses: Array<{
+      id: string;
+      name: string;
+    }>;
+  } | null;
+};
+
+function buildScopedProspectPath(prospectSid: string, scope: ProspectScope) {
+  const params = new URLSearchParams();
+  params.set('tenantId', scope.tenantId);
+  params.set('businessId', scope.businessId);
+  return `/v1/prospects/${prospectSid}?${params.toString()}`;
+}
+
+async function getBootstrap() {
+  const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
+    cache: 'no-store',
+    headers: getInternalApiHeaders()
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load bootstrap: ${res.status}`);
+  }
+
+  return (await res.json()) as BootstrapResponse;
+}
+
+async function getProspect(prospectSid: string, scope: ProspectScope) {
+  const res = await fetch(`${getApiBaseUrl()}${buildScopedProspectPath(prospectSid, scope)}`, {
     cache: 'no-store',
     headers: getInternalApiHeaders()
   });
@@ -55,8 +101,8 @@ async function getProspect(prospectSid: string) {
   return (await res.json()) as { ok: true; prospect: ProspectDetail };
 }
 
-async function saveProspectMutation(prospectSid: string, payload: ProspectSavePayload) {
-  return fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}`, {
+async function saveProspectMutation(prospectSid: string, scope: ProspectScope, payload: ProspectSavePayload) {
+  return fetch(`${getApiBaseUrl()}${buildScopedProspectPath(prospectSid, scope)}`, {
     method: 'PATCH',
     headers: {
       'content-type': 'application/json',
@@ -140,37 +186,101 @@ function HistoryItem({
   );
 }
 
+function SourceLink({
+  label,
+  href
+}: {
+  label: string;
+  href: string | null;
+}) {
+  return (
+    <div>
+      <span className="text-neutral-500">{label}:</span>{' '}
+      {href ? (
+        <a
+          href={href}
+          target="_blank"
+          rel="noreferrer"
+          className="text-blue-700 underline underline-offset-2"
+        >
+          Open
+        </a>
+      ) : (
+        '—'
+      )}
+    </div>
+  );
+}
+
 export default async function ProspectDetailPage({
   params,
   searchParams
 }: {
   params: Promise<{ prospectSid: string }>;
-  searchParams: Promise<{ returnTo?: string; notice?: string }>;
+  searchParams: Promise<{ tenantId?: string; businessId?: string; returnTo?: string; notice?: string }>;
 }) {
   const { prospectSid } = await params;
   const resolvedSearchParams = await searchParams;
-  const returnTo = normalizeReturnTo(resolvedSearchParams.returnTo);
-  const data = await getProspect(prospectSid);
+  const bootstrap = await getBootstrap();
+  const bootstrapTenant = bootstrap.tenant;
+  const canonicalTenantId = bootstrapTenant?.id ?? null;
+  const activeBusiness =
+    bootstrapTenant?.businesses.find((business) => business.id === resolvedSearchParams.businessId) ??
+    bootstrapTenant?.businesses[0] ??
+    null;
+  const canonicalBusinessId = activeBusiness?.id ?? null;
+
+  if (!canonicalTenantId || !canonicalBusinessId) {
+    throw new Error('No active tenant/business scope is configured for prospects.');
+  }
+
+  const scope = {
+    tenantId: canonicalTenantId,
+    businessId: canonicalBusinessId
+  };
+  const fallbackReturnTo = buildFilterHref({
+    tenantId: canonicalTenantId,
+    businessId: canonicalBusinessId,
+    status: 'READY'
+  });
+  const returnTo = normalizeReturnTo(resolvedSearchParams.returnTo, fallbackReturnTo);
+
+  if (
+    resolvedSearchParams.tenantId !== canonicalTenantId ||
+    resolvedSearchParams.businessId !== canonicalBusinessId
+  ) {
+    redirect(buildProspectDetailHref(prospectSid, returnTo));
+  }
+
+  const data = await getProspect(prospectSid, scope);
   const prospect = data.prospect;
   const detailHref = buildProspectDetailHref(prospectSid, returnTo);
   const notice =
-    resolvedSearchParams.notice === 'saved'
-      ? 'Prospect changes saved.'
-      : resolvedSearchParams.notice === 'saved-next'
-        ? 'Prospect changes saved. Moved to the next prospect needing follow-up.'
-        : resolvedSearchParams.notice === 'no-review-prospects'
-          ? 'Prospect changes saved. No more prospects need follow-up.'
-          : resolvedSearchParams.notice === 'attempt-logged'
-            ? 'Outreach attempt logged.'
-            : resolvedSearchParams.notice === 'archived'
-              ? 'Prospect archived.'
-              : null;
+    resolvedSearchParams.notice === 'attempt-logged'
+      ? 'Activity logged.'
+      : resolvedSearchParams.notice === 'archived'
+        ? 'Prospect archived.'
+        : getWorkItemSaveNoticeMessage({
+            notice: resolvedSearchParams.notice,
+            itemSingular: 'prospect',
+            itemPlural: 'prospects'
+          });
+  const returnContextSummary = buildQueueContextSummary({
+    currentHref: returnTo,
+    fallbackLabel: 'Ready work queue',
+    formatters: {
+      status: (value) =>
+        value ? value.replaceAll('_', ' ').toLowerCase().replace(/^\w/, (m) => m.toUpperCase()) : null,
+      priority: (value) =>
+        value ? `${value.toLowerCase().replace(/^\w/, (m) => m.toUpperCase())} priority` : null
+    }
+  });
 
   async function saveProspect(formData: FormData) {
     'use server';
 
     const payload = buildProspectSavePayload(formData);
-    const res = await saveProspectMutation(prospectSid, payload);
+    const res = await saveProspectMutation(prospectSid, scope, payload);
 
     if (!res.ok) {
       throw new Error(`Failed to save prospect: ${res.status}`);
@@ -185,7 +295,7 @@ export default async function ProspectDetailPage({
     'use server';
 
     const payload = buildProspectSavePayload(formData);
-    const res = await saveProspectMutation(prospectSid, payload);
+    const res = await saveProspectMutation(prospectSid, scope, payload);
 
     if (!res.ok) {
       throw new Error(`Failed to save prospect: ${res.status}`);
@@ -224,7 +334,11 @@ export default async function ProspectDetailPage({
       note: String(formData.get('note') ?? '').trim() || null
     };
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}/log-attempt`, {
+    const attemptParams = new URLSearchParams();
+    attemptParams.set('tenantId', scope.tenantId);
+    attemptParams.set('businessId', scope.businessId);
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}/log-attempt?${attemptParams.toString()}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -245,7 +359,11 @@ export default async function ProspectDetailPage({
   async function archiveProspect() {
     'use server';
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}/archive`, {
+    const archiveParams = new URLSearchParams();
+    archiveParams.set('tenantId', scope.tenantId);
+    archiveParams.set('businessId', scope.businessId);
+
+    const res = await fetch(`${getApiBaseUrl()}/v1/prospects/${prospectSid}/archive?${archiveParams.toString()}`, {
       method: 'POST',
       headers: getInternalApiHeaders()
     });
@@ -271,8 +389,9 @@ export default async function ProspectDetailPage({
         <div className="flex items-start justify-between gap-4">
           <div>
             <a href={returnTo} className="text-sm text-neutral-600 underline underline-offset-2">
-              ← Back to queue
+              ← Back to work queue
             </a>
+            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
             <h1 className="mt-2 text-3xl font-semibold tracking-tight">{prospect.companyName}</h1>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
@@ -346,6 +465,24 @@ export default async function ProspectDetailPage({
         </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
+          <h2 className="font-medium">Source intelligence</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Imported source facts stay structured here so operator notes stay human-owned.
+          </p>
+          <div className="mt-3 grid gap-4 md:grid-cols-2 text-sm">
+            <div className="space-y-2">
+              <div><span className="text-neutral-500">Imported category:</span> {prospect.sourceCategory ?? '—'}</div>
+              <div><span className="text-neutral-500">Imported role:</span> {prospect.sourceRoleTitle ?? '—'}</div>
+            </div>
+            <div className="space-y-2">
+              <SourceLink label="Website" href={prospect.sourceWebsiteUrl} />
+              <SourceLink label="Maps" href={prospect.sourceMapsUrl} />
+              <SourceLink label="LinkedIn" href={prospect.sourceLinkedinUrl} />
+            </div>
+          </div>
+        </section>
+
+        <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Operator notes</h2>
           <p className="mt-3 text-sm whitespace-pre-wrap text-neutral-700">
             {prospect.notes ?? 'No operator notes recorded yet.'}
@@ -355,7 +492,7 @@ export default async function ProspectDetailPage({
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-medium">Prospect update</h2>
+              <h2 className="font-medium">Operator update</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Correct core fields and keep outbound state aligned with the existing backend workflow.
               </p>
@@ -492,7 +629,7 @@ export default async function ProspectDetailPage({
 
             <div className="flex flex-col gap-2 md:flex-row md:justify-end">
               <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
-                Save prospect changes
+                Save changes
               </button>
               <button
                 formAction={saveAndReviewNext}
@@ -507,7 +644,7 @@ export default async function ProspectDetailPage({
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-medium">Log outreach attempt</h2>
+              <h2 className="font-medium">Log activity</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Record one attempt using the existing attempt outcome rules that drive prospect state.
               </p>

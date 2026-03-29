@@ -1,12 +1,23 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import {
-  prisma,
   ProspectAttemptChannel,
   ProspectAttemptOutcome,
   ProspectPriority,
   ProspectStatus
 } from '@frontdesk/db';
+import {
+  getRequiredProspectScopeError,
+  normalizeProspectScopeQuery
+} from '../lib/prospect-selectors.js';
+import {
+  ArchivedProspectAttemptError,
+  archiveScopedProspect,
+  logScopedProspectAttempt,
+  ProspectNotFoundError,
+  type RequiredProspectScope,
+  updateScopedProspectFacts
+} from '../lib/prospect-workflow.js';
 
 const updateProspectBodySchema = z
   .object({
@@ -33,37 +44,24 @@ const logProspectAttemptBodySchema = z
   })
   .strict();
 
-function selectProspectAttemptSummary() {
-  return {
-    orderBy: {
-      attemptedAt: 'desc' as const
-    },
-    take: 3,
-    select: {
-      channel: true,
-      outcome: true,
-      note: true,
-      attemptedAt: true
-    }
-  };
-}
-
-function nextStatusForAttemptOutcome(outcome: ProspectAttemptOutcome) {
-  if (outcome === ProspectAttemptOutcome.REPLIED) {
-    return ProspectStatus.RESPONDED;
-  }
-
-  if (outcome === ProspectAttemptOutcome.BAD_FIT || outcome === ProspectAttemptOutcome.DO_NOT_CONTACT) {
-    return ProspectStatus.DISQUALIFIED;
-  }
-
-  return ProspectStatus.ATTEMPTED;
-}
-
 export async function registerProspectWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/prospects/:prospectSid', async (request, reply) => {
     const { prospectSid } = request.params as { prospectSid: string };
+    const scope = normalizeProspectScopeQuery(request.query as { tenantId?: string; businessId?: string });
+    const scopeError = getRequiredProspectScopeError(scope);
     const parsed = updateProspectBodySchema.safeParse(request.body);
+
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
+    }
+
+    const requiredScope: RequiredProspectScope = {
+      tenantId: scope.tenantId!,
+      businessId: scope.businessId!
+    };
 
     if (!parsed.success) {
       return reply.status(400).send({
@@ -79,72 +77,39 @@ export async function registerProspectWriteRoutes(app: FastifyInstance) {
       });
     }
 
-    const existing = await prisma.prospect.findUnique({
-      where: { prospectSid },
-      select: {
-        id: true,
-        status: true,
-        archivedAt: true,
-        respondedAt: true
-      }
-    });
+    try {
+      const prospect = await updateScopedProspectFacts(requiredScope, prospectSid, parsed.data);
 
-    if (!existing) {
-      return reply.notFound(`Prospect not found for prospectSid=${prospectSid}`);
+      return {
+        ok: true,
+        prospect
+      };
+    } catch (error) {
+      if (error instanceof ProspectNotFoundError) {
+        return reply.notFound(error.message);
+      }
+
+      throw error;
     }
-
-    const nextStatus = parsed.data.status;
-    const shouldStampArchivedAt = nextStatus === ProspectStatus.ARCHIVED && !existing.archivedAt;
-    const shouldStampRespondedAt =
-      (nextStatus === ProspectStatus.RESPONDED || nextStatus === ProspectStatus.QUALIFIED) && !existing.respondedAt;
-
-    const prospect = await prisma.prospect.update({
-      where: { prospectSid },
-      data: {
-        companyName: parsed.data.companyName,
-        contactName: parsed.data.contactName,
-        contactPhone: parsed.data.contactPhone,
-        contactEmail: parsed.data.contactEmail,
-        city: parsed.data.city,
-        state: parsed.data.state,
-        sourceLabel: parsed.data.sourceLabel,
-        serviceInterest: parsed.data.serviceInterest,
-        notes: parsed.data.notes,
-        status: nextStatus,
-        priority: parsed.data.priority,
-        nextActionAt: parsed.data.nextActionAt,
-        archivedAt: shouldStampArchivedAt ? new Date() : undefined,
-        respondedAt: shouldStampRespondedAt ? new Date() : undefined
-      },
-      select: {
-        prospectSid: true,
-        companyName: true,
-        contactName: true,
-        contactPhone: true,
-        contactEmail: true,
-        city: true,
-        state: true,
-        sourceLabel: true,
-        serviceInterest: true,
-        notes: true,
-        status: true,
-        priority: true,
-        nextActionAt: true,
-        lastAttemptAt: true,
-        respondedAt: true,
-        archivedAt: true
-      }
-    });
-
-    return {
-      ok: true,
-      prospect
-    };
   });
 
   app.post('/v1/prospects/:prospectSid/log-attempt', async (request, reply) => {
     const { prospectSid } = request.params as { prospectSid: string };
+    const scope = normalizeProspectScopeQuery(request.query as { tenantId?: string; businessId?: string });
+    const scopeError = getRequiredProspectScopeError(scope);
     const parsed = logProspectAttemptBodySchema.safeParse(request.body);
+
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
+    }
+
+    const requiredScope: RequiredProspectScope = {
+      tenantId: scope.tenantId!,
+      businessId: scope.businessId!
+    };
 
     if (!parsed.success) {
       return reply.status(400).send({
@@ -153,106 +118,59 @@ export async function registerProspectWriteRoutes(app: FastifyInstance) {
       });
     }
 
-    const existing = await prisma.prospect.findUnique({
-      where: { prospectSid },
-      select: {
-        id: true,
-        status: true,
-        archivedAt: true,
-        respondedAt: true
+    try {
+      const prospect = await logScopedProspectAttempt(requiredScope, prospectSid, parsed.data);
+
+      return {
+        ok: true,
+        prospect
+      };
+    } catch (error) {
+      if (error instanceof ProspectNotFoundError) {
+        return reply.notFound(error.message);
       }
-    });
 
-    if (!existing) {
-      return reply.notFound(`Prospect not found for prospectSid=${prospectSid}`);
+      if (error instanceof ArchivedProspectAttemptError) {
+        return reply.status(400).send({
+          ok: false,
+          error: error.message
+        });
+      }
+
+      throw error;
     }
-
-    if (existing.status === ProspectStatus.ARCHIVED || existing.archivedAt) {
-      return reply.status(400).send({
-        ok: false,
-        error: 'Archived prospects cannot receive new outreach attempts'
-      });
-    }
-
-    const attemptedAt = new Date();
-    const nextStatus = nextStatusForAttemptOutcome(parsed.data.outcome);
-
-    const prospect = await prisma.$transaction(async (tx) => {
-      await tx.prospectAttempt.create({
-        data: {
-          prospectId: existing.id,
-          channel: parsed.data.channel,
-          outcome: parsed.data.outcome,
-          note: parsed.data.note ?? null,
-          attemptedAt
-        }
-      });
-
-      return tx.prospect.update({
-        where: { id: existing.id },
-        data: {
-          status: nextStatus,
-          lastAttemptAt: attemptedAt,
-          respondedAt:
-            nextStatus === ProspectStatus.RESPONDED && !existing.respondedAt
-              ? attemptedAt
-              : undefined
-        },
-        select: {
-          prospectSid: true,
-          status: true,
-          priority: true,
-          nextActionAt: true,
-          lastAttemptAt: true,
-          respondedAt: true,
-          archivedAt: true,
-          attempts: selectProspectAttemptSummary()
-        }
-      });
-    });
-
-    return {
-      ok: true,
-      prospect
-    };
   });
 
   app.post('/v1/prospects/:prospectSid/archive', async (request, reply) => {
     const { prospectSid } = request.params as { prospectSid: string };
+    const scope = normalizeProspectScopeQuery(request.query as { tenantId?: string; businessId?: string });
+    const scopeError = getRequiredProspectScopeError(scope);
 
-    const existing = await prisma.prospect.findUnique({
-      where: { prospectSid },
-      select: {
-        id: true,
-        status: true,
-        archivedAt: true,
-        respondedAt: true,
-        lastAttemptAt: true
-      }
-    });
-
-    if (!existing) {
-      return reply.notFound(`Prospect not found for prospectSid=${prospectSid}`);
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
     }
 
-    const prospect = await prisma.prospect.update({
-      where: { prospectSid },
-      data: {
-        status: ProspectStatus.ARCHIVED,
-        archivedAt: existing.archivedAt ?? new Date()
-      },
-      select: {
-        prospectSid: true,
-        status: true,
-        lastAttemptAt: true,
-        respondedAt: true,
-        archivedAt: true
-      }
-    });
-
-    return {
-      ok: true,
-      prospect
+    const requiredScope: RequiredProspectScope = {
+      tenantId: scope.tenantId!,
+      businessId: scope.businessId!
     };
+
+    try {
+      const prospect = await archiveScopedProspect(requiredScope, prospectSid);
+
+      return {
+        ok: true,
+        prospect
+      };
+    } catch (error) {
+      if (error instanceof ProspectNotFoundError) {
+        return reply.notFound(error.message);
+      }
+
+      throw error;
+    }
   });
 }

@@ -230,6 +230,7 @@ export type BusinessWhereInput = {
   serviceAreas?: Prisma.ServiceAreaListRelationFilter
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
+  prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
 }
 
 export type BusinessOrderByWithRelationInput = {
@@ -251,6 +252,7 @@ export type BusinessOrderByWithRelationInput = {
   serviceAreas?: Prisma.ServiceAreaOrderByRelationAggregateInput
   calls?: Prisma.CallOrderByRelationAggregateInput
   prospects?: Prisma.ProspectOrderByRelationAggregateInput
+  prospectImportBatches?: Prisma.ProspectImportBatchOrderByRelationAggregateInput
 }
 
 export type BusinessWhereUniqueInput = Prisma.AtLeast<{
@@ -276,6 +278,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   serviceAreas?: Prisma.ServiceAreaListRelationFilter
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
+  prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
 }, "id" | "tenantId_slug">
 
 export type BusinessOrderByWithAggregationInput = {
@@ -328,6 +331,7 @@ export type BusinessCreateInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateInput = {
@@ -348,6 +352,7 @@ export type BusinessUncheckedCreateInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUpdateInput = {
@@ -368,6 +373,7 @@ export type BusinessUpdateInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateInput = {
@@ -388,6 +394,7 @@ export type BusinessUncheckedUpdateInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyInput = {
@@ -631,6 +638,20 @@ export type BusinessUpdateOneRequiredWithoutProspectsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutProspectsInput, Prisma.BusinessUpdateWithoutProspectsInput>, Prisma.BusinessUncheckedUpdateWithoutProspectsInput>
 }
 
+export type BusinessCreateNestedOneWithoutProspectImportBatchesInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedCreateWithoutProspectImportBatchesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutProspectImportBatchesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+}
+
+export type BusinessUpdateOneRequiredWithoutProspectImportBatchesNestedInput = {
+  create?: Prisma.XOR<Prisma.BusinessCreateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedCreateWithoutProspectImportBatchesInput>
+  connectOrCreate?: Prisma.BusinessCreateOrConnectWithoutProspectImportBatchesInput
+  upsert?: Prisma.BusinessUpsertWithoutProspectImportBatchesInput
+  connect?: Prisma.BusinessWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BusinessUpdateToOneWithWhereWithoutProspectImportBatchesInput, Prisma.BusinessUpdateWithoutProspectImportBatchesInput>, Prisma.BusinessUncheckedUpdateWithoutProspectImportBatchesInput>
+}
+
 export type BusinessCreateWithoutTenantInput = {
   id?: string
   name: string
@@ -648,6 +669,7 @@ export type BusinessCreateWithoutTenantInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutTenantInput = {
@@ -667,6 +689,7 @@ export type BusinessUncheckedCreateWithoutTenantInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutTenantInput = {
@@ -728,6 +751,7 @@ export type BusinessCreateWithoutLocationsInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutLocationsInput = {
@@ -747,6 +771,7 @@ export type BusinessUncheckedCreateWithoutLocationsInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutLocationsInput = {
@@ -782,6 +807,7 @@ export type BusinessUpdateWithoutLocationsInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutLocationsInput = {
@@ -801,6 +827,7 @@ export type BusinessUncheckedUpdateWithoutLocationsInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutPhoneNumbersInput = {
@@ -820,6 +847,7 @@ export type BusinessCreateWithoutPhoneNumbersInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutPhoneNumbersInput = {
@@ -839,6 +867,7 @@ export type BusinessUncheckedCreateWithoutPhoneNumbersInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutPhoneNumbersInput = {
@@ -874,6 +903,7 @@ export type BusinessUpdateWithoutPhoneNumbersInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutPhoneNumbersInput = {
@@ -893,6 +923,7 @@ export type BusinessUncheckedUpdateWithoutPhoneNumbersInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutAgentProfilesInput = {
@@ -912,6 +943,7 @@ export type BusinessCreateWithoutAgentProfilesInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutAgentProfilesInput = {
@@ -931,6 +963,7 @@ export type BusinessUncheckedCreateWithoutAgentProfilesInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutAgentProfilesInput = {
@@ -966,6 +999,7 @@ export type BusinessUpdateWithoutAgentProfilesInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutAgentProfilesInput = {
@@ -985,6 +1019,7 @@ export type BusinessUncheckedUpdateWithoutAgentProfilesInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutBusinessHoursInput = {
@@ -1004,6 +1039,7 @@ export type BusinessCreateWithoutBusinessHoursInput = {
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutBusinessHoursInput = {
@@ -1023,6 +1059,7 @@ export type BusinessUncheckedCreateWithoutBusinessHoursInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutBusinessHoursInput = {
@@ -1058,6 +1095,7 @@ export type BusinessUpdateWithoutBusinessHoursInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutBusinessHoursInput = {
@@ -1077,6 +1115,7 @@ export type BusinessUncheckedUpdateWithoutBusinessHoursInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutServiceAreasInput = {
@@ -1096,6 +1135,7 @@ export type BusinessCreateWithoutServiceAreasInput = {
   businessHours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutServiceAreasInput = {
@@ -1115,6 +1155,7 @@ export type BusinessUncheckedCreateWithoutServiceAreasInput = {
   businessHours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutServiceAreasInput = {
@@ -1150,6 +1191,7 @@ export type BusinessUpdateWithoutServiceAreasInput = {
   businessHours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutServiceAreasInput = {
@@ -1169,6 +1211,7 @@ export type BusinessUncheckedUpdateWithoutServiceAreasInput = {
   businessHours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutCallsInput = {
@@ -1188,6 +1231,7 @@ export type BusinessCreateWithoutCallsInput = {
   businessHours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutCallsInput = {
@@ -1207,6 +1251,7 @@ export type BusinessUncheckedCreateWithoutCallsInput = {
   businessHours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutCallsInput = {
@@ -1242,6 +1287,7 @@ export type BusinessUpdateWithoutCallsInput = {
   businessHours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutCallsInput = {
@@ -1261,6 +1307,7 @@ export type BusinessUncheckedUpdateWithoutCallsInput = {
   businessHours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateWithoutProspectsInput = {
@@ -1280,6 +1327,7 @@ export type BusinessCreateWithoutProspectsInput = {
   businessHours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
   serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessUncheckedCreateWithoutProspectsInput = {
@@ -1299,6 +1347,7 @@ export type BusinessUncheckedCreateWithoutProspectsInput = {
   businessHours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
   serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutBusinessInput
 }
 
 export type BusinessCreateOrConnectWithoutProspectsInput = {
@@ -1334,6 +1383,7 @@ export type BusinessUpdateWithoutProspectsInput = {
   businessHours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutProspectsInput = {
@@ -1353,6 +1403,103 @@ export type BusinessUncheckedUpdateWithoutProspectsInput = {
   businessHours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessCreateWithoutProspectImportBatchesInput = {
+  id?: string
+  name: string
+  legalName?: string | null
+  slug: string
+  vertical?: $Enums.BusinessVertical
+  websiteUrl?: string | null
+  timezone?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
+  locations?: Prisma.LocationCreateNestedManyWithoutBusinessInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutBusinessInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutBusinessInput
+  businessHours?: Prisma.BusinessHoursCreateNestedManyWithoutBusinessInput
+  serviceAreas?: Prisma.ServiceAreaCreateNestedManyWithoutBusinessInput
+  calls?: Prisma.CallCreateNestedManyWithoutBusinessInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessUncheckedCreateWithoutProspectImportBatchesInput = {
+  id?: string
+  tenantId: string
+  name: string
+  legalName?: string | null
+  slug: string
+  vertical?: $Enums.BusinessVertical
+  websiteUrl?: string | null
+  timezone?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutBusinessInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutBusinessInput
+  businessHours?: Prisma.BusinessHoursUncheckedCreateNestedManyWithoutBusinessInput
+  serviceAreas?: Prisma.ServiceAreaUncheckedCreateNestedManyWithoutBusinessInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutBusinessInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutBusinessInput
+}
+
+export type BusinessCreateOrConnectWithoutProspectImportBatchesInput = {
+  where: Prisma.BusinessWhereUniqueInput
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedCreateWithoutProspectImportBatchesInput>
+}
+
+export type BusinessUpsertWithoutProspectImportBatchesInput = {
+  update: Prisma.XOR<Prisma.BusinessUpdateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedUpdateWithoutProspectImportBatchesInput>
+  create: Prisma.XOR<Prisma.BusinessCreateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedCreateWithoutProspectImportBatchesInput>
+  where?: Prisma.BusinessWhereInput
+}
+
+export type BusinessUpdateToOneWithWhereWithoutProspectImportBatchesInput = {
+  where?: Prisma.BusinessWhereInput
+  data: Prisma.XOR<Prisma.BusinessUpdateWithoutProspectImportBatchesInput, Prisma.BusinessUncheckedUpdateWithoutProspectImportBatchesInput>
+}
+
+export type BusinessUpdateWithoutProspectImportBatchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
+  locations?: Prisma.LocationUpdateManyWithoutBusinessNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutBusinessNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutBusinessNestedInput
+  businessHours?: Prisma.BusinessHoursUpdateManyWithoutBusinessNestedInput
+  serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
+  calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+}
+
+export type BusinessUncheckedUpdateWithoutProspectImportBatchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  legalName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
+  websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutBusinessNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutBusinessNestedInput
+  businessHours?: Prisma.BusinessHoursUncheckedUpdateManyWithoutBusinessNestedInput
+  serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessCreateManyTenantInput = {
@@ -1384,6 +1531,7 @@ export type BusinessUpdateWithoutTenantInput = {
   serviceAreas?: Prisma.ServiceAreaUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateWithoutTenantInput = {
@@ -1403,6 +1551,7 @@ export type BusinessUncheckedUpdateWithoutTenantInput = {
   serviceAreas?: Prisma.ServiceAreaUncheckedUpdateManyWithoutBusinessNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutBusinessNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutBusinessNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutBusinessNestedInput
 }
 
 export type BusinessUncheckedUpdateManyWithoutTenantInput = {
@@ -1430,6 +1579,7 @@ export type BusinessCountOutputType = {
   serviceAreas: number
   calls: number
   prospects: number
+  prospectImportBatches: number
 }
 
 export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1440,6 +1590,7 @@ export type BusinessCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   serviceAreas?: boolean | BusinessCountOutputTypeCountServiceAreasArgs
   calls?: boolean | BusinessCountOutputTypeCountCallsArgs
   prospects?: boolean | BusinessCountOutputTypeCountProspectsArgs
+  prospectImportBatches?: boolean | BusinessCountOutputTypeCountProspectImportBatchesArgs
 }
 
 /**
@@ -1501,6 +1652,13 @@ export type BusinessCountOutputTypeCountProspectsArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ProspectWhereInput
 }
 
+/**
+ * BusinessCountOutputType without action
+ */
+export type BusinessCountOutputTypeCountProspectImportBatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProspectImportBatchWhereInput
+}
+
 
 export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1521,6 +1679,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   serviceAreas?: boolean | Prisma.Business$serviceAreasArgs<ExtArgs>
   calls?: boolean | Prisma.Business$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Business$prospectsArgs<ExtArgs>
+  prospectImportBatches?: boolean | Prisma.Business$prospectImportBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["business"]>
 
@@ -1575,6 +1734,7 @@ export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   serviceAreas?: boolean | Prisma.Business$serviceAreasArgs<ExtArgs>
   calls?: boolean | Prisma.Business$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Business$prospectsArgs<ExtArgs>
+  prospectImportBatches?: boolean | Prisma.Business$prospectImportBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.BusinessCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BusinessIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1595,6 +1755,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     serviceAreas: Prisma.$ServiceAreaPayload<ExtArgs>[]
     calls: Prisma.$CallPayload<ExtArgs>[]
     prospects: Prisma.$ProspectPayload<ExtArgs>[]
+    prospectImportBatches: Prisma.$ProspectImportBatchPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -2009,6 +2170,7 @@ export interface Prisma__BusinessClient<T, Null = never, ExtArgs extends runtime
   serviceAreas<T extends Prisma.Business$serviceAreasArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$serviceAreasArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceAreaPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   calls<T extends Prisma.Business$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prospects<T extends Prisma.Business$prospectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$prospectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  prospectImportBatches<T extends Prisma.Business$prospectImportBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Business$prospectImportBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2614,6 +2776,30 @@ export type Business$prospectsArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ProspectScalarFieldEnum | Prisma.ProspectScalarFieldEnum[]
+}
+
+/**
+ * Business.prospectImportBatches
+ */
+export type Business$prospectImportBatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProspectImportBatch
+   */
+  select?: Prisma.ProspectImportBatchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProspectImportBatch
+   */
+  omit?: Prisma.ProspectImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProspectImportBatchInclude<ExtArgs> | null
+  where?: Prisma.ProspectImportBatchWhereInput
+  orderBy?: Prisma.ProspectImportBatchOrderByWithRelationInput | Prisma.ProspectImportBatchOrderByWithRelationInput[]
+  cursor?: Prisma.ProspectImportBatchWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProspectImportBatchScalarFieldEnum | Prisma.ProspectImportBatchScalarFieldEnum[]
 }
 
 /**

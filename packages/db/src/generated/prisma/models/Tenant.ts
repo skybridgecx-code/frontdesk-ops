@@ -188,6 +188,7 @@ export type TenantWhereInput = {
   agentProfiles?: Prisma.AgentProfileListRelationFilter
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
+  prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
@@ -202,6 +203,7 @@ export type TenantOrderByWithRelationInput = {
   agentProfiles?: Prisma.AgentProfileOrderByRelationAggregateInput
   calls?: Prisma.CallOrderByRelationAggregateInput
   prospects?: Prisma.ProspectOrderByRelationAggregateInput
+  prospectImportBatches?: Prisma.ProspectImportBatchOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -219,6 +221,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   agentProfiles?: Prisma.AgentProfileListRelationFilter
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
+  prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
@@ -255,6 +258,7 @@ export type TenantCreateInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
@@ -269,6 +273,7 @@ export type TenantUncheckedCreateInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
@@ -283,6 +288,7 @@ export type TenantUpdateInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
@@ -297,6 +303,7 @@ export type TenantUncheckedUpdateInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
@@ -444,6 +451,20 @@ export type TenantUpdateOneRequiredWithoutProspectsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProspectsInput, Prisma.TenantUpdateWithoutProspectsInput>, Prisma.TenantUncheckedUpdateWithoutProspectsInput>
 }
 
+export type TenantCreateNestedOneWithoutProspectImportBatchesInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedCreateWithoutProspectImportBatchesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProspectImportBatchesInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutProspectImportBatchesNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedCreateWithoutProspectImportBatchesInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutProspectImportBatchesInput
+  upsert?: Prisma.TenantUpsertWithoutProspectImportBatchesInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProspectImportBatchesInput, Prisma.TenantUpdateWithoutProspectImportBatchesInput>, Prisma.TenantUncheckedUpdateWithoutProspectImportBatchesInput>
+}
+
 export type TenantCreateWithoutMembershipsInput = {
   id?: string
   name: string
@@ -455,6 +476,7 @@ export type TenantCreateWithoutMembershipsInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMembershipsInput = {
@@ -468,6 +490,7 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMembershipsInput = {
@@ -497,6 +520,7 @@ export type TenantUpdateWithoutMembershipsInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMembershipsInput = {
@@ -510,6 +534,7 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutBusinessesInput = {
@@ -523,6 +548,7 @@ export type TenantCreateWithoutBusinessesInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutBusinessesInput = {
@@ -536,6 +562,7 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutBusinessesInput = {
@@ -565,6 +592,7 @@ export type TenantUpdateWithoutBusinessesInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutBusinessesInput = {
@@ -578,6 +606,7 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPhoneNumbersInput = {
@@ -591,6 +620,7 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
@@ -604,6 +634,7 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPhoneNumbersInput = {
@@ -633,6 +664,7 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
@@ -646,6 +678,7 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAgentProfilesInput = {
@@ -659,6 +692,7 @@ export type TenantCreateWithoutAgentProfilesInput = {
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAgentProfilesInput = {
@@ -672,6 +706,7 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAgentProfilesInput = {
@@ -701,6 +736,7 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
@@ -714,6 +750,7 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCallsInput = {
@@ -727,6 +764,7 @@ export type TenantCreateWithoutCallsInput = {
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCallsInput = {
@@ -740,6 +778,7 @@ export type TenantUncheckedCreateWithoutCallsInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCallsInput = {
@@ -769,6 +808,7 @@ export type TenantUpdateWithoutCallsInput = {
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCallsInput = {
@@ -782,6 +822,7 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProspectsInput = {
@@ -795,6 +836,7 @@ export type TenantCreateWithoutProspectsInput = {
   phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProspectsInput = {
@@ -808,6 +850,7 @@ export type TenantUncheckedCreateWithoutProspectsInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProspectsInput = {
@@ -837,6 +880,7 @@ export type TenantUpdateWithoutProspectsInput = {
   phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProspectsInput = {
@@ -850,6 +894,79 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutProspectImportBatchesInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
+  id?: string
+  name: string
+  slug: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutProspectImportBatchesInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedCreateWithoutProspectImportBatchesInput>
+}
+
+export type TenantUpsertWithoutProspectImportBatchesInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedUpdateWithoutProspectImportBatchesInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedCreateWithoutProspectImportBatchesInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutProspectImportBatchesInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutProspectImportBatchesInput, Prisma.TenantUncheckedUpdateWithoutProspectImportBatchesInput>
+}
+
+export type TenantUpdateWithoutProspectImportBatchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -864,6 +981,7 @@ export type TenantCountOutputType = {
   agentProfiles: number
   calls: number
   prospects: number
+  prospectImportBatches: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -873,6 +991,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   agentProfiles?: boolean | TenantCountOutputTypeCountAgentProfilesArgs
   calls?: boolean | TenantCountOutputTypeCountCallsArgs
   prospects?: boolean | TenantCountOutputTypeCountProspectsArgs
+  prospectImportBatches?: boolean | TenantCountOutputTypeCountProspectImportBatchesArgs
 }
 
 /**
@@ -927,6 +1046,13 @@ export type TenantCountOutputTypeCountProspectsArgs<ExtArgs extends runtime.Type
   where?: Prisma.ProspectWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountProspectImportBatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ProspectImportBatchWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -940,6 +1066,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   agentProfiles?: boolean | Prisma.Tenant$agentProfilesArgs<ExtArgs>
   calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
+  prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -975,6 +1102,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   agentProfiles?: boolean | Prisma.Tenant$agentProfilesArgs<ExtArgs>
   calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
+  prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -989,6 +1117,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     agentProfiles: Prisma.$AgentProfilePayload<ExtArgs>[]
     calls: Prisma.$CallPayload<ExtArgs>[]
     prospects: Prisma.$ProspectPayload<ExtArgs>[]
+    prospectImportBatches: Prisma.$ProspectImportBatchPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1396,6 +1525,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   agentProfiles<T extends Prisma.Tenant$agentProfilesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$agentProfilesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   calls<T extends Prisma.Tenant$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prospects<T extends Prisma.Tenant$prospectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  prospectImportBatches<T extends Prisma.Tenant$prospectImportBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1964,6 +2094,30 @@ export type Tenant$prospectsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.ProspectScalarFieldEnum | Prisma.ProspectScalarFieldEnum[]
+}
+
+/**
+ * Tenant.prospectImportBatches
+ */
+export type Tenant$prospectImportBatchesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProspectImportBatch
+   */
+  select?: Prisma.ProspectImportBatchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProspectImportBatch
+   */
+  omit?: Prisma.ProspectImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProspectImportBatchInclude<ExtArgs> | null
+  where?: Prisma.ProspectImportBatchWhereInput
+  orderBy?: Prisma.ProspectImportBatchOrderByWithRelationInput | Prisma.ProspectImportBatchOrderByWithRelationInput[]
+  cursor?: Prisma.ProspectImportBatchWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ProspectImportBatchScalarFieldEnum | Prisma.ProspectImportBatchScalarFieldEnum[]
 }
 
 /**

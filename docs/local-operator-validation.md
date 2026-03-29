@@ -1,5 +1,7 @@
 # Local Operator Validation Runbook
 
+For the full pilot/demo flow, use [`docs/pilot-runbook.md`](./pilot-runbook.md).
+
 Use this runbook before manual queue/detail/review workflow testing.
 
 ## Prerequisites
@@ -17,14 +19,16 @@ cd /Users/muhammadaatif/frontdesk-os
 pnpm --filter @frontdesk/api dev
 ```
 
-If you want to exercise the web workflow directly, start the web app in another terminal:
+If you want to exercise the web workflow directly for a pilot/demo, start the built web app in another terminal:
 
 ```bash
 cd /Users/muhammadaatif/frontdesk-os
-pnpm --filter web dev
+pnpm --filter web build
+pnpm --filter web exec next start -H 127.0.0.1 -p 3001
 ```
 
 The local smoke checks expect the API at `http://127.0.0.1:4000`.
+The stable local pilot/demo web port is `http://127.0.0.1:3001`.
 
 ## Fast Local Validation
 
@@ -102,8 +106,8 @@ After reset, the smoke check should report:
 
 After reset + smoke, the bounded local UI entry points are:
 
-- Inbound queue: [http://127.0.0.1:3000/calls?triageStatus=OPEN](http://127.0.0.1:3000/calls?triageStatus=OPEN)
-- Outbound queue: [http://127.0.0.1:3000/prospects?status=READY](http://127.0.0.1:3000/prospects?status=READY)
+- Inbound queue: [http://127.0.0.1:3001/calls?triageStatus=OPEN](http://127.0.0.1:3001/calls?triageStatus=OPEN)
+- Outbound queue: [http://127.0.0.1:3001/prospects?status=READY](http://127.0.0.1:3001/prospects?status=READY)
 
 The expected outbound UI path is:
 
@@ -118,3 +122,4 @@ The expected outbound UI path is:
 - Live local demo rows can drift after manual testing.
 - `reset:demo-calls` restores the bounded demo baseline for both call and prospect fixtures.
 - `smoke:demo-calls` is read-only and fails clearly if the bounded call/prospect validation surface is off.
+- If `validate:local-operator` fails with `fetch failed`, confirm the API is actually running on `127.0.0.1:4000`.

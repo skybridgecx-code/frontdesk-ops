@@ -1,6 +1,6 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { z } from 'zod';
-import { ProspectPriority, ProspectStatus } from '@frontdesk/db';
+import { ProspectPriority, ProspectSourceProvider, ProspectStatus } from '@frontdesk/db';
 import {
   ApolloApiError,
   GooglePlacesApiError,
@@ -9,7 +9,9 @@ import {
   searchApolloPeopleProspects,
   searchGooglePlacesProspects
 } from '@frontdesk/integrations';
-import { BusinessNotFoundError, importProspectsForBusiness } from '../lib/prospect-import.js';
+import { getRequiredProspectScopeError, normalizeProspectScopeQuery } from '../lib/prospect-selectors.js';
+import { BusinessNotFoundError } from '../lib/prospect-import.js';
+import { importScopedProspects } from '../lib/prospect-workflow.js';
 
 const googlePlacesImportBodySchema = z
   .object({
@@ -95,7 +97,19 @@ function mapProviderError(error: unknown, reply: FastifyReply) {
 export async function registerProspectProviderImportRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/import/google-places', async (request, reply) => {
     const { businessId } = request.params as { businessId: string };
+    const scope = normalizeProspectScopeQuery({
+      tenantId: (request.query as { tenantId?: string }).tenantId,
+      businessId
+    });
+    const scopeError = getRequiredProspectScopeError(scope);
     const parsed = googlePlacesImportBodySchema.safeParse(trimValue(request.body));
+
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
+    }
 
     if (!parsed.success) {
       return reply.status(400).send({
@@ -114,8 +128,12 @@ export async function registerProspectProviderImportRoutes(app: FastifyInstance)
         strictTypeFiltering: parsed.data.strictTypeFiltering
       });
 
-      const result = await importProspectsForBusiness({
-        businessId,
+      const result = await importScopedProspects({
+        scope: {
+          tenantId: scope.tenantId!,
+          businessId
+        },
+        sourceProvider: ProspectSourceProvider.GOOGLE_PLACES,
         defaultSourceLabel: parsed.data.defaultSourceLabel,
         prospects: prospects.map((prospect) => ({
           ...prospect,
@@ -127,7 +145,11 @@ export async function registerProspectProviderImportRoutes(app: FastifyInstance)
 
       return {
         ok: true,
+        importBatchId: result.importBatchId,
         importedCount: result.importedCount,
+        createdCount: result.createdCount,
+        updatedCount: result.updatedCount,
+        skippedCount: result.skippedCount,
         prospects: result.prospects
       };
     } catch (error) {
@@ -137,7 +159,19 @@ export async function registerProspectProviderImportRoutes(app: FastifyInstance)
 
   app.post('/v1/businesses/:businessId/prospects/import/apollo', async (request, reply) => {
     const { businessId } = request.params as { businessId: string };
+    const scope = normalizeProspectScopeQuery({
+      tenantId: (request.query as { tenantId?: string }).tenantId,
+      businessId
+    });
+    const scopeError = getRequiredProspectScopeError(scope);
     const parsed = apolloImportBodySchema.safeParse(trimValue(request.body));
+
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
+    }
 
     if (!parsed.success) {
       return reply.status(400).send({
@@ -156,8 +190,12 @@ export async function registerProspectProviderImportRoutes(app: FastifyInstance)
         page: parsed.data.page
       });
 
-      const result = await importProspectsForBusiness({
-        businessId,
+      const result = await importScopedProspects({
+        scope: {
+          tenantId: scope.tenantId!,
+          businessId
+        },
+        sourceProvider: ProspectSourceProvider.APOLLO_PEOPLE_SEARCH,
         defaultSourceLabel: parsed.data.defaultSourceLabel,
         prospects: prospects.map((prospect) => ({
           ...prospect,
@@ -169,7 +207,11 @@ export async function registerProspectProviderImportRoutes(app: FastifyInstance)
 
       return {
         ok: true,
+        importBatchId: result.importBatchId,
         importedCount: result.importedCount,
+        createdCount: result.createdCount,
+        updatedCount: result.updatedCount,
+        skippedCount: result.skippedCount,
         prospects: result.prospects
       };
     } catch (error) {

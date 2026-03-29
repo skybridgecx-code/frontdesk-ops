@@ -36,6 +36,17 @@ export type ProspectMinAggregateOutputType = {
   city: string | null
   state: string | null
   sourceLabel: string | null
+  sourceProvider: $Enums.ProspectSourceProvider | null
+  sourceProviderRecordId: string | null
+  sourceFingerprint: string | null
+  sourceWebsiteUrl: string | null
+  sourceMapsUrl: string | null
+  sourceLinkedinUrl: string | null
+  sourceCategory: string | null
+  sourceRoleTitle: string | null
+  lastImportBatchId: string | null
+  firstSeenAt: Date | null
+  lastSeenAt: Date | null
   serviceInterest: string | null
   notes: string | null
   status: $Enums.ProspectStatus | null
@@ -60,6 +71,17 @@ export type ProspectMaxAggregateOutputType = {
   city: string | null
   state: string | null
   sourceLabel: string | null
+  sourceProvider: $Enums.ProspectSourceProvider | null
+  sourceProviderRecordId: string | null
+  sourceFingerprint: string | null
+  sourceWebsiteUrl: string | null
+  sourceMapsUrl: string | null
+  sourceLinkedinUrl: string | null
+  sourceCategory: string | null
+  sourceRoleTitle: string | null
+  lastImportBatchId: string | null
+  firstSeenAt: Date | null
+  lastSeenAt: Date | null
   serviceInterest: string | null
   notes: string | null
   status: $Enums.ProspectStatus | null
@@ -84,6 +106,18 @@ export type ProspectCountAggregateOutputType = {
   city: number
   state: number
   sourceLabel: number
+  sourceProvider: number
+  sourceProviderRecordId: number
+  sourceFingerprint: number
+  sourceWebsiteUrl: number
+  sourceMapsUrl: number
+  sourceLinkedinUrl: number
+  sourceCategory: number
+  sourceRoleTitle: number
+  sourceMetadataJson: number
+  lastImportBatchId: number
+  firstSeenAt: number
+  lastSeenAt: number
   serviceInterest: number
   notes: number
   status: number
@@ -110,6 +144,17 @@ export type ProspectMinAggregateInputType = {
   city?: true
   state?: true
   sourceLabel?: true
+  sourceProvider?: true
+  sourceProviderRecordId?: true
+  sourceFingerprint?: true
+  sourceWebsiteUrl?: true
+  sourceMapsUrl?: true
+  sourceLinkedinUrl?: true
+  sourceCategory?: true
+  sourceRoleTitle?: true
+  lastImportBatchId?: true
+  firstSeenAt?: true
+  lastSeenAt?: true
   serviceInterest?: true
   notes?: true
   status?: true
@@ -134,6 +179,17 @@ export type ProspectMaxAggregateInputType = {
   city?: true
   state?: true
   sourceLabel?: true
+  sourceProvider?: true
+  sourceProviderRecordId?: true
+  sourceFingerprint?: true
+  sourceWebsiteUrl?: true
+  sourceMapsUrl?: true
+  sourceLinkedinUrl?: true
+  sourceCategory?: true
+  sourceRoleTitle?: true
+  lastImportBatchId?: true
+  firstSeenAt?: true
+  lastSeenAt?: true
   serviceInterest?: true
   notes?: true
   status?: true
@@ -158,6 +214,18 @@ export type ProspectCountAggregateInputType = {
   city?: true
   state?: true
   sourceLabel?: true
+  sourceProvider?: true
+  sourceProviderRecordId?: true
+  sourceFingerprint?: true
+  sourceWebsiteUrl?: true
+  sourceMapsUrl?: true
+  sourceLinkedinUrl?: true
+  sourceCategory?: true
+  sourceRoleTitle?: true
+  sourceMetadataJson?: true
+  lastImportBatchId?: true
+  firstSeenAt?: true
+  lastSeenAt?: true
   serviceInterest?: true
   notes?: true
   status?: true
@@ -255,6 +323,18 @@ export type ProspectGroupByOutputType = {
   city: string | null
   state: string | null
   sourceLabel: string | null
+  sourceProvider: $Enums.ProspectSourceProvider
+  sourceProviderRecordId: string | null
+  sourceFingerprint: string | null
+  sourceWebsiteUrl: string | null
+  sourceMapsUrl: string | null
+  sourceLinkedinUrl: string | null
+  sourceCategory: string | null
+  sourceRoleTitle: string | null
+  sourceMetadataJson: runtime.JsonValue | null
+  lastImportBatchId: string | null
+  firstSeenAt: Date
+  lastSeenAt: Date
   serviceInterest: string | null
   notes: string | null
   status: $Enums.ProspectStatus
@@ -300,6 +380,18 @@ export type ProspectWhereInput = {
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFilter<"Prospect"> | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceFingerprint?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceWebsiteUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMapsUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceLinkedinUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceCategory?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceRoleTitle?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMetadataJson?: Prisma.JsonNullableFilter<"Prospect">
+  lastImportBatchId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  firstSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
+  lastSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
   serviceInterest?: Prisma.StringNullableFilter<"Prospect"> | string | null
   notes?: Prisma.StringNullableFilter<"Prospect"> | string | null
   status?: Prisma.EnumProspectStatusFilter<"Prospect"> | $Enums.ProspectStatus
@@ -312,6 +404,7 @@ export type ProspectWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  lastImportBatch?: Prisma.XOR<Prisma.ProspectImportBatchNullableScalarRelationFilter, Prisma.ProspectImportBatchWhereInput> | null
   attempts?: Prisma.ProspectAttemptListRelationFilter
 }
 
@@ -327,6 +420,18 @@ export type ProspectOrderByWithRelationInput = {
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceProvider?: Prisma.SortOrder
+  sourceProviderRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWebsiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLinkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRoleTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadataJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastImportBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstSeenAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   serviceInterest?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -339,12 +444,15 @@ export type ProspectOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
   business?: Prisma.BusinessOrderByWithRelationInput
+  lastImportBatch?: Prisma.ProspectImportBatchOrderByWithRelationInput
   attempts?: Prisma.ProspectAttemptOrderByRelationAggregateInput
 }
 
 export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   prospectSid?: string
+  tenantId_businessId_sourceProvider_sourceProviderRecordId?: Prisma.ProspectTenantIdBusinessIdSourceProviderSourceProviderRecordIdCompoundUniqueInput
+  tenantId_businessId_sourceProvider_sourceFingerprint?: Prisma.ProspectTenantIdBusinessIdSourceProviderSourceFingerprintCompoundUniqueInput
   AND?: Prisma.ProspectWhereInput | Prisma.ProspectWhereInput[]
   OR?: Prisma.ProspectWhereInput[]
   NOT?: Prisma.ProspectWhereInput | Prisma.ProspectWhereInput[]
@@ -357,6 +465,18 @@ export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFilter<"Prospect"> | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceFingerprint?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceWebsiteUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMapsUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceLinkedinUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceCategory?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceRoleTitle?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMetadataJson?: Prisma.JsonNullableFilter<"Prospect">
+  lastImportBatchId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  firstSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
+  lastSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
   serviceInterest?: Prisma.StringNullableFilter<"Prospect"> | string | null
   notes?: Prisma.StringNullableFilter<"Prospect"> | string | null
   status?: Prisma.EnumProspectStatusFilter<"Prospect"> | $Enums.ProspectStatus
@@ -369,8 +489,9 @@ export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
+  lastImportBatch?: Prisma.XOR<Prisma.ProspectImportBatchNullableScalarRelationFilter, Prisma.ProspectImportBatchWhereInput> | null
   attempts?: Prisma.ProspectAttemptListRelationFilter
-}, "id" | "prospectSid">
+}, "id" | "prospectSid" | "tenantId_businessId_sourceProvider_sourceProviderRecordId" | "tenantId_businessId_sourceProvider_sourceFingerprint">
 
 export type ProspectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -384,6 +505,18 @@ export type ProspectOrderByWithAggregationInput = {
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceProvider?: Prisma.SortOrder
+  sourceProviderRecordId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWebsiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMapsUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLinkedinUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceRoleTitle?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadataJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  lastImportBatchId?: Prisma.SortOrderInput | Prisma.SortOrder
+  firstSeenAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   serviceInterest?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -414,6 +547,18 @@ export type ProspectScalarWhereWithAggregatesInput = {
   city?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderWithAggregatesFilter<"Prospect"> | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceFingerprint?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceWebsiteUrl?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceMapsUrl?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceLinkedinUrl?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceCategory?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceRoleTitle?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  sourceMetadataJson?: Prisma.JsonNullableWithAggregatesFilter<"Prospect">
+  lastImportBatchId?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  firstSeenAt?: Prisma.DateTimeWithAggregatesFilter<"Prospect"> | Date | string
+  lastSeenAt?: Prisma.DateTimeWithAggregatesFilter<"Prospect"> | Date | string
   serviceInterest?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   status?: Prisma.EnumProspectStatusWithAggregatesFilter<"Prospect"> | $Enums.ProspectStatus
@@ -436,6 +581,17 @@ export type ProspectCreateInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -448,6 +604,7 @@ export type ProspectCreateInput = {
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutProspectsInput
   business: Prisma.BusinessCreateNestedOneWithoutProspectsInput
+  lastImportBatch?: Prisma.ProspectImportBatchCreateNestedOneWithoutProspectsInput
   attempts?: Prisma.ProspectAttemptCreateNestedManyWithoutProspectInput
 }
 
@@ -463,6 +620,18 @@ export type ProspectUncheckedCreateInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -486,6 +655,17 @@ export type ProspectUpdateInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -498,6 +678,7 @@ export type ProspectUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutProspectsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutProspectsNestedInput
+  lastImportBatch?: Prisma.ProspectImportBatchUpdateOneWithoutProspectsNestedInput
   attempts?: Prisma.ProspectAttemptUpdateManyWithoutProspectNestedInput
 }
 
@@ -513,6 +694,18 @@ export type ProspectUncheckedUpdateInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -538,6 +731,18 @@ export type ProspectCreateManyInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -560,6 +765,17 @@ export type ProspectUpdateManyMutationInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -584,6 +800,18 @@ export type ProspectUncheckedUpdateManyInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -606,6 +834,20 @@ export type ProspectOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ProspectTenantIdBusinessIdSourceProviderSourceProviderRecordIdCompoundUniqueInput = {
+  tenantId: string
+  businessId: string
+  sourceProvider: $Enums.ProspectSourceProvider
+  sourceProviderRecordId: string
+}
+
+export type ProspectTenantIdBusinessIdSourceProviderSourceFingerprintCompoundUniqueInput = {
+  tenantId: string
+  businessId: string
+  sourceProvider: $Enums.ProspectSourceProvider
+  sourceFingerprint: string
+}
+
 export type ProspectCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   tenantId?: Prisma.SortOrder
@@ -618,6 +860,18 @@ export type ProspectCountOrderByAggregateInput = {
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
+  sourceProvider?: Prisma.SortOrder
+  sourceProviderRecordId?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
+  sourceWebsiteUrl?: Prisma.SortOrder
+  sourceMapsUrl?: Prisma.SortOrder
+  sourceLinkedinUrl?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
+  sourceRoleTitle?: Prisma.SortOrder
+  sourceMetadataJson?: Prisma.SortOrder
+  lastImportBatchId?: Prisma.SortOrder
+  firstSeenAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   serviceInterest?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -642,6 +896,17 @@ export type ProspectMaxOrderByAggregateInput = {
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
+  sourceProvider?: Prisma.SortOrder
+  sourceProviderRecordId?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
+  sourceWebsiteUrl?: Prisma.SortOrder
+  sourceMapsUrl?: Prisma.SortOrder
+  sourceLinkedinUrl?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
+  sourceRoleTitle?: Prisma.SortOrder
+  lastImportBatchId?: Prisma.SortOrder
+  firstSeenAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   serviceInterest?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -666,6 +931,17 @@ export type ProspectMinOrderByAggregateInput = {
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
+  sourceProvider?: Prisma.SortOrder
+  sourceProviderRecordId?: Prisma.SortOrder
+  sourceFingerprint?: Prisma.SortOrder
+  sourceWebsiteUrl?: Prisma.SortOrder
+  sourceMapsUrl?: Prisma.SortOrder
+  sourceLinkedinUrl?: Prisma.SortOrder
+  sourceCategory?: Prisma.SortOrder
+  sourceRoleTitle?: Prisma.SortOrder
+  lastImportBatchId?: Prisma.SortOrder
+  firstSeenAt?: Prisma.SortOrder
+  lastSeenAt?: Prisma.SortOrder
   serviceInterest?: Prisma.SortOrder
   notes?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -767,6 +1043,10 @@ export type ProspectUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.ProspectScalarWhereInput | Prisma.ProspectScalarWhereInput[]
 }
 
+export type EnumProspectSourceProviderFieldUpdateOperationsInput = {
+  set?: $Enums.ProspectSourceProvider
+}
+
 export type EnumProspectStatusFieldUpdateOperationsInput = {
   set?: $Enums.ProspectStatus
 }
@@ -789,6 +1069,48 @@ export type ProspectUpdateOneRequiredWithoutAttemptsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ProspectUpdateToOneWithWhereWithoutAttemptsInput, Prisma.ProspectUpdateWithoutAttemptsInput>, Prisma.ProspectUncheckedUpdateWithoutAttemptsInput>
 }
 
+export type ProspectCreateNestedManyWithoutLastImportBatchInput = {
+  create?: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput> | Prisma.ProspectCreateWithoutLastImportBatchInput[] | Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput[]
+  connectOrCreate?: Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput | Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput[]
+  createMany?: Prisma.ProspectCreateManyLastImportBatchInputEnvelope
+  connect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+}
+
+export type ProspectUncheckedCreateNestedManyWithoutLastImportBatchInput = {
+  create?: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput> | Prisma.ProspectCreateWithoutLastImportBatchInput[] | Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput[]
+  connectOrCreate?: Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput | Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput[]
+  createMany?: Prisma.ProspectCreateManyLastImportBatchInputEnvelope
+  connect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+}
+
+export type ProspectUpdateManyWithoutLastImportBatchNestedInput = {
+  create?: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput> | Prisma.ProspectCreateWithoutLastImportBatchInput[] | Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput[]
+  connectOrCreate?: Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput | Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput[]
+  upsert?: Prisma.ProspectUpsertWithWhereUniqueWithoutLastImportBatchInput | Prisma.ProspectUpsertWithWhereUniqueWithoutLastImportBatchInput[]
+  createMany?: Prisma.ProspectCreateManyLastImportBatchInputEnvelope
+  set?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  disconnect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  delete?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  connect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  update?: Prisma.ProspectUpdateWithWhereUniqueWithoutLastImportBatchInput | Prisma.ProspectUpdateWithWhereUniqueWithoutLastImportBatchInput[]
+  updateMany?: Prisma.ProspectUpdateManyWithWhereWithoutLastImportBatchInput | Prisma.ProspectUpdateManyWithWhereWithoutLastImportBatchInput[]
+  deleteMany?: Prisma.ProspectScalarWhereInput | Prisma.ProspectScalarWhereInput[]
+}
+
+export type ProspectUncheckedUpdateManyWithoutLastImportBatchNestedInput = {
+  create?: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput> | Prisma.ProspectCreateWithoutLastImportBatchInput[] | Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput[]
+  connectOrCreate?: Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput | Prisma.ProspectCreateOrConnectWithoutLastImportBatchInput[]
+  upsert?: Prisma.ProspectUpsertWithWhereUniqueWithoutLastImportBatchInput | Prisma.ProspectUpsertWithWhereUniqueWithoutLastImportBatchInput[]
+  createMany?: Prisma.ProspectCreateManyLastImportBatchInputEnvelope
+  set?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  disconnect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  delete?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  connect?: Prisma.ProspectWhereUniqueInput | Prisma.ProspectWhereUniqueInput[]
+  update?: Prisma.ProspectUpdateWithWhereUniqueWithoutLastImportBatchInput | Prisma.ProspectUpdateWithWhereUniqueWithoutLastImportBatchInput[]
+  updateMany?: Prisma.ProspectUpdateManyWithWhereWithoutLastImportBatchInput | Prisma.ProspectUpdateManyWithWhereWithoutLastImportBatchInput[]
+  deleteMany?: Prisma.ProspectScalarWhereInput | Prisma.ProspectScalarWhereInput[]
+}
+
 export type ProspectCreateWithoutTenantInput = {
   id?: string
   prospectSid: string
@@ -799,6 +1121,17 @@ export type ProspectCreateWithoutTenantInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -810,6 +1143,7 @@ export type ProspectCreateWithoutTenantInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutProspectsInput
+  lastImportBatch?: Prisma.ProspectImportBatchCreateNestedOneWithoutProspectsInput
   attempts?: Prisma.ProspectAttemptCreateNestedManyWithoutProspectInput
 }
 
@@ -824,6 +1158,18 @@ export type ProspectUncheckedCreateWithoutTenantInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -878,6 +1224,18 @@ export type ProspectScalarWhereInput = {
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFilter<"Prospect"> | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceFingerprint?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceWebsiteUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMapsUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceLinkedinUrl?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceCategory?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceRoleTitle?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  sourceMetadataJson?: Prisma.JsonNullableFilter<"Prospect">
+  lastImportBatchId?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  firstSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
+  lastSeenAt?: Prisma.DateTimeFilter<"Prospect"> | Date | string
   serviceInterest?: Prisma.StringNullableFilter<"Prospect"> | string | null
   notes?: Prisma.StringNullableFilter<"Prospect"> | string | null
   status?: Prisma.EnumProspectStatusFilter<"Prospect"> | $Enums.ProspectStatus
@@ -900,6 +1258,17 @@ export type ProspectCreateWithoutBusinessInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -911,6 +1280,7 @@ export type ProspectCreateWithoutBusinessInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutProspectsInput
+  lastImportBatch?: Prisma.ProspectImportBatchCreateNestedOneWithoutProspectsInput
   attempts?: Prisma.ProspectAttemptCreateNestedManyWithoutProspectInput
 }
 
@@ -925,6 +1295,18 @@ export type ProspectUncheckedCreateWithoutBusinessInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -974,6 +1356,17 @@ export type ProspectCreateWithoutAttemptsInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -986,6 +1379,7 @@ export type ProspectCreateWithoutAttemptsInput = {
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutProspectsInput
   business: Prisma.BusinessCreateNestedOneWithoutProspectsInput
+  lastImportBatch?: Prisma.ProspectImportBatchCreateNestedOneWithoutProspectsInput
 }
 
 export type ProspectUncheckedCreateWithoutAttemptsInput = {
@@ -1000,6 +1394,18 @@ export type ProspectUncheckedCreateWithoutAttemptsInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -1038,6 +1444,17 @@ export type ProspectUpdateWithoutAttemptsInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1050,6 +1467,7 @@ export type ProspectUpdateWithoutAttemptsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutProspectsNestedInput
   business?: Prisma.BusinessUpdateOneRequiredWithoutProspectsNestedInput
+  lastImportBatch?: Prisma.ProspectImportBatchUpdateOneWithoutProspectsNestedInput
 }
 
 export type ProspectUncheckedUpdateWithoutAttemptsInput = {
@@ -1064,6 +1482,18 @@ export type ProspectUncheckedUpdateWithoutAttemptsInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1074,6 +1504,104 @@ export type ProspectUncheckedUpdateWithoutAttemptsInput = {
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProspectCreateWithoutLastImportBatchInput = {
+  id?: string
+  prospectSid: string
+  companyName: string
+  contactName?: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
+  city?: string | null
+  state?: string | null
+  sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
+  serviceInterest?: string | null
+  notes?: string | null
+  status?: $Enums.ProspectStatus
+  priority?: $Enums.ProspectPriority | null
+  nextActionAt?: Date | string | null
+  lastAttemptAt?: Date | string | null
+  respondedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  tenant: Prisma.TenantCreateNestedOneWithoutProspectsInput
+  business: Prisma.BusinessCreateNestedOneWithoutProspectsInput
+  attempts?: Prisma.ProspectAttemptCreateNestedManyWithoutProspectInput
+}
+
+export type ProspectUncheckedCreateWithoutLastImportBatchInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  prospectSid: string
+  companyName: string
+  contactName?: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
+  city?: string | null
+  state?: string | null
+  sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
+  serviceInterest?: string | null
+  notes?: string | null
+  status?: $Enums.ProspectStatus
+  priority?: $Enums.ProspectPriority | null
+  nextActionAt?: Date | string | null
+  lastAttemptAt?: Date | string | null
+  respondedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  attempts?: Prisma.ProspectAttemptUncheckedCreateNestedManyWithoutProspectInput
+}
+
+export type ProspectCreateOrConnectWithoutLastImportBatchInput = {
+  where: Prisma.ProspectWhereUniqueInput
+  create: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput>
+}
+
+export type ProspectCreateManyLastImportBatchInputEnvelope = {
+  data: Prisma.ProspectCreateManyLastImportBatchInput | Prisma.ProspectCreateManyLastImportBatchInput[]
+  skipDuplicates?: boolean
+}
+
+export type ProspectUpsertWithWhereUniqueWithoutLastImportBatchInput = {
+  where: Prisma.ProspectWhereUniqueInput
+  update: Prisma.XOR<Prisma.ProspectUpdateWithoutLastImportBatchInput, Prisma.ProspectUncheckedUpdateWithoutLastImportBatchInput>
+  create: Prisma.XOR<Prisma.ProspectCreateWithoutLastImportBatchInput, Prisma.ProspectUncheckedCreateWithoutLastImportBatchInput>
+}
+
+export type ProspectUpdateWithWhereUniqueWithoutLastImportBatchInput = {
+  where: Prisma.ProspectWhereUniqueInput
+  data: Prisma.XOR<Prisma.ProspectUpdateWithoutLastImportBatchInput, Prisma.ProspectUncheckedUpdateWithoutLastImportBatchInput>
+}
+
+export type ProspectUpdateManyWithWhereWithoutLastImportBatchInput = {
+  where: Prisma.ProspectScalarWhereInput
+  data: Prisma.XOR<Prisma.ProspectUpdateManyMutationInput, Prisma.ProspectUncheckedUpdateManyWithoutLastImportBatchInput>
 }
 
 export type ProspectCreateManyTenantInput = {
@@ -1087,6 +1615,18 @@ export type ProspectCreateManyTenantInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -1109,6 +1649,17 @@ export type ProspectUpdateWithoutTenantInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1120,6 +1671,7 @@ export type ProspectUpdateWithoutTenantInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutProspectsNestedInput
+  lastImportBatch?: Prisma.ProspectImportBatchUpdateOneWithoutProspectsNestedInput
   attempts?: Prisma.ProspectAttemptUpdateManyWithoutProspectNestedInput
 }
 
@@ -1134,6 +1686,18 @@ export type ProspectUncheckedUpdateWithoutTenantInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1158,6 +1722,18 @@ export type ProspectUncheckedUpdateManyWithoutTenantInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1181,6 +1757,18 @@ export type ProspectCreateManyBusinessInput = {
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: string | null
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
   serviceInterest?: string | null
   notes?: string | null
   status?: $Enums.ProspectStatus
@@ -1203,6 +1791,17 @@ export type ProspectUpdateWithoutBusinessInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1214,6 +1813,7 @@ export type ProspectUpdateWithoutBusinessInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutProspectsNestedInput
+  lastImportBatch?: Prisma.ProspectImportBatchUpdateOneWithoutProspectsNestedInput
   attempts?: Prisma.ProspectAttemptUpdateManyWithoutProspectNestedInput
 }
 
@@ -1228,6 +1828,18 @@ export type ProspectUncheckedUpdateWithoutBusinessInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1252,6 +1864,160 @@ export type ProspectUncheckedUpdateManyWithoutBusinessInput = {
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  lastImportBatchId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
+  priority?: Prisma.NullableEnumProspectPriorityFieldUpdateOperationsInput | $Enums.ProspectPriority | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ProspectCreateManyLastImportBatchInput = {
+  id?: string
+  tenantId: string
+  businessId: string
+  prospectSid: string
+  companyName: string
+  contactName?: string | null
+  contactPhone?: string | null
+  contactEmail?: string | null
+  city?: string | null
+  state?: string | null
+  sourceLabel?: string | null
+  sourceProvider?: $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: string | null
+  sourceFingerprint?: string | null
+  sourceWebsiteUrl?: string | null
+  sourceMapsUrl?: string | null
+  sourceLinkedinUrl?: string | null
+  sourceCategory?: string | null
+  sourceRoleTitle?: string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Date | string
+  lastSeenAt?: Date | string
+  serviceInterest?: string | null
+  notes?: string | null
+  status?: $Enums.ProspectStatus
+  priority?: $Enums.ProspectPriority | null
+  nextActionAt?: Date | string | null
+  lastAttemptAt?: Date | string | null
+  respondedAt?: Date | string | null
+  archivedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ProspectUpdateWithoutLastImportBatchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  prospectSid?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
+  priority?: Prisma.NullableEnumProspectPriorityFieldUpdateOperationsInput | $Enums.ProspectPriority | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  tenant?: Prisma.TenantUpdateOneRequiredWithoutProspectsNestedInput
+  business?: Prisma.BusinessUpdateOneRequiredWithoutProspectsNestedInput
+  attempts?: Prisma.ProspectAttemptUpdateManyWithoutProspectNestedInput
+}
+
+export type ProspectUncheckedUpdateWithoutLastImportBatchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  prospectSid?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
+  priority?: Prisma.NullableEnumProspectPriorityFieldUpdateOperationsInput | $Enums.ProspectPriority | null
+  nextActionAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  lastAttemptAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  respondedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  attempts?: Prisma.ProspectAttemptUncheckedUpdateManyWithoutProspectNestedInput
+}
+
+export type ProspectUncheckedUpdateManyWithoutLastImportBatchInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  tenantId?: Prisma.StringFieldUpdateOperationsInput | string
+  businessId?: Prisma.StringFieldUpdateOperationsInput | string
+  prospectSid?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceProvider?: Prisma.EnumProspectSourceProviderFieldUpdateOperationsInput | $Enums.ProspectSourceProvider
+  sourceProviderRecordId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceWebsiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMapsUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLinkedinUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceCategory?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRoleTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadataJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  firstSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  lastSeenAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   serviceInterest?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.EnumProspectStatusFieldUpdateOperationsInput | $Enums.ProspectStatus
@@ -1307,6 +2073,18 @@ export type ProspectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
+  sourceProvider?: boolean
+  sourceProviderRecordId?: boolean
+  sourceFingerprint?: boolean
+  sourceWebsiteUrl?: boolean
+  sourceMapsUrl?: boolean
+  sourceLinkedinUrl?: boolean
+  sourceCategory?: boolean
+  sourceRoleTitle?: boolean
+  sourceMetadataJson?: boolean
+  lastImportBatchId?: boolean
+  firstSeenAt?: boolean
+  lastSeenAt?: boolean
   serviceInterest?: boolean
   notes?: boolean
   status?: boolean
@@ -1319,6 +2097,7 @@ export type ProspectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
   attempts?: boolean | Prisma.Prospect$attemptsArgs<ExtArgs>
   _count?: boolean | Prisma.ProspectCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["prospect"]>
@@ -1335,6 +2114,18 @@ export type ProspectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
+  sourceProvider?: boolean
+  sourceProviderRecordId?: boolean
+  sourceFingerprint?: boolean
+  sourceWebsiteUrl?: boolean
+  sourceMapsUrl?: boolean
+  sourceLinkedinUrl?: boolean
+  sourceCategory?: boolean
+  sourceRoleTitle?: boolean
+  sourceMetadataJson?: boolean
+  lastImportBatchId?: boolean
+  firstSeenAt?: boolean
+  lastSeenAt?: boolean
   serviceInterest?: boolean
   notes?: boolean
   status?: boolean
@@ -1347,6 +2138,7 @@ export type ProspectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
 }, ExtArgs["result"]["prospect"]>
 
 export type ProspectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1361,6 +2153,18 @@ export type ProspectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
+  sourceProvider?: boolean
+  sourceProviderRecordId?: boolean
+  sourceFingerprint?: boolean
+  sourceWebsiteUrl?: boolean
+  sourceMapsUrl?: boolean
+  sourceLinkedinUrl?: boolean
+  sourceCategory?: boolean
+  sourceRoleTitle?: boolean
+  sourceMetadataJson?: boolean
+  lastImportBatchId?: boolean
+  firstSeenAt?: boolean
+  lastSeenAt?: boolean
   serviceInterest?: boolean
   notes?: boolean
   status?: boolean
@@ -1373,6 +2177,7 @@ export type ProspectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
 }, ExtArgs["result"]["prospect"]>
 
 export type ProspectSelectScalar = {
@@ -1387,6 +2192,18 @@ export type ProspectSelectScalar = {
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
+  sourceProvider?: boolean
+  sourceProviderRecordId?: boolean
+  sourceFingerprint?: boolean
+  sourceWebsiteUrl?: boolean
+  sourceMapsUrl?: boolean
+  sourceLinkedinUrl?: boolean
+  sourceCategory?: boolean
+  sourceRoleTitle?: boolean
+  sourceMetadataJson?: boolean
+  lastImportBatchId?: boolean
+  firstSeenAt?: boolean
+  lastSeenAt?: boolean
   serviceInterest?: boolean
   notes?: boolean
   status?: boolean
@@ -1399,20 +2216,23 @@ export type ProspectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProspectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "prospectSid" | "companyName" | "contactName" | "contactPhone" | "contactEmail" | "city" | "state" | "sourceLabel" | "serviceInterest" | "notes" | "status" | "priority" | "nextActionAt" | "lastAttemptAt" | "respondedAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["prospect"]>
+export type ProspectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "prospectSid" | "companyName" | "contactName" | "contactPhone" | "contactEmail" | "city" | "state" | "sourceLabel" | "sourceProvider" | "sourceProviderRecordId" | "sourceFingerprint" | "sourceWebsiteUrl" | "sourceMapsUrl" | "sourceLinkedinUrl" | "sourceCategory" | "sourceRoleTitle" | "sourceMetadataJson" | "lastImportBatchId" | "firstSeenAt" | "lastSeenAt" | "serviceInterest" | "notes" | "status" | "priority" | "nextActionAt" | "lastAttemptAt" | "respondedAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["prospect"]>
 export type ProspectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
   attempts?: boolean | Prisma.Prospect$attemptsArgs<ExtArgs>
   _count?: boolean | Prisma.ProspectCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ProspectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
 }
 export type ProspectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
+  lastImportBatch?: boolean | Prisma.Prospect$lastImportBatchArgs<ExtArgs>
 }
 
 export type $ProspectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1420,6 +2240,7 @@ export type $ProspectPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     tenant: Prisma.$TenantPayload<ExtArgs>
     business: Prisma.$BusinessPayload<ExtArgs>
+    lastImportBatch: Prisma.$ProspectImportBatchPayload<ExtArgs> | null
     attempts: Prisma.$ProspectAttemptPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1434,6 +2255,18 @@ export type $ProspectPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     city: string | null
     state: string | null
     sourceLabel: string | null
+    sourceProvider: $Enums.ProspectSourceProvider
+    sourceProviderRecordId: string | null
+    sourceFingerprint: string | null
+    sourceWebsiteUrl: string | null
+    sourceMapsUrl: string | null
+    sourceLinkedinUrl: string | null
+    sourceCategory: string | null
+    sourceRoleTitle: string | null
+    sourceMetadataJson: runtime.JsonValue | null
+    lastImportBatchId: string | null
+    firstSeenAt: Date
+    lastSeenAt: Date
     serviceInterest: string | null
     notes: string | null
     status: $Enums.ProspectStatus
@@ -1840,6 +2673,7 @@ export interface Prisma__ProspectClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   tenant<T extends Prisma.TenantDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TenantDefaultArgs<ExtArgs>>): Prisma.Prisma__TenantClient<runtime.Types.Result.GetResult<Prisma.$TenantPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   business<T extends Prisma.BusinessDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BusinessDefaultArgs<ExtArgs>>): Prisma.Prisma__BusinessClient<runtime.Types.Result.GetResult<Prisma.$BusinessPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  lastImportBatch<T extends Prisma.Prospect$lastImportBatchArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prospect$lastImportBatchArgs<ExtArgs>>): Prisma.Prisma__ProspectImportBatchClient<runtime.Types.Result.GetResult<Prisma.$ProspectImportBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   attempts<T extends Prisma.Prospect$attemptsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Prospect$attemptsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectAttemptPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1881,6 +2715,18 @@ export interface ProspectFieldRefs {
   readonly city: Prisma.FieldRef<"Prospect", 'String'>
   readonly state: Prisma.FieldRef<"Prospect", 'String'>
   readonly sourceLabel: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceProvider: Prisma.FieldRef<"Prospect", 'ProspectSourceProvider'>
+  readonly sourceProviderRecordId: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceFingerprint: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceWebsiteUrl: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceMapsUrl: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceLinkedinUrl: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceCategory: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceRoleTitle: Prisma.FieldRef<"Prospect", 'String'>
+  readonly sourceMetadataJson: Prisma.FieldRef<"Prospect", 'Json'>
+  readonly lastImportBatchId: Prisma.FieldRef<"Prospect", 'String'>
+  readonly firstSeenAt: Prisma.FieldRef<"Prospect", 'DateTime'>
+  readonly lastSeenAt: Prisma.FieldRef<"Prospect", 'DateTime'>
   readonly serviceInterest: Prisma.FieldRef<"Prospect", 'String'>
   readonly notes: Prisma.FieldRef<"Prospect", 'String'>
   readonly status: Prisma.FieldRef<"Prospect", 'ProspectStatus'>
@@ -2289,6 +3135,25 @@ export type ProspectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * Limit how many Prospects to delete.
    */
   limit?: number
+}
+
+/**
+ * Prospect.lastImportBatch
+ */
+export type Prospect$lastImportBatchArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ProspectImportBatch
+   */
+  select?: Prisma.ProspectImportBatchSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ProspectImportBatch
+   */
+  omit?: Prisma.ProspectImportBatchOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ProspectImportBatchInclude<ExtArgs> | null
+  where?: Prisma.ProspectImportBatchWhereInput
 }
 
 /**

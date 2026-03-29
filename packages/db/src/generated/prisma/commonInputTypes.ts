@@ -440,6 +440,13 @@ export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonNullableFilter<$PrismaModel>
 }
 
+export type EnumProspectSourceProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+}
+
 export type EnumProspectStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
@@ -452,6 +459,16 @@ export type EnumProspectPriorityNullableFilter<$PrismaModel = never> = {
   in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
   notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel> | $Enums.ProspectPriority | null
+}
+
+export type EnumProspectSourceProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
 }
 
 export type EnumProspectStatusWithAggregatesFilter<$PrismaModel = never> = {
@@ -920,6 +937,13 @@ export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
 }
 
+export type NestedEnumProspectSourceProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+}
+
 export type NestedEnumProspectStatusFilter<$PrismaModel = never> = {
   equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
   in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
@@ -932,6 +956,16 @@ export type NestedEnumProspectPriorityNullableFilter<$PrismaModel = never> = {
   in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
   notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
   not?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel> | $Enums.ProspectPriority | null
+}
+
+export type NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
 }
 
 export type NestedEnumProspectStatusWithAggregatesFilter<$PrismaModel = never> = {

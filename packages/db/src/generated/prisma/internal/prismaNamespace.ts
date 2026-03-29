@@ -396,7 +396,8 @@ export const ModelName = {
   Call: 'Call',
   CallEvent: 'CallEvent',
   Prospect: 'Prospect',
-  ProspectAttempt: 'ProspectAttempt'
+  ProspectAttempt: 'ProspectAttempt',
+  ProspectImportBatch: 'ProspectImportBatch'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile" | "businessHours" | "serviceArea" | "call" | "callEvent" | "prospect" | "prospectAttempt"
+    modelProps: "tenant" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile" | "businessHours" | "serviceArea" | "call" | "callEvent" | "prospect" | "prospectAttempt" | "prospectImportBatch"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1378,6 +1379,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    ProspectImportBatch: {
+      payload: Prisma.$ProspectImportBatchPayload<ExtArgs>
+      fields: Prisma.ProspectImportBatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ProspectImportBatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ProspectImportBatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        findFirst: {
+          args: Prisma.ProspectImportBatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ProspectImportBatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        findMany: {
+          args: Prisma.ProspectImportBatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>[]
+        }
+        create: {
+          args: Prisma.ProspectImportBatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        createMany: {
+          args: Prisma.ProspectImportBatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ProspectImportBatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>[]
+        }
+        delete: {
+          args: Prisma.ProspectImportBatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        update: {
+          args: Prisma.ProspectImportBatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.ProspectImportBatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ProspectImportBatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ProspectImportBatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.ProspectImportBatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ProspectImportBatchPayload>
+        }
+        aggregate: {
+          args: Prisma.ProspectImportBatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateProspectImportBatch>
+        }
+        groupBy: {
+          args: Prisma.ProspectImportBatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProspectImportBatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ProspectImportBatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ProspectImportBatchCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1613,6 +1688,18 @@ export const ProspectScalarFieldEnum = {
   city: 'city',
   state: 'state',
   sourceLabel: 'sourceLabel',
+  sourceProvider: 'sourceProvider',
+  sourceProviderRecordId: 'sourceProviderRecordId',
+  sourceFingerprint: 'sourceFingerprint',
+  sourceWebsiteUrl: 'sourceWebsiteUrl',
+  sourceMapsUrl: 'sourceMapsUrl',
+  sourceLinkedinUrl: 'sourceLinkedinUrl',
+  sourceCategory: 'sourceCategory',
+  sourceRoleTitle: 'sourceRoleTitle',
+  sourceMetadataJson: 'sourceMetadataJson',
+  lastImportBatchId: 'lastImportBatchId',
+  firstSeenAt: 'firstSeenAt',
+  lastSeenAt: 'lastSeenAt',
   serviceInterest: 'serviceInterest',
   notes: 'notes',
   status: 'status',
@@ -1639,6 +1726,22 @@ export const ProspectAttemptScalarFieldEnum = {
 } as const
 
 export type ProspectAttemptScalarFieldEnum = (typeof ProspectAttemptScalarFieldEnum)[keyof typeof ProspectAttemptScalarFieldEnum]
+
+
+export const ProspectImportBatchScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  sourceProvider: 'sourceProvider',
+  sourceLabel: 'sourceLabel',
+  createdCount: 'createdCount',
+  updatedCount: 'updatedCount',
+  skippedCount: 'skippedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProspectImportBatchScalarFieldEnum = (typeof ProspectImportBatchScalarFieldEnum)[keyof typeof ProspectImportBatchScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1906,6 +2009,20 @@ export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$Prisma
 
 
 /**
+ * Reference to a field of type 'ProspectSourceProvider'
+ */
+export type EnumProspectSourceProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProspectSourceProvider'>
+    
+
+
+/**
+ * Reference to a field of type 'ProspectSourceProvider[]'
+ */
+export type ListEnumProspectSourceProviderFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProspectSourceProvider[]'>
+    
+
+
+/**
  * Reference to a field of type 'ProspectStatus'
  */
 export type EnumProspectStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'ProspectStatus'>
@@ -2082,6 +2199,7 @@ export type GlobalOmitConfig = {
   callEvent?: Prisma.CallEventOmit
   prospect?: Prisma.ProspectOmit
   prospectAttempt?: Prisma.ProspectAttemptOmit
+  prospectImportBatch?: Prisma.ProspectImportBatchOmit
 }
 
 /* Types for Logging */

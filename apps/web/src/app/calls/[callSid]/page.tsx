@@ -1,5 +1,9 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import {
+  buildQueueContextSummary,
+  getWorkItemSaveNoticeMessage
+} from '@/app/operator-workflow';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
 import {
@@ -136,7 +140,7 @@ function formatReviewStatusLabel(value: string | undefined) {
     case 'REVIEWED':
       return 'Reviewed';
     default:
-      return value;
+      return null;
   }
 }
 
@@ -149,7 +153,7 @@ function formatTriageStatusLabel(value: string | undefined) {
     case 'ARCHIVED':
       return 'Archived';
     default:
-      return value;
+      return null;
   }
 }
 
@@ -166,19 +170,6 @@ function formatUrgencyLabel(value: string | undefined) {
     default:
       return null;
   }
-}
-
-function buildReturnContextSummary(returnTo: string) {
-  const url = new URL(returnTo, 'http://localhost');
-  const parts = [
-    formatTriageStatusLabel(url.searchParams.get('triageStatus') ?? 'OPEN'),
-    formatReviewStatusLabel(url.searchParams.get('reviewStatus') ?? undefined),
-    formatUrgencyLabel(url.searchParams.get('urgency') ?? undefined),
-    url.searchParams.get('q')?.trim() ? `Search: "${url.searchParams.get('q')?.trim()}"` : null,
-    url.searchParams.get('page') ? `Page ${url.searchParams.get('page')}` : null
-  ].filter(Boolean);
-
-  return parts.join(' • ');
 }
 
 export default async function CallDetailPage({
@@ -198,13 +189,11 @@ export default async function CallDetailPage({
         ? 'Call archived.'
         : resolvedSearchParams.notice === 'extracted'
           ? 'Extraction rerun queued.'
-          : resolvedSearchParams.notice === 'saved'
-            ? 'Review changes saved.'
-            : resolvedSearchParams.notice === 'saved-next'
-                ? 'Review changes saved. Moved to the next call needing review.'
-                : resolvedSearchParams.notice === 'no-review-calls'
-                  ? 'Review changes saved. No more calls need review.'
-                  : null;
+          : getWorkItemSaveNoticeMessage({
+              notice: resolvedSearchParams.notice,
+              itemSingular: 'call',
+              itemPlural: 'calls'
+            });
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
@@ -213,7 +202,15 @@ export default async function CallDetailPage({
   const reviewStatusFieldId = 'review-status';
   const saveButtonId = 'save-review-button';
   const saveNextButtonId = 'save-review-next-button';
-  const returnContextSummary = buildReturnContextSummary(returnTo);
+  const returnContextSummary = buildQueueContextSummary({
+    currentHref: returnTo,
+    fallbackLabel: 'Open work queue',
+    formatters: {
+      triageStatus: formatTriageStatusLabel,
+      reviewStatus: formatReviewStatusLabel,
+      urgency: formatUrgencyLabel
+    }
+  });
 
   async function markContacted() {
     'use server';
@@ -360,7 +357,7 @@ export default async function CallDetailPage({
         <div className="flex items-start justify-between gap-4">
           <div>
             <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to filtered queue
+              ← Back to work queue
             </a>
             <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
             <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
@@ -472,7 +469,7 @@ export default async function CallDetailPage({
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-medium">Operator review</h2>
+              <h2 className="font-medium">Operator update</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Correct extracted fields, add notes, and mark the review state.
               </p>
@@ -554,7 +551,7 @@ export default async function CallDetailPage({
                         id={saveButtonId}
                         className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
                       >
-                        Save review changes
+                        Save changes
                       </button>
                       <button
                         id={saveNextButtonId}

@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import {
   buildProspectScopeSql,
   buildProspectScopeWhere,
+  getRequiredProspectScopeError,
   normalizeProspectScopeQuery,
   PROSPECT_PRIORITY_ORDER_SQL,
   REVIEW_NEXT_PROSPECT_ELIGIBILITY_SQL
@@ -18,11 +19,15 @@ function flattenSql(value: { strings?: ReadonlyArray<string>; values?: unknown[]
 test('normalizeProspectScopeQuery keeps only valid scope fields and trims q', () => {
   assert.deepEqual(
     normalizeProspectScopeQuery({
+      tenantId: ' tenant_demo ',
+      businessId: ' biz_demo ',
       status: 'READY',
       priority: 'HIGH',
       q: '  reston dental  '
     }),
     {
+      tenantId: 'tenant_demo',
+      businessId: 'biz_demo',
       status: 'READY',
       priority: 'HIGH',
       q: 'reston dental'
@@ -44,11 +49,15 @@ test('normalizeProspectScopeQuery drops invalid and empty scope fields', () => {
 test('buildProspectScopeWhere produces the expected Prisma filter shape', () => {
   assert.deepEqual(
     buildProspectScopeWhere({
+      tenantId: 'tenant_demo',
+      businessId: 'biz_demo',
       status: 'READY',
       priority: 'HIGH',
       q: 'reston'
     }),
     {
+      tenantId: 'tenant_demo',
+      businessId: 'biz_demo',
       status: 'READY',
       priority: 'HIGH',
       OR: [
@@ -70,16 +79,22 @@ test('buildProspectScopeWhere produces the expected Prisma filter shape', () => 
 test('buildProspectScopeSql only emits SQL for the normalized scope fields', () => {
   const flattened = flattenSql(
     buildProspectScopeSql({
+      tenantId: 'tenant_demo',
+      businessId: 'biz_demo',
       status: 'READY',
       priority: 'HIGH',
       q: 'reston'
     })
   );
 
+  assert.match(flattened.text, /"tenantId" = \?/);
+  assert.match(flattened.text, /"businessId" = \?/);
   assert.match(flattened.text, /"status" = \?/);
   assert.match(flattened.text, /"priority" = \?/);
   assert.match(flattened.text, /"prospectSid" ILIKE \?/);
   assert.deepEqual(flattened.values, [
+    'tenant_demo',
+    'biz_demo',
     'READY',
     'HIGH',
     '%reston%',
@@ -93,6 +108,18 @@ test('buildProspectScopeSql only emits SQL for the normalized scope fields', () 
     '%reston%',
     '%reston%'
   ]);
+});
+
+test('getRequiredProspectScopeError enforces tenant and business scope', () => {
+  assert.equal(getRequiredProspectScopeError({}), 'tenantId is required');
+  assert.equal(getRequiredProspectScopeError({ tenantId: 'tenant_demo' }), 'businessId is required');
+  assert.equal(
+    getRequiredProspectScopeError({
+      tenantId: 'tenant_demo',
+      businessId: 'biz_demo'
+    }),
+    null
+  );
 });
 
 test('review-next prospect eligibility SQL locks in archive exclusion', () => {

@@ -106,3 +106,8 @@ export type Prospect = Prisma.ProspectModel
  * 
  */
 export type ProspectAttempt = Prisma.ProspectAttemptModel
+/**
+ * Model ProspectImportBatch
+ * 
+ */
+export type ProspectImportBatch = Prisma.ProspectImportBatchModel

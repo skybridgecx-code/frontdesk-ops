@@ -8,7 +8,7 @@ type PrismaStubSet = Partial<{
   $transaction: typeof prisma.$transaction;
   prospectCount: typeof prisma.prospect.count;
   prospectFindMany: typeof prisma.prospect.findMany;
-  prospectFindUnique: typeof prisma.prospect.findUnique;
+  prospectFindFirst: typeof prisma.prospect.findFirst;
 }>;
 
 function flattenTaggedSqlArgs(args: unknown[]) {
@@ -35,21 +35,21 @@ function stubPrisma(stubs: PrismaStubSet) {
     $transaction: prisma.$transaction,
     prospectCount: prisma.prospect.count,
     prospectFindMany: prisma.prospect.findMany,
-    prospectFindUnique: prisma.prospect.findUnique
+    prospectFindFirst: prisma.prospect.findFirst
   };
 
   if (stubs.$queryRaw) prisma.$queryRaw = stubs.$queryRaw;
   if (stubs.$transaction) prisma.$transaction = stubs.$transaction;
   if (stubs.prospectCount) prisma.prospect.count = stubs.prospectCount;
   if (stubs.prospectFindMany) prisma.prospect.findMany = stubs.prospectFindMany;
-  if (stubs.prospectFindUnique) prisma.prospect.findUnique = stubs.prospectFindUnique;
+  if (stubs.prospectFindFirst) prisma.prospect.findFirst = stubs.prospectFindFirst;
 
   return () => {
     prisma.$queryRaw = original.$queryRaw;
     prisma.$transaction = original.$transaction;
     prisma.prospect.count = original.prospectCount;
     prisma.prospect.findMany = original.prospectFindMany;
-    prisma.prospect.findUnique = original.prospectFindUnique;
+    prisma.prospect.findFirst = original.prospectFindFirst;
   };
 }
 
@@ -64,7 +64,7 @@ test('GET /v1/prospects/review-next returns 200 with the expected shape', async 
 
   const response = await app.inject({
     method: 'GET',
-    url: '/v1/prospects/review-next'
+    url: '/v1/prospects/review-next?tenantId=tenant_demo&businessId=biz_demo'
   });
 
   assert.equal(response.statusCode, 200);
@@ -93,7 +93,7 @@ test('GET /v1/prospects/review-next wires scoped filters and excludeProspectSid 
 
   const response = await app.inject({
     method: 'GET',
-    url: '/v1/prospects/review-next?status=READY&priority=HIGH&q=reston&excludeProspectSid=PR_DEMO_101'
+    url: '/v1/prospects/review-next?tenantId=tenant_demo&businessId=biz_demo&status=READY&priority=HIGH&q=reston&excludeProspectSid=PR_DEMO_101'
   });
 
   assert.equal(response.statusCode, 200);
@@ -101,11 +101,15 @@ test('GET /v1/prospects/review-next wires scoped filters and excludeProspectSid 
     ok: true,
     prospectSid: 'PR_DEMO_102'
   });
+  assert.match(capturedText, /"tenantId" = \?/);
+  assert.match(capturedText, /"businessId" = \?/);
   assert.match(capturedText, /"status" = \?/);
   assert.match(capturedText, /"priority" = \?/);
   assert.match(capturedText, /"companyName" ILIKE \?/);
   assert.match(capturedText, /"prospectSid" NOT IN/);
   assert.deepEqual(capturedValues, [
+    'tenant_demo',
+    'biz_demo',
     'READY',
     'HIGH',
     '%reston%',
@@ -151,11 +155,13 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
 
   const response = await app.inject({
     method: 'GET',
-    url: '/v1/prospects?status=READY&priority=HIGH&q=reston&page=2&limit=2'
+    url: '/v1/prospects?tenantId=tenant_demo&businessId=biz_demo&status=READY&priority=HIGH&q=reston&page=2&limit=2'
   });
 
   assert.equal(response.statusCode, 200);
   assert.deepEqual(capturedWhere, {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
     status: 'READY',
     priority: 'HIGH',
     OR: [
@@ -171,10 +177,14 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       { notes: { contains: 'reston', mode: 'insensitive' } }
     ]
   });
+  assert.match(capturedSqlText, /"tenantId" = \?/);
+  assert.match(capturedSqlText, /"businessId" = \?/);
   assert.match(capturedSqlText, /"status" = \?/);
   assert.match(capturedSqlText, /"priority" = \?/);
   assert.match(capturedSqlText, /"prospectSid" ILIKE \?/);
   assert.deepEqual(capturedSqlValues, [
+    'tenant_demo',
+    'biz_demo',
     'READY',
     'HIGH',
     '%reston%',
@@ -206,9 +216,13 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
 test('GET /v1/prospects/summary returns 200 with expected outbound bucket counts', async (t) => {
   const counts = [6, 1, 2, 0, 1, 1, 0, 0, 1, 2, 2, 2];
   let countIndex = 0;
+  const capturedWhereArgs: unknown[] = [];
 
   const restore = stubPrisma({
-    prospectCount: (async () => counts[countIndex++] ?? 0) as typeof prisma.prospect.count,
+    prospectCount: (async (args?: unknown) => {
+      capturedWhereArgs.push((args as { where?: unknown } | undefined)?.where ?? null);
+      return counts[countIndex++] ?? 0;
+    }) as typeof prisma.prospect.count,
     $transaction: (async (operations: unknown[]) => Promise.all(operations as Promise<unknown>[])) as typeof prisma.$transaction
   });
   t.after(restore);
@@ -218,10 +232,19 @@ test('GET /v1/prospects/summary returns 200 with expected outbound bucket counts
 
   const response = await app.inject({
     method: 'GET',
-    url: '/v1/prospects/summary'
+    url: '/v1/prospects/summary?tenantId=tenant_demo&businessId=biz_demo'
   });
 
   assert.equal(response.statusCode, 200);
+  assert.deepEqual(capturedWhereArgs[0], {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo'
+  });
+  assert.deepEqual(capturedWhereArgs[1], {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
+    status: 'NEW'
+  });
   assert.deepEqual(response.json(), {
     ok: true,
     totalProspects: 6,
@@ -240,8 +263,11 @@ test('GET /v1/prospects/summary returns 200 with expected outbound bucket counts
 });
 
 test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and attempts', async (t) => {
+  let capturedWhere: unknown;
   const restore = stubPrisma({
-    prospectFindUnique: (async () => ({
+    prospectFindFirst: (async (args?: unknown) => {
+      capturedWhere = (args as { where?: unknown } | undefined)?.where;
+      return {
       prospectSid: 'PR_DEMO_104',
       companyName: 'Nova Pediatrics',
       contactName: 'Priya Shah',
@@ -250,6 +276,11 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
       city: 'Vienna',
       state: 'VA',
       sourceLabel: 'website_inquiry',
+      sourceWebsiteUrl: 'https://novapediatrics.example',
+      sourceMapsUrl: 'https://maps.google.com/?cid=nova',
+      sourceLinkedinUrl: 'https://linkedin.com/company/nova-pediatrics',
+      sourceCategory: 'Pediatrics Practice',
+      sourceRoleTitle: 'Practice Manager',
       serviceInterest: 'Appointment-line overflow and after-hours routing',
       notes: 'They replied asking for pricing and next steps.',
       status: 'RESPONDED',
@@ -276,7 +307,8 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
           createdAt: new Date('2026-03-25T11:00:00.000Z')
         }
       ]
-    })) as unknown as typeof prisma.prospect.findUnique
+    };
+    }) as unknown as typeof prisma.prospect.findFirst
   });
   t.after(restore);
 
@@ -285,10 +317,15 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
 
   const response = await app.inject({
     method: 'GET',
-    url: '/v1/prospects/PR_DEMO_104'
+    url: '/v1/prospects/PR_DEMO_104?tenantId=tenant_demo&businessId=biz_demo'
   });
 
   assert.equal(response.statusCode, 200);
+  assert.deepEqual(capturedWhere, {
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
+    prospectSid: 'PR_DEMO_104'
+  });
   assert.deepEqual(response.json(), {
     ok: true,
     prospect: {
@@ -300,6 +337,11 @@ test('GET /v1/prospects/:prospectSid returns 200 with full prospect detail and a
       city: 'Vienna',
       state: 'VA',
       sourceLabel: 'website_inquiry',
+      sourceWebsiteUrl: 'https://novapediatrics.example',
+      sourceMapsUrl: 'https://maps.google.com/?cid=nova',
+      sourceLinkedinUrl: 'https://linkedin.com/company/nova-pediatrics',
+      sourceCategory: 'Pediatrics Practice',
+      sourceRoleTitle: 'Practice Manager',
       serviceInterest: 'Appointment-line overflow and after-hours routing',
       notes: 'They replied asking for pricing and next steps.',
       status: 'RESPONDED',

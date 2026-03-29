@@ -1,7 +1,9 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ProspectPriority, ProspectStatus } from '@frontdesk/db';
-import { BusinessNotFoundError, importProspectsForBusiness } from '../lib/prospect-import.js';
+import { getRequiredProspectScopeError, normalizeProspectScopeQuery } from '../lib/prospect-selectors.js';
+import { BusinessNotFoundError } from '../lib/prospect-import.js';
+import { importScopedProspects } from '../lib/prospect-workflow.js';
 
 const importProspectItemSchema = z
   .object({
@@ -48,7 +50,19 @@ function trimImportValue(value: unknown): unknown {
 export async function registerProspectImportRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/import', async (request, reply) => {
     const { businessId } = request.params as { businessId: string };
+    const scope = normalizeProspectScopeQuery({
+      tenantId: (request.query as { tenantId?: string }).tenantId,
+      businessId
+    });
+    const scopeError = getRequiredProspectScopeError(scope);
     const parsed = importProspectsBodySchema.safeParse(trimImportValue(request.body));
+
+    if (scopeError) {
+      return reply.status(400).send({
+        ok: false,
+        error: scopeError
+      });
+    }
 
     if (!parsed.success) {
       return reply.status(400).send({
@@ -58,15 +72,22 @@ export async function registerProspectImportRoutes(app: FastifyInstance) {
     }
 
     try {
-      const result = await importProspectsForBusiness({
-        businessId,
+      const result = await importScopedProspects({
+        scope: {
+          tenantId: scope.tenantId!,
+          businessId
+        },
         defaultSourceLabel: parsed.data.defaultSourceLabel,
         prospects: parsed.data.prospects
       });
 
       return {
         ok: true,
+        importBatchId: result.importBatchId,
         importedCount: result.importedCount,
+        createdCount: result.createdCount,
+        updatedCount: result.updatedCount,
+        skippedCount: result.skippedCount,
         prospects: result.prospects
       };
     } catch (error) {

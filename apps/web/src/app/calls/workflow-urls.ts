@@ -1,3 +1,6 @@
+export { buildNoticeHref, normalizeLimit, normalizePage } from '../operator-workflow';
+import { buildNoticeHref, normalizeLimit, normalizePage } from '../operator-workflow';
+
 export type CallsFilterInput = {
   triageStatus?: string;
   reviewStatus?: string;
@@ -7,14 +10,6 @@ export type CallsFilterInput = {
   limit?: string;
   notice?: string;
 };
-
-export function normalizeLimit(value: string | undefined) {
-  return String(Math.min(Math.max(Number(value ?? '25') || 25, 1), 100));
-}
-
-export function normalizePage(value: string | undefined) {
-  return String(Math.max(Number(value ?? '1') || 1, 1));
-}
 
 export function buildFilterHref(input: CallsFilterInput) {
   const params = new URLSearchParams();
@@ -33,12 +28,6 @@ export function buildFilterHref(input: CallsFilterInput) {
 
   const query = params.toString();
   return query ? `/calls?${query}` : '/calls';
-}
-
-export function buildNoticeHref(currentHref: string, notice: string) {
-  const url = new URL(currentHref, 'http://localhost');
-  url.searchParams.set('notice', notice);
-  return `${url.pathname}${url.search}`;
 }
 
 export function buildQueueReviewNextRequestHref(currentHref: string) {
@@ -65,9 +54,7 @@ export function normalizeReturnTo(returnTo: string | undefined) {
 }
 
 export function buildQueueNoticeHref(returnTo: string, notice: string) {
-  const url = new URL(returnTo, 'http://localhost');
-  url.searchParams.set('notice', notice);
-  return `${url.pathname}${url.search}`;
+  return buildNoticeHref(returnTo, notice);
 }
 
 export function buildDetailReviewNextRequestHref(returnTo: string, excludeCallSid: string) {

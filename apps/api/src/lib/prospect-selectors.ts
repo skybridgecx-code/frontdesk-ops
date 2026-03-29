@@ -1,12 +1,16 @@
 import { Prisma, ProspectPriority, ProspectStatus } from '@frontdesk/db';
 
 export type ProspectScopeQuery = {
+  tenantId?: string;
+  businessId?: string;
   status?: string;
   priority?: string;
   q?: string;
 };
 
 export type NormalizedProspectScope = {
+  tenantId?: string;
+  businessId?: string;
   status?: ProspectStatus;
   priority?: ProspectPriority;
   q?: string;
@@ -14,6 +18,16 @@ export type NormalizedProspectScope = {
 
 export function normalizeProspectScopeQuery(query: ProspectScopeQuery): NormalizedProspectScope {
   const scope: NormalizedProspectScope = {};
+
+  const tenantId = query.tenantId?.trim();
+  if (tenantId) {
+    scope.tenantId = tenantId;
+  }
+
+  const businessId = query.businessId?.trim();
+  if (businessId) {
+    scope.businessId = businessId;
+  }
 
   if (
     query.status === ProspectStatus.NEW ||
@@ -44,8 +58,28 @@ export function normalizeProspectScopeQuery(query: ProspectScopeQuery): Normaliz
   return scope;
 }
 
+export function getRequiredProspectScopeError(scope: NormalizedProspectScope) {
+  if (!scope.tenantId) {
+    return 'tenantId is required';
+  }
+
+  if (!scope.businessId) {
+    return 'businessId is required';
+  }
+
+  return null;
+}
+
 export function buildProspectScopeWhere(scope: NormalizedProspectScope) {
   const where: Prisma.ProspectWhereInput = {};
+
+  if (scope.tenantId) {
+    where.tenantId = scope.tenantId;
+  }
+
+  if (scope.businessId) {
+    where.businessId = scope.businessId;
+  }
 
   if (scope.status) {
     where.status = scope.status;
@@ -75,6 +109,14 @@ export function buildProspectScopeWhere(scope: NormalizedProspectScope) {
 
 export function buildProspectScopeSql(scope: NormalizedProspectScope) {
   const clauses: Prisma.Sql[] = [];
+
+  if (scope.tenantId) {
+    clauses.push(Prisma.sql`AND "tenantId" = ${scope.tenantId}`);
+  }
+
+  if (scope.businessId) {
+    clauses.push(Prisma.sql`AND "businessId" = ${scope.businessId}`);
+  }
 
   if (scope.status) {
     clauses.push(Prisma.sql`AND "status" = ${scope.status}`);

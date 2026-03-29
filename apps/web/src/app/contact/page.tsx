@@ -14,6 +14,7 @@ type ContactSearchParams = {
 type BootstrapResponse = {
   ok: true;
   tenant: {
+    id: string;
     businesses: Array<{
       id: string;
       name: string;
@@ -30,7 +31,7 @@ type ImportLeadResponse = {
 
 export const metadata: Metadata = {
   title: 'Contact | MoLeads',
-  description: 'Request a consultation with MoLeads and turn your current lead flow into a clearer operating system.'
+  description: 'Request a workflow review with MoLeads and tighten the handoff between first contact and follow-up.'
 };
 
 async function getBootstrap() {
@@ -109,6 +110,7 @@ export default async function ContactPage({
   const resolved = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap.tenant?.businesses[0] ?? null;
+  const tenantId = bootstrap.tenant?.id ?? null;
   const requestedCompany = resolved.company?.trim() || 'Your request';
   const successWarning = resolved.warning?.trim() || null;
   const leadRequested = resolved.notice === 'lead-requested';
@@ -120,7 +122,7 @@ export default async function ContactPage({
   async function requestConsultation(formData: FormData) {
     'use server';
 
-    if (!activeBusiness) {
+    if (!activeBusiness || !tenantId) {
       redirect(
         buildContactNoticeHref('lead-request-failed', {
           error: 'No active business is configured for lead capture.'
@@ -140,7 +142,9 @@ export default async function ContactPage({
       );
     }
 
-    const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import`, {
+    const response = await fetch(
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import?tenantId=${encodeURIComponent(tenantId)}`,
+      {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -150,7 +154,8 @@ export default async function ContactPage({
       body: JSON.stringify({
         prospects: [prospect]
       })
-    });
+      }
+    );
 
     if (!response.ok) {
       const body = (await response.json().catch(() => null)) as { error?: string } | null;
@@ -209,14 +214,13 @@ export default async function ContactPage({
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              Consultation request
+              Workflow review request
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              Tell us where lead handling is getting messy and we will help you tighten it.
+              Tell us where leads are getting delayed, dropped, or worked inconsistently.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              This is the cleanest place to start if you want a calmer intake flow, better operator follow-through,
-              and a customer-facing front door that feels more premium.
+              This is the cleanest place to start if you want a tighter handoff between first contact and follow-up, with less guesswork for the people doing the work.
             </p>
           </div>
         </div>
@@ -253,7 +257,7 @@ export default async function ContactPage({
               <div className="grid gap-4 rounded-[2rem] border border-emerald-300/30 bg-[linear-gradient(180deg,_rgba(16,185,129,0.12),_rgba(255,255,255,0.82))] p-7 shadow-[0_24px_80px_rgba(16,24,40,0.08)]">
                 <div className="text-xs uppercase tracking-[0.28em] text-[#147557]">Request received</div>
                 <div className="max-w-2xl text-3xl font-semibold tracking-[-0.04em] text-[#17120f]">
-                  {requestedCompany} is now in the MoLeads workflow.
+                  {requestedCompany} is now in the operator workflow.
                 </div>
                 {successWarning ? (
                   <div className="rounded-2xl border border-amber-300/40 bg-amber-100/70 px-4 py-3 text-sm text-[#6d4f0e]">
@@ -261,8 +265,7 @@ export default async function ContactPage({
                   </div>
                 ) : null}
                 <p className="max-w-2xl text-base leading-8 text-[#4b3a2d]">
-                  The request has been captured as a live lead. From here, the operator queue can review it, triage
-                  it, and move it into follow-up with clear next actions.
+                  The request has been captured as a live work item. From here, the operator queue can review it, prioritize it, and move it into follow-up with clear next actions.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <a
@@ -358,10 +361,10 @@ export default async function ContactPage({
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="max-w-md text-sm leading-6 text-[#5d4b3d]">
-                    This request becomes a real lead inside MoLeads, so the workflow starts the moment you submit it.
+                    This request becomes a real work item in the operator workflow, so the handoff starts the moment you submit it.
                   </p>
                   <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                    Request consultation
+                    Request workflow review
                   </button>
                 </div>
               </form>

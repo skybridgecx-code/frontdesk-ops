@@ -14,7 +14,11 @@ export type GooglePlacesProspect = {
   companyName: string;
   contactPhone: string | null;
   sourceLabel: string;
-  notes: string | null;
+  sourceProviderRecordId: string | null;
+  sourceWebsiteUrl: string | null;
+  sourceMapsUrl: string | null;
+  sourceCategory: string | null;
+  sourceMetadataJson: Record<string, string | null>;
 };
 
 export type SearchGooglePlacesProspectsInput = {
@@ -28,6 +32,7 @@ export type SearchGooglePlacesProspectsInput = {
 
 type GooglePlacesSearchResponse = {
   places?: Array<{
+    id?: string;
     displayName?: { text?: string };
     nationalPhoneNumber?: string;
     internationalPhoneNumber?: string;
@@ -56,7 +61,7 @@ function cleanNullableString(value: unknown) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
-function buildNotes(place: NonNullable<GooglePlacesSearchResponse['places']>[number]) {
+function buildSourceSnippet(place: NonNullable<GooglePlacesSearchResponse['places']>[number]) {
   const parts = [
     cleanNullableString(place.primaryTypeDisplayName?.text),
     cleanNullableString(place.formattedAddress),
@@ -76,7 +81,7 @@ export async function searchGooglePlacesProspects(input: SearchGooglePlacesProsp
       'Content-Type': 'application/json',
       'X-Goog-Api-Key': apiKey,
       'X-Goog-FieldMask':
-        'places.displayName,places.nationalPhoneNumber,places.internationalPhoneNumber,places.formattedAddress,places.websiteUri,places.googleMapsUri,places.primaryTypeDisplayName'
+        'places.id,places.displayName,places.nationalPhoneNumber,places.internationalPhoneNumber,places.formattedAddress,places.websiteUri,places.googleMapsUri,places.primaryTypeDisplayName'
     },
     body: JSON.stringify({
       textQuery: input.textQuery,
@@ -112,7 +117,17 @@ export async function searchGooglePlacesProspects(input: SearchGooglePlacesProsp
           cleanNullableString(place.internationalPhoneNumber) ??
           cleanNullableString(place.nationalPhoneNumber),
         sourceLabel: 'google_places',
-        notes: buildNotes(place)
+        sourceProviderRecordId: cleanNullableString(place.id),
+        sourceWebsiteUrl: cleanNullableString(place.websiteUri),
+        sourceMapsUrl: cleanNullableString(place.googleMapsUri),
+        sourceCategory: cleanNullableString(place.primaryTypeDisplayName?.text),
+        sourceMetadataJson: {
+          primaryType: cleanNullableString(place.primaryTypeDisplayName?.text),
+          formattedAddress: cleanNullableString(place.formattedAddress),
+          websiteUri: cleanNullableString(place.websiteUri),
+          googleMapsUri: cleanNullableString(place.googleMapsUri),
+          sourceSnippet: buildSourceSnippet(place)
+        }
       };
     })
     .filter((prospect): prospect is GooglePlacesProspect => Boolean(prospect));
