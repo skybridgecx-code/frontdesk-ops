@@ -2,6 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { prisma } from '@frontdesk/db';
 import { buildServer } from '../server.js';
+import { FRONTDESK_ROUTE_DECISION_EVENT_TYPE } from '../lib/call-routing-decision.js';
 
 type PrismaStubSet = Partial<{
   $queryRaw: typeof prisma.$queryRaw;
@@ -299,6 +300,7 @@ test('GET /v1/calls/:callSid returns call detail with a deterministic action gui
         isActive: true
       },
       events: [],
+      routingDecision: null,
       actionGuide: {
         primaryAction: 'Call back now and confirm the situation.',
         reason: 'This call is still unreviewed, but urgency is already high enough that callback should not wait.',
@@ -308,5 +310,94 @@ test('GET /v1/calls/:callSid returns call detail with a deterministic action gui
         needsTranscriptReview: false
       }
     }
+  });
+});
+
+test('GET /v1/calls/:callSid returns a derived routing decision when the event exists', async (t) => {
+  const restore = stubPrisma({
+    callFindUnique: ((async () => ({
+      id: 'call_123',
+      twilioCallSid: 'CA_DEMO_101',
+      twilioStreamSid: null,
+      direction: 'INBOUND',
+      status: 'COMPLETED',
+      routeKind: 'AI',
+      triageStatus: 'OPEN',
+      reviewStatus: 'UNREVIEWED',
+      contactedAt: null,
+      archivedAt: null,
+      reviewedAt: null,
+      fromE164: '+17035550100',
+      toE164: '+17035550199',
+      callerTranscript: 'My furnace stopped working.',
+      assistantTranscript: 'I can collect details for the team.',
+      leadName: 'Casey Caller',
+      leadPhone: '703-555-0100',
+      leadIntent: 'Furnace not working',
+      urgency: 'high',
+      serviceAddress: '123 Main St',
+      summary: 'Caller needs a same-day furnace callback.',
+      operatorNotes: null,
+      startedAt: new Date('2026-03-29T10:00:00.000Z'),
+      answeredAt: new Date('2026-03-29T10:01:00.000Z'),
+      endedAt: new Date('2026-03-29T10:10:00.000Z'),
+      durationSeconds: 540,
+      phoneNumber: {
+        id: 'pn_123',
+        e164: '+17035550199',
+        label: 'Main line',
+        routingMode: 'AI_AFTER_HOURS'
+      },
+      agentProfile: {
+        id: 'agent_123',
+        name: 'Dispatch',
+        voiceName: 'alloy',
+        isActive: true
+      },
+      events: [
+        {
+          type: 'twilio.inbound.received',
+          sequence: 1,
+          createdAt: new Date('2026-03-29T10:00:00.000Z'),
+          payloadJson: { CallSid: 'CA_DEMO_101' }
+        },
+        {
+          type: FRONTDESK_ROUTE_DECISION_EVENT_TYPE,
+          sequence: 2,
+          createdAt: new Date('2026-03-29T10:00:01.000Z'),
+          payloadJson: {
+            routingMode: 'AI_AFTER_HOURS',
+            isOpen: false,
+            routeKind: 'AI',
+            agentProfileId: 'agent_123',
+            reason: 'AI_AFTER_HOURS_CLOSED',
+            message: 'Connecting to after-hours AI front desk',
+            phoneLineLabel: 'Main line',
+            businessTimezone: 'America/New_York'
+          }
+        }
+      ]
+    })) as unknown as typeof prisma.call.findUnique)
+  });
+  t.after(restore);
+
+  const app = await buildServer();
+  t.after(() => app.close());
+
+  const response = await app.inject({
+    method: 'GET',
+    url: '/v1/calls/CA_DEMO_101'
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json().call.routingDecision, {
+    routingMode: 'AI_AFTER_HOURS',
+    isOpen: false,
+    routeKind: 'AI',
+    agentProfileId: 'agent_123',
+    reason: 'AI_AFTER_HOURS_CLOSED',
+    message: 'Connecting to after-hours AI front desk',
+    phoneLineLabel: 'Main line',
+    businessTimezone: 'America/New_York'
   });
 });

@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
-import { prisma, CallDirection, CallRouteKind, CallStatus } from '@frontdesk/db';
+import { prisma, CallDirection, CallRouteKind, CallStatus, Prisma } from '@frontdesk/db';
 import { resolveFrontdeskInboundRoutingPolicy } from '@frontdesk/domain';
+import { FRONTDESK_ROUTE_DECISION_EVENT_TYPE } from '../lib/call-routing-decision.js';
 
 function escapeXml(value: string) {
   return value
@@ -119,13 +120,30 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       where: { callId: call.id }
     });
 
-    await prisma.callEvent.create({
-      data: {
-        callId: call.id,
-        type: 'twilio.inbound.received',
-        sequence: existingEventCount + 1,
-        payloadJson: body
-      }
+    await prisma.callEvent.createMany({
+      data: [
+        {
+          callId: call.id,
+          type: 'twilio.inbound.received',
+          sequence: existingEventCount + 1,
+          payloadJson: body as Prisma.InputJsonValue
+        },
+        {
+          callId: call.id,
+          type: FRONTDESK_ROUTE_DECISION_EVENT_TYPE,
+          sequence: existingEventCount + 2,
+          payloadJson: {
+            routingMode: phoneNumber.routingMode,
+            isOpen: route.isOpen,
+            routeKind: route.routeKind,
+            agentProfileId: route.agentProfileId,
+            reason: route.reason,
+            message: route.message,
+            phoneLineLabel: phoneNumber.label,
+            businessTimezone: phoneNumber.business.timezone
+          } as Prisma.InputJsonValue
+        }
+      ]
     });
 
     reply.header('Content-Type', 'text/xml; charset=utf-8');

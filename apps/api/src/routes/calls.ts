@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, Prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import { buildFrontdeskCallActionGuide } from '@frontdesk/domain';
+import { getLatestCallRoutingDecision } from '../lib/call-routing-decision.js';
 import {
   buildCallScopeSql,
   buildCallScopeWhere,
@@ -206,7 +207,8 @@ export async function registerCallRoutes(app: FastifyInstance) {
           select: {
             type: true,
             sequence: true,
-            createdAt: true
+            createdAt: true,
+            payloadJson: true
           }
         }
       }
@@ -231,12 +233,14 @@ export async function registerCallRoutes(app: FastifyInstance) {
       callerTranscript: call.callerTranscript,
       assistantTranscript: call.assistantTranscript
     });
+    const routingDecision = getLatestCallRoutingDecision(call.events);
 
     return {
       ok: true,
       call: {
         ...call,
-        actionGuide
+        actionGuide,
+        routingDecision
       }
     };
   });

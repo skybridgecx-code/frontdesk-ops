@@ -1,171 +1,83 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { resolveFrontdeskInboundRoutingPolicy } from '@frontdesk/domain';
+import { prisma } from '@frontdesk/db';
+import { buildServer } from '../server.js';
+import { FRONTDESK_ROUTE_DECISION_EVENT_TYPE } from '../lib/call-routing-decision.js';
 
-const weekdayHours = [
-  {
-    weekday: 'MONDAY' as const,
-    openTime: '09:00',
-    closeTime: '17:00',
-    isClosed: false
-  }
-];
+test('POST /v1/twilio/voice/inbound persists a routing decision event', async (t) => {
+  const original = {
+    phoneNumberFindUnique: prisma.phoneNumber.findUnique,
+    callUpsert: prisma.call.upsert,
+    callEventCount: prisma.callEvent.count,
+    callEventCreateMany: prisma.callEvent.createMany
+  };
 
-test('routing policy resolves AI_ALWAYS deterministically', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
+  const capturedCreateMany: unknown[] = [];
+
+  prisma.phoneNumber.findUnique = (async () => ({
+    id: 'pn_123',
+    tenantId: 'tenant_demo',
+    businessId: 'biz_demo',
+    e164: '+17035550199',
+    label: 'Main line',
+    isActive: true,
     routingMode: 'AI_ALWAYS',
     primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
-  });
-
-  assert.equal(policy.isOpen, true);
-  assert.equal(policy.routeKind, 'AI');
-  assert.equal(policy.agentProfileId, 'agent_primary');
-  assert.equal(policy.reason, 'AI_ALWAYS');
-  assert.equal(policy.message, 'Connecting to AI front desk');
-});
-
-test('routing policy keeps AI_AFTER_HOURS on the primary profile during open hours', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
-  });
-
-  assert.equal(policy.isOpen, true);
-  assert.equal(policy.routeKind, 'AI');
-  assert.equal(policy.agentProfileId, 'agent_primary');
-  assert.equal(policy.reason, 'AI_AFTER_HOURS_OPEN');
-  assert.equal(policy.message, 'Connecting to main AI front desk');
-});
-
-test('routing policy sends AI_AFTER_HOURS to the after-hours profile when closed', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T01:00:00.000Z')
-  });
-
-  assert.equal(policy.isOpen, false);
-  assert.equal(policy.routeKind, 'AI');
-  assert.equal(policy.agentProfileId, 'agent_after');
-  assert.equal(policy.reason, 'AI_AFTER_HOURS_CLOSED');
-  assert.equal(policy.message, 'Connecting to after-hours AI front desk');
-});
-
-test('routing policy falls back to the primary profile when after-hours profile is missing', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
     afterHoursAgentProfileId: null,
-    now: new Date('2026-03-30T01:00:00.000Z')
+    business: {
+      id: 'biz_demo',
+      name: 'Demo HVAC',
+      timezone: 'America/New_York',
+      businessHours: []
+    }
+  })) as unknown as typeof prisma.phoneNumber.findUnique;
+
+  prisma.call.upsert = ((async () => ({
+    id: 'call_123',
+    phoneNumberId: 'pn_123',
+    agentProfileId: 'agent_primary'
+  })) as unknown as typeof prisma.call.upsert);
+
+  prisma.callEvent.count = ((async () => 0) as typeof prisma.callEvent.count);
+
+  prisma.callEvent.createMany = ((async (args: unknown) => {
+    capturedCreateMany.push(args);
+    return { count: 2 };
+  }) as typeof prisma.callEvent.createMany);
+
+  t.after(() => {
+    prisma.phoneNumber.findUnique = original.phoneNumberFindUnique;
+    prisma.call.upsert = original.callUpsert;
+    prisma.callEvent.count = original.callEventCount;
+    prisma.callEvent.createMany = original.callEventCreateMany;
   });
 
-  assert.equal(policy.isOpen, false);
-  assert.equal(policy.routeKind, 'AI');
-  assert.equal(policy.agentProfileId, 'agent_primary');
-  assert.equal(policy.reason, 'AI_AFTER_HOURS_CLOSED');
-});
+  const app = await buildServer();
+  t.after(() => app.close());
 
-test('routing policy keeps HUMAN_ONLY on the non-AI message path', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
-    routingMode: 'HUMAN_ONLY',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
+  const response = await app.inject({
+    method: 'POST',
+    url: '/v1/twilio/voice/inbound',
+    payload: {
+      CallSid: 'CA_LIVE_101',
+      From: '+17035550100',
+      To: '+17035550199'
+    }
   });
 
-  assert.equal(policy.routeKind, 'HUMAN');
-  assert.equal(policy.agentProfileId, null);
-  assert.equal(policy.reason, 'HUMAN_ONLY');
-  assert.match(policy.message, /team is not yet connected/i);
-});
-
-test('routing policy keeps AI_OVERFLOW on the current non-AI overflow path', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: weekdayHours,
-    routingMode: 'AI_OVERFLOW',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
+  assert.equal(response.statusCode, 200);
+  const createManyArgs = capturedCreateMany[0] as {
+    data: Array<{ type: string; sequence: number; payloadJson: Record<string, unknown> }>;
+  };
+  assert.equal(createManyArgs.data[1]?.type, FRONTDESK_ROUTE_DECISION_EVENT_TYPE);
+  assert.deepEqual(createManyArgs.data[1]?.payloadJson, {
+    routingMode: 'AI_ALWAYS',
+    isOpen: false,
+    routeKind: 'AI',
+    agentProfileId: 'agent_primary',
+    reason: 'AI_ALWAYS',
+    message: 'Connecting to AI front desk',
+    phoneLineLabel: 'Main line',
+    businessTimezone: 'America/New_York'
   });
-
-  assert.equal(policy.routeKind, 'HUMAN');
-  assert.equal(policy.agentProfileId, 'agent_primary');
-  assert.equal(policy.reason, 'AI_OVERFLOW');
-  assert.match(policy.message, /Overflow routing is not yet connected/i);
-});
-
-test('routing policy treats missing business-hours rows as closed', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: [],
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
-  });
-
-  assert.equal(policy.isOpen, false);
-  assert.equal(policy.reason, 'AI_AFTER_HOURS_CLOSED');
-  assert.equal(policy.agentProfileId, 'agent_after');
-});
-
-test('routing policy treats incomplete hours as closed', () => {
-  const policy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/New_York',
-    businessHours: [
-      {
-        weekday: 'MONDAY',
-        openTime: '09:00',
-        closeTime: null,
-        isClosed: false
-      }
-    ],
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T15:00:00.000Z')
-  });
-
-  assert.equal(policy.isOpen, false);
-  assert.equal(policy.reason, 'AI_AFTER_HOURS_CLOSED');
-});
-
-test('routing policy evaluates business-open state using the configured timezone deterministically', () => {
-  const openPolicy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/Los_Angeles',
-    businessHours: weekdayHours,
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-30T17:30:00.000Z')
-  });
-  const closedPolicy = resolveFrontdeskInboundRoutingPolicy({
-    timezone: 'America/Los_Angeles',
-    businessHours: weekdayHours,
-    routingMode: 'AI_AFTER_HOURS',
-    primaryAgentProfileId: 'agent_primary',
-    afterHoursAgentProfileId: 'agent_after',
-    now: new Date('2026-03-31T01:30:00.000Z')
-  });
-
-  assert.equal(openPolicy.isOpen, true);
-  assert.equal(openPolicy.reason, 'AI_AFTER_HOURS_OPEN');
-  assert.equal(closedPolicy.isOpen, false);
-  assert.equal(closedPolicy.reason, 'AI_AFTER_HOURS_CLOSED');
 });

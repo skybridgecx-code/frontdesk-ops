@@ -56,6 +56,16 @@ type CallDetail = {
     voiceName: string | null;
     isActive: boolean;
   } | null;
+  routingDecision: {
+    routingMode: string | null;
+    isOpen: boolean | null;
+    routeKind: string | null;
+    agentProfileId: string | null;
+    reason: string | null;
+    message: string | null;
+    phoneLineLabel: string | null;
+    businessTimezone: string | null;
+  } | null;
   events: Array<{
     type: string;
     sequence: number;
@@ -196,6 +206,14 @@ function formatUrgencyLabel(value: string | undefined) {
     default:
       return null;
   }
+}
+
+function formatRoutingReason(value: string | null) {
+  if (!value) {
+    return '—';
+  }
+
+  return value.toLowerCase().replaceAll('_', ' ').replace(/^\w/, (match) => match.toUpperCase());
 }
 
 export default async function CallDetailPage({
@@ -488,6 +506,33 @@ export default async function CallDetailPage({
             </div>
           </section>
         </div>
+
+        <section className="rounded-2xl border border-neutral-200 p-4">
+          <h2 className="font-medium">Routing decision</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Inspect how the inbound routing policy treated this call and why.
+          </p>
+          {call.routingDecision ? (
+            <div className="mt-3 grid gap-4 md:grid-cols-2 text-sm">
+              <div className="space-y-2">
+                <div><span className="text-neutral-500">Route:</span> {call.routingDecision.routeKind ?? '—'}</div>
+                <div><span className="text-neutral-500">Business treated as:</span> {call.routingDecision.isOpen == null ? '—' : call.routingDecision.isOpen ? 'Open' : 'Closed'}</div>
+                <div><span className="text-neutral-500">Routing mode:</span> {call.routingDecision.routingMode ?? '—'}</div>
+                <div><span className="text-neutral-500">Policy reason:</span> {formatRoutingReason(call.routingDecision.reason)}</div>
+              </div>
+              <div className="space-y-2">
+                <div><span className="text-neutral-500">Line:</span> {call.routingDecision.phoneLineLabel ?? call.phoneNumber.label ?? '—'}</div>
+                <div><span className="text-neutral-500">Selected agent:</span> {call.agentProfile?.name ?? call.routingDecision.agentProfileId ?? '—'}</div>
+                <div><span className="text-neutral-500">Timezone:</span> {call.routingDecision.businessTimezone ?? '—'}</div>
+                <div><span className="text-neutral-500">Route message:</span> {call.routingDecision.message ?? '—'}</div>
+              </div>
+            </div>
+          ) : (
+            <p className="mt-3 text-sm text-neutral-700">
+              No routing decision was captured for this call. Older or seeded rows may predate routing-decision events.
+            </p>
+          )}
+        </section>
 
         <div className="grid gap-4 md:grid-cols-2">
           <section className="rounded-2xl border border-neutral-200 p-4">
