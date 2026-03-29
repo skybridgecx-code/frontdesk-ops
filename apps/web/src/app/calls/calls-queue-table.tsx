@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { QueueActionHint } from '@/app/queue-action-hints';
 import { buildCallDetailHref } from './workflow-urls';
 
 type CallRow = {
@@ -32,6 +33,7 @@ type CallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  queueHint: QueueActionHint;
 };
 
 function formatDuration(seconds: number): string {
@@ -214,6 +216,17 @@ function badgeClass(value: string | null | undefined) {
       return 'border border-neutral-300 bg-neutral-100 text-neutral-500';
     default:
       return 'border border-neutral-200 bg-neutral-100 text-neutral-700';
+  }
+}
+
+function queueHintClass(tone: QueueActionHint['tone']) {
+  switch (tone) {
+    case 'high':
+      return 'border-red-300 bg-red-100 text-red-900';
+    case 'low':
+      return 'border-neutral-300 bg-neutral-100 text-neutral-600';
+    default:
+      return 'border-blue-300 bg-blue-100 text-blue-900';
   }
 }
 
@@ -442,6 +455,14 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
                       <div className="mt-2 text-neutral-900">{getCallerPreview(call)}</div>
+                      <div className="mt-2 flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(call.queueHint.tone)}`}
+                        >
+                          {call.queueHint.label}
+                        </span>
+                        <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
+                      </div>
                       <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
                       <div className="mt-2 flex flex-wrap gap-2">
                         {call.routeKind ? (

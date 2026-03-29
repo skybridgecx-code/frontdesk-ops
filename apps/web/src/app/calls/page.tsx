@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { buildQueueContextSummary } from '@/app/operator-workflow';
+import { getCallQueueActionHint, type QueueActionHint } from '@/app/queue-action-hints';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { CallsQueueTable } from './calls-queue-table';
 import {
@@ -14,7 +15,7 @@ import {
 
 export const dynamic = 'force-dynamic';
 
-type CallRow = {
+type ApiCallRow = {
   twilioCallSid: string;
   status: string;
   routeKind: string | null;
@@ -44,9 +45,13 @@ type CallRow = {
   } | null;
 };
 
+type CallRow = ApiCallRow & {
+  queueHint: QueueActionHint;
+};
+
 type CallsResponse = {
   ok: true;
-  calls: CallRow[];
+  calls: ApiCallRow[];
   page: number;
   limit: number;
   total: number;
@@ -271,6 +276,24 @@ export default async function CallsPage({
     }),
     getCallsSummary()
   ]);
+  const calls = data.calls.map((call) => ({
+    ...call,
+    queueHint: getCallQueueActionHint({
+      triageStatus: call.triageStatus as 'OPEN' | 'CONTACTED' | 'ARCHIVED',
+      reviewStatus: call.reviewStatus as 'UNREVIEWED' | 'REVIEWED' | 'NEEDS_REVIEW',
+      contactedAt: call.contactedAt,
+      archivedAt: null,
+      urgency: call.urgency,
+      leadName: call.leadName,
+      leadPhone: call.leadPhone,
+      fromE164: call.fromE164,
+      leadIntent: call.leadIntent,
+      serviceAddress: call.serviceAddress,
+      summary: call.summary,
+      callerTranscript: call.callerTranscript,
+      assistantTranscript: null
+    })
+  }));
 
   const currentPage = data.page;
   const totalPages = data.totalPages;
@@ -733,7 +756,7 @@ export default async function CallsPage({
         </div>
 
         <CallsQueueTable
-          calls={data.calls}
+          calls={calls}
           currentHref={currentHref}
           queueState={{ triageStatus, reviewStatus, urgency, q }}
           limit={limit}

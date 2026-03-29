@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { buildQueueContextSummary } from '@/app/operator-workflow';
+import { getProspectQueueActionHint } from '@/app/queue-action-hints';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
   buildFilterHref,
@@ -253,6 +254,17 @@ function sourceBadgeClass(sourceLabel: string | null) {
   return 'border-neutral-300 bg-white text-neutral-600';
 }
 
+function queueHintClass(tone: 'high' | 'normal' | 'low') {
+  switch (tone) {
+    case 'high':
+      return 'border-red-300 bg-red-100 text-red-900';
+    case 'low':
+      return 'border-neutral-300 bg-neutral-100 text-neutral-600';
+    default:
+      return 'border-blue-300 bg-blue-100 text-blue-900';
+  }
+}
+
 function getNoticeMessage(notice: string | undefined, detail: string | undefined) {
   switch (notice) {
     case 'no-review-prospects':
@@ -333,6 +345,38 @@ export default async function ProspectsPage({
       businessId: canonicalBusinessId
     })
   ]);
+  const prospects = data.prospects.map((prospect) => ({
+    ...prospect,
+    queueHint: getProspectQueueActionHint({
+      status: prospect.status as
+        | 'NEW'
+        | 'READY'
+        | 'IN_PROGRESS'
+        | 'ATTEMPTED'
+        | 'RESPONDED'
+        | 'QUALIFIED'
+        | 'DISQUALIFIED'
+        | 'ARCHIVED',
+      priority: (prospect.priority as 'HIGH' | 'MEDIUM' | 'LOW' | null) ?? null,
+      nextActionAt: prospect.nextActionAt,
+      lastAttemptAt: prospect.lastAttemptAt,
+      respondedAt: prospect.respondedAt,
+      archivedAt: prospect.archivedAt,
+      contactPhone: prospect.contactPhone,
+      contactEmail: prospect.contactEmail,
+      contactName: prospect.contactName,
+      companyName: prospect.companyName,
+      serviceInterest: prospect.serviceInterest,
+      notes: prospect.notes,
+      sourceLabel: prospect.sourceLabel,
+      sourceCategory: null,
+      sourceRoleTitle: null,
+      attempts: prospect.attempts.map((attempt) => ({
+        ...attempt,
+        createdAt: attempt.attemptedAt
+      }))
+    })
+  }));
 
   const currentHref = buildFilterHref({
     tenantId: canonicalTenantId,
@@ -923,7 +967,7 @@ export default async function ProspectsPage({
           </div>
 
           <div className="divide-y divide-neutral-200">
-            {data.prospects.map((prospect) => {
+            {prospects.map((prospect) => {
               const latestAttempt = prospect.attempts[0];
               const headline = getProspectHeadline(prospect);
               const location = formatLocation(prospect);
@@ -978,7 +1022,17 @@ export default async function ProspectsPage({
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-700">
-                    <div>{nextAction ? `Next action ${nextAction}` : 'No next-action time set'}</div>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span
+                        className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(prospect.queueHint.tone)}`}
+                      >
+                        {prospect.queueHint.label}
+                      </span>
+                      <span className="text-neutral-600">
+                        {nextAction ? `Next action ${nextAction}` : 'No next-action time set'}
+                      </span>
+                    </div>
+                    <div>{prospect.queueHint.reason}</div>
                     <div>{prospect.notes?.trim() || 'No additional notes recorded.'}</div>
                   </div>
 
