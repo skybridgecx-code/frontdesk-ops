@@ -54,6 +54,14 @@ type CallDetail = {
     sequence: number;
     createdAt: string;
   }>;
+  actionGuide: {
+    primaryAction: string;
+    reason: string;
+    urgencyLevel: 'emergency' | 'high' | 'normal';
+    missingInfo: string[];
+    readyToContact: boolean;
+    needsTranscriptReview: boolean;
+  };
 };
 
 
@@ -129,6 +137,17 @@ function HistoryItem({
       <div className="mt-1 text-sm text-black">{value}</div>
     </div>
   );
+}
+
+function actionGuideToneClass(value: 'emergency' | 'high' | 'normal') {
+  switch (value) {
+    case 'emergency':
+      return 'border-red-200 bg-red-50 text-red-900';
+    case 'high':
+      return 'border-orange-200 bg-orange-50 text-orange-900';
+    default:
+      return 'border-neutral-200 bg-neutral-50 text-neutral-900';
+  }
 }
 
 function formatReviewStatusLabel(value: string | undefined) {
@@ -410,6 +429,31 @@ export default async function CallDetailPage({
           <p className="mt-3 text-sm whitespace-pre-wrap">
             {call.summary ?? call.leadIntent ?? 'No summary yet. Use the transcripts below to review the call.'}
           </p>
+        </section>
+
+        <section className={`rounded-2xl border p-4 ${actionGuideToneClass(call.actionGuide.urgencyLevel)}`}>
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="font-medium">Operator next action</h2>
+            <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium uppercase tracking-wide">
+              {call.actionGuide.urgencyLevel}
+            </span>
+            {call.actionGuide.readyToContact ? (
+              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                Ready to contact
+              </span>
+            ) : null}
+            {call.actionGuide.needsTranscriptReview ? (
+              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                Review transcript
+              </span>
+            ) : null}
+          </div>
+          <div className="mt-3 text-base font-medium">{call.actionGuide.primaryAction}</div>
+          <p className="mt-2 text-sm">{call.actionGuide.reason}</p>
+          <div className="mt-3 text-sm">
+            <span className="font-medium">Missing info:</span>{' '}
+            {call.actionGuide.missingInfo.length > 0 ? call.actionGuide.missingInfo.join(', ') : 'None blocking.'}
+          </div>
         </section>
 
         <div className="grid gap-4 md:grid-cols-3">

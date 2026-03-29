@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, Prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
+import { buildFrontdeskCallActionGuide } from '@frontdesk/domain';
 import {
   buildCallScopeSql,
   buildCallScopeWhere,
@@ -215,9 +216,28 @@ export async function registerCallRoutes(app: FastifyInstance) {
       return reply.notFound(`Call not found for callSid=${callSid}`);
     }
 
+    const actionGuide = buildFrontdeskCallActionGuide({
+      triageStatus: call.triageStatus,
+      reviewStatus: call.reviewStatus,
+      contactedAt: call.contactedAt,
+      archivedAt: call.archivedAt,
+      urgency: call.urgency,
+      leadName: call.leadName,
+      leadPhone: call.leadPhone,
+      fromE164: call.fromE164,
+      leadIntent: call.leadIntent,
+      serviceAddress: call.serviceAddress,
+      summary: call.summary,
+      callerTranscript: call.callerTranscript,
+      assistantTranscript: call.assistantTranscript
+    });
+
     return {
       ok: true,
-      call
+      call: {
+        ...call,
+        actionGuide
+      }
     };
   });
 }

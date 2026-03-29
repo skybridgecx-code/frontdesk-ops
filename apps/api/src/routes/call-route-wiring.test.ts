@@ -8,6 +8,7 @@ type PrismaStubSet = Partial<{
   $transaction: typeof prisma.$transaction;
   callCount: typeof prisma.call.count;
   callFindMany: typeof prisma.call.findMany;
+  callFindUnique: typeof prisma.call.findUnique;
 }>;
 
 function flattenTaggedSqlArgs(args: unknown[]) {
@@ -33,7 +34,8 @@ function stubPrisma(stubs: PrismaStubSet) {
     $queryRaw: prisma.$queryRaw,
     $transaction: prisma.$transaction,
     callCount: prisma.call.count,
-    callFindMany: prisma.call.findMany
+    callFindMany: prisma.call.findMany,
+    callFindUnique: prisma.call.findUnique
   };
 
   if (stubs.$queryRaw) {
@@ -52,11 +54,16 @@ function stubPrisma(stubs: PrismaStubSet) {
     prisma.call.findMany = stubs.callFindMany;
   }
 
+  if (stubs.callFindUnique) {
+    prisma.call.findUnique = stubs.callFindUnique;
+  }
+
   return () => {
     prisma.$queryRaw = original.$queryRaw;
     prisma.$transaction = original.$transaction;
     prisma.call.count = original.callCount;
     prisma.call.findMany = original.callFindMany;
+    prisma.call.findUnique = original.callFindUnique;
   };
 }
 
@@ -192,5 +199,114 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
     limit: 2,
     total: 2,
     totalPages: 1
+  });
+});
+
+test('GET /v1/calls/:callSid returns call detail with a deterministic action guide', async (t) => {
+  const restore = stubPrisma({
+    callFindUnique: ((async () => ({
+      id: 'call_123',
+      twilioCallSid: 'CA_DEMO_101',
+      twilioStreamSid: null,
+      direction: 'INBOUND',
+      status: 'COMPLETED',
+      routeKind: 'AI',
+      triageStatus: 'OPEN',
+      reviewStatus: 'UNREVIEWED',
+      contactedAt: null,
+      archivedAt: null,
+      reviewedAt: null,
+      fromE164: '+17035550100',
+      toE164: '+17035550199',
+      callerTranscript: 'My furnace stopped working.',
+      assistantTranscript: 'I can collect details for the team.',
+      leadName: 'Casey Caller',
+      leadPhone: '703-555-0100',
+      leadIntent: 'Furnace not working',
+      urgency: 'high',
+      serviceAddress: '123 Main St',
+      summary: 'Caller needs a same-day furnace callback.',
+      operatorNotes: null,
+      startedAt: new Date('2026-03-29T10:00:00.000Z'),
+      answeredAt: new Date('2026-03-29T10:01:00.000Z'),
+      endedAt: new Date('2026-03-29T10:10:00.000Z'),
+      durationSeconds: 540,
+      phoneNumber: {
+        id: 'pn_123',
+        e164: '+17035550199',
+        label: 'Main line',
+        routingMode: 'AI_ALWAYS'
+      },
+      agentProfile: {
+        id: 'agent_123',
+        name: 'Dispatch',
+        voiceName: 'alloy',
+        isActive: true
+      },
+      events: []
+    })) as unknown as typeof prisma.call.findUnique)
+  });
+  t.after(restore);
+
+  const app = await buildServer();
+  t.after(() => app.close());
+
+  const response = await app.inject({
+    method: 'GET',
+    url: '/v1/calls/CA_DEMO_101'
+  });
+
+  assert.equal(response.statusCode, 200);
+  assert.deepEqual(response.json(), {
+    ok: true,
+    call: {
+      id: 'call_123',
+      twilioCallSid: 'CA_DEMO_101',
+      twilioStreamSid: null,
+      direction: 'INBOUND',
+      status: 'COMPLETED',
+      routeKind: 'AI',
+      triageStatus: 'OPEN',
+      reviewStatus: 'UNREVIEWED',
+      contactedAt: null,
+      archivedAt: null,
+      reviewedAt: null,
+      fromE164: '+17035550100',
+      toE164: '+17035550199',
+      callerTranscript: 'My furnace stopped working.',
+      assistantTranscript: 'I can collect details for the team.',
+      leadName: 'Casey Caller',
+      leadPhone: '703-555-0100',
+      leadIntent: 'Furnace not working',
+      urgency: 'high',
+      serviceAddress: '123 Main St',
+      summary: 'Caller needs a same-day furnace callback.',
+      operatorNotes: null,
+      startedAt: '2026-03-29T10:00:00.000Z',
+      answeredAt: '2026-03-29T10:01:00.000Z',
+      endedAt: '2026-03-29T10:10:00.000Z',
+      durationSeconds: 540,
+      phoneNumber: {
+        id: 'pn_123',
+        e164: '+17035550199',
+        label: 'Main line',
+        routingMode: 'AI_ALWAYS'
+      },
+      agentProfile: {
+        id: 'agent_123',
+        name: 'Dispatch',
+        voiceName: 'alloy',
+        isActive: true
+      },
+      events: [],
+      actionGuide: {
+        primaryAction: 'Call back now and confirm the situation.',
+        reason: 'This call is still unreviewed, but urgency is already high enough that callback should not wait.',
+        urgencyLevel: 'high',
+        missingInfo: [],
+        readyToContact: true,
+        needsTranscriptReview: false
+      }
+    }
   });
 });
