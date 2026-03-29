@@ -452,7 +452,10 @@ export function registerMediaStreamRoute(app: FastifyInstance) {
     });
 
     enqueue(async () => {
-      const agent = await loadAgentContext(agentProfileId);
+      const agent = await loadAgentContext({
+        agentProfileId,
+        phoneNumberId
+      });
       const sessionConfig = buildRealtimeSessionConfig({
         systemPrompt: agent.systemPrompt,
         voice: agent.voiceName

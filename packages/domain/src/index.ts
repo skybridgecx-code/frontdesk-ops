@@ -1,1 +1,1 @@
-export const domainReady = true;
+export * from './frontdesk-session-context';
