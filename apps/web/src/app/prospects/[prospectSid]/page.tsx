@@ -4,6 +4,11 @@ import {
   buildQueueContextSummary,
   getWorkItemSaveNoticeMessage
 } from '@/app/operator-workflow';
+import {
+  OperatorActionGuideCard,
+  OperatorDetailHeader,
+  OperatorDetailPageShell
+} from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
   buildFilterHref,
@@ -398,22 +403,13 @@ export default async function ProspectDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-white p-6 text-black">
-      <div className="mx-auto max-w-5xl space-y-6">
-        {notice ? (
-          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-            {notice}
-          </div>
-        ) : null}
-
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <a href={returnTo} className="text-sm text-neutral-600 underline underline-offset-2">
-              ← Back to work queue
-            </a>
-            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight">{prospect.companyName}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
+    <OperatorDetailPageShell notice={notice}>
+        <OperatorDetailHeader
+          returnTo={returnTo}
+          returnContextSummary={returnContextSummary}
+          title={prospect.companyName}
+          badges={
+            <>
               <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
                 {prospect.prospectSid}
               </span>
@@ -428,20 +424,23 @@ export default async function ProspectDetailPage({
                   {formatSourceLabel(prospect.sourceLabel)}
                 </span>
               ) : null}
-            </div>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
+            </>
+          }
+          metadata={
+            <>
               <span>Location {formatLocation(prospect.city, prospect.state)}</span>
               <span>Source {formatSourceLabel(prospect.sourceLabel)}</span>
               <span>Created {formatDateTime(prospect.createdAt)}</span>
-            </div>
-          </div>
-
-          <form action={archiveProspect}>
-            <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
-              Archive
-            </button>
-          </form>
-        </div>
+            </>
+          }
+          actions={
+            <form action={archiveProspect}>
+              <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
+                Archive
+              </button>
+            </form>
+          }
+        />
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Opportunity snapshot</h2>
@@ -453,37 +452,32 @@ export default async function ProspectDetailPage({
           </p>
         </section>
 
-        <section className={`rounded-2xl border p-4 ${actionGuideToneClass(prospect.actionGuide.attentionLevel)}`}>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-medium">Operator next action</h2>
-            <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium uppercase tracking-wide">
-              {prospect.actionGuide.attentionLevel}
-            </span>
-            {prospect.actionGuide.readyForOutreach ? (
-              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
-                Ready for outreach
-              </span>
-            ) : null}
-            {prospect.actionGuide.needsReplyHandling ? (
-              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
-                Handle reply
-              </span>
-            ) : null}
-            {prospect.actionGuide.needsQualificationReview ? (
-              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
-                Qualification review
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-3 text-base font-medium">{prospect.actionGuide.primaryAction}</div>
-          <p className="mt-2 text-sm">{prospect.actionGuide.reason}</p>
-          <div className="mt-3 text-sm">
-            <span className="font-medium">Missing info:</span>{' '}
-            {prospect.actionGuide.missingInfo.length > 0
-              ? prospect.actionGuide.missingInfo.join(', ')
-              : 'None blocking.'}
-          </div>
-        </section>
+        <OperatorActionGuideCard
+          toneClassName={actionGuideToneClass(prospect.actionGuide.attentionLevel)}
+          emphasis={prospect.actionGuide.attentionLevel}
+          chips={
+            <>
+              {prospect.actionGuide.readyForOutreach ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Ready for outreach
+                </span>
+              ) : null}
+              {prospect.actionGuide.needsReplyHandling ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Handle reply
+                </span>
+              ) : null}
+              {prospect.actionGuide.needsQualificationReview ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Qualification review
+                </span>
+              ) : null}
+            </>
+          }
+          primaryAction={prospect.actionGuide.primaryAction}
+          reason={prospect.actionGuide.reason}
+          missingInfo={prospect.actionGuide.missingInfo}
+        />
 
         <div className="grid gap-4 md:grid-cols-3">
           <section className="rounded-2xl border border-neutral-200 p-4">
@@ -789,7 +783,6 @@ export default async function ProspectDetailPage({
             <HistoryItem label="Archived" value={formatDateTime(prospect.archivedAt)} />
           </div>
         </section>
-      </div>
-    </main>
+    </OperatorDetailPageShell>
   );
 }

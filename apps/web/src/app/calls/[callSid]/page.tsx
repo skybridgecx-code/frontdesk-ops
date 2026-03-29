@@ -4,6 +4,11 @@ import {
   buildQueueContextSummary,
   getWorkItemSaveNoticeMessage
 } from '@/app/operator-workflow';
+import {
+  OperatorActionGuideCard,
+  OperatorDetailHeader,
+  OperatorDetailPageShell
+} from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
 import {
@@ -357,8 +362,7 @@ export default async function CallDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-white text-black p-6">
-      <div className="mx-auto max-w-5xl space-y-6">
+    <OperatorDetailPageShell notice={notice}>
         <DetailReviewShortcuts
           formId={reviewFormId}
           notesFieldId={notesFieldId}
@@ -367,20 +371,12 @@ export default async function CallDetailPage({
           saveNextButtonId={saveNextButtonId}
         />
 
-        {notice ? (
-          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-            {notice}
-          </div>
-        ) : null}
-
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to work queue
-            </a>
-            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
-            <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
+        <OperatorDetailHeader
+          returnTo={returnTo}
+          returnContextSummary={returnContextSummary}
+          title={call.twilioCallSid}
+          badges={
+            <>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.status)}`}>
                 {call.status}
               </span>
@@ -393,33 +389,36 @@ export default async function CallDetailPage({
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}>
                 {call.urgency ?? 'no urgency'}
               </span>
-            </div>
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-sm text-neutral-600">
+            </>
+          }
+          metadata={
+            <>
               <span>Started {formatDateTime(call.startedAt)}</span>
               <span>Answered {formatDateTime(call.answeredAt)}</span>
               <span>Ended {formatDateTime(call.endedAt)}</span>
               <span>Duration {formatDuration(call.durationSeconds)}</span>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <form action={rerunExtraction}>
+            </>
+          }
+          actions={
+            <>
+              <form action={rerunExtraction}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Extract
               </button>
-            </form>
-            <form action={markContacted}>
+              </form>
+              <form action={markContacted}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Mark contacted
               </button>
-            </form>
-            <form action={archiveCall}>
+              </form>
+              <form action={archiveCall}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Archive
               </button>
-            </form>
-          </div>
-        </div>
+              </form>
+            </>
+          }
+        />
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Issue snapshot</h2>
@@ -431,30 +430,27 @@ export default async function CallDetailPage({
           </p>
         </section>
 
-        <section className={`rounded-2xl border p-4 ${actionGuideToneClass(call.actionGuide.urgencyLevel)}`}>
-          <div className="flex flex-wrap items-center gap-2">
-            <h2 className="font-medium">Operator next action</h2>
-            <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium uppercase tracking-wide">
-              {call.actionGuide.urgencyLevel}
-            </span>
-            {call.actionGuide.readyToContact ? (
-              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
-                Ready to contact
-              </span>
-            ) : null}
-            {call.actionGuide.needsTranscriptReview ? (
-              <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
-                Review transcript
-              </span>
-            ) : null}
-          </div>
-          <div className="mt-3 text-base font-medium">{call.actionGuide.primaryAction}</div>
-          <p className="mt-2 text-sm">{call.actionGuide.reason}</p>
-          <div className="mt-3 text-sm">
-            <span className="font-medium">Missing info:</span>{' '}
-            {call.actionGuide.missingInfo.length > 0 ? call.actionGuide.missingInfo.join(', ') : 'None blocking.'}
-          </div>
-        </section>
+        <OperatorActionGuideCard
+          toneClassName={actionGuideToneClass(call.actionGuide.urgencyLevel)}
+          emphasis={call.actionGuide.urgencyLevel}
+          chips={
+            <>
+              {call.actionGuide.readyToContact ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Ready to contact
+                </span>
+              ) : null}
+              {call.actionGuide.needsTranscriptReview ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Review transcript
+                </span>
+              ) : null}
+            </>
+          }
+          primaryAction={call.actionGuide.primaryAction}
+          reason={call.actionGuide.reason}
+          missingInfo={call.actionGuide.missingInfo}
+        />
 
         <div className="grid gap-4 md:grid-cols-3">
           <section className="rounded-2xl border border-neutral-200 p-4">
@@ -718,7 +714,6 @@ export default async function CallDetailPage({
             ))}
           </div>
         </section>
-      </div>
-    </main>
+    </OperatorDetailPageShell>
   );
 }
