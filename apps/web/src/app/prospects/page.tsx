@@ -235,6 +235,22 @@ function formatLocation(prospect: ProspectRow) {
   return parts.length > 0 ? parts.join(', ') : null;
 }
 
+function getAttemptContext(prospect: ProspectRow) {
+  const attemptCount = prospect.attempts.length;
+
+  if (prospect.respondedAt) {
+    return attemptCount > 0
+      ? `${attemptCount} ${attemptCount === 1 ? 'attempt' : 'attempts'} logged · reply handling`
+      : 'Reply logged · review follow-up';
+  }
+
+  if (attemptCount > 0) {
+    return `${attemptCount} ${attemptCount === 1 ? 'attempt' : 'attempts'} logged · follow-up queued`;
+  }
+
+  return 'No attempts logged · first outreach';
+}
+
 function getProspectHeadline(prospect: ProspectRow) {
   if (prospect.serviceInterest?.trim()) {
     return prospect.serviceInterest.trim();
@@ -987,6 +1003,7 @@ export default async function ProspectsPage({
               const nextAction = formatDateTime(prospect.nextActionAt);
               const responseTime = formatDateTime(prospect.respondedAt);
               const lastActivity = formatQueueLastActivityPreview(prospect.lastActivityPreview);
+              const attemptContext = getAttemptContext(prospect);
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
@@ -1033,6 +1050,7 @@ export default async function ProspectsPage({
                       Created {formatDateTime(prospect.createdAt)}
                       {responseTime ? ` · Responded ${responseTime}` : ''}
                     </div>
+                    <div className="text-neutral-600">{attemptContext}</div>
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-700">
