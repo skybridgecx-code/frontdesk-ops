@@ -270,6 +270,25 @@ function getContactCoverageContext(prospect: ProspectRow) {
   return `Contact: ${channels.join(' + ')}`;
 }
 
+function getLocationCoverageContext(prospect: ProspectRow) {
+  const hasCity = Boolean(prospect.city?.trim());
+  const hasState = Boolean(prospect.state?.trim());
+
+  if (hasCity && hasState) {
+    return 'Location: city + state ready';
+  }
+
+  if (hasCity) {
+    return 'Location: city only';
+  }
+
+  if (hasState) {
+    return 'Location: state only';
+  }
+
+  return 'Location: thin coverage';
+}
+
 function getProspectHeadline(prospect: ProspectRow) {
   if (prospect.serviceInterest?.trim()) {
     return prospect.serviceInterest.trim();
@@ -1024,6 +1043,7 @@ export default async function ProspectsPage({
               const lastActivity = formatQueueLastActivityPreview(prospect.lastActivityPreview);
               const attemptContext = getAttemptContext(prospect);
               const contactCoverage = getContactCoverageContext(prospect);
+              const locationCoverage = getLocationCoverageContext(prospect);
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
@@ -1072,6 +1092,7 @@ export default async function ProspectsPage({
                     </div>
                     <div className="text-neutral-600">{attemptContext}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
+                    <div className="text-neutral-600">{locationCoverage}</div>
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-700">
