@@ -90,13 +90,13 @@ export default function ServicesPage() {
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              AI frontdesk services
+              AI frontdesk for intake and follow-up
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              AI frontdesk intake and follow-up for service businesses.
+              Capture inbound calls or requests, keep intake visible, and give operators a clearer follow-up path.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              MoLeads handles the front end of business demand: capturing inbound interest, organizing first-pass intake, and keeping operator follow-up visible until it is handled.
+              MoLeads is an AI frontdesk for service businesses. It captures inbound demand, keeps first-pass intake and routing visible, and helps operators review what happened and follow up with clear next actions.
             </p>
           </div>
         </div>
