@@ -309,6 +309,34 @@ function getSignalCoverageSummary(call: CallRow) {
   return 'Thin signal · transcript and summary missing';
 }
 
+function getCallbackCoverageSummary(call: CallRow) {
+  const hasLeadName = Boolean(call.leadName?.trim());
+  const hasLeadPhone = Boolean(call.leadPhone?.trim());
+  const hasCallerNumber = Boolean(call.fromE164?.trim());
+
+  if (hasLeadPhone && hasLeadName) {
+    return 'Callback: name + number ready';
+  }
+
+  if (hasLeadPhone) {
+    return 'Callback: number ready · name thin';
+  }
+
+  if (hasCallerNumber && hasLeadName) {
+    return 'Callback: caller number + name';
+  }
+
+  if (hasCallerNumber) {
+    return 'Callback: caller number only';
+  }
+
+  if (hasLeadName) {
+    return 'Callback: blocked · number missing';
+  }
+
+  return 'Callback: blocked · name and number missing';
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -501,6 +529,7 @@ export function CallsQueueTable({
                 const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
                 const routingSummary = formatRoutingSummary(call.routingSummary);
                 const signalCoverage = getSignalCoverageSummary(call);
+                const callbackCoverage = getCallbackCoverageSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -543,6 +572,9 @@ export function CallsQueueTable({
                       ) : null}
                       <div className="mt-1 text-xs text-neutral-600">
                         Signals: <span className="font-medium text-neutral-800">{signalCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{callbackCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
