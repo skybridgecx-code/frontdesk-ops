@@ -86,6 +86,31 @@ function formatRoutingSummary(summary: QueueRoutingSummary) {
   return parts.join(' · ');
 }
 
+function formatRelativeTouchTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const diffMs = date.getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / (1000 * 60));
+  const absoluteMinutes = Math.abs(diffMinutes);
+  const formatter = new Intl.RelativeTimeFormat('en-US', { numeric: 'auto' });
+
+  if (absoluteMinutes < 60) {
+    return formatter.format(diffMinutes, 'minute');
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (Math.abs(diffHours) < 24) {
+    return formatter.format(diffHours, 'hour');
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  return formatter.format(diffDays, 'day');
+}
+
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
@@ -337,6 +362,25 @@ function getCallbackCoverageSummary(call: CallRow) {
   return 'Callback: blocked · name and number missing';
 }
 
+function getLastContactTimingSummary(call: CallRow) {
+  const contactedAt = call.contactedAt ? new Date(call.contactedAt) : null;
+  const reviewedAt = call.reviewedAt ? new Date(call.reviewedAt) : null;
+  const contactedTime = contactedAt && !Number.isNaN(contactedAt.getTime()) ? contactedAt.getTime() : null;
+  const reviewedTime = reviewedAt && !Number.isNaN(reviewedAt.getTime()) ? reviewedAt.getTime() : null;
+
+  if (contactedTime !== null && (reviewedTime === null || contactedTime >= reviewedTime)) {
+    const relative = formatRelativeTouchTime(call.contactedAt!);
+    return relative ? `Last touch: contacted ${relative}` : 'Last touch: contacted';
+  }
+
+  if (reviewedTime !== null) {
+    const relative = formatRelativeTouchTime(call.reviewedAt!);
+    return relative ? `Last touch: reviewed ${relative}` : 'Last touch: reviewed';
+  }
+
+  return 'Last touch: none logged';
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -530,6 +574,7 @@ export function CallsQueueTable({
                 const routingSummary = formatRoutingSummary(call.routingSummary);
                 const signalCoverage = getSignalCoverageSummary(call);
                 const callbackCoverage = getCallbackCoverageSummary(call);
+                const lastContactTiming = getLastContactTimingSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -575,6 +620,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{callbackCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{lastContactTiming}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
