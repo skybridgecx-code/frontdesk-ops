@@ -40,30 +40,35 @@ const workflowProof = [
     body: 'Completed calls do not vanish after the phone stops ringing. Operators can review routing, urgency, timeline context, and next action from the same working flow.'
   },
   {
-    title: 'Follow-up work stays accountable',
-    body: 'Prospects carry clear state, attempt history, and next-step guidance so follow-up is easier to execute, inspect, and hand off cleanly.'
+    title: 'Routing decisions are visible',
+    body: 'The system can show how a call was treated, whether the business was considered open or closed, and why the route happened the way it did.'
   },
   {
-    title: 'The website is tied to the real workflow',
-    body: 'A request from the homepage or contact page becomes a live operator work item instead of sitting in a dead-end form inbox.'
+    title: 'Follow-up work stays actionable',
+    body: 'Prospects carry clear state, attempt history, and next-step guidance so follow-up is easier to execute, inspect, and hand off cleanly.'
   }
 ];
 
 const processSteps = [
   {
     step: '01',
-    title: 'Capture the lead',
-    body: 'Calls, web requests, imported lists, and manual outreach all enter one operating flow instead of fragmenting across tools.'
+    title: 'Interest comes in',
+    body: 'An inbound call rings or a public request is submitted. Instead of becoming a disconnected event, it enters the same working system.'
   },
   {
     step: '02',
-    title: 'Clarify next action',
-    body: 'Operators can review, triage, contact, archive, and move to the next item without contradictory state or lost context.'
+    title: 'The system handles first-pass intake',
+    body: 'Routing and AI frontdesk handling capture what happened first, so the team can inspect the call path, summary, and context instead of starting from scratch.'
   },
   {
     step: '03',
-    title: 'Keep follow-up visible',
-    body: 'Every important action stays attached to the lead, which makes the work inspectable, coachable, and much harder to drop.'
+    title: 'Operators review and act',
+    body: 'An operator can see what happened, what changed, and what likely needs follow-up next without guessing across multiple tools.'
+  },
+  {
+    step: '04',
+    title: 'Work stays visible until handled',
+    body: 'Follow-up status, activity history, and next actions stay attached to the work item, which makes dropped demand easier to prevent and easier to inspect.'
   }
 ];
 
@@ -292,7 +297,7 @@ export default async function Home({
                 Request workflow review
               </a>
               <a
-                href="#services"
+                href="#how-it-works"
                 className="rounded-full bg-[#f8f1e7] px-5 py-2.5 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
                 See how it works
@@ -330,7 +335,7 @@ export default async function Home({
                   Request workflow review
                 </a>
                 <a
-                  href="#services"
+                  href="#how-it-works"
                   className="rounded-full border border-white/18 px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/6"
                 >
                   See how it works
@@ -399,27 +404,41 @@ export default async function Home({
         </div>
       </section>
 
-      <section id="services" className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
+      <section id="how-it-works" className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="max-w-3xl">
-          <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What we do</div>
+          <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">How it works</div>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-6xl">
-            If interest shows up, it should become visible work with a next step.
+            Inbound demand comes in, the frontdesk handles first-pass intake, and operators can work from clear next actions.
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5d4b3d]">
-            MoLeads helps service operators tighten the handoff between first contact and the next real action. That means clearer intake, routing context, follow-up ownership, and less room for demand to disappear.
+            The point is not more marketing surface area. The point is that calls, requests, routing context, and follow-up work stay connected so the team can see what happened and keep moving.
           </p>
         </div>
 
-        <div className="mt-12 grid gap-5 lg:grid-cols-3">
-          {capabilities.map((item) => (
-            <article
-              key={item.title}
-              className="rounded-[1.8rem] border border-[#d7cdc0] bg-[#fbf7f0] p-7 shadow-[0_20px_60px_rgba(33,24,20,0.06)]"
-            >
-              <div className="text-lg font-semibold tracking-[-0.03em] text-[#17120f]">{item.title}</div>
-              <p className="mt-4 text-base leading-8 text-[#5d4b3d]">{item.body}</p>
-            </article>
-          ))}
+        <div className="mt-12 grid gap-10 lg:grid-cols-[1.05fr_0.95fr]">
+          <div className="grid gap-4">
+            {processSteps.map((item) => (
+              <div key={item.step} className="grid grid-cols-[64px_1fr] gap-5 border-t border-[#d8cdc0] pt-5">
+                <div className="text-sm font-medium tracking-[0.24em] text-[#8e7054]">{item.step}</div>
+                <div>
+                  <div className="text-xl font-semibold tracking-[-0.03em] text-[#17120f]">{item.title}</div>
+                  <p className="mt-2 text-base leading-8 text-[#5d4b3d]">{item.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid gap-5">
+            {capabilities.map((item) => (
+              <article
+                key={item.title}
+                className="rounded-[1.8rem] border border-[#d7cdc0] bg-[#fbf7f0] p-7 shadow-[0_20px_60px_rgba(33,24,20,0.06)]"
+              >
+                <div className="text-lg font-semibold tracking-[-0.03em] text-[#17120f]">{item.title}</div>
+                <p className="mt-4 text-base leading-8 text-[#5d4b3d]">{item.body}</p>
+              </article>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -449,47 +468,6 @@ export default async function Home({
         </div>
       </section>
 
-      <section className="bg-[#ddd2c4]">
-        <div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 md:px-10 lg:grid-cols-[1.05fr_0.95fr] lg:px-12">
-          <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#866749]">Why teams hire us</div>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Clean execution is a sales advantage when the market is noisy.
-            </h2>
-          </div>
-          <div className="space-y-5 text-base leading-8 text-[#3f3127]">
-            <p>
-              Most service teams do not lose opportunities because they lack ambition. They lose them because intake,
-              qualification, and follow-up live in different places and nobody trusts what should happen next.
-            </p>
-            <p>
-              MoLeads brings those moments together. The result is not just prettier software. It is a tighter operating cadence: clearer handoffs, visible queues, and fewer leads aging out because the process was vague.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
-        <div className="grid gap-10 lg:grid-cols-[0.95fr_1.05fr]">
-          <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">How engagements start</div>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              We start with the messiest part of the funnel: what happens after interest shows up.
-            </h2>
-          </div>
-          <div className="grid gap-4">
-            {processSteps.map((item) => (
-              <div key={item.step} className="grid grid-cols-[64px_1fr] gap-5 border-t border-[#d8cdc0] pt-5">
-                <div className="text-sm font-medium tracking-[0.24em] text-[#8e7054]">{item.step}</div>
-                <div>
-                  <div className="text-xl font-semibold tracking-[-0.03em] text-[#17120f]">{item.title}</div>
-                  <p className="mt-2 text-base leading-8 text-[#5d4b3d]">{item.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <section className="bg-[#17120f] text-[#f8f1e7]">
         <div className="mx-auto grid max-w-7xl gap-10 px-6 py-20 md:px-10 lg:grid-cols-[0.92fr_1.08fr] lg:px-12">
