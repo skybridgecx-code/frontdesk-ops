@@ -218,10 +218,10 @@ export default async function ContactPage({
               Business intake request
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              Request an intake review for the part of your funnel where demand gets delayed, dropped, or worked inconsistently.
+              Send a business intake request for the part of your funnel where inbound work needs a clearer follow-up path.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              Use this form when you want a clearer operating handoff between first contact and follow-up. The goal is not generic contact. The goal is to see how inbound demand should enter the workflow and stay actionable.
+              Use this form when you want inbound requests to come in clearly, stay visible through first-pass intake, and reach operators with a workable follow-up path.
             </p>
           </div>
         </div>
@@ -232,7 +232,7 @@ export default async function ContactPage({
           <div className="max-w-xl">
             <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What happens next</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              This request is treated like intake, not a generic website contact message.
+              This request enters intake, stays visible, and moves into operator follow-up.
             </h2>
             <div className="mt-8 grid gap-4">
               {[
@@ -264,8 +264,8 @@ export default async function ContactPage({
               <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Operational reassurance</div>
               <div className="mt-4 space-y-3 text-sm leading-7 text-[#3f3127]">
                 <div>Inbound requests stay visible as work items, not loose email threads.</div>
-                <div>Intake details stay attached so the follow-up path is easier to inspect.</div>
-                <div>The team can see what came in and what changed next.</div>
+                <div>First-pass intake keeps the submitted details attached and inspectable.</div>
+                <div>Operators can see what came in, what changed, and what needs follow-up next.</div>
               </div>
             </div>
           </div>
