@@ -498,12 +498,12 @@ export default async function Home({
       <section id="contact" className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Start the conversation</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Request intake review</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Tell us where leads are getting delayed, dropped, or worked inconsistently.
+              Show us where inbound calls or requests need a clearer intake and follow-up path.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#5d4b3d]">
-              Use the form to request an intake review. The request becomes a real work item inside the operator system, so the handoff starts the moment you submit it.
+              Use the form to request intake review. Inbound requests are captured as visible work, first-pass intake keeps the details attached, and operators can review and follow up with clear next actions.
             </p>
           </div>
 
