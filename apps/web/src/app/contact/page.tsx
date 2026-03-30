@@ -116,7 +116,7 @@ export default async function ContactPage({
   const leadRequested = resolved.notice === 'lead-requested';
   const failureMessage =
     resolved.notice === 'lead-request-failed'
-      ? resolved.error?.trim() || 'Lead request failed.'
+      ? resolved.error?.trim() || 'Business intake request failed.'
       : null;
 
   async function requestConsultation(formData: FormData) {
@@ -280,7 +280,7 @@ export default async function ContactPage({
               <div className="grid gap-4 rounded-[2rem] border border-emerald-300/30 bg-[linear-gradient(180deg,_rgba(16,185,129,0.12),_rgba(255,255,255,0.82))] p-7 shadow-[0_24px_80px_rgba(16,24,40,0.08)]">
                 <div className="text-xs uppercase tracking-[0.28em] text-[#147557]">Request received</div>
                 <div className="max-w-2xl text-3xl font-semibold tracking-[-0.04em] text-[#17120f]">
-                  {requestedCompany} is now in the operator workflow.
+                  {requestedCompany} is now in the intake workflow.
                 </div>
                 {successWarning ? (
                   <div className="rounded-2xl border border-amber-300/40 bg-amber-100/70 px-4 py-3 text-sm text-[#6d4f0e]">
@@ -288,7 +288,7 @@ export default async function ContactPage({
                   </div>
                 ) : null}
                 <p className="max-w-2xl text-base leading-8 text-[#4b3a2d]">
-                  The request has been captured as a live work item. From here, the operator queue can review it, prioritize it, and move it into follow-up with clear next actions.
+                  The request has been captured as a live work item. First-pass intake keeps the submitted details attached, then operators can review it, prioritize it, and move it into follow-up with clear next actions.
                 </p>
                 <div className="flex flex-col gap-3 sm:flex-row">
                   <a
@@ -310,6 +310,13 @@ export default async function ContactPage({
                 action={requestConsultation}
                 className="grid gap-4 rounded-[2rem] border border-[#d9cdc0] bg-[#fffaf3] p-6 shadow-[0_24px_80px_rgba(16,24,40,0.08)]"
               >
+                <div className="grid gap-2">
+                  <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Business intake details</div>
+                  <p className="max-w-2xl text-sm leading-7 text-[#5d4b3d]">
+                    Send the business, contact, and intake context the team needs to understand the request on the first pass.
+                  </p>
+                </div>
+
                 <div className="grid gap-4 md:grid-cols-2">
                   <label className="space-y-2 text-sm">
                     <span className="font-medium">Company name</span>
@@ -330,6 +337,7 @@ export default async function ContactPage({
                   </label>
                   <label className="space-y-2 text-sm">
                     <span className="font-medium">Phone</span>
+                    <span className="block text-xs leading-6 text-[#7b6654]">Add a direct callback number if phone follow-up is the best next step.</span>
                     <input
                       name="contactPhone"
                       placeholder="703-555-0200"
@@ -338,6 +346,7 @@ export default async function ContactPage({
                   </label>
                   <label className="space-y-2 text-sm">
                     <span className="font-medium">Email</span>
+                    <span className="block text-xs leading-6 text-[#7b6654]">Use email when that is the best contact path or when phone is not available.</span>
                     <input
                       name="contactEmail"
                       type="email"
@@ -365,6 +374,7 @@ export default async function ContactPage({
 
                 <label className="space-y-2 text-sm">
                   <span className="font-medium">What are you trying to improve?</span>
+                  <span className="block text-xs leading-6 text-[#7b6654]">Describe the intake or follow-up part of the workflow that currently feels messy.</span>
                   <input
                     name="serviceInterest"
                     placeholder="Lead intake, follow-up, and operator visibility"
@@ -382,9 +392,18 @@ export default async function ContactPage({
                   />
                 </label>
 
+                <div className="rounded-2xl border border-[#ddd2c7] bg-[#fbf6ee] px-4 py-4">
+                  <div className="text-xs uppercase tracking-[0.24em] text-[#8e7054]">What happens after submit</div>
+                  <div className="mt-3 grid gap-2 text-sm leading-7 text-[#3f3127]">
+                    <div>1. The request is captured as intake work.</div>
+                    <div>2. First-pass intake organizes the business and contact details.</div>
+                    <div>3. Operators can review it and move follow-up forward.</div>
+                  </div>
+                </div>
+
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <p className="max-w-md text-sm leading-6 text-[#5d4b3d]">
-                    This request becomes a real work item in the operator workflow, so the handoff starts the moment you submit it.
+                    The request stays visible in the workflow instead of disappearing into a generic website inbox.
                   </p>
                   <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
                     Request workflow review
