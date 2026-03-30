@@ -147,6 +147,9 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       {
         prospectSid: 'PR_DEMO_102',
         companyName: 'Second Company',
+        contactPhone: null,
+        contactEmail: null,
+        sourceWebsiteUrl: null,
         createdAt: new Date('2026-03-29T10:00:00.000Z'),
         respondedAt: null,
         archivedAt: null,
@@ -155,6 +158,9 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       {
         prospectSid: 'PR_DEMO_101',
         companyName: 'First Company',
+        contactPhone: '703-555-1101',
+        contactEmail: null,
+        sourceWebsiteUrl: 'https://first.example',
         createdAt: new Date('2026-03-29T09:00:00.000Z'),
         respondedAt: null,
         archivedAt: null,
@@ -220,6 +226,9 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       {
         prospectSid: 'PR_DEMO_101',
         companyName: 'First Company',
+        contactPhone: '703-555-1101',
+        contactEmail: null,
+        sourceWebsiteUrl: 'https://first.example',
         createdAt: '2026-03-29T09:00:00.000Z',
         respondedAt: null,
         archivedAt: null,
@@ -233,6 +242,9 @@ test('GET /v1/prospects accepts scoped query params and returns prospects in pri
       {
         prospectSid: 'PR_DEMO_102',
         companyName: 'Second Company',
+        contactPhone: null,
+        contactEmail: null,
+        sourceWebsiteUrl: null,
         createdAt: '2026-03-29T10:00:00.000Z',
         respondedAt: null,
         archivedAt: null,

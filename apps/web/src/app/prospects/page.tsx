@@ -33,6 +33,7 @@ type ProspectRow = {
   contactName: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
+  sourceWebsiteUrl: string | null;
   city: string | null;
   state: string | null;
   sourceLabel: string | null;
@@ -249,6 +250,24 @@ function getAttemptContext(prospect: ProspectRow) {
   }
 
   return 'No attempts logged · first outreach';
+}
+
+function getContactCoverageContext(prospect: ProspectRow) {
+  const hasPhone = Boolean(prospect.contactPhone?.trim());
+  const hasEmail = Boolean(prospect.contactEmail?.trim());
+  const hasWebsite = Boolean(prospect.sourceWebsiteUrl?.trim());
+
+  const channels = [
+    hasPhone ? 'phone' : null,
+    hasEmail ? 'email' : null,
+    hasWebsite ? 'website' : null
+  ].filter(Boolean) as string[];
+
+  if (channels.length === 0) {
+    return 'Contact: thin coverage';
+  }
+
+  return `Contact: ${channels.join(' + ')}`;
 }
 
 function getProspectHeadline(prospect: ProspectRow) {
@@ -1004,6 +1023,7 @@ export default async function ProspectsPage({
               const responseTime = formatDateTime(prospect.respondedAt);
               const lastActivity = formatQueueLastActivityPreview(prospect.lastActivityPreview);
               const attemptContext = getAttemptContext(prospect);
+              const contactCoverage = getContactCoverageContext(prospect);
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
@@ -1051,6 +1071,7 @@ export default async function ProspectsPage({
                       {responseTime ? ` · Responded ${responseTime}` : ''}
                     </div>
                     <div className="text-neutral-600">{attemptContext}</div>
+                    <div className="text-neutral-600">{contactCoverage}</div>
                   </div>
 
                   <div className="space-y-2 text-sm text-neutral-700">

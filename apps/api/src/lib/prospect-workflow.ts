@@ -56,6 +56,7 @@ const prospectListSelect = {
   city: true,
   state: true,
   sourceLabel: true,
+  sourceWebsiteUrl: true,
   serviceInterest: true,
   notes: true,
   status: true,
