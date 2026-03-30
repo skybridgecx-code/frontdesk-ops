@@ -59,23 +59,23 @@ const workflowProof = [
 const processSteps = [
   {
     step: '01',
-    title: 'Interest comes in',
-    body: 'An inbound call rings or a public request is submitted. Instead of becoming a disconnected event, it enters the same working system.'
+    title: 'Inbound calls or requests come in',
+    body: 'An inbound call rings or a public request is submitted. Instead of becoming a disconnected event, it enters the working system as visible intake.'
   },
   {
     step: '02',
-    title: 'The system handles first-pass intake',
+    title: 'First-pass intake organizes the details',
     body: 'Routing and AI frontdesk handling capture what happened first, so the team can inspect the call path, summary, and context instead of starting from scratch.'
   },
   {
     step: '03',
     title: 'Operators review and act',
-    body: 'An operator can see what happened, what changed, and what likely needs follow-up next without guessing across multiple tools.'
+    body: 'Operators can see what happened, what changed, and what needs follow-up next without guessing across multiple tools.'
   },
   {
     step: '04',
     title: 'Work stays visible until handled',
-    body: 'Follow-up status, activity history, and next actions stay attached to the work item, which makes dropped demand easier to prevent and easier to inspect.'
+    body: 'Follow-up status, activity history, and next actions stay attached to the work item so demand stays actionable until it is actually handled.'
   }
 ];
 
@@ -415,10 +415,10 @@ export default async function Home({
         <div className="max-w-3xl">
           <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">How it works</div>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-6xl">
-            Inbound demand comes in, the frontdesk handles first-pass intake, and operators can work from clear next actions.
+            Inbound calls or requests come in, first-pass intake keeps the details visible, and operators can follow through from clear next actions.
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5d4b3d]">
-            The point is not more marketing surface area. The point is that calls, requests, routing context, and follow-up work stay connected so the team can see what happened and keep moving.
+            The flow is simple: demand comes in, routing and intake organize what happened first, operators can review the work, and follow-up stays attached until it is handled.
           </p>
         </div>
 
