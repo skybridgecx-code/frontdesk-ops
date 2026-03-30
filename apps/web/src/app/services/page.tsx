@@ -5,7 +5,7 @@ const serviceLines = [
     eyebrow: 'Inbound capture',
     title: 'Capture inbound interest without losing the thread',
     description:
-      'MoLeads gives service businesses a better front door for the moment demand first appears. Calls and public requests come in through a path that is meant to become real work, not a disconnected message pile.',
+      'MoLeads gives service businesses a better front door for the moment demand first appears. Calls and public requests enter a path built to become real work instead of a disconnected message pile.',
     bullets: [
       'Inbound calls and public requests enter an inspectable workflow',
       'Request details start in a usable intake shape instead of loose notes',
@@ -27,7 +27,7 @@ const serviceLines = [
     eyebrow: 'Operator follow-up',
     title: 'Keep follow-up visible until the team actually handles it',
     description:
-      'MoLeads is not just intake capture. It also supports the operating work after first contact: review, outreach, archive decisions, and queue visibility so follow-up stays actionable instead of fading out.',
+      'MoLeads is not just intake capture. It supports the operating work after first contact: review, outreach, archive decisions, and queue visibility so follow-up stays actionable instead of fading out.',
     bullets: [
       'Actionable operator queues for inbound and follow-up work',
       'Review and outreach workflows that stay tied to current state',
@@ -148,7 +148,7 @@ export default function ServicesPage() {
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#866749]">Who this is for</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Teams that already have demand, but do not trust how it is being worked.
+              Teams that already have inbound demand, but do not trust how it gets captured and worked.
             </h2>
             <div className="mt-8 grid gap-3">
               {engagementPoints.map((point) => (
@@ -162,7 +162,7 @@ export default function ServicesPage() {
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#866749]">What better looks like</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Better follow-up, calmer operations, and less ambiguity about what happens next.
+              Clearer intake, calmer follow-up, and less ambiguity about what happens next.
             </h2>
             <div className="mt-8 grid gap-3">
               {outcomes.map((outcome) => (
@@ -180,10 +180,10 @@ export default function ServicesPage() {
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Inspectable workflow</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              The offer only works if intake and follow-up stay visible after the first message lands.
+              The offer only works if capture, intake, and follow-up stay visible after the first message lands.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              This is the useful proof on the page: the workflow does not disappear behind a black box. The team can inspect how requests came in, how they were routed, and what still needs action.
+              This is the useful proof on the page: the workflow does not disappear behind a black box. The team can inspect how requests came in, how first-pass intake was organized, and what still needs action.
             </p>
           </div>
 
