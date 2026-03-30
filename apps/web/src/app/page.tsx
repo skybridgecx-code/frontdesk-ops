@@ -43,16 +43,16 @@ const proofPoints = [
 
 const workflowProof = [
   {
-    title: 'Inbound calls stay inspectable',
-    body: 'Completed calls do not vanish after the phone stops ringing. Operators can review routing, urgency, timeline context, and next action from the same working flow.'
+    title: 'Inbound calls and requests are captured',
+    body: 'Calls and public requests do not disappear after first contact. They enter the working system as visible intake instead of falling into disconnected inboxes or memory.'
   },
   {
-    title: 'Routing decisions are visible',
-    body: 'The system can show how a call was treated, whether the business was considered open or closed, and why the route happened the way it did.'
+    title: 'First-pass intake and routing stay visible',
+    body: 'The system can show how work entered the queue, how a call was routed, and what context was captured on the first pass instead of hiding that path behind a black box.'
   },
   {
-    title: 'Follow-up work stays actionable',
-    body: 'Prospects carry clear state, attempt history, and next-step guidance so follow-up is easier to execute, inspect, and hand off cleanly.'
+    title: 'Operators can review and follow up',
+    body: 'Operators can review current state, see what changed, and move follow-up forward with clear next actions instead of guessing across multiple tools.'
   }
 ];
 
@@ -454,10 +454,10 @@ export default async function Home({
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What buyers can inspect</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              The strongest proof is operational visibility, not placeholder marketing.
+              The proof is that the workflow stays visible after first contact.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              The product is credible when a buyer can see how work enters the system, how routing decisions are explained, and how an operator can move the work forward without guessing.
+              Buyers should be able to inspect three things quickly: that inbound work is captured, that first-pass intake and routing are visible, and that operators can review and follow up without guessing.
             </p>
           </div>
 
