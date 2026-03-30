@@ -34,6 +34,7 @@ type CallRow = {
   serviceAddress: string | null;
   summary: string | null;
   callerTranscript: string | null;
+  assistantTranscript: string | null;
   startedAt: string;
   answeredAt: string | null;
   endedAt: string | null;
@@ -289,6 +290,25 @@ function getDataQualitySignals(call: CallRow) {
   };
 }
 
+function getSignalCoverageSummary(call: CallRow) {
+  const hasTranscript = Boolean(call.callerTranscript?.trim() || call.assistantTranscript?.trim());
+  const hasSummary = Boolean(call.summary?.trim());
+
+  if (hasTranscript && hasSummary) {
+    return 'Transcript-backed · summary ready';
+  }
+
+  if (hasTranscript) {
+    return 'Transcript-backed · summary thin';
+  }
+
+  if (hasSummary) {
+    return 'Summary only · transcript thin';
+  }
+
+  return 'Thin signal · transcript and summary missing';
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -480,6 +500,7 @@ export function CallsQueueTable({
                 const signals = getDataQualitySignals(call);
                 const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
                 const routingSummary = formatRoutingSummary(call.routingSummary);
+                const signalCoverage = getSignalCoverageSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -520,6 +541,9 @@ export function CallsQueueTable({
                           Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
                         </div>
                       ) : null}
+                      <div className="mt-1 text-xs text-neutral-600">
+                        Signals: <span className="font-medium text-neutral-800">{signalCoverage}</span>
+                      </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
                         <span>{lastActivity.detailLine}</span>
