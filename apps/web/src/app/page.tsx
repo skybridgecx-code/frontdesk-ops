@@ -36,9 +36,9 @@ const servicePillars = [
 ];
 
 const proofPoints = [
-  'Inbound calls become inspectable work',
-  'Routing decisions and activity stay visible',
-  'Public requests create live follow-up items'
+  'Inbound calls and requests are captured',
+  'First-pass intake and routing stay visible',
+  'Operators can review and follow up'
 ];
 
 const workflowProof = [
@@ -321,13 +321,13 @@ export default async function Home({
           <div className="grid gap-14 py-16 lg:grid-cols-[minmax(0,1.08fr)_420px] lg:items-end lg:py-24">
             <div>
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-                For service businesses with inbound demand and follow-up leakage
+                AI frontdesk for service-business intake and follow-up
               </div>
               <h1 className="mt-7 max-w-5xl text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-                Stop leads from dying after the phone rings or the form gets submitted.
+                AI frontdesk intake and follow-up for service businesses.
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-                MoLeads gives service teams one working system for inbound calls, public requests, and follow-up work. If interest shows up, an operator should know what happened, what matters now, and what to do next.
+                MoLeads captures inbound calls and public requests, keeps first-pass intake and routing visible, and gives operators a clear follow-up path instead of a black box after first contact.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs uppercase tracking-[0.22em] text-[#cdb89a]">
                 {proofPoints.map((point) => (
