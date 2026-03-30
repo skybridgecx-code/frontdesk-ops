@@ -231,6 +231,31 @@ function formatDateTime(value: string | null) {
   }).format(new Date(value));
 }
 
+function formatRelativeTouchTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const diffMs = date.getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / (1000 * 60));
+  const absoluteMinutes = Math.abs(diffMinutes);
+  const formatter = new Intl.RelativeTimeFormat('en-US', { numeric: 'auto' });
+
+  if (absoluteMinutes < 60) {
+    return formatter.format(diffMinutes, 'minute');
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (Math.abs(diffHours) < 24) {
+    return formatter.format(diffHours, 'hour');
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  return formatter.format(diffDays, 'day');
+}
+
 function formatLocation(prospect: ProspectRow) {
   const parts = [prospect.city, prospect.state].filter(Boolean);
   return parts.length > 0 ? parts.join(', ') : null;
@@ -287,6 +312,25 @@ function getLocationCoverageContext(prospect: ProspectRow) {
   }
 
   return 'Location: thin coverage';
+}
+
+function getLastTouchTimingContext(prospect: ProspectRow) {
+  const repliedAt = prospect.respondedAt ? new Date(prospect.respondedAt) : null;
+  const attemptedAt = prospect.lastAttemptAt ? new Date(prospect.lastAttemptAt) : null;
+  const repliedTime = repliedAt && !Number.isNaN(repliedAt.getTime()) ? repliedAt.getTime() : null;
+  const attemptedTime = attemptedAt && !Number.isNaN(attemptedAt.getTime()) ? attemptedAt.getTime() : null;
+
+  if (repliedTime !== null && (attemptedTime === null || repliedTime >= attemptedTime)) {
+    const relative = formatRelativeTouchTime(prospect.respondedAt!);
+    return relative ? `Last touch: reply ${relative}` : 'Last touch: reply logged';
+  }
+
+  if (attemptedTime !== null) {
+    const relative = formatRelativeTouchTime(prospect.lastAttemptAt!);
+    return relative ? `Last touch: attempt ${relative}` : 'Last touch: attempt logged';
+  }
+
+  return 'Last touch: none logged';
 }
 
 function getProspectHeadline(prospect: ProspectRow) {
@@ -1044,6 +1088,7 @@ export default async function ProspectsPage({
               const attemptContext = getAttemptContext(prospect);
               const contactCoverage = getContactCoverageContext(prospect);
               const locationCoverage = getLocationCoverageContext(prospect);
+              const lastTouchTiming = getLastTouchTimingContext(prospect);
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
@@ -1091,6 +1136,7 @@ export default async function ProspectsPage({
                       {responseTime ? ` · Responded ${responseTime}` : ''}
                     </div>
                     <div className="text-neutral-600">{attemptContext}</div>
+                    <div className="text-neutral-600">{lastTouchTiming}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
                   </div>
