@@ -214,13 +214,13 @@ export default async function ContactPage({
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              Workflow review request
+              Business intake request
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              Tell us where leads are getting delayed, dropped, or worked inconsistently.
+              Request an intake review for the part of your funnel where demand gets delayed, dropped, or worked inconsistently.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              This is the cleanest place to start if you want a tighter handoff between first contact and follow-up, with less guesswork for the people doing the work.
+              Use this form when you want a clearer operating handoff between first contact and follow-up. The goal is not generic contact. The goal is to see how inbound demand should enter the workflow and stay actionable.
             </p>
           </div>
         </div>
@@ -229,20 +229,43 @@ export default async function ContactPage({
       <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-[0.88fr_1.12fr]">
           <div className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">How we work</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What happens next</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              We usually start with the points where leads are delayed, lost, or followed up inconsistently.
+              This request is treated like intake, not a generic website contact message.
             </h2>
             <div className="mt-8 grid gap-4">
               {[
-                'Calls come in, but nobody trusts the handoff after first contact.',
-                'Website requests arrive, but follow-up timing is inconsistent.',
-                'Prospects are worked manually, with too much guesswork about what happens next.'
+                {
+                  step: '01',
+                  title: 'Your request comes in',
+                  body: 'The submitted details enter the same intake path used for real follow-up work instead of disappearing into a disconnected inbox.'
+                },
+                {
+                  step: '02',
+                  title: 'First-pass intake organizes the details',
+                  body: 'The business, contact, and problem context are captured so the request starts in a usable shape for review.'
+                },
+                {
+                  step: '03',
+                  title: 'Operators review and follow up',
+                  body: 'The team can review the request, prioritize it, and move it into next actions with visible workflow state.'
+                }
               ].map((item) => (
-                <div key={item} className="rounded-2xl border border-[#d8cdc0] bg-[#fff9f1] px-5 py-4 text-sm leading-7 text-[#3f3127]">
-                  {item}
+                <div key={item.step} className="rounded-2xl border border-[#d8cdc0] bg-[#fff9f1] px-5 py-4">
+                  <div className="text-xs font-medium tracking-[0.24em] text-[#8e7054]">{item.step}</div>
+                  <div className="mt-2 text-lg font-semibold tracking-[-0.02em] text-[#17120f]">{item.title}</div>
+                  <div className="mt-2 text-sm leading-7 text-[#3f3127]">{item.body}</div>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-8 rounded-[1.8rem] border border-[#d8cdc0] bg-[#fffaf3] p-6 shadow-[0_18px_60px_rgba(16,24,40,0.05)]">
+              <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Operational reassurance</div>
+              <div className="mt-4 space-y-3 text-sm leading-7 text-[#3f3127]">
+                <div>Inbound requests stay visible as work items, not loose email threads.</div>
+                <div>Intake details stay attached so the follow-up path is easier to inspect.</div>
+                <div>The team can see what came in and what changed next.</div>
+              </div>
             </div>
           </div>
 
