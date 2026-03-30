@@ -206,11 +206,10 @@ export default function ServicesPage() {
           <div className="max-w-3xl">
             <div className="text-xs uppercase tracking-[0.28em] text-[#dcc8ac]">Next step</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] md:text-5xl">
-              If the lead path feels messy, that is the place to start.
+              Request intake review for the part of your business where inbound work needs a clearer follow-up path.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#d8c9b5]">
-              The fastest way to see whether MoLeads fits is to walk through your current intake and follow-up flow,
-              then map where leads are getting delayed, lost, or worked inconsistently.
+              Start with the point where inbound calls or requests come in. The goal is to make first-pass intake visible, keep the details attached, and give operators a clearer path to review and follow up.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <a
