@@ -405,9 +405,9 @@ export default async function ContactPage({
                   <p className="max-w-md text-sm leading-6 text-[#5d4b3d]">
                     The request stays visible in the workflow instead of disappearing into a generic website inbox.
                   </p>
-                  <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                    Request workflow review
-                  </button>
+                <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
+                    Request intake review
+                </button>
                 </div>
               </form>
             )}

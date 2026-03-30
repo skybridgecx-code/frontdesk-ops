@@ -82,7 +82,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-5 py-2.5 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request workflow review
+                Request intake review
               </a>
             </div>
           </header>
@@ -216,7 +216,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request workflow review
+                Request intake review
               </a>
               <a
                 href="/"

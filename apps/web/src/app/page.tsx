@@ -294,7 +294,7 @@ export default async function Home({
                 href="/contact"
                 className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-[#f8f1e7] transition hover:border-white/40 hover:bg-white/6"
               >
-                Request workflow review
+                Request intake review
               </a>
               <a
                 href="#how-it-works"
@@ -332,7 +332,7 @@ export default async function Home({
                   href="/contact"
                   className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
                 >
-                  Request workflow review
+                  Request intake review
                 </a>
                 <a
                   href="#how-it-works"
@@ -496,7 +496,7 @@ export default async function Home({
               Tell us where leads are getting delayed, dropped, or worked inconsistently.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#5d4b3d]">
-              Use the form to request a workflow review. The request becomes a real work item inside the operator system, so the handoff starts the moment you submit it.
+              Use the form to request an intake review. The request becomes a real work item inside the operator system, so the handoff starts the moment you submit it.
             </p>
           </div>
 
@@ -635,7 +635,7 @@ export default async function Home({
                   The request stays visible in the workflow instead of disappearing into a generic website inbox.
                 </p>
                 <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                  Request workflow review
+                  Request intake review
                 </button>
               </div>
             </form>
