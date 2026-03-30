@@ -381,6 +381,16 @@ function getLastContactTimingSummary(call: CallRow) {
   return 'Last touch: none logged';
 }
 
+function getServiceLocationCoverageSummary(call: CallRow) {
+  const serviceAddress = call.serviceAddress?.trim();
+
+  if (serviceAddress) {
+    return 'Service location: address ready';
+  }
+
+  return 'Service location: thin coverage';
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -575,6 +585,7 @@ export function CallsQueueTable({
                 const signalCoverage = getSignalCoverageSummary(call);
                 const callbackCoverage = getCallbackCoverageSummary(call);
                 const lastContactTiming = getLastContactTimingSummary(call);
+                const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -620,6 +631,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{callbackCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{lastContactTiming}</span>
