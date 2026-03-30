@@ -2,36 +2,36 @@ import type { Metadata } from 'next';
 
 const serviceLines = [
   {
-    eyebrow: 'Lead intake design',
-    title: 'Turn first contact into visible work',
+    eyebrow: 'Inbound capture',
+    title: 'Capture inbound interest without losing the thread',
     description:
-      'We help service businesses tighten the moment demand first appears, whether it comes through calls, website requests, imports, or manual outreach. The goal is simple: less leakage after first contact and less ambiguity about what happens next.',
+      'MoLeads gives service businesses a better front door for the moment demand first appears. Calls and public requests come in through a path that is meant to become real work, not a disconnected message pile.',
     bullets: [
-      'Public lead capture that routes into a real working queue',
-      'Cleaner inbound intake structure for operators and dispatch teams',
-      'Clear handoff from new lead to next action'
+      'Inbound calls and public requests enter an inspectable workflow',
+      'Request details start in a usable intake shape instead of loose notes',
+      'The next step is visible as soon as the request arrives'
     ]
   },
   {
-    eyebrow: 'Outbound follow-up',
-    title: 'Work prospects with more consistency and less drift',
+    eyebrow: 'First-pass intake',
+    title: 'Organize the first pass before work starts drifting',
     description:
-      'MoLeads supports the actual work of follow-up: reviewing a prospect, logging attempts, archiving dead ends, and keeping the queue aligned with what teams are really doing day to day.',
+      'The product is built to make first-pass intake easier to trust. Routing context, captured details, and workflow state stay visible so the team can understand what happened before they act.',
     bullets: [
-      'Prospect queue and detail workflow',
-      'Attempt logging and next-step visibility',
-      'Review-next style routing for faster operator throughput'
+      'Visible intake and routing context instead of a black box',
+      'Operator review surfaces that show what happened and what changed',
+      'A clearer handoff from intake into follow-up work'
     ]
   },
   {
-    eyebrow: 'Workflow architecture',
-    title: 'Build the system behind the team, not just the front-end',
+    eyebrow: 'Operator follow-up',
+    title: 'Keep follow-up visible until the team actually handles it',
     description:
-      'Good-looking pages are not enough if the data model, transitions, and queue logic are weak. We focus on the underlying operating model so the surface stays trustworthy when real work hits it.',
+      'MoLeads is not just intake capture. It also supports the operating work after first contact: review, outreach, archive decisions, and queue visibility so follow-up stays actionable instead of fading out.',
     bullets: [
-      'State-transition design for lead handling',
-      'Queue ordering and review logic that stay coherent',
-      'Validation and demo baselines for safe iteration'
+      'Actionable operator queues for inbound and follow-up work',
+      'Review and outreach workflows that stay tied to current state',
+      'Visible next actions instead of ambiguous handoffs'
     ]
   }
 ];
@@ -51,8 +51,8 @@ const outcomes = [
 const clientTypes = ['HVAC and plumbing teams', 'Home-service operators', 'Founder-led local businesses', 'Dispatch-first service orgs'];
 const systemTruths = [
   'Inbound calls can be reviewed and worked from a live queue instead of disappearing after the ring stops.',
-  'Outbound prospects keep status, attempt history, and next-step visibility in one place.',
-  'Public requests do not vanish into a disconnected contact form; they enter the same operator workflow.'
+  'Routing and first-pass intake stay visible so operators can see how work entered the system.',
+  'Public requests and follow-up work stay actionable instead of getting buried in disconnected inboxes.'
 ];
 
 export const metadata: Metadata = {
@@ -89,13 +89,13 @@ export default function ServicesPage() {
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              Workflow review and build-out
+              AI frontdesk services
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              We help service businesses stop losing leads after first contact.
+              AI frontdesk intake and follow-up for service businesses.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              MoLeads is not just a homepage or a form. It is the working layer behind better lead handling: intake, queueing, review, outreach, and operator clarity.
+              MoLeads handles the front end of business demand: capturing inbound interest, organizing first-pass intake, and keeping operator follow-up visible until it is handled.
             </p>
           </div>
         </div>
@@ -177,12 +177,12 @@ export default function ServicesPage() {
       <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What is real today</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Inspectable workflow</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              The strongest proof is whether the workflow stays visible when real work hits it.
+              The offer only works if intake and follow-up stay visible after the first message lands.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              We are not leaning on made-up quotes here. The more useful proof is the actual system behavior that exists in the product right now.
+              This is the useful proof on the page: the workflow does not disappear behind a black box. The team can inspect how requests came in, how they were routed, and what still needs action.
             </p>
           </div>
 
