@@ -5,19 +5,19 @@ import { buildOperatorLeadWebhookPayload } from './home-lead-notification';
 
 const capabilities = [
   {
-    title: 'Stop the drop-off after first contact',
+    title: 'Stop demand from disappearing after first contact',
     body:
-      'MoLeads is built for the moment after interest appears. Calls, web requests, and outbound follow-up should become visible work instead of disappearing into inboxes, sticky notes, or vague handoffs.'
+      'MoLeads is built for the operational gap after interest appears. Calls, web requests, and outbound follow-up become visible work instead of drifting across inboxes, sticky notes, or memory.'
   },
   {
-    title: 'Give operators a next action they can trust',
+    title: 'Give operators a next step they can trust',
     body:
-      'The system keeps queues, status changes, and activity history clear enough for a real operator to work without guessing what happens next.'
+      'Queues, status changes, routing context, and activity history stay clear enough for a real operator to move work forward without guessing.'
   },
   {
-    title: 'Keep the front door tied to the same workflow',
+    title: 'Keep the front door tied to the same follow-up system',
     body:
-      'Website requests, imported prospects, and operator review all feed the same operating flow, so the handoff from interest to follow-up stays inspectable.'
+      'Website requests, imported prospects, and operator review feed the same operating flow, so the handoff from interest to follow-up stays inspectable.'
   }
 ];
 
@@ -29,23 +29,23 @@ const servicePillars = [
 ];
 
 const proofPoints = [
-  'Calls and prospects stay visible in real working queues',
-  'Public requests create live operator work items',
-  'Built for follow-through, not reporting theater'
+  'Inbound calls become inspectable work',
+  'Routing decisions and activity stay visible',
+  'Public requests create live follow-up items'
 ];
 
 const workflowProof = [
   {
-    title: 'Inbound work stays visible',
-    body: 'Completed calls can still be reviewed, triaged, and worked from the queue instead of getting buried after the phone stops ringing.'
+    title: 'Inbound calls stay inspectable',
+    body: 'Completed calls do not vanish after the phone stops ringing. Operators can review routing, urgency, timeline context, and next action from the same working flow.'
   },
   {
-    title: 'Outbound work stays accountable',
-    body: 'Prospects carry clear state, attempt history, and review-next behavior so follow-up is easier to execute and inspect.'
+    title: 'Follow-up work stays accountable',
+    body: 'Prospects carry clear state, attempt history, and next-step guidance so follow-up is easier to execute, inspect, and hand off cleanly.'
   },
   {
-    title: 'The public site is not a dead-end form',
-    body: 'A request from the homepage or contact page becomes a live prospect that lands in the same operator system.'
+    title: 'The website is tied to the real workflow',
+    body: 'A request from the homepage or contact page becomes a live operator work item instead of sitting in a dead-end form inbox.'
   }
 ];
 
@@ -281,7 +281,7 @@ export default async function Home({
             <div>
               <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">MoLeads</div>
               <div className="mt-2 max-w-sm text-sm text-[#c7b8a3]">
-                Lead systems and operator workflow for service businesses that need better follow-through.
+                AI frontdesk workflow for service businesses that need tighter follow-through after first contact.
               </div>
             </div>
             <div className="hidden gap-3 sm:flex">
@@ -292,10 +292,10 @@ export default async function Home({
                 Request workflow review
               </a>
               <a
-                href="/services"
+                href="#services"
                 className="rounded-full bg-[#f8f1e7] px-5 py-2.5 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Services
+                See how it works
               </a>
             </div>
           </header>
@@ -309,13 +309,13 @@ export default async function Home({
           <div className="grid gap-14 py-16 lg:grid-cols-[minmax(0,1.08fr)_420px] lg:items-end lg:py-24">
             <div>
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-                Calls in • requests in • follow-up out
+                For service businesses with inbound demand and follow-up leakage
               </div>
               <h1 className="mt-7 max-w-5xl text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-                We stop leads from dying between first contact and follow-up.
+                Stop leads from dying after the phone rings or the form gets submitted.
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-                MoLeads gives service teams one working system for inbound calls, public requests, and outbound prospect follow-up. If interest shows up, someone should know what to do next and be able to prove it.
+                MoLeads gives service teams one working system for inbound calls, public requests, and follow-up work. If interest shows up, an operator should know what happened, what matters now, and what to do next.
               </p>
               <div className="mt-8 flex flex-wrap gap-3 text-xs uppercase tracking-[0.22em] text-[#cdb89a]">
                 {proofPoints.map((point) => (
@@ -330,10 +330,10 @@ export default async function Home({
                   Request workflow review
                 </a>
                 <a
-                  href="/services"
+                  href="#services"
                   className="rounded-full border border-white/18 px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:border-white/40 hover:bg-white/6"
                 >
-                  See what we do
+                  See how it works
                 </a>
               </div>
             </div>
@@ -345,7 +345,7 @@ export default async function Home({
                   <div>
                     <div className="text-xs uppercase tracking-[0.28em] text-[#dcc8ac]">How MoLeads works</div>
                     <div className="mt-3 text-3xl font-semibold tracking-[-0.04em]">
-                      First contact should create visible work.
+                      First contact should create visible operator work.
                     </div>
                   </div>
                   <div className="rounded-full border border-white/10 px-3 py-1 text-xs uppercase tracking-[0.22em] text-[#f2e5d2]">
@@ -403,10 +403,10 @@ export default async function Home({
         <div className="max-w-3xl">
           <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What we do</div>
           <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-6xl">
-            If interest shows up, it should become visible work instead of loose follow-up.
+            If interest shows up, it should become visible work with a next step.
           </h2>
           <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5d4b3d]">
-            MoLeads helps service operators tighten the handoff between first contact and the next real action. That means clearer intake, clearer follow-up, and less room for demand to disappear.
+            MoLeads helps service operators tighten the handoff between first contact and the next real action. That means clearer intake, routing context, follow-up ownership, and less room for demand to disappear.
           </p>
         </div>
 
@@ -426,12 +426,12 @@ export default async function Home({
       <section className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-12 lg:grid-cols-[0.72fr_1.28fr]">
           <div>
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What is real today</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">What buyers can inspect</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              The strongest proof is workflow truth, not placeholder marketing.
+              The strongest proof is operational visibility, not placeholder marketing.
             </h2>
             <p className="mt-6 max-w-md text-base leading-8 text-[#5d4b3d]">
-              The product is credible when a buyer can see how work enters the system, how it stays visible, and how an operator can move it forward without guessing.
+              The product is credible when a buyer can see how work enters the system, how routing decisions are explained, and how an operator can move the work forward without guessing.
             </p>
           </div>
 
