@@ -56,8 +56,9 @@ const systemTruths = [
 ];
 
 export const metadata: Metadata = {
-  title: 'Services | MoLeads',
-  description: 'Lead intake, follow-up workflow, and operator-system services for service businesses.'
+  title: 'AI Frontdesk Services | MoLeads',
+  description:
+    'See how MoLeads helps service businesses capture inbound requests, organize first-pass intake, and keep operator follow-up visible and actionable.'
 };
 
 export default function ServicesPage() {

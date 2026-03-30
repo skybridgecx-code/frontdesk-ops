@@ -2,6 +2,13 @@ import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { buildPublicLeadPayload } from './home-lead-payload';
 import { buildOperatorLeadWebhookPayload } from './home-lead-notification';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'AI Frontdesk Intake for Service Businesses | MoLeads',
+  description:
+    'MoLeads captures inbound requests, makes first-pass intake visible, and keeps operator follow-up actionable for service businesses.'
+};
 
 const capabilities = [
   {

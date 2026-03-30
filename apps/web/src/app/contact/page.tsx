@@ -30,8 +30,9 @@ type ImportLeadResponse = {
 };
 
 export const metadata: Metadata = {
-  title: 'Contact | MoLeads',
-  description: 'Request a workflow review with MoLeads and tighten the handoff between first contact and follow-up.'
+  title: 'Request Intake Review | MoLeads',
+  description:
+    'Submit a business intake request to MoLeads so inbound demand is captured clearly, organized on the first pass, and ready for operator follow-up.'
 };
 
 async function getBootstrap() {
