@@ -14,7 +14,7 @@ import {
   type OperatorTimelineItem
 } from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
-import { DetailReviewShortcuts } from './detail-review-shortcuts';
+import { CallReviewForm } from './call-review-form';
 import {
   buildDetailReviewNextRequestHref,
   buildQueueNoticeHref,
@@ -389,14 +389,6 @@ export default async function CallDetailPage({
 
   return (
     <OperatorDetailPageShell notice={notice}>
-        <DetailReviewShortcuts
-          formId={reviewFormId}
-          notesFieldId={notesFieldId}
-          reviewStatusFieldId={reviewStatusFieldId}
-          saveButtonId={saveButtonId}
-          saveNextButtonId={saveNextButtonId}
-        />
-
         <OperatorDetailHeader
           returnTo={returnTo}
           returnContextSummary={returnContextSummary}
@@ -586,155 +578,35 @@ export default async function CallDetailPage({
             <span>/ Focus notes</span>
           </div>
 
-          <form id={reviewFormId} action={saveReview} className="mt-4 space-y-4">
-            <div className="grid gap-4 lg:grid-cols-[minmax(18rem,0.8fr)_minmax(0,1.2fr)]">
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Disposition</h3>
-                  <p className="mt-1 text-sm text-neutral-600">
-                    Set the review state first, then use the follow-up actions above if the call needs outreach or archiving.
-                  </p>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Review status</div>
-                      <select
-                        id={reviewStatusFieldId}
-                        name="reviewStatus"
-                        defaultValue={call.reviewStatus}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="UNREVIEWED">Unreviewed</option>
-                        <option value="NEEDS_REVIEW">Needs review</option>
-                        <option value="REVIEWED">Reviewed</option>
-                      </select>
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Urgency</div>
-                      <select
-                        name="urgency"
-                        defaultValue={call.urgency ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="">Unspecified</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="emergency">Emergency</option>
-                      </select>
-                    </label>
-
-                    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
-                      <div>
-                        <span className="font-medium text-black">Follow-up status:</span>{' '}
-                        {formatTriageStatusLabel(call.triageStatus)}
-                      </div>
-                      <div className="mt-1 text-neutral-600">
-                        {call.contactedAt
-                          ? `Marked contacted ${formatDateTime(call.contactedAt)}`
-                          : call.archivedAt
-                            ? `Archived ${formatDateTime(call.archivedAt)}`
-                            : 'No follow-up action recorded yet.'}
-                      </div>
-                    </div>
-                  </div>
-                </section>
-
-                <div className="lg:sticky lg:top-4">
-                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-black">Actions</h3>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Save the review or move straight to the next call needing attention.
-                    </p>
-                    <div className="mt-4 flex flex-col gap-2">
-                      <button
-                        id={saveButtonId}
-                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
-                      >
-                        Save changes
-                      </button>
-                      <button
-                        id={saveNextButtonId}
-                        formAction={saveAndReviewNext}
-                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-                      >
-                        Save and review next
-                      </button>
-                    </div>
-                  </section>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Lead details</h3>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead name</div>
-                      <input
-                        name="leadName"
-                        defaultValue={call.leadName ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead phone</div>
-                      <input
-                        name="leadPhone"
-                        defaultValue={call.leadPhone ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Lead intent</div>
-                      <input
-                        name="leadIntent"
-                        defaultValue={call.leadIntent ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Service address</div>
-                      <input
-                        name="serviceAddress"
-                        defaultValue={call.serviceAddress ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review summary</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Summary</div>
-                      <textarea
-                        name="summary"
-                        defaultValue={call.summary ?? ''}
-                        rows={5}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Operator notes</div>
-                      <textarea
-                        id={notesFieldId}
-                        name="operatorNotes"
-                        defaultValue={call.operatorNotes ?? ''}
-                        rows={8}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
-              </div>
-            </div>
-          </form>
+          <CallReviewForm
+            callSid={callSid}
+            notice={resolvedSearchParams.notice}
+            initialValues={{
+              reviewStatus: call.reviewStatus,
+              urgency: call.urgency ?? '',
+              leadName: call.leadName ?? '',
+              leadPhone: call.leadPhone ?? '',
+              leadIntent: call.leadIntent ?? '',
+              serviceAddress: call.serviceAddress ?? '',
+              summary: call.summary ?? '',
+              operatorNotes: call.operatorNotes ?? ''
+            }}
+            triageStatusLabel={formatTriageStatusLabel(call.triageStatus) ?? '—'}
+            followUpStatusDetail={
+              call.contactedAt
+                ? `Marked contacted ${formatDateTime(call.contactedAt)}`
+                : call.archivedAt
+                  ? `Archived ${formatDateTime(call.archivedAt)}`
+                  : 'No follow-up action recorded yet.'
+            }
+            reviewFormId={reviewFormId}
+            notesFieldId={notesFieldId}
+            reviewStatusFieldId={reviewStatusFieldId}
+            saveButtonId={saveButtonId}
+            saveNextButtonId={saveNextButtonId}
+            saveAction={saveReview}
+            saveAndReviewNextAction={saveAndReviewNext}
+          />
         </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">

@@ -14,6 +14,7 @@ import {
   type OperatorTimelineItem
 } from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { ProspectUpdateForm } from './prospect-update-form';
 import {
   buildFilterHref,
   buildDetailReviewNextRequestHref,
@@ -561,146 +562,26 @@ export default async function ProspectDetailPage({
             </div>
           </div>
 
-          <form action={saveProspect} className="mt-4 space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Company name</div>
-                <input
-                  name="companyName"
-                  defaultValue={prospect.companyName}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Contact name</div>
-                <input
-                  name="contactName"
-                  defaultValue={prospect.contactName ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Contact phone</div>
-                <input
-                  name="contactPhone"
-                  defaultValue={prospect.contactPhone ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Contact email</div>
-                <input
-                  name="contactEmail"
-                  defaultValue={prospect.contactEmail ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">City</div>
-                <input
-                  name="city"
-                  defaultValue={prospect.city ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">State</div>
-                <input
-                  name="state"
-                  defaultValue={prospect.state ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Source</div>
-                <input
-                  name="sourceLabel"
-                  defaultValue={prospect.sourceLabel ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Next action</div>
-                <input
-                  type="datetime-local"
-                  name="nextActionAt"
-                  defaultValue={prospect.nextActionAt ? prospect.nextActionAt.slice(0, 16) : ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Status</div>
-                <select
-                  name="status"
-                  defaultValue={prospect.status}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                >
-                  <option value="NEW">New</option>
-                  <option value="READY">Ready</option>
-                  <option value="IN_PROGRESS">In progress</option>
-                  <option value="ATTEMPTED">Attempted</option>
-                  <option value="RESPONDED">Responded</option>
-                  <option value="QUALIFIED">Qualified</option>
-                  <option value="DISQUALIFIED">Disqualified</option>
-                  <option value="ARCHIVED">Archived</option>
-                </select>
-              </label>
-
-              <label className="text-sm">
-                <div className="mb-2 font-medium">Priority</div>
-                <select
-                  name="priority"
-                  defaultValue={prospect.priority ?? ''}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                >
-                  <option value="">No priority</option>
-                  <option value="HIGH">High</option>
-                  <option value="MEDIUM">Medium</option>
-                  <option value="LOW">Low</option>
-                </select>
-              </label>
-
-              <label className="text-sm md:col-span-2">
-                <div className="mb-2 font-medium">Service interest</div>
-                <textarea
-                  name="serviceInterest"
-                  defaultValue={prospect.serviceInterest ?? ''}
-                  rows={4}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-
-              <label className="text-sm md:col-span-2">
-                <div className="mb-2 font-medium">Notes</div>
-                <textarea
-                  name="notes"
-                  defaultValue={prospect.notes ?? ''}
-                  rows={6}
-                  className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                />
-              </label>
-            </div>
-
-            <div className="flex flex-col gap-2 md:flex-row md:justify-end">
-              <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
-                Save changes
-              </button>
-              <button
-                formAction={saveAndReviewNext}
-                className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-              >
-                Save and review next
-              </button>
-            </div>
-          </form>
+          <ProspectUpdateForm
+            prospectSid={prospectSid}
+            notice={resolvedSearchParams.notice}
+            initialValues={{
+              companyName: prospect.companyName,
+              contactName: prospect.contactName ?? '',
+              contactPhone: prospect.contactPhone ?? '',
+              contactEmail: prospect.contactEmail ?? '',
+              city: prospect.city ?? '',
+              state: prospect.state ?? '',
+              sourceLabel: prospect.sourceLabel ?? '',
+              nextActionAt: prospect.nextActionAt ? prospect.nextActionAt.slice(0, 16) : '',
+              status: prospect.status,
+              priority: prospect.priority ?? '',
+              serviceInterest: prospect.serviceInterest ?? '',
+              notes: prospect.notes ?? ''
+            }}
+            saveAction={saveProspect}
+            saveAndReviewNextAction={saveAndReviewNext}
+          />
         </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
