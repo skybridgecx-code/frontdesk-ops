@@ -11,6 +11,13 @@ type QueueLastActivityPreview = {
   lastActivityDetail: string | null;
 };
 
+type QueueRoutingSummary = {
+  routeKind: string | null;
+  businessStateLabel: 'Open' | 'Closed' | null;
+  routingMode: string | null;
+  phoneLineLabel: string | null;
+} | null;
+
 type CallRow = {
   twilioCallSid: string;
   status: string;
@@ -39,6 +46,7 @@ type CallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  routingSummary: QueueRoutingSummary;
   queueHint: QueueActionHint;
   lastActivityPreview: QueueLastActivityPreview;
 };
@@ -56,6 +64,25 @@ function formatQueueLastActivityPreview(preview: QueueLastActivityPreview) {
     title: preview.lastActivityTitle,
     detailLine: detail ? `${detail} · ${time}` : time
   };
+}
+
+function formatRoutingSummary(summary: QueueRoutingSummary) {
+  if (!summary) {
+    return null;
+  }
+
+  const parts = [
+    summary.businessStateLabel,
+    summary.routingMode,
+    summary.routeKind,
+    summary.phoneLineLabel
+  ].filter(Boolean);
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return parts.join(' · ');
 }
 
 function formatDuration(seconds: number): string {
@@ -452,6 +479,7 @@ export function CallsQueueTable({
                 };
                 const signals = getDataQualitySignals(call);
                 const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
+                const routingSummary = formatRoutingSummary(call.routingSummary);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -487,6 +515,11 @@ export function CallsQueueTable({
                         <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
+                      {routingSummary ? (
+                        <div className="mt-1 text-xs text-neutral-600">
+                          Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
+                        </div>
+                      ) : null}
                       <div className="mt-1 text-xs text-neutral-600">
                         Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
                         <span>{lastActivity.detailLine}</span>

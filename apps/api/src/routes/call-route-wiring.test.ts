@@ -143,23 +143,55 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
     callFindMany: ((async () => [
       {
         twilioCallSid: 'CA_DEMO_102',
+        routeKind: 'VOICEMAIL',
+        phoneNumber: {
+          e164: '+15550000002',
+          label: 'After Hours'
+        },
         summary: 'second',
         startedAt: new Date('2026-03-29T10:00:00.000Z'),
         endedAt: new Date('2026-03-29T10:05:00.000Z'),
         reviewedAt: null,
         contactedAt: null,
         archivedAt: null,
-        events: []
+        events: [
+          {
+            type: FRONTDESK_ROUTE_DECISION_EVENT_TYPE,
+            createdAt: new Date('2026-03-29T10:00:30.000Z'),
+            payloadJson: {
+              routingMode: 'AFTER_HOURS',
+              isOpen: false,
+              routeKind: 'VOICEMAIL',
+              phoneLineLabel: 'After Hours'
+            }
+          }
+        ]
       },
       {
         twilioCallSid: 'CA_DEMO_101',
+        routeKind: 'AI',
+        phoneNumber: {
+          e164: '+15550000001',
+          label: 'Main Line'
+        },
         summary: 'first',
         startedAt: new Date('2026-03-29T09:00:00.000Z'),
         endedAt: new Date('2026-03-29T09:10:00.000Z'),
         reviewedAt: null,
         contactedAt: null,
         archivedAt: null,
-        events: []
+        events: [
+          {
+            type: FRONTDESK_ROUTE_DECISION_EVENT_TYPE,
+            createdAt: new Date('2026-03-29T09:00:30.000Z'),
+            payloadJson: {
+              routingMode: 'BUSINESS_HOURS',
+              isOpen: true,
+              routeKind: 'AI',
+              phoneLineLabel: 'Main Line'
+            }
+          }
+        ]
       }
     ]) as unknown as typeof prisma.call.findMany)
   });
@@ -213,12 +245,23 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
     calls: [
       {
         twilioCallSid: 'CA_DEMO_101',
+        routeKind: 'AI',
+        phoneNumber: {
+          e164: '+15550000001',
+          label: 'Main Line'
+        },
         summary: 'first',
         startedAt: '2026-03-29T09:00:00.000Z',
         endedAt: '2026-03-29T09:10:00.000Z',
         reviewedAt: null,
         contactedAt: null,
         archivedAt: null,
+        routingSummary: {
+          routeKind: 'AI',
+          businessStateLabel: 'Open',
+          routingMode: 'BUSINESS_HOURS',
+          phoneLineLabel: 'Main Line'
+        },
         lastActivityPreview: {
           lastActivityAt: '2026-03-29T09:10:00.000Z',
           lastActivityTitle: 'Ended',
@@ -227,12 +270,23 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
       },
       {
         twilioCallSid: 'CA_DEMO_102',
+        routeKind: 'VOICEMAIL',
+        phoneNumber: {
+          e164: '+15550000002',
+          label: 'After Hours'
+        },
         summary: 'second',
         startedAt: '2026-03-29T10:00:00.000Z',
         endedAt: '2026-03-29T10:05:00.000Z',
         reviewedAt: null,
         contactedAt: null,
         archivedAt: null,
+        routingSummary: {
+          routeKind: 'VOICEMAIL',
+          businessStateLabel: 'Closed',
+          routingMode: 'AFTER_HOURS',
+          phoneLineLabel: 'After Hours'
+        },
         lastActivityPreview: {
           lastActivityAt: '2026-03-29T10:05:00.000Z',
           lastActivityTitle: 'Ended',

@@ -21,6 +21,13 @@ type QueueLastActivityPreview = {
   lastActivityDetail: string | null;
 };
 
+type QueueRoutingSummary = {
+  routeKind: string | null;
+  businessStateLabel: 'Open' | 'Closed' | null;
+  routingMode: string | null;
+  phoneLineLabel: string | null;
+} | null;
+
 type ApiCallRow = {
   twilioCallSid: string;
   status: string;
@@ -49,6 +56,7 @@ type ApiCallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  routingSummary: QueueRoutingSummary;
   lastActivityPreview: QueueLastActivityPreview;
 };
 

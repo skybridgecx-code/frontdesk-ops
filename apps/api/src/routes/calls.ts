@@ -79,6 +79,13 @@ type CallRoutingDecisionSummary = {
   businessTimezone: string | null;
 } | null;
 
+type CallQueueRoutingSummary = {
+  routeKind: string | null;
+  businessStateLabel: 'Open' | 'Closed' | null;
+  routingMode: string | null;
+  phoneLineLabel: string | null;
+} | null;
+
 type CallTimelineEvent = {
   type: string;
   createdAt: Date | string;
@@ -133,6 +140,31 @@ function formatTimelineLabel(value: string | null | undefined) {
   }
 
   return value.toLowerCase().replaceAll('_', ' ').replace(/^\w/, (match) => match.toUpperCase());
+}
+
+function buildCallQueueRoutingSummary(
+  routingDecision: CallRoutingDecisionSummary,
+  fallback: {
+    routeKind: string | null;
+    phoneLineLabel: string | null;
+  }
+): CallQueueRoutingSummary {
+  const routeKind = routingDecision?.routeKind ?? fallback.routeKind ?? null;
+  const routingMode = routingDecision?.routingMode ?? null;
+  const phoneLineLabel = routingDecision?.phoneLineLabel ?? fallback.phoneLineLabel ?? null;
+  const businessStateLabel =
+    routingDecision?.isOpen == null ? null : routingDecision.isOpen ? 'Open' : 'Closed';
+
+  if (!routeKind && !routingMode && !phoneLineLabel && !businessStateLabel) {
+    return null;
+  }
+
+  return {
+    routeKind,
+    businessStateLabel,
+    routingMode,
+    phoneLineLabel
+  };
 }
 
 function pickLatestCallActivity(candidates: CallLastActivityCandidate[]) {
@@ -409,9 +441,14 @@ export async function registerCallRoutes(app: FastifyInstance) {
       ok: true,
       calls: orderedCalls.map((call) => {
         const { events, ...rest } = call;
+        const routingDecision = getLatestCallRoutingDecision(call.events);
 
         return {
           ...rest,
+          routingSummary: buildCallQueueRoutingSummary(routingDecision, {
+            routeKind: call.routeKind,
+            phoneLineLabel: call.phoneNumber.label
+          }),
           lastActivityPreview: buildCallLastActivityPreview({
             startedAt: call.startedAt,
             endedAt: call.endedAt,
