@@ -314,6 +314,24 @@ function getLocationCoverageContext(prospect: ProspectRow) {
   return 'Location: thin coverage';
 }
 
+function getCompanyIdentityCoverageContext(prospect: ProspectRow) {
+  const hasCompany = Boolean(prospect.companyName?.trim());
+  const hasContact = Boolean(prospect.contactName?.trim());
+  const hasWebsite = Boolean(prospect.sourceWebsiteUrl?.trim());
+
+  const identitySignals = [
+    hasCompany ? 'company' : null,
+    hasContact ? 'contact' : null,
+    hasWebsite ? 'website' : null
+  ].filter(Boolean) as string[];
+
+  if (identitySignals.length === 0) {
+    return 'Identity: thin coverage';
+  }
+
+  return `Identity: ${identitySignals.join(' + ')}`;
+}
+
 function getLastTouchTimingContext(prospect: ProspectRow) {
   const repliedAt = prospect.respondedAt ? new Date(prospect.respondedAt) : null;
   const attemptedAt = prospect.lastAttemptAt ? new Date(prospect.lastAttemptAt) : null;
@@ -1088,6 +1106,7 @@ export default async function ProspectsPage({
               const attemptContext = getAttemptContext(prospect);
               const contactCoverage = getContactCoverageContext(prospect);
               const locationCoverage = getLocationCoverageContext(prospect);
+              const identityCoverage = getCompanyIdentityCoverageContext(prospect);
               const lastTouchTiming = getLastTouchTimingContext(prospect);
 
               return (
@@ -1137,6 +1156,7 @@ export default async function ProspectsPage({
                     </div>
                     <div className="text-neutral-600">{attemptContext}</div>
                     <div className="text-neutral-600">{lastTouchTiming}</div>
+                    <div className="text-neutral-600">{identityCoverage}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
                   </div>
