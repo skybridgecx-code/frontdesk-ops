@@ -30,9 +30,9 @@ type ImportLeadResponse = {
 };
 
 export const metadata: Metadata = {
-  title: 'Request Intake Review | MoLeads',
+  title: 'Request Home-Service Intake Review | MoLeads',
   description:
-    'Submit a business intake request to MoLeads so inbound demand is captured clearly, organized on the first pass, and ready for operator follow-up.'
+    'Submit a home-service intake request to MoLeads so inbound calls and requests are captured clearly, organized on the first pass, and ready for operator follow-up.'
 };
 
 async function getBootstrap() {
@@ -121,7 +121,7 @@ export default async function ContactPage({
   const leadRequested = resolved.notice === 'lead-requested';
   const failureMessage =
     resolved.notice === 'lead-request-failed'
-      ? resolved.error?.trim() || 'Business intake request failed.'
+      ? resolved.error?.trim() || 'Home-service intake request failed.'
       : null;
 
   async function requestConsultation(formData: FormData) {
@@ -219,10 +219,10 @@ export default async function ContactPage({
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              Business intake request
+              Home-service intake request
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-              Send a business intake request for the part of your funnel where inbound work needs a clearer follow-up path.
+              Send a home-service intake request for the part of your funnel where inbound work needs a clearer follow-up path.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
               Use this form when you want inbound requests to come in clearly, stay visible through first-pass intake, and reach operators with a workable follow-up path.
@@ -411,7 +411,7 @@ export default async function ContactPage({
                     The request stays visible in the workflow instead of disappearing into a generic website inbox.
                   </p>
                 <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                    Request intake review
+                    Request home-service intake review
                 </button>
                 </div>
               </form>

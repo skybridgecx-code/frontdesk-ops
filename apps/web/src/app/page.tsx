@@ -5,9 +5,9 @@ import { buildOperatorLeadWebhookPayload } from './home-lead-notification';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AI Frontdesk Intake for Service Businesses | MoLeads',
+  title: 'AI Frontdesk for Home-Service Teams | MoLeads',
   description:
-    'MoLeads captures inbound requests, makes first-pass intake visible, and keeps operator follow-up actionable for service businesses.'
+    'MoLeads helps HVAC, plumbing, and electrical teams capture inbound calls and requests, keep first-pass intake visible, and move operator follow-up forward.'
 };
 
 const capabilities = [
@@ -297,7 +297,7 @@ export default async function Home({
             <div>
               <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">MoLeads</div>
               <div className="mt-2 max-w-sm text-sm text-[#c7b8a3]">
-                AI frontdesk workflow for service businesses that need tighter follow-through after first contact.
+                AI frontdesk workflow for HVAC, plumbing, and electrical teams that need tighter follow-through after first contact.
               </div>
             </div>
             <div className="hidden gap-3 sm:flex">
@@ -305,7 +305,7 @@ export default async function Home({
                 href="/contact"
                 className="rounded-full border border-white/15 px-5 py-2.5 text-sm text-[#f8f1e7] transition hover:border-white/40 hover:bg-white/6"
               >
-                Request intake review
+                Request home-service intake review
               </a>
               <a
                 href="#how-it-works"
@@ -325,10 +325,10 @@ export default async function Home({
           <div className="grid gap-14 py-16 lg:grid-cols-[minmax(0,1.08fr)_420px] lg:items-end lg:py-24">
             <div>
               <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-                AI frontdesk for service-business intake and follow-up
+                AI frontdesk for home-service intake and follow-up
               </div>
               <h1 className="mt-7 max-w-5xl text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
-                AI frontdesk intake and follow-up for service businesses.
+                AI frontdesk intake and follow-up for home-service teams.
               </h1>
               <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
                 MoLeads captures inbound calls and public requests, keeps first-pass intake and routing visible, and gives operators a clear follow-up path instead of a black box after first contact.
@@ -343,7 +343,7 @@ export default async function Home({
                   href="/contact"
                   className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
                 >
-                  Request intake review
+                  Request home-service intake review
                 </a>
                 <a
                   href="#how-it-works"
@@ -402,9 +402,9 @@ export default async function Home({
           <div className="flex flex-wrap items-center gap-3 text-xs uppercase tracking-[0.28em] text-[#8a6a4d]">
             <span className="mr-2 text-[#5a4738]">Best fit</span>
             {[
-              'Teams handling inbound demand every day',
+              'HVAC, plumbing, and electrical teams handling inbound demand every day',
               'Operators who need cleaner next actions',
-              'Service businesses tired of dropped follow-up',
+              'Home-service teams tired of dropped follow-up',
               'Founders who want visible execution, not just more leads'
             ].map((marker) => (
               <span key={marker} className="rounded-full border border-[#d7c7b6] bg-[#f7f0e7] px-4 py-2">
@@ -502,7 +502,7 @@ export default async function Home({
       <section id="contact" className="mx-auto max-w-7xl px-6 py-20 md:px-10 lg:px-12">
         <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr]">
           <div className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Request intake review</div>
+            <div className="text-xs uppercase tracking-[0.28em] text-[#8e7054]">Request home-service intake review</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
               Show us where inbound calls or requests need a clearer intake and follow-up path.
             </h2>
@@ -646,7 +646,7 @@ export default async function Home({
                   The request stays visible in the workflow instead of disappearing into a generic website inbox.
                 </p>
                 <button className="rounded-full bg-[#17120f] px-6 py-3 text-sm font-medium text-[#f8f1e7] transition hover:-translate-y-0.5 hover:bg-[#2b221c]">
-                  Request intake review
+                  Request home-service intake review
                 </button>
               </div>
             </form>

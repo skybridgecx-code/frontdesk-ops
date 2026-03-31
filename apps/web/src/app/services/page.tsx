@@ -5,7 +5,7 @@ const serviceLines = [
     eyebrow: 'Inbound capture',
     title: 'Capture inbound interest without losing the thread',
     description:
-      'MoLeads gives service businesses a better front door for the moment demand first appears. Calls and public requests enter a path built to become real work instead of a disconnected message pile.',
+      'MoLeads gives home-service teams a better front door for the moment demand first appears. Calls and public requests enter a path built to become real work instead of a disconnected message pile.',
     bullets: [
       'Inbound calls and public requests enter an inspectable workflow',
       'Request details start in a usable intake shape instead of loose notes',
@@ -37,7 +37,7 @@ const serviceLines = [
 ];
 
 const engagementPoints = [
-  'Service businesses with inbound demand they need to capture reliably',
+  'HVAC, plumbing, and electrical teams with inbound demand they need to capture reliably',
   'Operators or founders who need tighter follow-up after first contact',
   'Teams replacing scattered notes, forms, and vague handoffs with a real workflow'
 ];
@@ -56,9 +56,9 @@ const systemTruths = [
 ];
 
 export const metadata: Metadata = {
-  title: 'AI Frontdesk Services | MoLeads',
+  title: 'AI Frontdesk for Home-Service Teams | MoLeads',
   description:
-    'See how MoLeads helps service businesses capture inbound requests, organize first-pass intake, and keep operator follow-up visible and actionable.'
+    'See how MoLeads helps HVAC, plumbing, and electrical teams capture inbound requests, organize first-pass intake, and keep operator follow-up visible and actionable.'
 };
 
 export default function ServicesPage() {
@@ -83,7 +83,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-5 py-2.5 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request intake review
+                Request home-service intake review
               </a>
             </div>
           </header>
@@ -96,7 +96,7 @@ export default function ServicesPage() {
               Capture inbound calls or requests, keep intake visible, and give operators a clearer follow-up path.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              MoLeads is an AI frontdesk for service businesses. It captures inbound demand, keeps first-pass intake and routing visible, and helps operators review what happened and follow up with clear next actions.
+              MoLeads is an AI frontdesk for HVAC, plumbing, and electrical teams. It captures inbound demand, keeps first-pass intake and routing visible, and helps operators review what happened and follow up with clear next actions.
             </p>
           </div>
         </div>
@@ -148,7 +148,7 @@ export default function ServicesPage() {
           <div>
             <div className="text-xs uppercase tracking-[0.28em] text-[#866749]">Who this is for</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] text-[#17120f] md:text-5xl">
-              Teams that already have inbound demand, but do not trust how it gets captured and worked.
+              HVAC, plumbing, and electrical teams that already have inbound demand, but do not trust how it gets captured and worked.
             </h2>
             <div className="mt-8 grid gap-3">
               {engagementPoints.map((point) => (
@@ -206,7 +206,7 @@ export default function ServicesPage() {
           <div className="max-w-3xl">
             <div className="text-xs uppercase tracking-[0.28em] text-[#dcc8ac]">Next step</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.05em] md:text-5xl">
-              Request intake review for the part of your business where inbound work needs a clearer follow-up path.
+              Request home-service intake review for the part of your business where inbound work needs a clearer follow-up path.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#d8c9b5]">
               Start with the point where inbound calls or requests come in. The goal is to make first-pass intake visible, keep the details attached, and give operators a clearer path to review and follow up.
@@ -216,7 +216,7 @@ export default function ServicesPage() {
                 href="/contact"
                 className="rounded-full bg-[#f8f1e7] px-6 py-3 text-sm font-medium text-[#17120f] transition hover:-translate-y-0.5 hover:bg-white"
               >
-                Request intake review
+                Request home-service intake review
               </a>
               <a
                 href="/"

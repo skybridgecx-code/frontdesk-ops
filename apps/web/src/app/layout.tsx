@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "MoLeads",
-  description: "AI frontdesk intake and follow-up workflow for service businesses that need inbound demand to stay visible and actionable."
+  description: "AI frontdesk intake and follow-up workflow for HVAC, plumbing, and electrical teams that need inbound calls and requests to stay visible and actionable."
 };
 
 export default function RootLayout({
