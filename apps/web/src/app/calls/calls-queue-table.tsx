@@ -391,6 +391,24 @@ function getServiceLocationCoverageSummary(call: CallRow) {
   return 'Service location: thin coverage';
 }
 
+function getCallerIdentityCoverageSummary(call: CallRow) {
+  const hasLeadName = Boolean(call.leadName?.trim());
+  const hasLeadPhone = Boolean(call.leadPhone?.trim());
+  const hasCallerNumber = Boolean(call.fromE164?.trim());
+
+  const identitySignals = [
+    hasLeadName ? 'name' : null,
+    hasLeadPhone ? 'lead number' : null,
+    hasCallerNumber ? 'caller number' : null
+  ].filter(Boolean) as string[];
+
+  if (identitySignals.length === 0) {
+    return 'Caller identity: thin coverage';
+  }
+
+  return `Caller identity: ${identitySignals.join(' + ')}`;
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -584,6 +602,7 @@ export function CallsQueueTable({
                 const routingSummary = formatRoutingSummary(call.routingSummary);
                 const signalCoverage = getSignalCoverageSummary(call);
                 const callbackCoverage = getCallbackCoverageSummary(call);
+                const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
                 const lastContactTiming = getLastContactTimingSummary(call);
                 const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
 
@@ -631,6 +650,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{callbackCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{callerIdentityCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
