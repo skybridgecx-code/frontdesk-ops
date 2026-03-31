@@ -123,16 +123,20 @@ type ImportLeadResponse = {
 };
 
 async function getBootstrap() {
-  const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-    cache: 'no-store',
-    headers: getInternalApiHeaders()
-  });
+  try {
+    const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
+      cache: 'no-store',
+      headers: getInternalApiHeaders()
+    });
 
-  if (!res.ok) {
-    throw new Error(`Failed to load bootstrap: ${res.status}`);
+    if (!res.ok) {
+      return null;
+    }
+
+    return (await res.json()) as BootstrapResponse;
+  } catch {
+    return null;
   }
-
-  return (await res.json()) as BootstrapResponse;
 }
 
 function buildHomeNoticeHref(notice: string, extras?: Record<string, string | undefined>) {
@@ -209,8 +213,8 @@ export default async function Home({
 }) {
   const resolved = await searchParams;
   const bootstrap = await getBootstrap();
-  const activeBusiness = bootstrap.tenant?.businesses[0] ?? null;
-  const tenantId = bootstrap.tenant?.id ?? null;
+  const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const tenantId = bootstrap?.tenant?.id ?? null;
   const noticeMessage = getNoticeMessage(resolved.notice, resolved.error?.trim());
   const requestedCompany = resolved.company?.trim() || 'Your request';
   const successWarning = resolved.warning?.trim() || null;
