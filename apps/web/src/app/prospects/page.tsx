@@ -31,6 +31,7 @@ type ProspectRow = {
   prospectSid: string;
   companyName: string;
   contactName: string | null;
+  sourceRoleTitle: string | null;
   contactPhone: string | null;
   contactEmail: string | null;
   sourceWebsiteUrl: string | null;
@@ -330,6 +331,10 @@ function getCompanyIdentityCoverageContext(prospect: ProspectRow) {
   }
 
   return `Identity: ${identitySignals.join(' + ')}`;
+}
+
+function getContactTitleCoverageContext(prospect: ProspectRow) {
+  return prospect.sourceRoleTitle?.trim() ? 'Role: title ready' : 'Role: thin coverage';
 }
 
 function getLastTouchTimingContext(prospect: ProspectRow) {
@@ -1107,6 +1112,7 @@ export default async function ProspectsPage({
               const contactCoverage = getContactCoverageContext(prospect);
               const locationCoverage = getLocationCoverageContext(prospect);
               const identityCoverage = getCompanyIdentityCoverageContext(prospect);
+              const contactTitleCoverage = getContactTitleCoverageContext(prospect);
               const lastTouchTiming = getLastTouchTimingContext(prospect);
 
               return (
@@ -1157,6 +1163,7 @@ export default async function ProspectsPage({
                     <div className="text-neutral-600">{attemptContext}</div>
                     <div className="text-neutral-600">{lastTouchTiming}</div>
                     <div className="text-neutral-600">{identityCoverage}</div>
+                    <div className="text-neutral-600">{contactTitleCoverage}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
                   </div>

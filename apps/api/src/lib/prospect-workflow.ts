@@ -53,6 +53,7 @@ const prospectListSelect = {
   contactName: true,
   contactPhone: true,
   contactEmail: true,
+  sourceRoleTitle: true,
   city: true,
   state: true,
   sourceLabel: true,
