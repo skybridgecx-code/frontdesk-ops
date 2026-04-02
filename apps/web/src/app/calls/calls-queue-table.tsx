@@ -660,66 +660,75 @@ export function CallsQueueTable({
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <a
-                        href={buildCallDetailHref(call.twilioCallSid, currentHref)}
-                        className="font-medium underline underline-offset-2"
-                      >
-                        {call.twilioCallSid}
-                      </a>
-                      <div className="mt-1 text-neutral-600">{call.fromE164 ?? 'Unknown caller'}</div>
-                      <div className="mt-1 text-neutral-500">
-                        {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
-                      </div>
-                      <div className="mt-1 text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
-                      <div className="mt-2 text-neutral-900">{getCallerPreview(call)}</div>
-                      <div className="mt-2 flex flex-wrap items-center gap-2">
-                        <span
-                          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(call.queueHint.tone)}`}
-                        >
-                          {call.queueHint.label}
-                        </span>
-                        <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
-                      {routingSummary ? (
-                        <div className="mt-1 text-xs text-neutral-600">
-                          Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <a
+                            href={buildCallDetailHref(call.twilioCallSid, currentHref)}
+                            className="font-medium underline underline-offset-2"
+                          >
+                            {call.twilioCallSid}
+                          </a>
+                          <div className="text-neutral-600">{call.fromE164 ?? 'Unknown caller'}</div>
+                          <div className="text-neutral-500">
+                            {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
+                          </div>
+                          <div className="text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
+                          <div className="text-neutral-900">{getCallerPreview(call)}</div>
                         </div>
-                      ) : null}
-                      {routingReasonSummary ? (
-                        <div className="mt-1 text-xs text-neutral-600">
-                          <span className="font-medium text-neutral-800">{routingReasonSummary}</span>
+                        <div className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(call.queueHint.tone)}`}
+                            >
+                              {call.queueHint.label}
+                            </span>
+                            <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
+                          </div>
+                          <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
                         </div>
-                      ) : null}
-                      <div className="mt-1 text-xs text-neutral-600">
-                        Signals: <span className="font-medium text-neutral-800">{signalCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{callbackCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{callerIdentityCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{intentCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{reviewTrailCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{noteCoverage}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        <span className="font-medium text-neutral-800">{lastContactTiming}</span>
-                      </div>
-                      <div className="mt-1 text-xs text-neutral-600">
-                        Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
-                        <span>{lastActivity.detailLine}</span>
-                      </div>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                        <div className="space-y-1 rounded-xl border border-neutral-200 bg-neutral-50/70 px-3 py-2">
+                          {routingSummary ? (
+                            <div className="text-xs text-neutral-600">
+                              Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
+                            </div>
+                          ) : null}
+                          {routingReasonSummary ? (
+                            <div className="text-xs text-neutral-600">
+                              <span className="font-medium text-neutral-800">{routingReasonSummary}</span>
+                            </div>
+                          ) : null}
+                          <div className="text-xs text-neutral-600">
+                            Signals: <span className="font-medium text-neutral-800">{signalCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{callbackCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{callerIdentityCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{intentCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{reviewTrailCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{noteCoverage}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1 rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{lastContactTiming}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
+                            <span>{lastActivity.detailLine}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
                         {call.routeKind ? (
                           <span
                             className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.routeKind)}`}
@@ -742,6 +751,7 @@ export function CallsQueueTable({
                             Unreviewed
                           </span>
                         ) : null}
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">

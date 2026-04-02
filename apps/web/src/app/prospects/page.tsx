@@ -1158,7 +1158,7 @@ export default async function ProspectsPage({
 
               return (
                 <div key={prospect.prospectSid} className="grid gap-4 px-4 py-4 md:grid-cols-[1.8fr_1fr_1fr_1.2fr]">
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <a
                         href={buildProspectDetailHref(prospect.prospectSid, currentHref)}
@@ -1188,51 +1188,63 @@ export default async function ProspectsPage({
                     <div className="text-sm text-black">{headline}</div>
                   </div>
 
-                  <div className="space-y-2 text-sm">
-                    <div className="flex flex-wrap gap-2">
-                      <span className="rounded-full border border-black px-2.5 py-1 text-xs font-medium">
-                        {prospect.status.replaceAll('_', ' ')}
-                      </span>
-                      <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
-                        {prospect.priority ?? 'NO PRIORITY'}
-                      </span>
+                  <div className="space-y-3 text-sm">
+                    <div className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                      <div className="flex flex-wrap gap-2">
+                        <span className="rounded-full border border-black px-2.5 py-1 text-xs font-medium">
+                          {prospect.status.replaceAll('_', ' ')}
+                        </span>
+                        <span className="rounded-full border border-neutral-300 px-2.5 py-1 text-xs font-medium text-neutral-700">
+                          {prospect.priority ?? 'NO PRIORITY'}
+                        </span>
+                      </div>
+                      <div className="mt-1 text-neutral-600">
+                        Created {formatDateTime(prospect.createdAt)}
+                        {responseTime ? ` · Responded ${responseTime}` : ''}
+                      </div>
                     </div>
-                    <div className="text-neutral-600">
-                      Created {formatDateTime(prospect.createdAt)}
-                      {responseTime ? ` · Responded ${responseTime}` : ''}
+                    <div className="space-y-1 rounded-xl border border-neutral-200 bg-neutral-50/70 px-3 py-2">
+                      <div className="text-neutral-600">{attemptContext}</div>
+                      <div className="text-neutral-600">{lastTouchTiming}</div>
+                      <div className="text-neutral-600">{identityCoverage}</div>
+                      <div className="text-neutral-600">{sourceCategoryCoverage}</div>
+                      <div className="text-neutral-600">{sourceOriginCoverage}</div>
+                      <div className="text-neutral-600">{serviceInterestCoverage}</div>
+                      <div className="text-neutral-600">{contactTitleCoverage}</div>
+                      <div className="text-neutral-600">{contactCoverage}</div>
+                      <div className="text-neutral-600">{locationCoverage}</div>
+                      <div className="text-neutral-600">{nextActionCoverage}</div>
+                      <div className="text-neutral-600">{noteCoverage}</div>
                     </div>
-                    <div className="text-neutral-600">{attemptContext}</div>
-                    <div className="text-neutral-600">{lastTouchTiming}</div>
-                    <div className="text-neutral-600">{identityCoverage}</div>
-                    <div className="text-neutral-600">{sourceCategoryCoverage}</div>
-                    <div className="text-neutral-600">{sourceOriginCoverage}</div>
-                    <div className="text-neutral-600">{serviceInterestCoverage}</div>
-                    <div className="text-neutral-600">{contactTitleCoverage}</div>
-                    <div className="text-neutral-600">{contactCoverage}</div>
-                    <div className="text-neutral-600">{locationCoverage}</div>
-                    <div className="text-neutral-600">{nextActionCoverage}</div>
-                    <div className="text-neutral-600">{noteCoverage}</div>
                   </div>
 
-                  <div className="space-y-2 text-sm text-neutral-700">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span
-                        className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(prospect.queueHint.tone)}`}
-                      >
-                        {prospect.queueHint.label}
-                      </span>
-                      <span className="text-neutral-600">
-                        {nextAction ? `Next action ${nextAction}` : 'No next-action time set'}
-                      </span>
+                  <div className="space-y-3 text-sm text-neutral-700">
+                    <div className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span
+                          className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(prospect.queueHint.tone)}`}
+                        >
+                          {prospect.queueHint.label}
+                        </span>
+                        <span className="text-neutral-600">
+                          {nextAction ? `Next action ${nextAction}` : 'No next-action time set'}
+                        </span>
+                      </div>
+                      <div className="mt-1">{prospect.queueHint.reason}</div>
                     </div>
-                    <div>{prospect.queueHint.reason}</div>
-                    <div>{prospect.notes?.trim() || 'No additional notes recorded.'}</div>
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 px-3 py-2">
+                      {prospect.notes?.trim() || 'No additional notes recorded.'}
+                    </div>
                   </div>
 
-                  <div className="space-y-2 text-sm text-neutral-700">
-                    <div className="font-medium text-neutral-900">{lastActivity.title}</div>
-                    <div>{lastActivity.detailLine}</div>
-                    <div>{latestAttempt?.note?.trim() || 'No attempt note recorded.'}</div>
+                  <div className="space-y-3 text-sm text-neutral-700">
+                    <div className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                      <div className="font-medium text-neutral-900">{lastActivity.title}</div>
+                      <div>{lastActivity.detailLine}</div>
+                    </div>
+                    <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 px-3 py-2">
+                      {latestAttempt?.note?.trim() || 'No attempt note recorded.'}
+                    </div>
                   </div>
                 </div>
               );
