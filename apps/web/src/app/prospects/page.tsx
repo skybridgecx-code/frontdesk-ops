@@ -39,6 +39,7 @@ type ProspectRow = {
   state: string | null;
   sourceLabel: string | null;
   sourceCategory: string | null;
+  sourceProvider: string | null;
   serviceInterest: string | null;
   notes: string | null;
   status: string;
@@ -342,6 +343,20 @@ function getSourceCategoryCoverageContext(prospect: ProspectRow) {
   const sourceCategory = prospect.sourceCategory?.trim();
 
   return sourceCategory ? `Source category: ${sourceCategory}` : 'Source category: thin coverage';
+}
+
+function formatSourceProviderLabel(sourceProvider: string | null) {
+  if (!sourceProvider) {
+    return null;
+  }
+
+  return sourceProvider.toLowerCase().replaceAll('_', ' ');
+}
+
+function getSourceOriginCoverageContext(prospect: ProspectRow) {
+  const sourceProvider = formatSourceProviderLabel(prospect.sourceProvider);
+
+  return sourceProvider ? `Source origin: ${sourceProvider}` : 'Source origin: thin coverage';
 }
 
 function getNoteCoverageContext(prospect: ProspectRow) {
@@ -1124,6 +1139,7 @@ export default async function ProspectsPage({
               const locationCoverage = getLocationCoverageContext(prospect);
               const identityCoverage = getCompanyIdentityCoverageContext(prospect);
               const sourceCategoryCoverage = getSourceCategoryCoverageContext(prospect);
+              const sourceOriginCoverage = getSourceOriginCoverageContext(prospect);
               const contactTitleCoverage = getContactTitleCoverageContext(prospect);
               const noteCoverage = getNoteCoverageContext(prospect);
               const lastTouchTiming = getLastTouchTimingContext(prospect);
@@ -1177,6 +1193,7 @@ export default async function ProspectsPage({
                     <div className="text-neutral-600">{lastTouchTiming}</div>
                     <div className="text-neutral-600">{identityCoverage}</div>
                     <div className="text-neutral-600">{sourceCategoryCoverage}</div>
+                    <div className="text-neutral-600">{sourceOriginCoverage}</div>
                     <div className="text-neutral-600">{contactTitleCoverage}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
