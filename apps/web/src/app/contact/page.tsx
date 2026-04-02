@@ -30,9 +30,9 @@ type ImportLeadResponse = {
 };
 
 export const metadata: Metadata = {
-  title: 'Request Home-Service Intake Review | MoLeads',
+  title: 'Request Home-Service Intake Review | SkybridgeCX',
   description:
-    'Submit a home-service intake request to MoLeads so inbound calls and requests are captured clearly, organized on the first pass, and ready for operator follow-up.'
+    'Submit a home-service intake request to SkybridgeCX so inbound calls and requests are captured clearly, organized on the first pass, and ready for operator follow-up.'
 };
 
 async function getBootstrap() {
@@ -198,7 +198,7 @@ export default async function ContactPage({
         <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 lg:px-12">
           <header className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">MoLeads</div>
+              <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">SkybridgeCX</div>
               <div className="mt-2 text-sm text-[#c7b8a3]">Contact</div>
             </div>
             <div className="flex gap-3">

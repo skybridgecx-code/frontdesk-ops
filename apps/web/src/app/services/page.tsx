@@ -5,7 +5,7 @@ const serviceLines = [
     eyebrow: 'Inbound capture',
     title: 'Capture inbound interest without losing the thread',
     description:
-      'MoLeads gives home-service teams a better front door for the moment demand first appears. Calls and public requests enter a path built to become real work instead of a disconnected message pile.',
+      'SkybridgeCX gives home-service teams a better front door for the moment demand first appears. Calls and public requests enter a path built to become real work instead of a disconnected message pile.',
     bullets: [
       'Inbound calls and public requests enter an inspectable workflow',
       'Request details start in a usable intake shape instead of loose notes',
@@ -27,7 +27,7 @@ const serviceLines = [
     eyebrow: 'Operator follow-up',
     title: 'Keep follow-up visible until the team actually handles it',
     description:
-      'MoLeads is not just intake capture. It supports the operating work after first contact: review, outreach, archive decisions, and queue visibility so follow-up stays actionable instead of fading out.',
+      'SkybridgeCX is not just intake capture. It supports the operating work after first contact: review, outreach, archive decisions, and queue visibility so follow-up stays actionable instead of fading out.',
     bullets: [
       'Actionable operator queues for inbound and follow-up work',
       'Review and outreach workflows that stay tied to current state',
@@ -56,9 +56,9 @@ const systemTruths = [
 ];
 
 export const metadata: Metadata = {
-  title: 'AI Frontdesk for Home-Service Teams | MoLeads',
+  title: 'AI Frontdesk for Home-Service Teams | SkybridgeCX',
   description:
-    'See how MoLeads helps HVAC, plumbing, and electrical teams capture inbound requests, organize first-pass intake, and keep operator follow-up visible and actionable.'
+    'See how SkybridgeCX helps HVAC, plumbing, and electrical teams capture inbound requests, organize first-pass intake, and keep operator follow-up visible and actionable.'
 };
 
 export default function ServicesPage() {
@@ -69,7 +69,7 @@ export default function ServicesPage() {
         <div className="relative mx-auto max-w-7xl px-6 py-8 md:px-10 lg:px-12">
           <header className="flex items-center justify-between gap-4">
             <div>
-              <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">MoLeads</div>
+              <div className="text-xs uppercase tracking-[0.34em] text-[#dcc8ac]">SkybridgeCX</div>
               <div className="mt-2 text-sm text-[#c7b8a3]">Services</div>
             </div>
             <div className="flex gap-3">
@@ -90,13 +90,13 @@ export default function ServicesPage() {
 
           <div className="max-w-4xl py-18 md:py-24">
             <div className="inline-flex rounded-full border border-white/12 bg-white/6 px-4 py-2 text-xs uppercase tracking-[0.28em] text-[#f0d7af]">
-              AI frontdesk for intake and follow-up
+              AI front desk for intake and follow-up
             </div>
             <h1 className="mt-7 text-5xl leading-[0.92] font-semibold tracking-[-0.06em] md:text-7xl">
               Capture inbound calls or requests, keep intake visible, and give operators a clearer follow-up path.
             </h1>
             <p className="mt-7 max-w-2xl text-lg leading-8 text-[#d8c9b5] md:text-xl">
-              MoLeads is an AI frontdesk for HVAC, plumbing, and electrical teams. It captures inbound demand, keeps first-pass intake and routing visible, and helps operators review what happened and follow up with clear next actions.
+              SkybridgeCX is an AI front desk for HVAC, plumbing, and electrical teams. It captures inbound demand, keeps first-pass intake and routing visible, and helps operators review what happened and follow up with clear next actions.
             </p>
           </div>
         </div>

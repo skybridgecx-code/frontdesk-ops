@@ -34,6 +34,6 @@ test('buildPublicLeadPayload requires a company name and some contact method', (
   assert.throws(() => buildPublicLeadPayload(missingCompany), /Company name is required/);
 
   const missingContact = new FormData();
-  missingContact.set('companyName', 'MoLeads Prospect');
+  missingContact.set('companyName', 'SkybridgeCX Prospect');
   assert.throws(() => buildPublicLeadPayload(missingContact), /Add at least one contact method/);
 });

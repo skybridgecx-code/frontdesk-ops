@@ -6,9 +6,9 @@ import { InteractiveCallFlow } from './interactive-call-flow';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'MoLeads | AI front desk for service businesses',
+  title: 'SkybridgeCX | AI front desk for service businesses',
   description:
-    'MoLeads answers calls, captures requests, routes urgent work, and keeps follow-up clean for service businesses.'
+    'SkybridgeCX answers calls, captures requests, routes urgent work, and keeps follow-up clean for service businesses.'
 };
 
 const problemBefore = [
@@ -29,11 +29,11 @@ const howItWorks = [
   {
     step: '01',
     title: 'Connect the business',
-    body: 'Point MoLeads at the number and intake path already in use.'
+    body: 'Point SkybridgeCX at the number and intake path already in use.'
   },
   {
     step: '02',
-    title: 'MoLeads handles the call',
+    title: 'SkybridgeCX handles the call',
     body: 'The caller is answered, qualified, and routed with the right context attached.'
   },
   {
@@ -202,7 +202,7 @@ function HeroScene() {
               M
             </div>
             <div>
-              <div className="text-sm font-semibold tracking-[-0.03em] text-white">MoLeads live</div>
+              <div className="text-sm font-semibold tracking-[-0.03em] text-white">SkybridgeCX live</div>
               <div className="text-[11px] uppercase tracking-[0.28em] text-[#a5b0ff]">AI front desk</div>
             </div>
           </div>
@@ -525,7 +525,7 @@ export default async function Home({
                 M
               </div>
               <div>
-                <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">MoLeads</div>
+                <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">SkybridgeCX</div>
                 <div className="text-xs text-[#6b7280]">AI front desk for service businesses</div>
               </div>
             </a>
@@ -583,7 +583,7 @@ export default async function Home({
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5f6678] md:text-xl">
-                MoLeads is the AI front desk for home-service businesses. It answers inbound calls 24/7, qualifies the
+                SkybridgeCX is the AI front desk for home-service businesses. It answers inbound calls 24/7, qualifies the
                 request, routes urgent work, books next steps, and hands your team a clean summary.
               </p>
 
@@ -828,7 +828,7 @@ export default async function Home({
               <div className="rounded-[1.6rem] border border-[#e3ecff] bg-[linear-gradient(180deg,#f8fbff,#fff)] p-5 shadow-[0_18px_40px_rgba(59,130,246,0.08)]">
                 <div className="text-[11px] uppercase tracking-[0.3em] text-[#4674d8]">02 · Answer</div>
                 <div className="mt-3 text-lg font-medium tracking-[-0.03em] text-[#0f172a]">
-                  MoLeads qualifies and routes while the call is live.
+                  SkybridgeCX qualifies and routes while the call is live.
                 </div>
               </div>
               <div className="rounded-[1.6rem] border border-[#dbeee3] bg-[linear-gradient(180deg,#f6fbf8,#fff)] p-5 shadow-[0_18px_40px_rgba(34,197,94,0.08)]">
@@ -904,8 +904,8 @@ export default async function Home({
                 The revenue already calling in stays visible.
               </div>
               <p className="mt-5 max-w-xl text-base leading-8 text-[#cbd2f0]">
-                MoLeads cuts the friction between the first ring and the next step, so the business keeps more of the
-                calls that should have become booked work.
+                SkybridgeCX cuts the friction between the first ring and the next step, so the business keeps more of the
+                  calls that should have become booked work.
               </p>
             </div>
 
@@ -1005,7 +1005,7 @@ export default async function Home({
               <div className="grid gap-2">
                 <div className="text-xs uppercase tracking-[0.34em] text-[#7c5cff]">Request details</div>
                 <p className="text-sm leading-6 text-[#5f6678]">
-                  Tell us what calls you want handled. We’ll show how MoLeads would answer, qualify, and route them.
+                  Tell us what calls you want handled. We’ll show how your calls would be answered, qualified, and routed.
                 </p>
               </div>
 
@@ -1016,6 +1016,14 @@ export default async function Home({
                     name="companyName"
                     placeholder="Sterling Plumbing"
                     required
+                    className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
+                  />
+                </label>
+                <label className="space-y-2 text-sm">
+                  <span className="font-medium text-[#111827]">Contact name</span>
+                  <input
+                    name="contactName"
+                    placeholder="Alicia Grant"
                     className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
                   />
                 </label>
@@ -1035,8 +1043,21 @@ export default async function Home({
                     placeholder="owner@example.com"
                     className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
                   />
+                  <span className="block text-xs leading-6 text-[#6b7280]">
+                    Add a phone number or email so we know where to follow up.
+                  </span>
                 </label>
               </div>
+
+              <label className="space-y-2 text-sm">
+                <span className="font-medium text-[#111827]">What calls do you want handled?</span>
+                <textarea
+                  name="serviceInterest"
+                  rows={3}
+                  placeholder="After-hours emergencies, new estimates, and routine scheduling calls"
+                  className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-3 text-sm text-[#111827] placeholder:text-[#8b95a7]"
+                />
+              </label>
 
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <p className="max-w-md text-sm leading-6 text-[#5f6678]">
@@ -1054,7 +1075,7 @@ export default async function Home({
       <footer className="border-t border-[#e8e3db] bg-white/80">
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-12">
           <div>
-            <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">MoLeads</div>
+            <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">SkybridgeCX</div>
             <p className="mt-1 text-sm text-[#6b7280]">AI front desk for service businesses.</p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#4b5563]">

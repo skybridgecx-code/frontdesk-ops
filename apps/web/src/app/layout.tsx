@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "MoLeads",
-  description: "AI frontdesk intake and follow-up workflow for HVAC, plumbing, and electrical teams that need inbound calls and requests to stay visible and actionable."
+  title: "SkybridgeCX",
+  description: "AI front desk intake and follow-up workflow for HVAC, plumbing, and electrical teams that need inbound calls and requests to stay visible and actionable."
 };
 
 export default function RootLayout({
