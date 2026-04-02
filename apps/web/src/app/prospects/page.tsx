@@ -359,6 +359,12 @@ function getSourceOriginCoverageContext(prospect: ProspectRow) {
   return sourceProvider ? `Source origin: ${sourceProvider}` : 'Source origin: thin coverage';
 }
 
+function getServiceInterestCoverageContext(prospect: ProspectRow) {
+  return prospect.serviceInterest?.trim()
+    ? 'Service interest: context ready'
+    : 'Service interest: thin coverage';
+}
+
 function getNoteCoverageContext(prospect: ProspectRow) {
   return prospect.notes?.trim() ? 'Notes: operator context captured' : 'Notes: none captured';
 }
@@ -1140,6 +1146,7 @@ export default async function ProspectsPage({
               const identityCoverage = getCompanyIdentityCoverageContext(prospect);
               const sourceCategoryCoverage = getSourceCategoryCoverageContext(prospect);
               const sourceOriginCoverage = getSourceOriginCoverageContext(prospect);
+              const serviceInterestCoverage = getServiceInterestCoverageContext(prospect);
               const contactTitleCoverage = getContactTitleCoverageContext(prospect);
               const noteCoverage = getNoteCoverageContext(prospect);
               const lastTouchTiming = getLastTouchTimingContext(prospect);
@@ -1194,6 +1201,7 @@ export default async function ProspectsPage({
                     <div className="text-neutral-600">{identityCoverage}</div>
                     <div className="text-neutral-600">{sourceCategoryCoverage}</div>
                     <div className="text-neutral-600">{sourceOriginCoverage}</div>
+                    <div className="text-neutral-600">{serviceInterestCoverage}</div>
                     <div className="text-neutral-600">{contactTitleCoverage}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
