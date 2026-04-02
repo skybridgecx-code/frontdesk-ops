@@ -84,6 +84,7 @@ type CallQueueRoutingSummary = {
   businessStateLabel: 'Open' | 'Closed' | null;
   routingMode: string | null;
   phoneLineLabel: string | null;
+  routingReasonLabel: string | null;
 } | null;
 
 type CallTimelineEvent = {
@@ -152,10 +153,14 @@ function buildCallQueueRoutingSummary(
   const routeKind = routingDecision?.routeKind ?? fallback.routeKind ?? null;
   const routingMode = routingDecision?.routingMode ?? null;
   const phoneLineLabel = routingDecision?.phoneLineLabel ?? fallback.phoneLineLabel ?? null;
+  const routingReasonLabel =
+    formatTimelineLabel(routingDecision?.reason) ??
+    formatTimelineLabel(routingDecision?.message) ??
+    null;
   const businessStateLabel =
     routingDecision?.isOpen == null ? null : routingDecision.isOpen ? 'Open' : 'Closed';
 
-  if (!routeKind && !routingMode && !phoneLineLabel && !businessStateLabel) {
+  if (!routeKind && !routingMode && !phoneLineLabel && !businessStateLabel && !routingReasonLabel) {
     return null;
   }
 
@@ -163,7 +168,8 @@ function buildCallQueueRoutingSummary(
     routeKind,
     businessStateLabel,
     routingMode,
-    phoneLineLabel
+    phoneLineLabel,
+    routingReasonLabel
   };
 }
 

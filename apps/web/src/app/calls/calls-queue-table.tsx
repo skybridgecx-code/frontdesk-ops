@@ -16,6 +16,7 @@ type QueueRoutingSummary = {
   businessStateLabel: 'Open' | 'Closed' | null;
   routingMode: string | null;
   phoneLineLabel: string | null;
+  routingReasonLabel: string | null;
 } | null;
 
 type CallRow = {
@@ -84,6 +85,14 @@ function formatRoutingSummary(summary: QueueRoutingSummary) {
   }
 
   return parts.join(' · ');
+}
+
+function getRoutingReasonSummary(summary: QueueRoutingSummary) {
+  if (!summary?.routingReasonLabel) {
+    return null;
+  }
+
+  return `Routing reason: ${summary.routingReasonLabel}`;
 }
 
 function formatRelativeTouchTime(value: string) {
@@ -600,6 +609,7 @@ export function CallsQueueTable({
                 const signals = getDataQualitySignals(call);
                 const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
                 const routingSummary = formatRoutingSummary(call.routingSummary);
+                const routingReasonSummary = getRoutingReasonSummary(call.routingSummary);
                 const signalCoverage = getSignalCoverageSummary(call);
                 const callbackCoverage = getCallbackCoverageSummary(call);
                 const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
@@ -643,6 +653,11 @@ export function CallsQueueTable({
                       {routingSummary ? (
                         <div className="mt-1 text-xs text-neutral-600">
                           Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
+                        </div>
+                      ) : null}
+                      {routingReasonSummary ? (
+                        <div className="mt-1 text-xs text-neutral-600">
+                          <span className="font-medium text-neutral-800">{routingReasonSummary}</span>
                         </div>
                       ) : null}
                       <div className="mt-1 text-xs text-neutral-600">

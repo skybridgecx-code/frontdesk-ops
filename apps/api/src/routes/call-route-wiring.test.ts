@@ -162,6 +162,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
               routingMode: 'AFTER_HOURS',
               isOpen: false,
               routeKind: 'VOICEMAIL',
+              reason: 'after_hours',
               phoneLineLabel: 'After Hours'
             }
           }
@@ -188,6 +189,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
               routingMode: 'BUSINESS_HOURS',
               isOpen: true,
               routeKind: 'AI',
+              reason: 'business_hours',
               phoneLineLabel: 'Main Line'
             }
           }
@@ -260,7 +262,8 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           routeKind: 'AI',
           businessStateLabel: 'Open',
           routingMode: 'BUSINESS_HOURS',
-          phoneLineLabel: 'Main Line'
+          phoneLineLabel: 'Main Line',
+          routingReasonLabel: 'Business hours'
         },
         lastActivityPreview: {
           lastActivityAt: '2026-03-29T09:10:00.000Z',
@@ -285,7 +288,8 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           routeKind: 'VOICEMAIL',
           businessStateLabel: 'Closed',
           routingMode: 'AFTER_HOURS',
-          phoneLineLabel: 'After Hours'
+          phoneLineLabel: 'After Hours',
+          routingReasonLabel: 'After hours'
         },
         lastActivityPreview: {
           lastActivityAt: '2026-03-29T10:05:00.000Z',

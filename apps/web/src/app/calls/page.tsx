@@ -26,6 +26,7 @@ type QueueRoutingSummary = {
   businessStateLabel: 'Open' | 'Closed' | null;
   routingMode: string | null;
   phoneLineLabel: string | null;
+  routingReasonLabel: string | null;
 } | null;
 
 type ApiCallRow = {
