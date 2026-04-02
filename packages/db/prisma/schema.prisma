@@ -82,6 +82,45 @@ enum CallReviewStatus {
   NEEDS_REVIEW
 }
 
+enum ProspectStatus {
+  NEW
+  READY
+  IN_PROGRESS
+  ATTEMPTED
+  RESPONDED
+  QUALIFIED
+  DISQUALIFIED
+  ARCHIVED
+}
+
+enum ProspectPriority {
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum ProspectSourceProvider {
+  MANUAL
+  PUBLIC_INTAKE
+  GOOGLE_PLACES
+  APOLLO_PEOPLE_SEARCH
+}
+
+enum ProspectAttemptChannel {
+  CALL
+  EMAIL
+  SMS
+}
+
+enum ProspectAttemptOutcome {
+  NO_ANSWER
+  LEFT_VOICEMAIL
+  SENT_EMAIL
+  REPLIED
+  BAD_FIT
+  DO_NOT_CONTACT
+}
+
 model Tenant {
   id            String         @id @default(cuid())
   name          String
@@ -94,6 +133,8 @@ model Tenant {
   phoneNumbers  PhoneNumber[]
   agentProfiles AgentProfile[]
   calls         Call[]
+  prospects     Prospect[]
+  prospectImportBatches ProspectImportBatch[]
 
   @@index([slug])
 }
@@ -145,6 +186,8 @@ model Business {
   businessHours  BusinessHours[]
   serviceAreas   ServiceArea[]
   calls          Call[]
+  prospects      Prospect[]
+  prospectImportBatches ProspectImportBatch[]
 
   @@unique([tenantId, slug])
   @@index([tenantId])
@@ -322,4 +365,95 @@ model CallEvent {
   @@unique([callId, sequence])
   @@index([callId])
   @@index([type])
+}
+
+model Prospect {
+  id              String            @id @default(cuid())
+  tenantId        String
+  businessId      String
+  prospectSid     String            @unique
+  companyName     String
+  contactName     String?
+  contactPhone    String?
+  contactEmail    String?
+  city            String?
+  state           String?
+  sourceLabel     String?
+  sourceProvider  ProspectSourceProvider @default(MANUAL)
+  sourceProviderRecordId String?
+  sourceFingerprint String?
+  sourceWebsiteUrl String?
+  sourceMapsUrl   String?
+  sourceLinkedinUrl String?
+  sourceCategory  String?
+  sourceRoleTitle String?
+  sourceMetadataJson Json?
+  lastImportBatchId String?
+  firstSeenAt     DateTime          @default(now())
+  lastSeenAt      DateTime          @default(now())
+  serviceInterest String?
+  notes           String?
+  status          ProspectStatus    @default(NEW)
+  priority        ProspectPriority?
+  nextActionAt    DateTime?
+  lastAttemptAt   DateTime?
+  respondedAt     DateTime?
+  archivedAt      DateTime?
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  tenant          Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business        Business          @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  lastImportBatch ProspectImportBatch? @relation(fields: [lastImportBatchId], references: [id], onDelete: SetNull)
+  attempts        ProspectAttempt[]
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([sourceProvider])
+  @@index([lastImportBatchId])
+  @@index([status])
+  @@index([priority])
+  @@index([nextActionAt])
+  @@index([lastAttemptAt])
+  @@unique([tenantId, businessId, sourceProvider, sourceProviderRecordId])
+  @@unique([tenantId, businessId, sourceProvider, sourceFingerprint])
+}
+
+model ProspectAttempt {
+  id          String                @id @default(cuid())
+  prospectId  String
+  channel     ProspectAttemptChannel
+  outcome     ProspectAttemptOutcome
+  note        String?
+  attemptedAt DateTime              @default(now())
+  createdAt   DateTime              @default(now())
+
+  prospect    Prospect              @relation(fields: [prospectId], references: [id], onDelete: Cascade)
+
+  @@index([prospectId])
+  @@index([channel])
+  @@index([outcome])
+  @@index([attemptedAt])
+}
+
+model ProspectImportBatch {
+  id            String                 @id @default(cuid())
+  tenantId      String
+  businessId    String
+  sourceProvider ProspectSourceProvider
+  sourceLabel   String?
+  createdCount  Int                    @default(0)
+  updatedCount  Int                    @default(0)
+  skippedCount  Int                    @default(0)
+  createdAt     DateTime               @default(now())
+  updatedAt     DateTime               @updatedAt
+
+  tenant        Tenant                 @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  business      Business               @relation(fields: [businessId], references: [id], onDelete: Cascade)
+  prospects     Prospect[]
+
+  @@index([tenantId])
+  @@index([businessId])
+  @@index([sourceProvider])
+  @@index([createdAt])
 }

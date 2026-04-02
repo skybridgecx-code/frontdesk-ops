@@ -61,7 +61,10 @@ export const ModelName = {
   BusinessHours: 'BusinessHours',
   ServiceArea: 'ServiceArea',
   Call: 'Call',
-  CallEvent: 'CallEvent'
+  CallEvent: 'CallEvent',
+  Prospect: 'Prospect',
+  ProspectAttempt: 'ProspectAttempt',
+  ProspectImportBatch: 'ProspectImportBatch'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -262,6 +265,74 @@ export const CallEventScalarFieldEnum = {
 } as const
 
 export type CallEventScalarFieldEnum = (typeof CallEventScalarFieldEnum)[keyof typeof CallEventScalarFieldEnum]
+
+
+export const ProspectScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  prospectSid: 'prospectSid',
+  companyName: 'companyName',
+  contactName: 'contactName',
+  contactPhone: 'contactPhone',
+  contactEmail: 'contactEmail',
+  city: 'city',
+  state: 'state',
+  sourceLabel: 'sourceLabel',
+  sourceProvider: 'sourceProvider',
+  sourceProviderRecordId: 'sourceProviderRecordId',
+  sourceFingerprint: 'sourceFingerprint',
+  sourceWebsiteUrl: 'sourceWebsiteUrl',
+  sourceMapsUrl: 'sourceMapsUrl',
+  sourceLinkedinUrl: 'sourceLinkedinUrl',
+  sourceCategory: 'sourceCategory',
+  sourceRoleTitle: 'sourceRoleTitle',
+  sourceMetadataJson: 'sourceMetadataJson',
+  lastImportBatchId: 'lastImportBatchId',
+  firstSeenAt: 'firstSeenAt',
+  lastSeenAt: 'lastSeenAt',
+  serviceInterest: 'serviceInterest',
+  notes: 'notes',
+  status: 'status',
+  priority: 'priority',
+  nextActionAt: 'nextActionAt',
+  lastAttemptAt: 'lastAttemptAt',
+  respondedAt: 'respondedAt',
+  archivedAt: 'archivedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProspectScalarFieldEnum = (typeof ProspectScalarFieldEnum)[keyof typeof ProspectScalarFieldEnum]
+
+
+export const ProspectAttemptScalarFieldEnum = {
+  id: 'id',
+  prospectId: 'prospectId',
+  channel: 'channel',
+  outcome: 'outcome',
+  note: 'note',
+  attemptedAt: 'attemptedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type ProspectAttemptScalarFieldEnum = (typeof ProspectAttemptScalarFieldEnum)[keyof typeof ProspectAttemptScalarFieldEnum]
+
+
+export const ProspectImportBatchScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  businessId: 'businessId',
+  sourceProvider: 'sourceProvider',
+  sourceLabel: 'sourceLabel',
+  createdCount: 'createdCount',
+  updatedCount: 'updatedCount',
+  skippedCount: 'skippedCount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ProspectImportBatchScalarFieldEnum = (typeof ProspectImportBatchScalarFieldEnum)[keyof typeof ProspectImportBatchScalarFieldEnum]
 
 
 export const SortOrder = {

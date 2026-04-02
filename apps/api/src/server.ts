@@ -22,6 +22,7 @@ import { enforceBasicAuth, shouldSkipBasicAuth } from './lib/basic-auth.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
+import { registerProspectImportRoutes } from './routes/prospect-import.js';
 
 export async function buildServer() {
   const app = Fastify({
@@ -65,6 +66,7 @@ export async function buildServer() {
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerAgentProfileWriteRoutes(app);
+  await registerProspectImportRoutes(app);
 
   return app;
 }
