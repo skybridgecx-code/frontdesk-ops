@@ -419,6 +419,10 @@ function getCallerIdentityCoverageSummary(call: CallRow) {
   return `Caller identity: ${identitySignals.join(' + ')}`;
 }
 
+function getIntentCoverageSummary(call: CallRow) {
+  return call.leadIntent?.trim() ? 'Intent: context ready' : 'Intent: thin coverage';
+}
+
 function getNoteCoverageSummary(call: CallRow) {
   return call.operatorNotes?.trim() ? 'Notes: operator context captured' : 'Notes: none captured';
 }
@@ -618,6 +622,7 @@ export function CallsQueueTable({
                 const signalCoverage = getSignalCoverageSummary(call);
                 const callbackCoverage = getCallbackCoverageSummary(call);
                 const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
+                const intentCoverage = getIntentCoverageSummary(call);
                 const lastContactTiming = getLastContactTimingSummary(call);
                 const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
                 const noteCoverage = getNoteCoverageSummary(call);
@@ -674,6 +679,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{callerIdentityCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{intentCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
