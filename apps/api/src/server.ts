@@ -18,6 +18,11 @@ import { registerCallReviewRoutes } from './routes/call-review.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
 import { registerCallTriageRoutes } from './routes/call-triage.js';
 import { registerCallBackfillRoutes } from './routes/call-backfill.js';
+import { registerProspectRoutes } from './routes/prospects.js';
+import { registerProspectReviewNextRoutes } from './routes/prospect-review-next.js';
+import { registerProspectImportRoutes } from './routes/prospect-import.js';
+import { registerProspectProviderImportRoutes } from './routes/prospect-provider-import.js';
+import { registerProspectWriteRoutes } from './routes/prospect-write.js';
 import { enforceBasicAuth, shouldSkipBasicAuth } from './lib/basic-auth.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
@@ -51,6 +56,11 @@ export async function buildServer() {
   await registerCallTranscriptRoutes(app);
   await registerCallTriageRoutes(app);
   await registerCallBackfillRoutes(app);
+  await registerProspectReviewNextRoutes(app);
+  await registerProspectRoutes(app);
+  await registerProspectImportRoutes(app);
+  await registerProspectProviderImportRoutes(app);
+  await registerProspectWriteRoutes(app);
   app.addHook('onRequest', async (request, reply) => {
     if (shouldSkipBasicAuth(request.url)) {
       return;

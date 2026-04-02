@@ -1,5 +1,10 @@
 import {
   prisma,
+  CallDirection,
+  CallReviewStatus,
+  CallRouteKind,
+  CallStatus,
+  CallTriageStatus,
   AgentChannel,
   BusinessVertical,
   MembershipRole,
@@ -7,6 +12,8 @@ import {
   PhoneRoutingMode,
   Weekday
 } from './index';
+import { demoCallFixtures } from './demo-call-fixtures';
+import { demoProspectFixtures } from './demo-prospect-fixtures';
 
 async function main() {
   const tenant = await prisma.tenant.upsert({
@@ -291,6 +298,126 @@ async function main() {
     }
   }
 
+  const demoCalls = demoCallFixtures.map((demoCall) => ({
+    ...demoCall,
+    toE164: phoneNumber.e164
+  }));
+
+  for (const demoCall of demoCalls) {
+    const existingCall = await prisma.call.findUnique({
+      where: {
+        twilioCallSid: demoCall.twilioCallSid
+      },
+      select: {
+        id: true
+      }
+    });
+
+    const data = {
+      tenantId: tenant.id,
+      businessId: business.id,
+      phoneNumberId: phoneNumber.id,
+      agentProfileId: agentProfile.id,
+      direction: CallDirection.INBOUND,
+      status: demoCall.status,
+      routeKind: demoCall.routeKind,
+      fromE164: demoCall.fromE164,
+      toE164: demoCall.toE164,
+      callerTranscript: demoCall.callerTranscript,
+      assistantTranscript: demoCall.assistantTranscript,
+      leadName: demoCall.leadName,
+      leadPhone: demoCall.leadPhone,
+      leadIntent: demoCall.leadIntent,
+      urgency: demoCall.urgency,
+      serviceAddress: demoCall.serviceAddress,
+      summary: demoCall.summary,
+      triageStatus: demoCall.triageStatus,
+      reviewStatus: demoCall.reviewStatus,
+      contactedAt: 'contactedAt' in demoCall ? demoCall.contactedAt : null,
+      reviewedAt: 'reviewedAt' in demoCall ? demoCall.reviewedAt : null,
+      startedAt: demoCall.startedAt,
+      answeredAt: demoCall.answeredAt,
+      endedAt: demoCall.endedAt,
+      durationSeconds: demoCall.durationSeconds
+    };
+
+    if (existingCall) {
+      await prisma.call.update({
+        where: { id: existingCall.id },
+        data
+      });
+    } else {
+      await prisma.call.create({
+        data: {
+          twilioCallSid: demoCall.twilioCallSid,
+          twilioStreamSid: demoCall.twilioStreamSid,
+          ...data
+        }
+      });
+    }
+  }
+
+  for (const fixture of demoProspectFixtures) {
+    const existingProspect = await prisma.prospect.findUnique({
+      where: {
+        prospectSid: fixture.prospectSid
+      },
+      select: {
+        id: true
+      }
+    });
+
+    const prospectData = {
+      tenantId: tenant.id,
+      businessId: business.id,
+      companyName: fixture.companyName,
+      contactName: fixture.contactName,
+      contactPhone: fixture.contactPhone,
+      contactEmail: fixture.contactEmail,
+      city: fixture.city,
+      state: fixture.state,
+      sourceLabel: fixture.sourceLabel,
+      serviceInterest: fixture.serviceInterest,
+      notes: fixture.notes,
+      status: fixture.status,
+      priority: fixture.priority,
+      nextActionAt: fixture.nextActionAt,
+      lastAttemptAt: fixture.lastAttemptAt,
+      respondedAt: fixture.respondedAt,
+      archivedAt: fixture.archivedAt
+    };
+
+    const prospect = existingProspect
+      ? await prisma.prospect.update({
+          where: { id: existingProspect.id },
+          data: prospectData,
+          select: { id: true }
+        })
+      : await prisma.prospect.create({
+          data: {
+            prospectSid: fixture.prospectSid,
+            ...prospectData
+          },
+          select: { id: true }
+        });
+
+    await prisma.prospectAttempt.deleteMany({
+      where: { prospectId: prospect.id }
+    });
+
+    if (fixture.attempts.length > 0) {
+      await prisma.prospectAttempt.createMany({
+        data: fixture.attempts.map((attempt) => ({
+          prospectId: prospect.id,
+          channel: attempt.channel,
+          outcome: attempt.outcome,
+          note: attempt.note,
+          attemptedAt: attempt.attemptedAt
+        }))
+      });
+    }
+  }
+
   const hours = await prisma.businessHours.findMany({
     where: { businessId: business.id },
     orderBy: { weekday: 'asc' },
@@ -333,6 +460,21 @@ async function main() {
         },
         agentProfile: { id: agentProfile.id, name: agentProfile.name },
         afterHoursAgent: { id: afterHoursAgent.id, name: afterHoursAgent.name },
+        demoCallsSeeded: demoCalls.map((call) => ({
+          twilioCallSid: call.twilioCallSid,
+          status: call.status,
+          triageStatus: call.triageStatus,
+          reviewStatus: call.reviewStatus,
+          hasCallerTranscript: Boolean(call.callerTranscript),
+          hasAssistantTranscript: Boolean(call.assistantTranscript),
+          hasSummary: Boolean(call.summary)
+        })),
+        demoProspectsSeeded: demoProspectFixtures.map((prospect) => ({
+          prospectSid: prospect.prospectSid,
+          status: prospect.status,
+          priority: prospect.priority,
+          attempts: prospect.attempts.length
+        })),
         businessHours: hours,
         serviceAreas
       },

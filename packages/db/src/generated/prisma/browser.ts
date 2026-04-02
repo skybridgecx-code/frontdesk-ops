@@ -72,3 +72,18 @@ export type Call = Prisma.CallModel
  * 
  */
 export type CallEvent = Prisma.CallEventModel
+/**
+ * Model Prospect
+ * 
+ */
+export type Prospect = Prisma.ProspectModel
+/**
+ * Model ProspectAttempt
+ * 
+ */
+export type ProspectAttempt = Prisma.ProspectAttemptModel
+/**
+ * Model ProspectImportBatch
+ * 
+ */
+export type ProspectImportBatch = Prisma.ProspectImportBatchModel

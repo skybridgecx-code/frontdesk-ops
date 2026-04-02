@@ -1,16 +1,42 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import { buildQueueContextSummary } from '@/app/operator-workflow';
+import { getCallQueueActionHint, type QueueActionHint } from '@/app/queue-action-hints';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { CallsQueueTable } from './calls-queue-table';
+import {
+  buildCallDetailHref,
+  buildFilterHref,
+  buildNoticeHref,
+  buildQueueReviewNextRequestHref,
+  normalizeLimit,
+  normalizePage
+} from './workflow-urls';
 
 export const dynamic = 'force-dynamic';
 
-type CallRow = {
+type QueueLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
+type QueueRoutingSummary = {
+  routeKind: string | null;
+  businessStateLabel: 'Open' | 'Closed' | null;
+  routingMode: string | null;
+  phoneLineLabel: string | null;
+  routingReasonLabel: string | null;
+} | null;
+
+type ApiCallRow = {
   twilioCallSid: string;
   status: string;
   routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
+  contactedAt: string | null;
+  reviewedAt: string | null;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -18,7 +44,12 @@ type CallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  operatorNotes: string | null;
+  callerTranscript: string | null;
+  assistantTranscript: string | null;
   startedAt: string;
+  answeredAt: string | null;
+  endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
     e164: string;
@@ -28,11 +59,17 @@ type CallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  routingSummary: QueueRoutingSummary;
+  lastActivityPreview: QueueLastActivityPreview;
+};
+
+type CallRow = ApiCallRow & {
+  queueHint: QueueActionHint;
 };
 
 type CallsResponse = {
   ok: true;
-  calls: CallRow[];
+  calls: ApiCallRow[];
   page: number;
   limit: number;
   total: number;
@@ -61,14 +98,6 @@ type CallsSearchParams = {
   limit?: string;
   notice?: string;
 };
-
-function normalizeLimit(value: string | undefined) {
-  return String(Math.min(Math.max(Number(value ?? '25') || 25, 1), 100));
-}
-
-function normalizePage(value: string | undefined) {
-  return String(Math.max(Number(value ?? '1') || 1, 1));
-}
 
 async function getCalls(input: {
   triageStatus?: string;
@@ -112,39 +141,6 @@ async function getCallsSummary() {
   return (await res.json()) as CallsSummary;
 }
 
-function buildFilterHref(input: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-  page?: string;
-  limit?: string;
-  notice?: string;
-}) {
-  const params = new URLSearchParams();
-
-  if (input.triageStatus) params.set('triageStatus', input.triageStatus);
-  if (input.reviewStatus) params.set('reviewStatus', input.reviewStatus);
-  if (input.urgency) params.set('urgency', input.urgency);
-  if (input.q?.trim()) params.set('q', input.q.trim());
-
-  const normalizedPage = normalizePage(input.page);
-  if (normalizedPage !== '1') params.set('page', normalizedPage);
-
-  const normalizedLimit = normalizeLimit(input.limit);
-  if (normalizedLimit !== '25') params.set('limit', normalizedLimit);
-  if (input.notice) params.set('notice', input.notice);
-
-  const query = params.toString();
-  return query ? `/calls?${query}` : '/calls';
-}
-
-function buildNoticeHref(currentHref: string, notice: string) {
-  const url = new URL(currentHref, 'http://localhost');
-  url.searchParams.set('notice', notice);
-  return `${url.pathname}${url.search}`;
-}
-
 function formatReviewStatusLabel(value: string | undefined) {
   switch (value) {
     case 'UNREVIEWED':
@@ -186,24 +182,6 @@ function formatUrgencyLabel(value: string | undefined) {
   }
 }
 
-function buildQueueContextSummary(input: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-  page?: string;
-}) {
-  const parts = [
-    formatTriageStatusLabel(input.triageStatus),
-    formatReviewStatusLabel(input.reviewStatus),
-    formatUrgencyLabel(input.urgency),
-    input.q?.trim() ? `Search: "${input.q.trim()}"` : null,
-    input.page && input.page !== '1' ? `Page ${input.page}` : null
-  ].filter(Boolean);
-
-  return parts.length > 0 ? parts.join(' • ') : 'Open queue';
-}
-
 function getNoticeMessage(notice: string | undefined) {
   switch (notice) {
     case 'contacted':
@@ -217,7 +195,7 @@ function getNoticeMessage(notice: string | undefined) {
     case 'row-saved':
       return 'Lead details and review state saved.';
     case 'no-review-calls':
-      return 'No calls currently need review.';
+      return 'No calls currently need attention.';
     default:
       return null;
   }
@@ -254,9 +232,12 @@ function SummaryCard({
   href: string;
 }) {
   return (
-    <a href={href} className="block rounded-2xl border border-neutral-200 p-4 hover:border-neutral-400">
-      <div className="text-sm text-neutral-600">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
+    <a
+      href={href}
+      className="block min-w-[8.75rem] shrink-0 rounded-xl border border-neutral-200 bg-white px-3 py-2 hover:border-neutral-400"
+    >
+      <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">{label}</div>
+      <div className="mt-1 text-xl font-semibold tracking-tight">{value}</div>
     </a>
   );
 }
@@ -274,13 +255,6 @@ export default async function CallsPage({
   const page = normalizePage(resolved.page);
   const limit = normalizeLimit(resolved.limit);
   const noticeMessage = getNoticeMessage(resolved.notice);
-  const queueContextSummary = buildQueueContextSummary({
-    triageStatus,
-    reviewStatus,
-    urgency,
-    q,
-    page
-  });
 
   if (!triageStatus) {
     redirect(
@@ -302,6 +276,15 @@ export default async function CallsPage({
     page,
     limit
   });
+  const queueContextSummary = buildQueueContextSummary({
+    currentHref,
+    fallbackLabel: 'Open work queue',
+    formatters: {
+      triageStatus: formatTriageStatusLabel,
+      reviewStatus: formatReviewStatusLabel,
+      urgency: formatUrgencyLabel
+    }
+  });
 
   const [data, summary] = await Promise.all([
     getCalls({
@@ -314,6 +297,24 @@ export default async function CallsPage({
     }),
     getCallsSummary()
   ]);
+  const calls = data.calls.map((call) => ({
+    ...call,
+    queueHint: getCallQueueActionHint({
+      triageStatus: call.triageStatus as 'OPEN' | 'CONTACTED' | 'ARCHIVED',
+      reviewStatus: call.reviewStatus as 'UNREVIEWED' | 'REVIEWED' | 'NEEDS_REVIEW',
+      contactedAt: call.contactedAt,
+      archivedAt: null,
+      urgency: call.urgency,
+      leadName: call.leadName,
+      leadPhone: call.leadPhone,
+      fromE164: call.fromE164,
+      leadIntent: call.leadIntent,
+      serviceAddress: call.serviceAddress,
+      summary: call.summary,
+      callerTranscript: call.callerTranscript,
+      assistantTranscript: null
+    })
+  }));
 
   const currentPage = data.page;
   const totalPages = data.totalPages;
@@ -343,7 +344,7 @@ export default async function CallsPage({
   async function reviewNext() {
     'use server';
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+    const res = await fetch(`${getApiBaseUrl()}${buildQueueReviewNextRequestHref(currentHref)}`, {
       cache: 'no-store',
       headers: getInternalApiHeaders()
     });
@@ -358,7 +359,7 @@ export default async function CallsPage({
       redirect(buildNoticeHref(currentHref, 'no-review-calls'));
     }
 
-    redirect(`/calls/${data.callSid}?returnTo=${encodeURIComponent(currentHref)}`);
+    redirect(buildCallDetailHref(data.callSid, currentHref));
   }
 
   async function markContacted(formData: FormData) {
@@ -511,9 +512,9 @@ export default async function CallsPage({
       <div className="mx-auto max-w-6xl space-y-6">
         <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
           <div>
-            <h1 className="text-3xl font-semibold tracking-tight">Frontdesk Ops</h1>
+            <h1 className="text-3xl font-semibold tracking-tight">Inbound work</h1>
             <p className="mt-1 text-sm text-neutral-600">
-              Searchable call queue with clear review state, triage actions, and urgency visibility.
+              Searchable call queue with clear review state, next actions, and urgency visibility.
             </p>
           </div>
 
@@ -530,28 +531,41 @@ export default async function CallsPage({
           </div>
         ) : null}
 
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-          <span className="font-medium text-black">Queue context</span>{' '}
-          <span>Opening a call keeps this view: {queueContextSummary}</span>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
+            <span className="font-medium text-black">Queue context</span>{' '}
+            <span>Opening a call keeps this view: {queueContextSummary}</span>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm text-neutral-700">
+            <div className="font-medium text-black">Start here</div>
+            <div className="mt-2 space-y-1.5 text-sm">
+              <div>1. Start with the first open call, usually `CA_DEMO_101` after reset.</div>
+              <div>2. Review urgency, summary, and contact state before making changes.</div>
+              <div>3. Save, mark contacted, or use `Review next` to keep moving.</div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
+            <div className="font-medium text-black">Queue signals</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-rose-300 bg-rose-100 px-2.5 py-1 text-xs font-medium text-rose-900">
+                Needs review
+              </span>
+              <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
+                Unreviewed
+              </span>
+              <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
+                Missing data
+              </span>
+              <span className="rounded-full border border-red-300 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-900">
+                Emergency / High urgency
+              </span>
+            </div>
+          </div>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-          <span className="font-medium text-black">Queue signals:</span>
-          <span className="rounded-full border border-rose-300 bg-rose-100 px-2.5 py-1 text-xs font-medium text-rose-900">
-            Needs review
-          </span>
-          <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
-            Unreviewed
-          </span>
-          <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
-            Missing data
-          </span>
-          <span className="rounded-full border border-red-300 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-900">
-            Emergency / High urgency
-          </span>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           <SummaryCard
             label="Open"
             value={summary.openCalls}
@@ -594,10 +608,10 @@ export default async function CallsPage({
           />
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-neutral-200 p-4">
-          <form action="/calls" className="flex flex-col gap-3 md:flex-row md:items-end">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-3">
+          <form action="/calls" className="flex flex-col gap-3 lg:flex-row lg:items-end">
             <div className="flex-1">
-              <label htmlFor="q" className="mb-2 block text-sm font-medium">
+              <label htmlFor="q" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">
                 Search queue
               </label>
               <input
@@ -612,146 +626,150 @@ export default async function CallsPage({
             {reviewStatus ? <input type="hidden" name="reviewStatus" value={reviewStatus} /> : null}
             <input type="hidden" name="limit" value={limit} />
             {urgency ? <input type="hidden" name="urgency" value={urgency} /> : null}
-            <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
-              Search
-            </button>
-            <a
-              href={buildFilterHref({ triageStatus, reviewStatus, urgency, limit })}
-              className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-            >
-              Clear
-            </a>
+            <div className="flex gap-2">
+              <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
+                Search
+              </button>
+              <a
+                href={buildFilterHref({ triageStatus, reviewStatus, urgency, limit })}
+                className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+              >
+                Clear
+              </a>
+            </div>
           </form>
 
-          <div>
-            <div className="mb-2 text-sm font-medium">Triage</div>
-            <div className="flex flex-wrap gap-2">
-              <FilterLink
-                href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus, urgency, q, limit })}
-                label="Open"
-                active={triageStatus === 'OPEN'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus: 'CONTACTED',
-                  reviewStatus,
-                  urgency,
-                  q,
-                  limit
-                })}
-                label="Contacted"
-                active={triageStatus === 'CONTACTED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus: 'ARCHIVED',
-                  reviewStatus,
-                  urgency,
-                  q,
-                  limit
-                })}
-                label="Archived"
-                active={triageStatus === 'ARCHIVED'}
-              />
+          <div className="mt-3 grid gap-3 lg:grid-cols-3">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Triage</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterLink
+                  href={buildFilterHref({ triageStatus: 'OPEN', reviewStatus, urgency, q, limit })}
+                  label="Open"
+                  active={triageStatus === 'OPEN'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus: 'CONTACTED',
+                    reviewStatus,
+                    urgency,
+                    q,
+                    limit
+                  })}
+                  label="Contacted"
+                  active={triageStatus === 'CONTACTED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus: 'ARCHIVED',
+                    reviewStatus,
+                    urgency,
+                    q,
+                    limit
+                  })}
+                  label="Archived"
+                  active={triageStatus === 'ARCHIVED'}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="mb-2 text-sm font-medium">Review</div>
-            <div className="flex flex-wrap gap-2">
-              <FilterLink
-                href={buildFilterHref({ triageStatus, urgency, q, limit })}
-                label="All"
-                active={!reviewStatus}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus: 'UNREVIEWED',
-                  urgency,
-                  q,
-                  limit
-                })}
-                label="Unreviewed"
-                active={reviewStatus === 'UNREVIEWED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus: 'NEEDS_REVIEW',
-                  urgency,
-                  q,
-                  limit
-                })}
-                label="Needs review"
-                active={reviewStatus === 'NEEDS_REVIEW'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus: 'REVIEWED',
-                  urgency,
-                  q,
-                  limit
-                })}
-                label="Reviewed"
-                active={reviewStatus === 'REVIEWED'}
-              />
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Review</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterLink
+                  href={buildFilterHref({ triageStatus, urgency, q, limit })}
+                  label="All"
+                  active={!reviewStatus}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus: 'UNREVIEWED',
+                    urgency,
+                    q,
+                    limit
+                  })}
+                  label="Unreviewed"
+                  active={reviewStatus === 'UNREVIEWED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus: 'NEEDS_REVIEW',
+                    urgency,
+                    q,
+                    limit
+                  })}
+                  label="Needs review"
+                  active={reviewStatus === 'NEEDS_REVIEW'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus: 'REVIEWED',
+                    urgency,
+                    q,
+                    limit
+                  })}
+                  label="Reviewed"
+                  active={reviewStatus === 'REVIEWED'}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="mb-2 text-sm font-medium">Urgency</div>
-            <div className="flex flex-wrap gap-2">
-              <FilterLink
-                href={buildFilterHref({ triageStatus, reviewStatus, q, limit })}
-                label="All"
-                active={!urgency}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus,
-                  urgency: 'low',
-                  q,
-                  limit
-                })}
-                label="Low"
-                active={urgency === 'low'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus,
-                  urgency: 'medium',
-                  q,
-                  limit
-                })}
-                label="Medium"
-                active={urgency === 'medium'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus,
-                  urgency: 'high',
-                  q,
-                  limit
-                })}
-                label="High"
-                active={urgency === 'high'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  triageStatus,
-                  reviewStatus,
-                  urgency: 'emergency',
-                  q,
-                  limit
-                })}
-                label="Emergency"
-                active={urgency === 'emergency'}
-              />
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Urgency</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterLink
+                  href={buildFilterHref({ triageStatus, reviewStatus, q, limit })}
+                  label="All"
+                  active={!urgency}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus,
+                    urgency: 'low',
+                    q,
+                    limit
+                  })}
+                  label="Low"
+                  active={urgency === 'low'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus,
+                    urgency: 'medium',
+                    q,
+                    limit
+                  })}
+                  label="Medium"
+                  active={urgency === 'medium'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus,
+                    urgency: 'high',
+                    q,
+                    limit
+                  })}
+                  label="High"
+                  active={urgency === 'high'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    triageStatus,
+                    reviewStatus,
+                    urgency: 'emergency',
+                    q,
+                    limit
+                  })}
+                  label="Emergency"
+                  active={urgency === 'emergency'}
+                />
+              </div>
             </div>
           </div>
         </div>
@@ -767,7 +785,7 @@ export default async function CallsPage({
         </div>
 
         <CallsQueueTable
-          calls={data.calls}
+          calls={calls}
           currentHref={currentHref}
           queueState={{ triageStatus, reviewStatus, urgency, q }}
           limit={limit}

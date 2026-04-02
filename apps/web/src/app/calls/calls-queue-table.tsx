@@ -2,6 +2,22 @@
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import type { QueueActionHint } from '@/app/queue-action-hints';
+import { buildCallDetailHref } from './workflow-urls';
+
+type QueueLastActivityPreview = {
+  lastActivityAt: string;
+  lastActivityTitle: string;
+  lastActivityDetail: string | null;
+};
+
+type QueueRoutingSummary = {
+  routeKind: string | null;
+  businessStateLabel: 'Open' | 'Closed' | null;
+  routingMode: string | null;
+  phoneLineLabel: string | null;
+  routingReasonLabel: string | null;
+} | null;
 
 type CallRow = {
   twilioCallSid: string;
@@ -9,6 +25,8 @@ type CallRow = {
   routeKind: string | null;
   triageStatus: string;
   reviewStatus: string;
+  contactedAt: string | null;
+  reviewedAt: string | null;
   fromE164: string | null;
   leadName: string | null;
   leadPhone: string | null;
@@ -16,7 +34,12 @@ type CallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  operatorNotes: string | null;
+  callerTranscript: string | null;
+  assistantTranscript: string | null;
   startedAt: string;
+  answeredAt: string | null;
+  endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
     e164: string;
@@ -26,12 +49,180 @@ type CallRow = {
     name: string | null;
     voiceName: string | null;
   } | null;
+  routingSummary: QueueRoutingSummary;
+  queueHint: QueueActionHint;
+  lastActivityPreview: QueueLastActivityPreview;
 };
+
+function formatQueueLastActivityPreview(preview: QueueLastActivityPreview) {
+  const time = new Intl.DateTimeFormat('en-US', {
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  }).format(new Date(preview.lastActivityAt));
+  const detail = preview.lastActivityDetail?.trim();
+
+  return {
+    title: preview.lastActivityTitle,
+    detailLine: detail ? `${detail} · ${time}` : time
+  };
+}
+
+function formatRoutingSummary(summary: QueueRoutingSummary) {
+  if (!summary) {
+    return null;
+  }
+
+  const parts = [
+    summary.businessStateLabel,
+    summary.routingMode,
+    summary.routeKind,
+    summary.phoneLineLabel
+  ].filter(Boolean);
+
+  if (parts.length === 0) {
+    return null;
+  }
+
+  return parts.join(' · ');
+}
+
+function getRoutingReasonSummary(summary: QueueRoutingSummary) {
+  if (!summary?.routingReasonLabel) {
+    return null;
+  }
+
+  return `Routing reason: ${summary.routingReasonLabel}`;
+}
+
+function formatRelativeTouchTime(value: string) {
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return null;
+  }
+
+  const diffMs = date.getTime() - Date.now();
+  const diffMinutes = Math.round(diffMs / (1000 * 60));
+  const absoluteMinutes = Math.abs(diffMinutes);
+  const formatter = new Intl.RelativeTimeFormat('en-US', { numeric: 'auto' });
+
+  if (absoluteMinutes < 60) {
+    return formatter.format(diffMinutes, 'minute');
+  }
+
+  const diffHours = Math.round(diffMinutes / 60);
+  if (Math.abs(diffHours) < 24) {
+    return formatter.format(diffHours, 'hour');
+  }
+
+  const diffDays = Math.round(diffHours / 24);
+  return formatter.format(diffDays, 'day');
+}
 
 function formatDuration(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m}m ${String(s).padStart(2, '0')}s`;
+}
+
+function cleanPreviewText(value: string | null | undefined) {
+  if (!value) return null;
+
+  const normalized = value.replace(/\s+/g, ' ').trim();
+  if (!normalized) return null;
+
+  const withoutLeadingPunctuation = normalized.replace(/^[\s"'.,!?-]+/, '').trim();
+  return withoutLeadingPunctuation || null;
+}
+
+function truncateText(value: string, maxLength: number) {
+  if (value.length <= maxLength) {
+    return value;
+  }
+
+  return `${value.slice(0, maxLength - 1).trimEnd()}…`;
+}
+
+function firstMeaningfulSentence(value: string | null | undefined) {
+  const cleaned = cleanPreviewText(value);
+  if (!cleaned) return null;
+
+  const line = cleaned.split(/\r?\n/).find((entry) => entry.trim().length > 0)?.trim() ?? cleaned;
+  const sentences = line
+    .split(/(?<=[.!?])\s+/)
+    .map((entry) => entry.trim())
+    .filter(Boolean);
+
+  if (sentences.length === 0) {
+    return null;
+  }
+
+  const [firstSentence, secondSentence] = sentences;
+  const isIdentityOpener =
+    /^(hi|hello|hey)\b/i.test(firstSentence) &&
+    /\b(this is|my name is|it's|i am|i'm)\b/i.test(firstSentence);
+  const isBareIdentityOpener = /^(this is)\b/i.test(firstSentence);
+
+  const sentence =
+    (secondSentence && (isIdentityOpener || isBareIdentityOpener) ? secondSentence : firstSentence) ??
+    line;
+
+  return truncateText(sentence, 120);
+}
+
+function getCallerPreview(call: CallRow) {
+  const summaryPreview = cleanPreviewText(call.summary);
+  const leadIntentPreview = cleanPreviewText(call.leadIntent);
+
+  return (
+    firstMeaningfulSentence(call.callerTranscript) ??
+    (summaryPreview ? truncateText(summaryPreview, 120) : null) ??
+    (leadIntentPreview ? truncateText(leadIntentPreview, 120) : null) ??
+    '—'
+  );
+}
+
+function formatStatusLabel(value: string) {
+  switch (value) {
+    case 'COMPLETED':
+      return 'completed';
+    case 'IN_PROGRESS':
+      return 'in progress';
+    case 'RINGING':
+      return 'ringing';
+    case 'NO_ANSWER':
+      return 'no answer';
+    case 'BUSY':
+      return 'busy';
+    case 'FAILED':
+      return 'failed';
+    case 'CANCELED':
+      return 'canceled';
+    default:
+      return value.toLowerCase().replace(/_/g, ' ');
+  }
+}
+
+function getOutcomeMeta(call: CallRow) {
+  const parts = [formatStatusLabel(call.status)];
+
+  if (call.durationSeconds != null) {
+    parts.push(formatDuration(call.durationSeconds));
+  } else if (call.answeredAt) {
+    parts.push('answered');
+  } else if (call.endedAt) {
+    parts.push('ended');
+  }
+
+  if (call.contactedAt) {
+    parts.push('contacted');
+  } else if (call.reviewedAt) {
+    parts.push('reviewed');
+  }
+
+  return parts.join(' · ');
 }
 
 function formatReviewStatusLabel(value: string) {
@@ -113,6 +304,17 @@ function badgeClass(value: string | null | undefined) {
   }
 }
 
+function queueHintClass(tone: QueueActionHint['tone']) {
+  switch (tone) {
+    case 'high':
+      return 'border-red-300 bg-red-100 text-red-900';
+    case 'low':
+      return 'border-neutral-300 bg-neutral-100 text-neutral-600';
+    default:
+      return 'border-blue-300 bg-blue-100 text-blue-900';
+  }
+}
+
 function getDataQualitySignals(call: CallRow) {
   const missingData = !call.leadName || !call.leadPhone || !call.leadIntent;
 
@@ -121,6 +323,127 @@ function getDataQualitySignals(call: CallRow) {
     needsReview: call.reviewStatus === 'NEEDS_REVIEW',
     unreviewed: call.reviewStatus === 'UNREVIEWED'
   };
+}
+
+function getSignalCoverageSummary(call: CallRow) {
+  const hasTranscript = Boolean(call.callerTranscript?.trim() || call.assistantTranscript?.trim());
+  const hasSummary = Boolean(call.summary?.trim());
+
+  if (hasTranscript && hasSummary) {
+    return 'Transcript-backed · summary ready';
+  }
+
+  if (hasTranscript) {
+    return 'Transcript-backed · summary thin';
+  }
+
+  if (hasSummary) {
+    return 'Summary only · transcript thin';
+  }
+
+  return 'Thin signal · transcript and summary missing';
+}
+
+function getCallbackCoverageSummary(call: CallRow) {
+  const hasLeadName = Boolean(call.leadName?.trim());
+  const hasLeadPhone = Boolean(call.leadPhone?.trim());
+  const hasCallerNumber = Boolean(call.fromE164?.trim());
+
+  if (hasLeadPhone && hasLeadName) {
+    return 'Callback: name + number ready';
+  }
+
+  if (hasLeadPhone) {
+    return 'Callback: number ready · name thin';
+  }
+
+  if (hasCallerNumber && hasLeadName) {
+    return 'Callback: caller number + name';
+  }
+
+  if (hasCallerNumber) {
+    return 'Callback: caller number only';
+  }
+
+  if (hasLeadName) {
+    return 'Callback: blocked · number missing';
+  }
+
+  return 'Callback: blocked · name and number missing';
+}
+
+function getLastContactTimingSummary(call: CallRow) {
+  const contactedAt = call.contactedAt ? new Date(call.contactedAt) : null;
+  const reviewedAt = call.reviewedAt ? new Date(call.reviewedAt) : null;
+  const contactedTime = contactedAt && !Number.isNaN(contactedAt.getTime()) ? contactedAt.getTime() : null;
+  const reviewedTime = reviewedAt && !Number.isNaN(reviewedAt.getTime()) ? reviewedAt.getTime() : null;
+
+  if (contactedTime !== null && (reviewedTime === null || contactedTime >= reviewedTime)) {
+    const relative = formatRelativeTouchTime(call.contactedAt!);
+    return relative ? `Last touch: contacted ${relative}` : 'Last touch: contacted';
+  }
+
+  if (reviewedTime !== null) {
+    const relative = formatRelativeTouchTime(call.reviewedAt!);
+    return relative ? `Last touch: reviewed ${relative}` : 'Last touch: reviewed';
+  }
+
+  return 'Last touch: none logged';
+}
+
+function getReviewTrailCoverageSummary(call: CallRow) {
+  const hasReview = Boolean(call.reviewedAt);
+  const hasContact = Boolean(call.contactedAt);
+
+  if (hasReview && hasContact) {
+    return 'Review trail: reviewed + contacted';
+  }
+
+  if (hasReview) {
+    return 'Review trail: reviewed only';
+  }
+
+  if (hasContact) {
+    return 'Review trail: contacted only';
+  }
+
+  return 'Review trail: no operator trail';
+}
+
+function getServiceLocationCoverageSummary(call: CallRow) {
+  const serviceAddress = call.serviceAddress?.trim();
+
+  if (serviceAddress) {
+    return 'Service location: address ready';
+  }
+
+  return 'Service location: thin coverage';
+}
+
+function getCallerIdentityCoverageSummary(call: CallRow) {
+  const hasLeadName = Boolean(call.leadName?.trim());
+  const hasLeadPhone = Boolean(call.leadPhone?.trim());
+  const hasCallerNumber = Boolean(call.fromE164?.trim());
+
+  const identitySignals = [
+    hasLeadName ? 'name' : null,
+    hasLeadPhone ? 'lead number' : null,
+    hasCallerNumber ? 'caller number' : null
+  ].filter(Boolean) as string[];
+
+  if (identitySignals.length === 0) {
+    return 'Caller identity: thin coverage';
+  }
+
+  return `Caller identity: ${identitySignals.join(' + ')}`;
+}
+
+function getIntentCoverageSummary(call: CallRow) {
+  return call.leadIntent?.trim() ? 'Intent: context ready' : 'Intent: thin coverage';
+}
+
+function getNoteCoverageSummary(call: CallRow) {
+  return call.operatorNotes?.trim() ? 'Notes: operator context captured' : 'Notes: none captured';
 }
 
 function getRowClass(call: CallRow) {
@@ -312,6 +635,17 @@ export function CallsQueueTable({
                   reviewStatus: call.reviewStatus
                 };
                 const signals = getDataQualitySignals(call);
+                const lastActivity = formatQueueLastActivityPreview(call.lastActivityPreview);
+                const routingSummary = formatRoutingSummary(call.routingSummary);
+                const routingReasonSummary = getRoutingReasonSummary(call.routingSummary);
+                const signalCoverage = getSignalCoverageSummary(call);
+                const callbackCoverage = getCallbackCoverageSummary(call);
+                const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
+                const intentCoverage = getIntentCoverageSummary(call);
+                const reviewTrailCoverage = getReviewTrailCoverageSummary(call);
+                const lastContactTiming = getLastContactTimingSummary(call);
+                const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
+                const noteCoverage = getNoteCoverageSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -326,18 +660,75 @@ export function CallsQueueTable({
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <a
-                        href={`/calls/${call.twilioCallSid}?returnTo=${encodeURIComponent(currentHref)}`}
-                        className="font-medium underline underline-offset-2"
-                      >
-                        {call.twilioCallSid}
-                      </a>
-                      <div className="mt-1 text-neutral-600">{call.fromE164 ?? 'Unknown caller'}</div>
-                      <div className="mt-1 text-neutral-500">
-                        {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
-                      </div>
-                      <div className="mt-1 text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
-                      <div className="mt-2 flex flex-wrap gap-2">
+                      <div className="space-y-3">
+                        <div className="space-y-1.5">
+                          <a
+                            href={buildCallDetailHref(call.twilioCallSid, currentHref)}
+                            className="font-medium underline underline-offset-2"
+                          >
+                            {call.twilioCallSid}
+                          </a>
+                          <div className="text-neutral-600">{call.fromE164 ?? 'Unknown caller'}</div>
+                          <div className="text-neutral-500">
+                            {call.phoneNumber.label ?? 'Number'} · {call.phoneNumber.e164}
+                          </div>
+                          <div className="text-neutral-500">{call.agentProfile?.name ?? 'No agent'}</div>
+                          <div className="text-neutral-900">{getCallerPreview(call)}</div>
+                        </div>
+                        <div className="rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`rounded-full border px-2.5 py-1 text-xs font-medium ${queueHintClass(call.queueHint.tone)}`}
+                            >
+                              {call.queueHint.label}
+                            </span>
+                            <span className="text-xs text-neutral-600">{call.queueHint.reason}</span>
+                          </div>
+                          <div className="mt-1 text-xs text-neutral-500">{getOutcomeMeta(call)}</div>
+                        </div>
+                        <div className="space-y-1 rounded-xl border border-neutral-200 bg-neutral-50/70 px-3 py-2">
+                          {routingSummary ? (
+                            <div className="text-xs text-neutral-600">
+                              Routing: <span className="font-medium text-neutral-800">{routingSummary}</span>
+                            </div>
+                          ) : null}
+                          {routingReasonSummary ? (
+                            <div className="text-xs text-neutral-600">
+                              <span className="font-medium text-neutral-800">{routingReasonSummary}</span>
+                            </div>
+                          ) : null}
+                          <div className="text-xs text-neutral-600">
+                            Signals: <span className="font-medium text-neutral-800">{signalCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{callbackCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{callerIdentityCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{intentCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{reviewTrailCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{noteCoverage}</span>
+                          </div>
+                        </div>
+                        <div className="space-y-1 rounded-xl border border-neutral-200 bg-white/70 px-3 py-2">
+                          <div className="text-xs text-neutral-600">
+                            <span className="font-medium text-neutral-800">{lastContactTiming}</span>
+                          </div>
+                          <div className="text-xs text-neutral-600">
+                            Last activity: <span className="font-medium text-neutral-800">{lastActivity.title}</span>{' '}
+                            <span>{lastActivity.detailLine}</span>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
                         {call.routeKind ? (
                           <span
                             className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.routeKind)}`}
@@ -360,6 +751,7 @@ export function CallsQueueTable({
                             Unreviewed
                           </span>
                         ) : null}
+                        </div>
                       </div>
                     </td>
                     <td className="px-4 py-3">

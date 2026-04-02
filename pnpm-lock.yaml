@@ -59,6 +59,9 @@ importers:
       '@frontdesk/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@frontdesk/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@frontdesk/integrations':
         specifier: workspace:*
         version: link:../../packages/integrations

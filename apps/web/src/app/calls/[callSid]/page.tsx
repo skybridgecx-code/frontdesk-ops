@@ -1,7 +1,26 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
+import {
+  buildDetailNoticeHref,
+  buildQueueContextSummary,
+  getWorkItemDetailNoticeMessage,
+  resolveReviewNextDetailHref
+} from '@/app/operator-workflow';
+import {
+  OperatorActionGuideCard,
+  OperatorDetailHeader,
+  OperatorDetailPageShell,
+  OperatorTimelineSection,
+  type OperatorTimelineItem
+} from '@/components/operator/detail-shell';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
-import { DetailReviewShortcuts } from './detail-review-shortcuts';
+import { CallReviewForm } from './call-review-form';
+import {
+  buildDetailReviewNextRequestHref,
+  buildQueueNoticeHref,
+  buildSaveAndNextHref,
+  normalizeReturnTo
+} from '../workflow-urls';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +45,7 @@ type CallDetail = {
   summary: string | null;
   operatorNotes: string | null;
   startedAt: string;
+  answeredAt: string | null;
   endedAt: string | null;
   durationSeconds: number | null;
   phoneNumber: {
@@ -38,11 +58,30 @@ type CallDetail = {
     voiceName: string | null;
     isActive: boolean;
   } | null;
+  routingDecision: {
+    routingMode: string | null;
+    isOpen: boolean | null;
+    routeKind: string | null;
+    agentProfileId: string | null;
+    reason: string | null;
+    message: string | null;
+    phoneLineLabel: string | null;
+    businessTimezone: string | null;
+  } | null;
   events: Array<{
     type: string;
     sequence: number;
     createdAt: string;
   }>;
+  timeline: OperatorTimelineItem[];
+  actionGuide: {
+    primaryAction: string;
+    reason: string;
+    urgencyLevel: 'emergency' | 'high' | 'normal';
+    missingInfo: string[];
+    readyToContact: boolean;
+    needsTranscriptReview: boolean;
+  };
 };
 
 
@@ -120,6 +159,17 @@ function HistoryItem({
   );
 }
 
+function actionGuideToneClass(value: 'emergency' | 'high' | 'normal') {
+  switch (value) {
+    case 'emergency':
+      return 'border-red-200 bg-red-50 text-red-900';
+    case 'high':
+      return 'border-orange-200 bg-orange-50 text-orange-900';
+    default:
+      return 'border-neutral-200 bg-neutral-50 text-neutral-900';
+  }
+}
+
 function formatReviewStatusLabel(value: string | undefined) {
   switch (value) {
     case 'UNREVIEWED':
@@ -129,7 +179,7 @@ function formatReviewStatusLabel(value: string | undefined) {
     case 'REVIEWED':
       return 'Reviewed';
     default:
-      return value;
+      return null;
   }
 }
 
@@ -142,7 +192,7 @@ function formatTriageStatusLabel(value: string | undefined) {
     case 'ARCHIVED':
       return 'Archived';
     default:
-      return value;
+      return null;
   }
 }
 
@@ -161,17 +211,12 @@ function formatUrgencyLabel(value: string | undefined) {
   }
 }
 
-function buildReturnContextSummary(returnTo: string) {
-  const url = new URL(returnTo, 'http://localhost');
-  const parts = [
-    formatTriageStatusLabel(url.searchParams.get('triageStatus') ?? 'OPEN'),
-    formatReviewStatusLabel(url.searchParams.get('reviewStatus') ?? undefined),
-    formatUrgencyLabel(url.searchParams.get('urgency') ?? undefined),
-    url.searchParams.get('q')?.trim() ? `Search: "${url.searchParams.get('q')?.trim()}"` : null,
-    url.searchParams.get('page') ? `Page ${url.searchParams.get('page')}` : null
-  ].filter(Boolean);
+function formatRoutingReason(value: string | null) {
+  if (!value) {
+    return '—';
+  }
 
-  return parts.join(' • ');
+  return value.toLowerCase().replaceAll('_', ' ').replace(/^\w/, (match) => match.toUpperCase());
 }
 
 export default async function CallDetailPage({
@@ -183,24 +228,17 @@ export default async function CallDetailPage({
 }) {
   const { callSid } = await params;
   const resolvedSearchParams = await searchParams;
-  const returnTo =
-    resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/calls')
-      ? resolvedSearchParams.returnTo
-      : '/calls?triageStatus=OPEN';
-  const notice =
-    resolvedSearchParams.notice === 'contacted'
-      ? 'Call marked contacted.'
-      : resolvedSearchParams.notice === 'archived'
-        ? 'Call archived.'
-        : resolvedSearchParams.notice === 'extracted'
-          ? 'Extraction rerun queued.'
-          : resolvedSearchParams.notice === 'saved'
-            ? 'Review changes saved.'
-            : resolvedSearchParams.notice === 'saved-next'
-                ? 'Review changes saved. Moved to the next call needing review.'
-                : resolvedSearchParams.notice === 'no-review-calls'
-                  ? 'Review changes saved. No more calls need review.'
-                  : null;
+  const returnTo = normalizeReturnTo(resolvedSearchParams.returnTo);
+  const notice = getWorkItemDetailNoticeMessage({
+    notice: resolvedSearchParams.notice,
+    itemSingular: 'call',
+    itemPlural: 'calls',
+    customMessages: {
+      contacted: 'Call marked contacted.',
+      archived: 'Call archived.',
+      extracted: 'Extraction rerun queued.'
+    }
+  });
   const data = await getCall(callSid);
   const call = data.call;
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
@@ -209,7 +247,15 @@ export default async function CallDetailPage({
   const reviewStatusFieldId = 'review-status';
   const saveButtonId = 'save-review-button';
   const saveNextButtonId = 'save-review-next-button';
-  const returnContextSummary = buildReturnContextSummary(returnTo);
+  const returnContextSummary = buildQueueContextSummary({
+    currentHref: returnTo,
+    fallbackLabel: 'Open work queue',
+    formatters: {
+      triageStatus: formatTriageStatusLabel,
+      reviewStatus: formatReviewStatusLabel,
+      urgency: formatUrgencyLabel
+    }
+  });
 
   async function markContacted() {
     'use server';
@@ -221,7 +267,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=contacted`);
+    redirect(buildDetailNoticeHref(detailHref, 'contacted'));
   }
 
   async function archiveCall() {
@@ -234,7 +280,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=archived`);
+    redirect(buildDetailNoticeHref(detailHref, 'archived'));
   }
 
   async function rerunExtraction() {
@@ -247,7 +293,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=extracted`);
+    redirect(buildDetailNoticeHref(detailHref, 'extracted'));
   }
 
   async function saveReview(formData: FormData) {
@@ -282,7 +328,7 @@ export default async function CallDetailPage({
 
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
-    redirect(`${detailHref}&notice=saved`);
+    redirect(buildDetailNoticeHref(detailHref, 'saved'));
   }
 
   async function saveAndReviewNext(formData: FormData) {
@@ -318,7 +364,7 @@ export default async function CallDetailPage({
     revalidatePath('/calls');
     revalidatePath(`/calls/${callSid}`);
 
-    const nextRes = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+    const nextRes = await fetch(`${getApiBaseUrl()}${buildDetailReviewNextRequestHref(returnTo, callSid)}`, {
       cache: 'no-store',
       headers: getInternalApiHeaders()
     });
@@ -329,38 +375,26 @@ export default async function CallDetailPage({
 
     const nextData = (await nextRes.json()) as { ok: true; callSid: string | null };
 
-    if (!nextData.callSid) {
-      redirect(`${detailHref}&notice=no-review-calls`);
-    }
-
-    redirect(`/calls/${nextData.callSid}?returnTo=${encodeURIComponent(returnTo)}&notice=saved-next`);
+    redirect(
+      resolveReviewNextDetailHref({
+        currentItemId: callSid,
+        nextItemId: nextData.callSid,
+        returnTo,
+        noReviewNotice: 'no-review-calls',
+        buildQueueNoticeHref,
+        buildSaveAndNextHref
+      })
+    );
   }
 
   return (
-    <main className="min-h-screen bg-white text-black p-6">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <DetailReviewShortcuts
-          formId={reviewFormId}
-          notesFieldId={notesFieldId}
-          reviewStatusFieldId={reviewStatusFieldId}
-          saveButtonId={saveButtonId}
-          saveNextButtonId={saveNextButtonId}
-        />
-
-        {notice ? (
-          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-            {notice}
-          </div>
-        ) : null}
-
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to filtered queue
-            </a>
-            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
-            <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
+    <OperatorDetailPageShell notice={notice}>
+        <OperatorDetailHeader
+          returnTo={returnTo}
+          returnContextSummary={returnContextSummary}
+          title={call.twilioCallSid}
+          badges={
+            <>
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.status)}`}>
                 {call.status}
               </span>
@@ -373,31 +407,79 @@ export default async function CallDetailPage({
               <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}>
                 {call.urgency ?? 'no urgency'}
               </span>
-            </div>
-          </div>
-
-          <div className="flex gap-2">
-            <form action={rerunExtraction}>
+            </>
+          }
+          metadata={
+            <>
+              <span>Started {formatDateTime(call.startedAt)}</span>
+              <span>Answered {formatDateTime(call.answeredAt)}</span>
+              <span>Ended {formatDateTime(call.endedAt)}</span>
+              <span>Duration {formatDuration(call.durationSeconds)}</span>
+            </>
+          }
+          actions={
+            <>
+              <form action={rerunExtraction}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Extract
               </button>
-            </form>
-            <form action={markContacted}>
+              </form>
+              <form action={markContacted}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Mark contacted
               </button>
-            </form>
-            <form action={archiveCall}>
+              </form>
+              <form action={archiveCall}>
               <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
                 Archive
               </button>
-            </form>
-          </div>
-        </div>
+              </form>
+            </>
+          }
+        />
+
+        <section className="rounded-2xl border border-neutral-200 p-4">
+          <h2 className="font-medium">Issue snapshot</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Best available summary of what happened and what the caller needs.
+          </p>
+          <p className="mt-3 text-sm whitespace-pre-wrap">
+            {call.summary ?? call.leadIntent ?? 'No summary yet. Use the transcripts below to review the call.'}
+          </p>
+        </section>
+
+        <OperatorActionGuideCard
+          toneClassName={actionGuideToneClass(call.actionGuide.urgencyLevel)}
+          emphasis={call.actionGuide.urgencyLevel}
+          chips={
+            <>
+              {call.actionGuide.readyToContact ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Ready to contact
+                </span>
+              ) : null}
+              {call.actionGuide.needsTranscriptReview ? (
+                <span className="rounded-full border border-current/20 px-2.5 py-1 text-xs font-medium">
+                  Review transcript
+                </span>
+              ) : null}
+            </>
+          }
+          primaryAction={call.actionGuide.primaryAction}
+          reason={call.actionGuide.reason}
+          missingInfo={call.actionGuide.missingInfo}
+        />
+
+        <OperatorTimelineSection
+          title="Operator timeline"
+          description="Operator-visible history for this call, newest first."
+          items={call.timeline}
+          emptyMessage="No operator-visible history recorded for this call yet."
+        />
 
         <div className="grid gap-4 md:grid-cols-3">
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Lead</h2>
+            <h2 className="font-medium">Lead facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">Name:</span> {call.leadName ?? '—'}</div>
               <div><span className="text-neutral-500">Phone:</span> {call.leadPhone ?? '—'}</div>
@@ -408,7 +490,7 @@ export default async function CallDetailPage({
           </section>
 
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Call</h2>
+            <h2 className="font-medium">Call facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">From:</span> {call.fromE164 ?? '—'}</div>
               <div><span className="text-neutral-500">To:</span> {call.toE164 ?? '—'}</div>
@@ -418,7 +500,7 @@ export default async function CallDetailPage({
           </section>
 
           <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Agent</h2>
+            <h2 className="font-medium">Agent facts</h2>
             <div className="mt-3 space-y-2 text-sm">
               <div><span className="text-neutral-500">Name:</span> {call.agentProfile?.name ?? '—'}</div>
               <div><span className="text-neutral-500">Voice:</span> {call.agentProfile?.voiceName ?? '—'}</div>
@@ -428,29 +510,58 @@ export default async function CallDetailPage({
         </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-medium">Activity history</h2>
-              <p className="mt-1 text-sm text-neutral-600">
-                Read-only timeline from existing call and review timestamps.
-              </p>
+          <h2 className="font-medium">Routing decision</h2>
+          <p className="mt-1 text-sm text-neutral-600">
+            Inspect how the inbound routing policy treated this call and why.
+          </p>
+          {call.routingDecision ? (
+            <div className="mt-3 grid gap-4 md:grid-cols-2 text-sm">
+              <div className="space-y-2">
+                <div><span className="text-neutral-500">Route:</span> {call.routingDecision.routeKind ?? '—'}</div>
+                <div><span className="text-neutral-500">Business treated as:</span> {call.routingDecision.isOpen == null ? '—' : call.routingDecision.isOpen ? 'Open' : 'Closed'}</div>
+                <div><span className="text-neutral-500">Routing mode:</span> {call.routingDecision.routingMode ?? '—'}</div>
+                <div><span className="text-neutral-500">Policy reason:</span> {formatRoutingReason(call.routingDecision.reason)}</div>
+              </div>
+              <div className="space-y-2">
+                <div><span className="text-neutral-500">Line:</span> {call.routingDecision.phoneLineLabel ?? call.phoneNumber.label ?? '—'}</div>
+                <div><span className="text-neutral-500">Selected agent:</span> {call.agentProfile?.name ?? call.routingDecision.agentProfileId ?? '—'}</div>
+                <div><span className="text-neutral-500">Timezone:</span> {call.routingDecision.businessTimezone ?? '—'}</div>
+                <div><span className="text-neutral-500">Route message:</span> {call.routingDecision.message ?? '—'}</div>
+              </div>
             </div>
-          </div>
-
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
-            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
-            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
-            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
-            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
-            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
-          </div>
+          ) : (
+            <p className="mt-3 text-sm text-neutral-700">
+              No routing decision was captured for this call. Older or seeded rows may predate routing-decision events.
+            </p>
+          )}
         </section>
+
+        <div className="grid gap-4 md:grid-cols-2">
+          <section className="rounded-2xl border border-neutral-200 p-4">
+            <h2 className="font-medium">Caller transcript</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Caller words first. Use this when the summary is missing or thin.
+            </p>
+            <p className="mt-3 text-sm whitespace-pre-wrap">
+              {call.callerTranscript ?? 'No caller transcript available.'}
+            </p>
+          </section>
+
+          <section className="rounded-2xl border border-neutral-200 p-4">
+            <h2 className="font-medium">Assistant transcript</h2>
+            <p className="mt-1 text-sm text-neutral-600">
+              Assistant responses and routing language captured during the call.
+            </p>
+            <p className="mt-3 text-sm whitespace-pre-wrap">
+              {call.assistantTranscript ?? 'No assistant transcript available.'}
+            </p>
+          </section>
+        </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="font-medium">Operator review</h2>
+              <h2 className="font-medium">Operator update</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Correct extracted fields, add notes, and mark the review state.
               </p>
@@ -467,156 +578,57 @@ export default async function CallDetailPage({
             <span>/ Focus notes</span>
           </div>
 
-          <form id={reviewFormId} action={saveReview} className="mt-4 space-y-4">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Lead details</h3>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead name</div>
-                      <input
-                        name="leadName"
-                        defaultValue={call.leadName ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead phone</div>
-                      <input
-                        name="leadPhone"
-                        defaultValue={call.leadPhone ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Lead intent</div>
-                      <input
-                        name="leadIntent"
-                        defaultValue={call.leadIntent ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Service address</div>
-                      <input
-                        name="serviceAddress"
-                        defaultValue={call.serviceAddress ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review summary</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Summary</div>
-                      <textarea
-                        name="summary"
-                        defaultValue={call.summary ?? ''}
-                        rows={5}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Operator notes</div>
-                      <textarea
-                        id={notesFieldId}
-                        name="operatorNotes"
-                        defaultValue={call.operatorNotes ?? ''}
-                        rows={8}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
-              </div>
-
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review controls</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Urgency</div>
-                      <select
-                        name="urgency"
-                        defaultValue={call.urgency ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="">Unspecified</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="emergency">Emergency</option>
-                      </select>
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Review status</div>
-                      <select
-                        id={reviewStatusFieldId}
-                        name="reviewStatus"
-                        defaultValue={call.reviewStatus}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="UNREVIEWED">Unreviewed</option>
-                        <option value="NEEDS_REVIEW">Needs review</option>
-                        <option value="REVIEWED">Reviewed</option>
-                      </select>
-                    </label>
-                  </div>
-                </section>
-
-                <div className="lg:sticky lg:top-4">
-                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-black">Actions</h3>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Keep moving through review without losing your place.
-                    </p>
-                    <div className="mt-4 flex flex-col gap-2">
-                      <button
-                        id={saveButtonId}
-                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
-                      >
-                        Save review changes
-                      </button>
-                      <button
-                        id={saveNextButtonId}
-                        formAction={saveAndReviewNext}
-                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-                      >
-                        Save and review next
-                      </button>
-                    </div>
-                  </section>
-                </div>
-              </div>
-            </div>
-          </form>
+          <CallReviewForm
+            callSid={callSid}
+            notice={resolvedSearchParams.notice}
+            initialValues={{
+              reviewStatus: call.reviewStatus,
+              urgency: call.urgency ?? '',
+              leadName: call.leadName ?? '',
+              leadPhone: call.leadPhone ?? '',
+              leadIntent: call.leadIntent ?? '',
+              serviceAddress: call.serviceAddress ?? '',
+              summary: call.summary ?? '',
+              operatorNotes: call.operatorNotes ?? ''
+            }}
+            triageStatusLabel={formatTriageStatusLabel(call.triageStatus) ?? '—'}
+            followUpStatusDetail={
+              call.contactedAt
+                ? `Marked contacted ${formatDateTime(call.contactedAt)}`
+                : call.archivedAt
+                  ? `Archived ${formatDateTime(call.archivedAt)}`
+                  : 'No follow-up action recorded yet.'
+            }
+            reviewFormId={reviewFormId}
+            notesFieldId={notesFieldId}
+            reviewStatusFieldId={reviewStatusFieldId}
+            saveButtonId={saveButtonId}
+            saveNextButtonId={saveNextButtonId}
+            saveAction={saveReview}
+            saveAndReviewNextAction={saveAndReviewNext}
+          />
         </section>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
-          <h2 className="font-medium">Summary</h2>
-          <p className="mt-3 text-sm whitespace-pre-wrap">{call.summary ?? '—'}</p>
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="font-medium">Activity history</h2>
+              <p className="mt-1 text-sm text-neutral-600">
+                Read-only timeline from existing call and review timestamps.
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
+            <HistoryItem label="Answered" value={formatDateTime(call.answeredAt)} />
+            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
+            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
+            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
+            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
+            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
+          </div>
         </section>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Caller transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.callerTranscript ?? '—'}</p>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Assistant transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.assistantTranscript ?? '—'}</p>
-          </section>
-        </div>
 
         <section className="rounded-2xl border border-neutral-200 p-4">
           <h2 className="font-medium">Event timeline</h2>
@@ -634,7 +646,6 @@ export default async function CallDetailPage({
             ))}
           </div>
         </section>
-      </div>
-    </main>
+    </OperatorDetailPageShell>
   );
 }
