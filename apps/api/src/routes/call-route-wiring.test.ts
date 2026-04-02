@@ -149,6 +149,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           label: 'After Hours'
         },
         summary: 'second',
+        operatorNotes: null,
         startedAt: new Date('2026-03-29T10:00:00.000Z'),
         endedAt: new Date('2026-03-29T10:05:00.000Z'),
         reviewedAt: null,
@@ -176,6 +177,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           label: 'Main Line'
         },
         summary: 'first',
+        operatorNotes: 'Callback requested after lunch.',
         startedAt: new Date('2026-03-29T09:00:00.000Z'),
         endedAt: new Date('2026-03-29T09:10:00.000Z'),
         reviewedAt: null,
@@ -253,6 +255,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           label: 'Main Line'
         },
         summary: 'first',
+        operatorNotes: 'Callback requested after lunch.',
         startedAt: '2026-03-29T09:00:00.000Z',
         endedAt: '2026-03-29T09:10:00.000Z',
         reviewedAt: null,
@@ -279,6 +282,7 @@ test('GET /v1/calls accepts scoped query params and returns calls in priority or
           label: 'After Hours'
         },
         summary: 'second',
+        operatorNotes: null,
         startedAt: '2026-03-29T10:00:00.000Z',
         endedAt: '2026-03-29T10:05:00.000Z',
         reviewedAt: null,

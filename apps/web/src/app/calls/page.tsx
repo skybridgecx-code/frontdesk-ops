@@ -44,6 +44,7 @@ type ApiCallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  operatorNotes: string | null;
   callerTranscript: string | null;
   assistantTranscript: string | null;
   startedAt: string;

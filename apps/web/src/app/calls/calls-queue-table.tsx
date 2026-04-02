@@ -34,6 +34,7 @@ type CallRow = {
   urgency: string | null;
   serviceAddress: string | null;
   summary: string | null;
+  operatorNotes: string | null;
   callerTranscript: string | null;
   assistantTranscript: string | null;
   startedAt: string;
@@ -418,6 +419,10 @@ function getCallerIdentityCoverageSummary(call: CallRow) {
   return `Caller identity: ${identitySignals.join(' + ')}`;
 }
 
+function getNoteCoverageSummary(call: CallRow) {
+  return call.operatorNotes?.trim() ? 'Notes: operator context captured' : 'Notes: none captured';
+}
+
 function getRowClass(call: CallRow) {
   if (call.reviewStatus === 'NEEDS_REVIEW') {
     return 'border-t border-rose-200 bg-rose-50/50 align-top';
@@ -615,6 +620,7 @@ export function CallsQueueTable({
                 const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
                 const lastContactTiming = getLastContactTimingSummary(call);
                 const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
+                const noteCoverage = getNoteCoverageSummary(call);
 
                 return (
                   <tr key={call.twilioCallSid} className={getRowClass(call)}>
@@ -671,6 +677,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{noteCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{lastContactTiming}</span>

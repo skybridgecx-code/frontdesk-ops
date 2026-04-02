@@ -31,6 +31,7 @@ const callListSelect = {
   urgency: true,
   serviceAddress: true,
   summary: true,
+  operatorNotes: true,
   callerTranscript: true,
   assistantTranscript: true,
   startedAt: true,
