@@ -8,7 +8,7 @@ const transcript = [
     text: 'My water heater is leaking in the basement and I need someone tonight.'
   },
   {
-    speaker: 'MoLeads',
+    speaker: 'SkybridgeCX',
     text: 'I can help. What is the service address, and what is the best callback number?'
   },
   {
@@ -16,7 +16,7 @@ const transcript = [
     text: 'I am at 2148 Cedar Lane. Water is starting to spread and the breaker is off.'
   },
   {
-    speaker: 'MoLeads',
+    speaker: 'SkybridgeCX',
     text: 'Understood. I am marking this urgent and sending the details to your after-hours contact.'
   }
 ];
@@ -140,13 +140,13 @@ export function InteractiveCallFlow() {
             <div className="space-y-4">
               {visibleTranscript.map((line, index) => {
                 const active = index === stage;
-                const isMoLeads = line.speaker === 'MoLeads';
+                const isSkybridgeCX = line.speaker === 'SkybridgeCX';
 
                 return (
                   <div
                     key={`${line.speaker}-${line.text}`}
                     className={`max-w-2xl rounded-[1.5rem] border px-4 py-3 text-sm leading-7 transition-all duration-500 ${
-                      isMoLeads
+                      isSkybridgeCX
                         ? 'ml-auto border-white/10 bg-white/8 text-[#eef1ff]'
                         : active
                           ? 'border-[#7c5cff]/35 bg-white/10 text-white shadow-[0_0_0_1px_rgba(124,92,255,0.08)]'
