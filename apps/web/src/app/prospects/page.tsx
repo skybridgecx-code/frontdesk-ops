@@ -540,7 +540,7 @@ export default async function ProspectsPage({
       notes: prospect.notes,
       sourceLabel: prospect.sourceLabel,
       sourceCategory: prospect.sourceCategory,
-      sourceRoleTitle: null,
+      sourceRoleTitle: prospect.sourceRoleTitle,
       attempts: prospect.attempts.map((attempt) => ({
         ...attempt,
         createdAt: attempt.attemptedAt
