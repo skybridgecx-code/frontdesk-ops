@@ -391,6 +391,25 @@ function getLastContactTimingSummary(call: CallRow) {
   return 'Last touch: none logged';
 }
 
+function getReviewTrailCoverageSummary(call: CallRow) {
+  const hasReview = Boolean(call.reviewedAt);
+  const hasContact = Boolean(call.contactedAt);
+
+  if (hasReview && hasContact) {
+    return 'Review trail: reviewed + contacted';
+  }
+
+  if (hasReview) {
+    return 'Review trail: reviewed only';
+  }
+
+  if (hasContact) {
+    return 'Review trail: contacted only';
+  }
+
+  return 'Review trail: no operator trail';
+}
+
 function getServiceLocationCoverageSummary(call: CallRow) {
   const serviceAddress = call.serviceAddress?.trim();
 
@@ -623,6 +642,7 @@ export function CallsQueueTable({
                 const callbackCoverage = getCallbackCoverageSummary(call);
                 const callerIdentityCoverage = getCallerIdentityCoverageSummary(call);
                 const intentCoverage = getIntentCoverageSummary(call);
+                const reviewTrailCoverage = getReviewTrailCoverageSummary(call);
                 const lastContactTiming = getLastContactTimingSummary(call);
                 const serviceLocationCoverage = getServiceLocationCoverageSummary(call);
                 const noteCoverage = getNoteCoverageSummary(call);
@@ -682,6 +702,9 @@ export function CallsQueueTable({
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{intentCoverage}</span>
+                      </div>
+                      <div className="mt-1 text-xs text-neutral-600">
+                        <span className="font-medium text-neutral-800">{reviewTrailCoverage}</span>
                       </div>
                       <div className="mt-1 text-xs text-neutral-600">
                         <span className="font-medium text-neutral-800">{serviceLocationCoverage}</span>
