@@ -369,6 +369,10 @@ function getNoteCoverageContext(prospect: ProspectRow) {
   return prospect.notes?.trim() ? 'Notes: operator context captured' : 'Notes: none captured';
 }
 
+function getNextActionCoverageContext(prospect: ProspectRow) {
+  return prospect.nextActionAt ? 'Next action: scheduled' : 'Next action: not scheduled';
+}
+
 function getLastTouchTimingContext(prospect: ProspectRow) {
   const repliedAt = prospect.respondedAt ? new Date(prospect.respondedAt) : null;
   const attemptedAt = prospect.lastAttemptAt ? new Date(prospect.lastAttemptAt) : null;
@@ -1149,6 +1153,7 @@ export default async function ProspectsPage({
               const serviceInterestCoverage = getServiceInterestCoverageContext(prospect);
               const contactTitleCoverage = getContactTitleCoverageContext(prospect);
               const noteCoverage = getNoteCoverageContext(prospect);
+              const nextActionCoverage = getNextActionCoverageContext(prospect);
               const lastTouchTiming = getLastTouchTimingContext(prospect);
 
               return (
@@ -1205,6 +1210,7 @@ export default async function ProspectsPage({
                     <div className="text-neutral-600">{contactTitleCoverage}</div>
                     <div className="text-neutral-600">{contactCoverage}</div>
                     <div className="text-neutral-600">{locationCoverage}</div>
+                    <div className="text-neutral-600">{nextActionCoverage}</div>
                     <div className="text-neutral-600">{noteCoverage}</div>
                   </div>
 
