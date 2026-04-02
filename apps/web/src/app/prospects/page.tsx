@@ -214,9 +214,12 @@ function SummaryCard({
   href: string;
 }) {
   return (
-    <a href={href} className="block rounded-2xl border border-neutral-200 p-4 hover:border-neutral-400">
-      <div className="text-sm text-neutral-600">{label}</div>
-      <div className="mt-2 text-2xl font-semibold tracking-tight">{value}</div>
+    <a
+      href={href}
+      className="block min-w-[8.75rem] shrink-0 rounded-xl border border-neutral-200 bg-white px-3 py-2 hover:border-neutral-400"
+    >
+      <div className="text-[11px] font-medium uppercase tracking-wide text-neutral-500">{label}</div>
+      <div className="mt-1 text-xl font-semibold tracking-tight">{value}</div>
     </a>
   );
 }
@@ -726,24 +729,44 @@ export default async function ProspectsPage({
           </div>
         ) : null}
 
-        <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-          <span className="font-medium text-black">Queue context</span>{' '}
-          <span>Opening a prospect keeps this view: {queueContextSummary}</span>
-        </div>
+        <div className="grid gap-3 lg:grid-cols-3">
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
+            <span className="font-medium text-black">Queue context</span>{' '}
+            <span>Opening a prospect keeps this view: {queueContextSummary}</span>
+          </div>
 
-        <div className="rounded-2xl border border-neutral-200 bg-white px-4 py-4 text-sm text-neutral-700">
-          <div className="font-medium text-black">Start here</div>
-          <div className="mt-2 grid gap-2 md:grid-cols-3">
-            <div>1. Start with the first ready prospect, usually `PR_DEMO_101` after reset.</div>
-            <div>2. Review contact details, source intelligence, and the latest activity.</div>
-            <div>3. Save, log activity, or use `Review next` to keep follow-up moving.</div>
+          <div className="rounded-2xl border border-neutral-200 bg-white px-3 py-3 text-sm text-neutral-700">
+            <div className="font-medium text-black">Start here</div>
+            <div className="mt-2 space-y-1.5 text-sm">
+              <div>1. Start with the first ready prospect, usually `PR_DEMO_101` after reset.</div>
+              <div>2. Review contact details, source intelligence, and the latest activity.</div>
+              <div>3. Save, log activity, or use `Review next` to keep follow-up moving.</div>
+            </div>
+          </div>
+
+          <div className="rounded-2xl border border-neutral-200 bg-neutral-50 px-3 py-3 text-sm text-neutral-700">
+            <div className="font-medium text-black">Queue signals</div>
+            <div className="mt-2 flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
+                Ready now
+              </span>
+              <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
+                Attempted follow-up
+              </span>
+              <span className="rounded-full border border-blue-300 bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-900">
+                Responded / qualified
+              </span>
+              <span className="rounded-full border border-red-300 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-900">
+                High priority
+              </span>
+            </div>
           </div>
         </div>
 
         <div className="grid gap-4 xl:grid-cols-2">
-          <form action={importGooglePlaces} className="space-y-3 rounded-2xl border border-neutral-200 p-4">
+          <form action={importGooglePlaces} className="space-y-3 rounded-2xl border border-neutral-200 p-3">
             <div>
-              <h2 className="text-base font-semibold tracking-tight">Import from Google Places</h2>
+              <h2 className="text-sm font-semibold tracking-tight">Import from Google Places</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Search real local businesses into the outbound queue for{' '}
                 <span className="font-medium text-black">{activeBusiness?.name ?? 'the active business'}</span>.
@@ -795,9 +818,9 @@ export default async function ProspectsPage({
             </button>
           </form>
 
-          <form action={importApollo} className="space-y-3 rounded-2xl border border-neutral-200 p-4">
+          <form action={importApollo} className="space-y-3 rounded-2xl border border-neutral-200 p-3">
             <div>
-              <h2 className="text-base font-semibold tracking-tight">Import from Apollo</h2>
+              <h2 className="text-sm font-semibold tracking-tight">Import from Apollo</h2>
               <p className="mt-1 text-sm text-neutral-600">
                 Pull people-search prospects into the same outbound queue without leaving the current workflow.
               </p>
@@ -856,23 +879,7 @@ export default async function ProspectsPage({
           </form>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-          <span className="font-medium text-black">Queue signals:</span>
-          <span className="rounded-full border border-neutral-300 bg-white px-2.5 py-1 text-xs font-medium text-neutral-700">
-            Ready now
-          </span>
-          <span className="rounded-full border border-amber-300 bg-amber-100 px-2.5 py-1 text-xs font-medium text-amber-900">
-            Attempted follow-up
-          </span>
-          <span className="rounded-full border border-blue-300 bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-900">
-            Responded / qualified
-          </span>
-          <span className="rounded-full border border-red-300 bg-red-100 px-2.5 py-1 text-xs font-medium text-red-900">
-            High priority
-          </span>
-        </div>
-
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           <SummaryCard
             label="Ready"
             value={summary.readyProspects}
@@ -958,10 +965,10 @@ export default async function ProspectsPage({
           />
         </div>
 
-        <div className="space-y-4 rounded-2xl border border-neutral-200 p-4">
-          <form action="/prospects" className="flex flex-col gap-3 md:flex-row md:items-end">
+        <div className="rounded-2xl border border-neutral-200 bg-white p-3">
+          <form action="/prospects" className="flex flex-col gap-3 lg:flex-row lg:items-end">
             <div className="flex-1">
-              <label htmlFor="q" className="mb-2 block text-sm font-medium">
+              <label htmlFor="q" className="mb-1.5 block text-xs font-medium uppercase tracking-wide text-neutral-500">
                 Search prospects
               </label>
               <input
@@ -977,143 +984,147 @@ export default async function ProspectsPage({
             <input type="hidden" name="businessId" value={canonicalBusinessId} />
             {priority ? <input type="hidden" name="priority" value={priority} /> : null}
             <input type="hidden" name="limit" value={limit} />
-            <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
-              Search
-            </button>
-            <a
-              href={buildFilterHref({
-                tenantId: canonicalTenantId,
-                businessId: canonicalBusinessId,
-                status,
-                priority,
-                limit
-              })}
-              className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-            >
-              Clear
-            </a>
+            <div className="flex gap-2">
+              <button className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white">
+                Search
+              </button>
+              <a
+                href={buildFilterHref({
+                  tenantId: canonicalTenantId,
+                  businessId: canonicalBusinessId,
+                  status,
+                  priority,
+                  limit
+                })}
+                className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
+              >
+                Clear
+              </a>
+            </div>
           </form>
 
-          <div>
-            <div className="mb-2 text-sm font-medium">Status</div>
-            <div className="flex flex-wrap gap-2">
-              <FilterLink
-                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'READY', priority, q, limit })}
-                label="Ready"
-                active={status === 'READY'}
-              />
-              <FilterLink
-                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'NEW', priority, q, limit })}
-                label="New"
-                active={status === 'NEW'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status: 'ATTEMPTED',
-                  priority,
-                  q,
-                  limit
-                })}
-                label="Attempted"
-                active={status === 'ATTEMPTED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status: 'RESPONDED',
-                  priority,
-                  q,
-                  limit
-                })}
-                label="Responded"
-                active={status === 'RESPONDED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status: 'QUALIFIED',
-                  priority,
-                  q,
-                  limit
-                })}
-                label="Qualified"
-                active={status === 'QUALIFIED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status: 'DISQUALIFIED',
-                  priority,
-                  q,
-                  limit
-                })}
-                label="Disqualified"
-                active={status === 'DISQUALIFIED'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status: 'ARCHIVED',
-                  priority,
-                  q,
-                  limit
-                })}
-                label="Archived"
-                active={status === 'ARCHIVED'}
-              />
+          <div className="mt-3 grid gap-3 lg:grid-cols-2">
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Status</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterLink
+                  href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'READY', priority, q, limit })}
+                  label="Ready"
+                  active={status === 'READY'}
+                />
+                <FilterLink
+                  href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status: 'NEW', priority, q, limit })}
+                  label="New"
+                  active={status === 'NEW'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status: 'ATTEMPTED',
+                    priority,
+                    q,
+                    limit
+                  })}
+                  label="Attempted"
+                  active={status === 'ATTEMPTED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status: 'RESPONDED',
+                    priority,
+                    q,
+                    limit
+                  })}
+                  label="Responded"
+                  active={status === 'RESPONDED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status: 'QUALIFIED',
+                    priority,
+                    q,
+                    limit
+                  })}
+                  label="Qualified"
+                  active={status === 'QUALIFIED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status: 'DISQUALIFIED',
+                    priority,
+                    q,
+                    limit
+                  })}
+                  label="Disqualified"
+                  active={status === 'DISQUALIFIED'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status: 'ARCHIVED',
+                    priority,
+                    q,
+                    limit
+                  })}
+                  label="Archived"
+                  active={status === 'ARCHIVED'}
+                />
+              </div>
             </div>
-          </div>
 
-          <div>
-            <div className="mb-2 text-sm font-medium">Priority</div>
-            <div className="flex flex-wrap gap-2">
-              <FilterLink
-                href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status, q, limit })}
-                label="All"
-                active={!priority}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status,
-                  priority: 'HIGH',
-                  q,
-                  limit
-                })}
-                label="High"
-                active={priority === 'HIGH'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status,
-                  priority: 'MEDIUM',
-                  q,
-                  limit
-                })}
-                label="Medium"
-                active={priority === 'MEDIUM'}
-              />
-              <FilterLink
-                href={buildFilterHref({
-                  tenantId: canonicalTenantId,
-                  businessId: canonicalBusinessId,
-                  status,
-                  priority: 'LOW',
-                  q,
-                  limit
-                })}
-                label="Low"
-                active={priority === 'LOW'}
-              />
+            <div className="rounded-xl border border-neutral-200 bg-neutral-50/70 p-3">
+              <div className="mb-2 text-xs font-medium uppercase tracking-wide text-neutral-500">Priority</div>
+              <div className="flex flex-wrap gap-2">
+                <FilterLink
+                  href={buildFilterHref({ tenantId: canonicalTenantId, businessId: canonicalBusinessId, status, q, limit })}
+                  label="All"
+                  active={!priority}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status,
+                    priority: 'HIGH',
+                    q,
+                    limit
+                  })}
+                  label="High"
+                  active={priority === 'HIGH'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status,
+                    priority: 'MEDIUM',
+                    q,
+                    limit
+                  })}
+                  label="Medium"
+                  active={priority === 'MEDIUM'}
+                />
+                <FilterLink
+                  href={buildFilterHref({
+                    tenantId: canonicalTenantId,
+                    businessId: canonicalBusinessId,
+                    status,
+                    priority: 'LOW',
+                    q,
+                    limit
+                  })}
+                  label="Low"
+                  active={priority === 'LOW'}
+                />
+              </div>
             </div>
           </div>
         </div>
