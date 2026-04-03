@@ -51,4 +51,43 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
       prospects
     };
   });
+
+  app.get('/v1/businesses/:businessId/prospects/:prospectSid', async (request, reply) => {
+    const { businessId, prospectSid } = request.params as {
+      businessId: string;
+      prospectSid: string;
+    };
+
+    const prospect = await prisma.prospect.findFirst({
+      where: {
+        businessId,
+        prospectSid
+      },
+      select: {
+        prospectSid: true,
+        companyName: true,
+        contactName: true,
+        contactPhone: true,
+        contactEmail: true,
+        city: true,
+        state: true,
+        sourceLabel: true,
+        status: true,
+        priority: true,
+        notes: true,
+        nextActionAt: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    if (!prospect) {
+      return reply.notFound(`Prospect not found for businessId=${businessId} prospectSid=${prospectSid}`);
+    }
+
+    return {
+      ok: true,
+      prospect
+    };
+  });
 }
