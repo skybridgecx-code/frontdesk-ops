@@ -35,8 +35,37 @@ function normalizeOptionalText(value: string | null | undefined) {
   return normalized ? normalized : null;
 }
 
+function normalizeEmail(value: string | null | undefined) {
+  if (!value) return null;
+  const normalized = value.trim().toLowerCase();
+  return normalized ? normalized : null;
+}
+
+function normalizePhone(value: string | null | undefined) {
+  if (!value) return null;
+
+  const digits = value.replace(/\D/g, '');
+  if (!digits) return null;
+
+  if (digits.length === 11 && digits.startsWith('1')) {
+    return digits.slice(1);
+  }
+
+  return digits;
+}
+
 function buildProspectSid() {
   return `PR_${randomUUID().replaceAll('-', '').slice(0, 12).toUpperCase()}`;
+}
+
+function isUniqueConstraintError(error: unknown): error is { code: string } {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof (error as { code?: unknown }).code === 'string' &&
+    (error as { code: string }).code === 'P2002'
+  );
 }
 
 export async function importProspectsForBusiness(input: {
@@ -69,14 +98,19 @@ export async function importProspectsForBusiness(input: {
       normalizeOptionalText(input.defaultSourceLabel) ??
       'manual_import';
 
+    const contactPhone = normalizeOptionalText(prospect.contactPhone);
+    const contactEmail = normalizeOptionalText(prospect.contactEmail);
+
     return {
       tenantId: business.tenantId,
       businessId: business.id,
       prospectSid: buildProspectSid(),
       companyName: prospect.companyName.trim(),
       contactName: normalizeOptionalText(prospect.contactName),
-      contactPhone: normalizeOptionalText(prospect.contactPhone),
-      contactEmail: normalizeOptionalText(prospect.contactEmail),
+      contactPhone,
+      contactEmail,
+      normalizedPhone: normalizePhone(contactPhone),
+      normalizedEmail: normalizeEmail(contactEmail),
       city: normalizeOptionalText(prospect.city),
       state: normalizeOptionalText(prospect.state),
       sourceLabel,
@@ -88,20 +122,76 @@ export async function importProspectsForBusiness(input: {
     };
   });
 
-  const result = await prisma.prospect.createMany({
-    data: prospectsToCreate
-  });
+  const importedProspects: ImportedProspectSummary[] = [];
+  let importedCount = 0;
+
+  for (const prospect of prospectsToCreate) {
+    try {
+      const created = await prisma.prospect.create({
+        data: prospect,
+        select: {
+          prospectSid: true,
+          companyName: true,
+          status: true,
+          priority: true,
+          sourceLabel: true
+        }
+      });
+
+      importedProspects.push({
+        prospectSid: created.prospectSid,
+        companyName: created.companyName,
+        status: created.status,
+        priority: created.priority,
+        sourceLabel: created.sourceLabel ?? 'manual_import'
+      });
+
+      importedCount += 1;
+    } catch (error) {
+      if (!isUniqueConstraintError(error)) {
+        throw error;
+      }
+
+      const orConditions = [
+        ...(prospect.normalizedEmail ? [{ normalizedEmail: prospect.normalizedEmail }] : []),
+        ...(prospect.normalizedPhone ? [{ normalizedPhone: prospect.normalizedPhone }] : [])
+      ];
+
+      if (orConditions.length === 0) {
+        throw error;
+      }
+
+      const existing = await prisma.prospect.findFirst({
+        where: {
+          tenantId: business.tenantId,
+          businessId: business.id,
+          OR: orConditions
+        },
+        select: {
+          prospectSid: true,
+          companyName: true,
+          status: true,
+          priority: true,
+          sourceLabel: true
+        }
+      });
+
+      if (!existing) {
+        throw error;
+      }
+
+      importedProspects.push({
+        prospectSid: existing.prospectSid,
+        companyName: existing.companyName,
+        status: existing.status,
+        priority: existing.priority,
+        sourceLabel: existing.sourceLabel ?? 'manual_import'
+      });
+    }
+  }
 
   return {
-    importedCount: result.count,
-    prospects: prospectsToCreate.map(
-      (prospect): ImportedProspectSummary => ({
-        prospectSid: prospect.prospectSid,
-        companyName: prospect.companyName,
-        status: prospect.status,
-        priority: prospect.priority,
-        sourceLabel: prospect.sourceLabel
-      })
-    )
+    importedCount,
+    prospects: importedProspects
   };
 }

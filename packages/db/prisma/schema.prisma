@@ -376,6 +376,8 @@ model Prospect {
   contactName     String?
   contactPhone    String?
   contactEmail    String?
+  normalizedPhone String?
+  normalizedEmail String?
   city            String?
   state           String?
   sourceLabel     String?
@@ -415,6 +417,8 @@ model Prospect {
   @@index([priority])
   @@index([nextActionAt])
   @@index([lastAttemptAt])
+  @@unique([tenantId, businessId, normalizedEmail])
+  @@unique([tenantId, businessId, normalizedPhone])
   @@unique([tenantId, businessId, sourceProvider, sourceProviderRecordId])
   @@unique([tenantId, businessId, sourceProvider, sourceFingerprint])
 }
