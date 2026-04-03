@@ -440,6 +440,91 @@ export type JsonNullableWithAggregatesFilterBase<$PrismaModel = never> = {
   _max?: Prisma.NestedJsonNullableFilter<$PrismaModel>
 }
 
+export type EnumProspectSourceProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+}
+
+export type EnumProspectStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel> | $Enums.ProspectStatus
+}
+
+export type EnumProspectPriorityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectPriority | Prisma.EnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel> | $Enums.ProspectPriority | null
+}
+
+export type EnumProspectSourceProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+}
+
+export type EnumProspectStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProspectStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel>
+}
+
+export type EnumProspectPriorityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectPriority | Prisma.EnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumProspectPriorityNullableWithAggregatesFilter<$PrismaModel> | $Enums.ProspectPriority | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel>
+}
+
+export type EnumProspectAttemptChannelFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptChannel | Prisma.EnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel> | $Enums.ProspectAttemptChannel
+}
+
+export type EnumProspectAttemptOutcomeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptOutcome | Prisma.EnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel> | $Enums.ProspectAttemptOutcome
+}
+
+export type EnumProspectAttemptChannelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptChannel | Prisma.EnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptChannelWithAggregatesFilter<$PrismaModel> | $Enums.ProspectAttemptChannel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel>
+}
+
+export type EnumProspectAttemptOutcomeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptOutcome | Prisma.EnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptOutcomeWithAggregatesFilter<$PrismaModel> | $Enums.ProspectAttemptOutcome
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel>
+}
+
 export type NestedStringFilter<$PrismaModel = never> = {
   equals?: string | Prisma.StringFieldRefInput<$PrismaModel>
   in?: string[] | Prisma.ListStringFieldRefInput<$PrismaModel>
@@ -850,6 +935,91 @@ export type NestedJsonNullableFilterBase<$PrismaModel = never> = {
   gt?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   gte?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel>
   not?: runtime.InputJsonValue | Prisma.JsonFieldRefInput<$PrismaModel> | Prisma.JsonNullValueFilter
+}
+
+export type NestedEnumProspectSourceProviderFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+}
+
+export type NestedEnumProspectStatusFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel> | $Enums.ProspectStatus
+}
+
+export type NestedEnumProspectPriorityNullableFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectPriority | Prisma.EnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel> | $Enums.ProspectPriority | null
+}
+
+export type NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectSourceProvider | Prisma.EnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectSourceProvider[] | Prisma.ListEnumProspectSourceProviderFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectSourceProviderWithAggregatesFilter<$PrismaModel> | $Enums.ProspectSourceProvider
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectSourceProviderFilter<$PrismaModel>
+}
+
+export type NestedEnumProspectStatusWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectStatus | Prisma.EnumProspectStatusFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectStatus[] | Prisma.ListEnumProspectStatusFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectStatusWithAggregatesFilter<$PrismaModel> | $Enums.ProspectStatus
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectStatusFilter<$PrismaModel>
+}
+
+export type NestedEnumProspectPriorityNullableWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectPriority | Prisma.EnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  in?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  notIn?: $Enums.ProspectPriority[] | Prisma.ListEnumProspectPriorityFieldRefInput<$PrismaModel> | null
+  not?: Prisma.NestedEnumProspectPriorityNullableWithAggregatesFilter<$PrismaModel> | $Enums.ProspectPriority | null
+  _count?: Prisma.NestedIntNullableFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectPriorityNullableFilter<$PrismaModel>
+}
+
+export type NestedEnumProspectAttemptChannelFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptChannel | Prisma.EnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel> | $Enums.ProspectAttemptChannel
+}
+
+export type NestedEnumProspectAttemptOutcomeFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptOutcome | Prisma.EnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel> | $Enums.ProspectAttemptOutcome
+}
+
+export type NestedEnumProspectAttemptChannelWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptChannel | Prisma.EnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptChannel[] | Prisma.ListEnumProspectAttemptChannelFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptChannelWithAggregatesFilter<$PrismaModel> | $Enums.ProspectAttemptChannel
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectAttemptChannelFilter<$PrismaModel>
+}
+
+export type NestedEnumProspectAttemptOutcomeWithAggregatesFilter<$PrismaModel = never> = {
+  equals?: $Enums.ProspectAttemptOutcome | Prisma.EnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  in?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  notIn?: $Enums.ProspectAttemptOutcome[] | Prisma.ListEnumProspectAttemptOutcomeFieldRefInput<$PrismaModel>
+  not?: Prisma.NestedEnumProspectAttemptOutcomeWithAggregatesFilter<$PrismaModel> | $Enums.ProspectAttemptOutcome
+  _count?: Prisma.NestedIntFilter<$PrismaModel>
+  _min?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel>
+  _max?: Prisma.NestedEnumProspectAttemptOutcomeFilter<$PrismaModel>
 }
 
 
