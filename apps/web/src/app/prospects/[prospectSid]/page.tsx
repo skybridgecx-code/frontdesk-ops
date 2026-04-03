@@ -64,6 +64,15 @@ const prospectStatuses = [
 ] as const;
 
 const prospectPriorities = ['HIGH', 'MEDIUM', 'LOW'] as const;
+const prospectAttemptChannels = ['CALL', 'EMAIL', 'SMS'] as const;
+const prospectAttemptOutcomes = [
+  'NO_ANSWER',
+  'LEFT_VOICEMAIL',
+  'SENT_EMAIL',
+  'REPLIED',
+  'BAD_FIT',
+  'DO_NOT_CONTACT'
+] as const;
 
 function formatDateTime(value: string | null) {
   return value
@@ -92,6 +101,17 @@ function formatDateTimeLocalInput(value: string | null) {
     pad(date.getMonth() + 1),
     pad(date.getDate())
   ].join('-') + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+}
+
+function formatDateTimeLocalNow() {
+  const now = new Date();
+  const pad = (input: number) => String(input).padStart(2, '0');
+
+  return [
+    now.getFullYear(),
+    pad(now.getMonth() + 1),
+    pad(now.getDate())
+  ].join('-') + `T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 function formatLabel(value: string | null | undefined) {
@@ -160,8 +180,12 @@ export default async function ProspectDetailPage({
   const noticeMessage =
     resolvedSearchParams.notice === 'saved'
       ? 'Workflow updated.'
+      : resolvedSearchParams.notice === 'attempt-saved'
+        ? 'Attempt logged.'
       : resolvedSearchParams.notice === 'error'
         ? 'Could not save workflow changes.'
+        : resolvedSearchParams.notice === 'attempt-error'
+          ? 'Could not save attempt.'
         : null;
 
   if (!activeBusiness) {
@@ -211,6 +235,7 @@ export default async function ProspectDetailPage({
   const attempts = attemptsResponse.attempts;
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
+  const attemptedAtDefaultValue = formatDateTimeLocalNow();
 
   async function updateWorkflow(formData: FormData) {
     'use server';
@@ -267,6 +292,63 @@ export default async function ProspectDetailPage({
 
     revalidatePath(`/prospects/${prospectSid}`);
     redirect(`/prospects/${prospectSid}?notice=saved`);
+  }
+
+  async function logAttempt(formData: FormData) {
+    'use server';
+
+    const bootstrap = await getBootstrap();
+    const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+
+    if (!currentBusiness) {
+      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+    }
+
+    const channel = String(formData.get('channel') ?? '').trim();
+    const outcome = String(formData.get('outcome') ?? '').trim();
+    const note = String(formData.get('note') ?? '').trim();
+    const attemptedAtValue = String(formData.get('attemptedAt') ?? '').trim();
+
+    if (!channel || !outcome) {
+      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+    }
+
+    const attemptedAt = attemptedAtValue ? new Date(attemptedAtValue) : new Date();
+
+    if (Number.isNaN(attemptedAt.getTime())) {
+      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+    }
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `${getApiBaseUrl()}/v1/businesses/${currentBusiness.id}/prospects/${prospectSid}/attempts`,
+        {
+          method: 'POST',
+          cache: 'no-store',
+          headers: {
+            ...getInternalApiHeaders(),
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            channel,
+            outcome,
+            note: note ? note : null,
+            attemptedAt: attemptedAt.toISOString()
+          })
+        }
+      );
+    } catch {
+      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+    }
+
+    if (!response.ok) {
+      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+    }
+
+    revalidatePath(`/prospects/${prospectSid}`);
+    redirect(`/prospects/${prospectSid}?notice=attempt-saved`);
   }
 
   return (
@@ -421,6 +503,73 @@ export default async function ProspectDetailPage({
               <p className="text-sm text-black/60">Changes save to the backend and return here with a notice.</p>
               <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
                 Save workflow
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+          <div className="text-xs uppercase tracking-[0.24em] text-black/50">Log attempt</div>
+          <p className="mt-2 text-sm text-black/60">
+            Record outreach activity so the next operator sees a clean history.
+          </p>
+
+          <form action={logAttempt} className="mt-5 grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2 text-sm">
+                <div className="text-xs uppercase tracking-[0.22em] text-black/40">Channel</div>
+                <select
+                  name="channel"
+                  defaultValue="CALL"
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                >
+                  {prospectAttemptChannels.map((value) => (
+                    <option key={value} value={value}>
+                      {formatLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="space-y-2 text-sm">
+                <div className="text-xs uppercase tracking-[0.22em] text-black/40">Outcome</div>
+                <select
+                  name="outcome"
+                  defaultValue="LEFT_VOICEMAIL"
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                >
+                  {prospectAttemptOutcomes.map((value) => (
+                    <option key={value} value={value}>
+                      {formatLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="space-y-2 text-sm">
+              <div className="text-xs uppercase tracking-[0.22em] text-black/40">Note</div>
+              <textarea
+                name="note"
+                rows={4}
+                className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                placeholder="Left voicemail and requested a callback after 3 pm."
+              />
+            </label>
+
+            <label className="space-y-2 text-sm">
+              <div className="text-xs uppercase tracking-[0.22em] text-black/40">Attempted at</div>
+              <input
+                name="attemptedAt"
+                type="datetime-local"
+                defaultValue={attemptedAtDefaultValue}
+                className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+              />
+            </label>
+
+            <div className="flex items-center justify-end pt-1">
+              <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                Save attempt
               </button>
             </div>
           </form>
