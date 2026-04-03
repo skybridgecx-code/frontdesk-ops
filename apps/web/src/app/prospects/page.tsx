@@ -208,9 +208,12 @@ export default async function ProspectsPage() {
                   {prospects.map((prospect) => (
                     <tr key={prospect.prospectSid} className="border-t border-black/10 align-top">
                       <td className="px-5 py-4">
-                        <div className="font-medium text-black">
-                          {prospect.contactName || '—'}
-                        </div>
+                        <Link
+                          href={`/prospects/${prospect.prospectSid}`}
+                          className="font-medium text-black transition hover:text-black/70"
+                        >
+                          {prospect.contactName || prospect.companyName || prospect.prospectSid}
+                        </Link>
                         <div className="mt-1 text-xs text-black/50">
                           {prospect.contactEmail || 'No email'}
                         </div>
