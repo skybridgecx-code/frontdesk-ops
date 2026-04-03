@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { prisma, ProspectPriority, ProspectStatus } from '@frontdesk/db';
+import { sendProspectCreatedAlert } from './prospect-alerts.js';
 
 export type ProspectImportInput = {
   companyName: string;
@@ -147,6 +148,17 @@ export async function importProspectsForBusiness(input: {
       });
 
       importedCount += 1;
+
+      await sendProspectCreatedAlert({
+        businessId: business.id,
+        prospectSid: created.prospectSid,
+        companyName: created.companyName,
+        contactName: prospect.contactName ?? null,
+        contactEmail: prospect.contactEmail ?? null,
+        contactPhone: prospect.contactPhone ?? null,
+        sourceLabel: created.sourceLabel ?? 'manual_import',
+        createdAt: new Date().toISOString()
+      });
     } catch (error) {
       if (!isUniqueConstraintError(error)) {
         throw error;
