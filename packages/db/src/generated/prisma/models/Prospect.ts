@@ -33,6 +33,8 @@ export type ProspectMinAggregateOutputType = {
   contactName: string | null
   contactPhone: string | null
   contactEmail: string | null
+  normalizedPhone: string | null
+  normalizedEmail: string | null
   city: string | null
   state: string | null
   sourceLabel: string | null
@@ -68,6 +70,8 @@ export type ProspectMaxAggregateOutputType = {
   contactName: string | null
   contactPhone: string | null
   contactEmail: string | null
+  normalizedPhone: string | null
+  normalizedEmail: string | null
   city: string | null
   state: string | null
   sourceLabel: string | null
@@ -103,6 +107,8 @@ export type ProspectCountAggregateOutputType = {
   contactName: number
   contactPhone: number
   contactEmail: number
+  normalizedPhone: number
+  normalizedEmail: number
   city: number
   state: number
   sourceLabel: number
@@ -141,6 +147,8 @@ export type ProspectMinAggregateInputType = {
   contactName?: true
   contactPhone?: true
   contactEmail?: true
+  normalizedPhone?: true
+  normalizedEmail?: true
   city?: true
   state?: true
   sourceLabel?: true
@@ -176,6 +184,8 @@ export type ProspectMaxAggregateInputType = {
   contactName?: true
   contactPhone?: true
   contactEmail?: true
+  normalizedPhone?: true
+  normalizedEmail?: true
   city?: true
   state?: true
   sourceLabel?: true
@@ -211,6 +221,8 @@ export type ProspectCountAggregateInputType = {
   contactName?: true
   contactPhone?: true
   contactEmail?: true
+  normalizedPhone?: true
+  normalizedEmail?: true
   city?: true
   state?: true
   sourceLabel?: true
@@ -320,6 +332,8 @@ export type ProspectGroupByOutputType = {
   contactName: string | null
   contactPhone: string | null
   contactEmail: string | null
+  normalizedPhone: string | null
+  normalizedEmail: string | null
   city: string | null
   state: string | null
   sourceLabel: string | null
@@ -377,6 +391,8 @@ export type ProspectWhereInput = {
   contactName?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
@@ -417,6 +433,8 @@ export type ProspectOrderByWithRelationInput = {
   contactName?: Prisma.SortOrderInput | Prisma.SortOrder
   contactPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   contactEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  normalizedPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  normalizedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -451,6 +469,8 @@ export type ProspectOrderByWithRelationInput = {
 export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   prospectSid?: string
+  tenantId_businessId_normalizedEmail?: Prisma.ProspectTenantIdBusinessIdNormalizedEmailCompoundUniqueInput
+  tenantId_businessId_normalizedPhone?: Prisma.ProspectTenantIdBusinessIdNormalizedPhoneCompoundUniqueInput
   tenantId_businessId_sourceProvider_sourceProviderRecordId?: Prisma.ProspectTenantIdBusinessIdSourceProviderSourceProviderRecordIdCompoundUniqueInput
   tenantId_businessId_sourceProvider_sourceFingerprint?: Prisma.ProspectTenantIdBusinessIdSourceProviderSourceFingerprintCompoundUniqueInput
   AND?: Prisma.ProspectWhereInput | Prisma.ProspectWhereInput[]
@@ -462,6 +482,8 @@ export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   contactName?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
@@ -491,7 +513,7 @@ export type ProspectWhereUniqueInput = Prisma.AtLeast<{
   business?: Prisma.XOR<Prisma.BusinessScalarRelationFilter, Prisma.BusinessWhereInput>
   lastImportBatch?: Prisma.XOR<Prisma.ProspectImportBatchNullableScalarRelationFilter, Prisma.ProspectImportBatchWhereInput> | null
   attempts?: Prisma.ProspectAttemptListRelationFilter
-}, "id" | "prospectSid" | "tenantId_businessId_sourceProvider_sourceProviderRecordId" | "tenantId_businessId_sourceProvider_sourceFingerprint">
+}, "id" | "prospectSid" | "tenantId_businessId_normalizedEmail" | "tenantId_businessId_normalizedPhone" | "tenantId_businessId_sourceProvider_sourceProviderRecordId" | "tenantId_businessId_sourceProvider_sourceFingerprint">
 
 export type ProspectOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -502,6 +524,8 @@ export type ProspectOrderByWithAggregationInput = {
   contactName?: Prisma.SortOrderInput | Prisma.SortOrder
   contactPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   contactEmail?: Prisma.SortOrderInput | Prisma.SortOrder
+  normalizedPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  normalizedEmail?: Prisma.SortOrderInput | Prisma.SortOrder
   city?: Prisma.SortOrderInput | Prisma.SortOrder
   state?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -544,6 +568,8 @@ export type ProspectScalarWhereWithAggregatesInput = {
   contactName?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   contactPhone?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   contactEmail?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  normalizedPhone?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
+  normalizedEmail?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   city?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableWithAggregatesFilter<"Prospect"> | string | null
@@ -578,6 +604,8 @@ export type ProspectCreateInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -617,6 +645,8 @@ export type ProspectUncheckedCreateInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -652,6 +682,8 @@ export type ProspectUpdateInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -691,6 +723,8 @@ export type ProspectUncheckedUpdateInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -728,6 +762,8 @@ export type ProspectCreateManyInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -762,6 +798,8 @@ export type ProspectUpdateManyMutationInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -797,6 +835,8 @@ export type ProspectUncheckedUpdateManyInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -834,6 +874,18 @@ export type ProspectOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type ProspectTenantIdBusinessIdNormalizedEmailCompoundUniqueInput = {
+  tenantId: string
+  businessId: string
+  normalizedEmail: string
+}
+
+export type ProspectTenantIdBusinessIdNormalizedPhoneCompoundUniqueInput = {
+  tenantId: string
+  businessId: string
+  normalizedPhone: string
+}
+
 export type ProspectTenantIdBusinessIdSourceProviderSourceProviderRecordIdCompoundUniqueInput = {
   tenantId: string
   businessId: string
@@ -857,6 +909,8 @@ export type ProspectCountOrderByAggregateInput = {
   contactName?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
+  normalizedPhone?: Prisma.SortOrder
+  normalizedEmail?: Prisma.SortOrder
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
@@ -893,6 +947,8 @@ export type ProspectMaxOrderByAggregateInput = {
   contactName?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
+  normalizedPhone?: Prisma.SortOrder
+  normalizedEmail?: Prisma.SortOrder
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
@@ -928,6 +984,8 @@ export type ProspectMinOrderByAggregateInput = {
   contactName?: Prisma.SortOrder
   contactPhone?: Prisma.SortOrder
   contactEmail?: Prisma.SortOrder
+  normalizedPhone?: Prisma.SortOrder
+  normalizedEmail?: Prisma.SortOrder
   city?: Prisma.SortOrder
   state?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
@@ -1118,6 +1176,8 @@ export type ProspectCreateWithoutTenantInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1155,6 +1215,8 @@ export type ProspectUncheckedCreateWithoutTenantInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1221,6 +1283,8 @@ export type ProspectScalarWhereInput = {
   contactName?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
   contactEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedPhone?: Prisma.StringNullableFilter<"Prospect"> | string | null
+  normalizedEmail?: Prisma.StringNullableFilter<"Prospect"> | string | null
   city?: Prisma.StringNullableFilter<"Prospect"> | string | null
   state?: Prisma.StringNullableFilter<"Prospect"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"Prospect"> | string | null
@@ -1255,6 +1319,8 @@ export type ProspectCreateWithoutBusinessInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1292,6 +1358,8 @@ export type ProspectUncheckedCreateWithoutBusinessInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1353,6 +1421,8 @@ export type ProspectCreateWithoutAttemptsInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1391,6 +1461,8 @@ export type ProspectUncheckedCreateWithoutAttemptsInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1441,6 +1513,8 @@ export type ProspectUpdateWithoutAttemptsInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1479,6 +1553,8 @@ export type ProspectUncheckedUpdateWithoutAttemptsInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1513,6 +1589,8 @@ export type ProspectCreateWithoutLastImportBatchInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1551,6 +1629,8 @@ export type ProspectUncheckedCreateWithoutLastImportBatchInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1612,6 +1692,8 @@ export type ProspectCreateManyTenantInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1646,6 +1728,8 @@ export type ProspectUpdateWithoutTenantInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1683,6 +1767,8 @@ export type ProspectUncheckedUpdateWithoutTenantInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1719,6 +1805,8 @@ export type ProspectUncheckedUpdateManyWithoutTenantInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1754,6 +1842,8 @@ export type ProspectCreateManyBusinessInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1788,6 +1878,8 @@ export type ProspectUpdateWithoutBusinessInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1825,6 +1917,8 @@ export type ProspectUncheckedUpdateWithoutBusinessInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1861,6 +1955,8 @@ export type ProspectUncheckedUpdateManyWithoutBusinessInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1897,6 +1993,8 @@ export type ProspectCreateManyLastImportBatchInput = {
   contactName?: string | null
   contactPhone?: string | null
   contactEmail?: string | null
+  normalizedPhone?: string | null
+  normalizedEmail?: string | null
   city?: string | null
   state?: string | null
   sourceLabel?: string | null
@@ -1930,6 +2028,8 @@ export type ProspectUpdateWithoutLastImportBatchInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1968,6 +2068,8 @@ export type ProspectUncheckedUpdateWithoutLastImportBatchInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2004,6 +2106,8 @@ export type ProspectUncheckedUpdateManyWithoutLastImportBatchInput = {
   contactName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   contactEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  normalizedEmail?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   city?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   state?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2070,6 +2174,8 @@ export type ProspectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   contactName?: boolean
   contactPhone?: boolean
   contactEmail?: boolean
+  normalizedPhone?: boolean
+  normalizedEmail?: boolean
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
@@ -2111,6 +2217,8 @@ export type ProspectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   contactName?: boolean
   contactPhone?: boolean
   contactEmail?: boolean
+  normalizedPhone?: boolean
+  normalizedEmail?: boolean
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
@@ -2150,6 +2258,8 @@ export type ProspectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   contactName?: boolean
   contactPhone?: boolean
   contactEmail?: boolean
+  normalizedPhone?: boolean
+  normalizedEmail?: boolean
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
@@ -2189,6 +2299,8 @@ export type ProspectSelectScalar = {
   contactName?: boolean
   contactPhone?: boolean
   contactEmail?: boolean
+  normalizedPhone?: boolean
+  normalizedEmail?: boolean
   city?: boolean
   state?: boolean
   sourceLabel?: boolean
@@ -2216,7 +2328,7 @@ export type ProspectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProspectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "prospectSid" | "companyName" | "contactName" | "contactPhone" | "contactEmail" | "city" | "state" | "sourceLabel" | "sourceProvider" | "sourceProviderRecordId" | "sourceFingerprint" | "sourceWebsiteUrl" | "sourceMapsUrl" | "sourceLinkedinUrl" | "sourceCategory" | "sourceRoleTitle" | "sourceMetadataJson" | "lastImportBatchId" | "firstSeenAt" | "lastSeenAt" | "serviceInterest" | "notes" | "status" | "priority" | "nextActionAt" | "lastAttemptAt" | "respondedAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["prospect"]>
+export type ProspectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "prospectSid" | "companyName" | "contactName" | "contactPhone" | "contactEmail" | "normalizedPhone" | "normalizedEmail" | "city" | "state" | "sourceLabel" | "sourceProvider" | "sourceProviderRecordId" | "sourceFingerprint" | "sourceWebsiteUrl" | "sourceMapsUrl" | "sourceLinkedinUrl" | "sourceCategory" | "sourceRoleTitle" | "sourceMetadataJson" | "lastImportBatchId" | "firstSeenAt" | "lastSeenAt" | "serviceInterest" | "notes" | "status" | "priority" | "nextActionAt" | "lastAttemptAt" | "respondedAt" | "archivedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["prospect"]>
 export type ProspectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -2252,6 +2364,8 @@ export type $ProspectPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     contactName: string | null
     contactPhone: string | null
     contactEmail: string | null
+    normalizedPhone: string | null
+    normalizedEmail: string | null
     city: string | null
     state: string | null
     sourceLabel: string | null
@@ -2712,6 +2826,8 @@ export interface ProspectFieldRefs {
   readonly contactName: Prisma.FieldRef<"Prospect", 'String'>
   readonly contactPhone: Prisma.FieldRef<"Prospect", 'String'>
   readonly contactEmail: Prisma.FieldRef<"Prospect", 'String'>
+  readonly normalizedPhone: Prisma.FieldRef<"Prospect", 'String'>
+  readonly normalizedEmail: Prisma.FieldRef<"Prospect", 'String'>
   readonly city: Prisma.FieldRef<"Prospect", 'String'>
   readonly state: Prisma.FieldRef<"Prospect", 'String'>
   readonly sourceLabel: Prisma.FieldRef<"Prospect", 'String'>

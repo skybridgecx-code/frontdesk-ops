@@ -1685,6 +1685,8 @@ export const ProspectScalarFieldEnum = {
   contactName: 'contactName',
   contactPhone: 'contactPhone',
   contactEmail: 'contactEmail',
+  normalizedPhone: 'normalizedPhone',
+  normalizedEmail: 'normalizedEmail',
   city: 'city',
   state: 'state',
   sourceLabel: 'sourceLabel',
