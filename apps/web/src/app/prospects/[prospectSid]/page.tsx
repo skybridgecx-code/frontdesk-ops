@@ -1,5 +1,6 @@
+import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
-import { notFound } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 
 export const dynamic = 'force-dynamic';
@@ -51,6 +52,19 @@ type ProspectAttemptsResponse = {
   attempts: ProspectAttempt[];
 };
 
+const prospectStatuses = [
+  'NEW',
+  'READY',
+  'IN_PROGRESS',
+  'ATTEMPTED',
+  'RESPONDED',
+  'QUALIFIED',
+  'DISQUALIFIED',
+  'ARCHIVED'
+] as const;
+
+const prospectPriorities = ['HIGH', 'MEDIUM', 'LOW'] as const;
+
 function formatDateTime(value: string | null) {
   return value
     ? new Intl.DateTimeFormat('en-US', {
@@ -58,6 +72,26 @@ function formatDateTime(value: string | null) {
         timeStyle: 'short'
       }).format(new Date(value))
     : '—';
+}
+
+function formatDateTimeLocalInput(value: string | null) {
+  if (!value) {
+    return '';
+  }
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return '';
+  }
+
+  const pad = (input: number) => String(input).padStart(2, '0');
+
+  return [
+    date.getFullYear(),
+    pad(date.getMonth() + 1),
+    pad(date.getDate())
+  ].join('-') + `T${pad(date.getHours())}:${pad(date.getMinutes())}`;
 }
 
 function formatLabel(value: string | null | undefined) {
@@ -113,13 +147,22 @@ async function getAttempts(businessId: string, prospectSid: string) {
 }
 
 export default async function ProspectDetailPage({
-  params
+  params,
+  searchParams
 }: {
   params: Promise<{ prospectSid: string }>;
+  searchParams: Promise<{ notice?: string }>;
 }) {
   const { prospectSid } = await params;
+  const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const noticeMessage =
+    resolvedSearchParams.notice === 'saved'
+      ? 'Workflow updated.'
+      : resolvedSearchParams.notice === 'error'
+        ? 'Could not save workflow changes.'
+        : null;
 
   if (!activeBusiness) {
     return (
@@ -169,6 +212,63 @@ export default async function ProspectDetailPage({
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
 
+  async function updateWorkflow(formData: FormData) {
+    'use server';
+
+    const bootstrap = await getBootstrap();
+    const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+
+    if (!currentBusiness) {
+      redirect(`/prospects/${prospectSid}?notice=error`);
+    }
+
+    const status = String(formData.get('status') ?? '').trim();
+    const priority = String(formData.get('priority') ?? '').trim();
+    const notes = String(formData.get('notes') ?? '').trim();
+    const nextActionAtValue = String(formData.get('nextActionAt') ?? '').trim();
+
+    if (!status) {
+      redirect(`/prospects/${prospectSid}?notice=error`);
+    }
+
+    const nextActionAt = nextActionAtValue ? new Date(nextActionAtValue) : null;
+
+    if (nextActionAt && Number.isNaN(nextActionAt.getTime())) {
+      redirect(`/prospects/${prospectSid}?notice=error`);
+    }
+
+    let response: Response;
+
+    try {
+      response = await fetch(
+        `${getApiBaseUrl()}/v1/businesses/${currentBusiness.id}/prospects/${prospectSid}`,
+        {
+          method: 'PATCH',
+          cache: 'no-store',
+          headers: {
+            ...getInternalApiHeaders(),
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            status,
+            priority: priority ? priority : null,
+            notes: notes ? notes : null,
+            nextActionAt: nextActionAt ? nextActionAt.toISOString() : null
+          })
+        }
+      );
+    } catch {
+      redirect(`/prospects/${prospectSid}?notice=error`);
+    }
+
+    if (!response.ok) {
+      redirect(`/prospects/${prospectSid}?notice=error`);
+    }
+
+    revalidatePath(`/prospects/${prospectSid}`);
+    redirect(`/prospects/${prospectSid}?notice=saved`);
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -181,6 +281,18 @@ export default async function ProspectDetailPage({
             <p className="mt-2 text-sm text-black/60">{metadataLine}</p>
           </div>
         </div>
+
+        {noticeMessage ? (
+          <div
+            className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
+              resolvedSearchParams.notice === 'saved'
+                ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
+                : 'border-red-200 bg-red-50 text-red-900'
+            }`}
+          >
+            {noticeMessage}
+          </div>
+        ) : null}
 
         <section className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
@@ -242,6 +354,76 @@ export default async function ProspectDetailPage({
               </div>
             </dl>
           </div>
+        </section>
+
+        <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+          <div className="text-xs uppercase tracking-[0.24em] text-black/50">Update workflow</div>
+          <p className="mt-2 text-sm text-black/60">
+            Update the prospect record directly, then return to the same detail view.
+          </p>
+
+          <form action={updateWorkflow} className="mt-5 grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="space-y-2 text-sm">
+                <div className="text-xs uppercase tracking-[0.22em] text-black/40">Status</div>
+                <select
+                  name="status"
+                  defaultValue={prospect.status}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                >
+                  {prospectStatuses.map((value) => (
+                    <option key={value} value={value}>
+                      {formatLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+
+              <label className="space-y-2 text-sm">
+                <div className="text-xs uppercase tracking-[0.22em] text-black/40">Priority</div>
+                <select
+                  name="priority"
+                  defaultValue={prospect.priority ?? ''}
+                  className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                >
+                  <option value="">No priority</option>
+                  {prospectPriorities.map((value) => (
+                    <option key={value} value={value}>
+                      {formatLabel(value)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <label className="space-y-2 text-sm">
+              <div className="text-xs uppercase tracking-[0.22em] text-black/40">Notes</div>
+              <textarea
+                name="notes"
+                defaultValue={prospect.notes ?? ''}
+                rows={5}
+                className="w-full rounded-xl border border-black/10 bg-white px-3 py-3 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+                placeholder="Add context for the operator team."
+              />
+            </label>
+
+            <label className="space-y-2 text-sm">
+              <div className="text-xs uppercase tracking-[0.22em] text-black/40">Next action</div>
+              <input
+                name="nextActionAt"
+                type="datetime-local"
+                defaultValue={formatDateTimeLocalInput(prospect.nextActionAt)}
+                className="w-full rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+              />
+            </label>
+
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
+              <p className="text-sm text-black/60">Changes save to the backend and return here with a notice.</p>
+              <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                Save workflow
+              </button>
+            </div>
+          </form>
         </section>
 
         <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
