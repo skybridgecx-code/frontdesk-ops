@@ -1,7 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { buildPublicLeadPayload } from './home-lead-payload';
-import { buildOperatorLeadWebhookPayload } from './home-lead-notification';
 import { InteractiveCallFlow } from './interactive-call-flow';
 import type { Metadata } from 'next';
 
@@ -379,48 +378,6 @@ function getNoticeMessage(notice: string | undefined, error: string | undefined)
   return null;
 }
 
-function getAppBaseUrl() {
-  return process.env.FRONTDESK_APP_BASE_URL ?? 'http://127.0.0.1:3001';
-}
-
-async function notifyOperatorOfLead(input: {
-  prospectSid: string;
-  lead: ReturnType<typeof buildPublicLeadPayload>;
-}) {
-  const webhookUrl = process.env.FRONTDESK_OPERATOR_WEBHOOK_URL;
-
-  if (!webhookUrl) {
-    return {
-      ok: false as const,
-      warning: 'Lead was captured, but operator notifications are not configured yet.'
-    };
-  }
-
-  const payload = buildOperatorLeadWebhookPayload({
-    prospectSid: input.prospectSid,
-    lead: input.lead,
-    appBaseUrl: getAppBaseUrl()
-  });
-
-  const response = await fetch(webhookUrl, {
-    method: 'POST',
-    cache: 'no-store',
-    headers: {
-      'content-type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
-
-  if (!response.ok) {
-    return {
-      ok: false as const,
-      warning: `Lead was captured, but operator notification failed with status ${response.status}.`
-    };
-  }
-
-  return { ok: true as const };
-}
-
 export default async function Home({
   searchParams
 }: {
@@ -429,7 +386,6 @@ export default async function Home({
   const resolved = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
-  const tenantId = bootstrap?.tenant?.id ?? null;
   const noticeMessage = getNoticeMessage(resolved.notice, resolved.error?.trim());
   const successWarning = resolved.warning?.trim() || null;
   const leadRequested = resolved.notice === 'lead-requested';
@@ -437,7 +393,7 @@ export default async function Home({
   async function requestConsultation(formData: FormData) {
     'use server';
 
-    if (!activeBusiness || !tenantId) {
+    if (!activeBusiness) {
       redirect(
         buildHomeNoticeHref('lead-request-failed', {
           error: 'No active business is configured for lead capture.'
@@ -458,7 +414,7 @@ export default async function Home({
     }
 
     const response = await fetch(
-      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import?tenantId=${encodeURIComponent(tenantId)}`,
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import`,
       {
       method: 'POST',
       cache: 'no-store',
@@ -481,23 +437,9 @@ export default async function Home({
       );
     }
 
-    const imported = (await response.json()) as ImportLeadResponse;
-    const prospectSid = imported.prospects[0]?.prospectSid;
-    const notificationResult = prospectSid
-      ? await notifyOperatorOfLead({
-          prospectSid,
-          lead: prospect
-        })
-      : {
-          ok: false as const,
-          warning: 'Lead was captured, but the created prospect could not be linked for notification.'
-        };
+    await response.json() as ImportLeadResponse;
 
-    redirect(
-      buildHomeNoticeHref('lead-requested', {
-        warning: notificationResult.ok ? undefined : notificationResult.warning
-      })
-    );
+    redirect(buildHomeNoticeHref('lead-requested'));
   }
 
   return (
