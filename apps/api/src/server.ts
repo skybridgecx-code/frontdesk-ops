@@ -27,6 +27,7 @@ import { registerProspectReadRoutes } from './routes/prospect-read.js';
 import { registerProspectWriteRoutes } from './routes/prospect-write.js';
 import { registerProspectAttemptWriteRoutes } from './routes/prospect-attempts-write.js';
 import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-read.js';
+import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
 
 export async function buildServer() {
   const app = Fastify({
@@ -75,6 +76,7 @@ export async function buildServer() {
   await registerProspectWriteRoutes(app);
   await registerProspectAttemptWriteRoutes(app);
   await registerProspectAttemptReadRoutes(app);
+  await registerProspectSummaryRoutes(app);
 
   return app;
 }
