@@ -64,8 +64,14 @@ async function getBootstrap() {
   return (await res.json()) as BootstrapResponse;
 }
 
-async function getProspects(businessId: string) {
-  const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`, {
+async function getProspects(businessId: string, status?: string) {
+  const url = new URL(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`);
+
+  if (status && status !== 'ALL') {
+    url.searchParams.set('status', status);
+  }
+
+  const res = await fetch(url.toString(), {
     cache: 'no-store',
     headers: getInternalApiHeaders()
   });
@@ -110,6 +116,31 @@ function formatPriority(value: string | null) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 
+function buildQueueHref(status: string) {
+  const params = new URLSearchParams();
+
+  if (status !== 'ALL') {
+    params.set('status', status);
+  }
+
+  const query = params.toString();
+  return query ? `/prospects?${query}` : '/prospects';
+}
+
+function isValidStatus(value: string | undefined) {
+  return (
+    value === 'ALL' ||
+    value === 'NEW' ||
+    value === 'READY' ||
+    value === 'IN_PROGRESS' ||
+    value === 'ATTEMPTED' ||
+    value === 'RESPONDED' ||
+    value === 'QUALIFIED' ||
+    value === 'DISQUALIFIED' ||
+    value === 'ARCHIVED'
+  );
+}
+
 function SummaryCard({
   label,
   value
@@ -125,9 +156,17 @@ function SummaryCard({
   );
 }
 
-export default async function ProspectsPage() {
+export default async function ProspectsPage({
+  searchParams
+}: {
+  searchParams: Promise<{ status?: string }>;
+}) {
+  const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const activeStatus = isValidStatus(resolvedSearchParams.status?.toUpperCase())
+    ? resolvedSearchParams.status!.toUpperCase()
+    : 'ALL';
 
   if (!activeBusiness) {
     return (
@@ -144,7 +183,7 @@ export default async function ProspectsPage() {
 
   const [summaryResponse, prospectsResponse] = await Promise.all([
     getProspectSummary(activeBusiness.id),
-    getProspects(activeBusiness.id)
+    getProspects(activeBusiness.id, activeStatus)
   ]);
 
   const summary = summaryResponse.summary;
@@ -189,8 +228,35 @@ export default async function ProspectsPage() {
             </p>
           </div>
 
+          <div className="border-b border-black/10 px-5 py-4">
+            <div className="flex flex-wrap gap-2">
+              {(['ALL', 'NEW', 'READY', 'IN_PROGRESS', 'ATTEMPTED', 'RESPONDED', 'QUALIFIED', 'DISQUALIFIED', 'ARCHIVED'] as const).map((status) => {
+                const isActive = activeStatus === status;
+
+                return (
+                  <Link
+                    key={status}
+                    href={buildQueueHref(status)}
+                    aria-current={isActive ? 'page' : undefined}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                      isActive
+                        ? 'bg-[#111827] text-white shadow-sm'
+                        : 'border border-black/10 bg-white text-black/70 hover:text-black'
+                    }`}
+                  >
+                    {status === 'ALL' ? 'All' : formatStatus(status)}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+
           {prospects.length === 0 ? (
-            <div className="px-5 py-10 text-sm text-black/60">No prospects found.</div>
+            <div className="px-5 py-10 text-sm text-black/60">
+              {activeStatus === 'ALL'
+                ? 'No prospects found.'
+                : `No prospects found for ${formatStatus(activeStatus)}.`}
+            </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="min-w-full text-left text-sm">
@@ -209,7 +275,10 @@ export default async function ProspectsPage() {
                     <tr key={prospect.prospectSid} className="border-t border-black/10 align-top">
                       <td className="px-5 py-4">
                         <Link
-                          href={`/prospects/${prospect.prospectSid}`}
+                          href={{
+                            pathname: `/prospects/${prospect.prospectSid}`,
+                            query: { returnTo: buildQueueHref(activeStatus) }
+                          }}
                           className="font-medium text-black transition hover:text-black/70"
                         >
                           {prospect.contactName || prospect.companyName || prospect.prospectSid}

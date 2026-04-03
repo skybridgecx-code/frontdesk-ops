@@ -171,12 +171,16 @@ export default async function ProspectDetailPage({
   searchParams
 }: {
   params: Promise<{ prospectSid: string }>;
-  searchParams: Promise<{ notice?: string }>;
+  searchParams: Promise<{ notice?: string; returnTo?: string }>;
 }) {
   const { prospectSid } = await params;
   const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const returnTo =
+    resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/prospects')
+      ? resolvedSearchParams.returnTo
+      : '/prospects';
   const noticeMessage =
     resolvedSearchParams.notice === 'saved'
       ? 'Workflow updated.'
@@ -198,10 +202,10 @@ export default async function ProspectDetailPage({
             Prospect detail cannot load until an active business is available.
           </p>
           <Link
-            href="/prospects"
+            href={returnTo}
             className="mt-6 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
           >
-            Back to prospects
+            Back to queue
           </Link>
         </div>
       </main>
@@ -220,10 +224,10 @@ export default async function ProspectDetailPage({
             We could not find that prospect for the active business.
           </p>
           <Link
-            href="/prospects"
+            href={returnTo}
             className="mt-6 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
           >
-            Back to prospects
+            Back to queue
           </Link>
         </div>
       </main>
@@ -235,6 +239,7 @@ export default async function ProspectDetailPage({
   const attempts = attemptsResponse.attempts;
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
+  const detailHref = `/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}`;
   const attemptedAtDefaultValue = formatDateTimeLocalNow();
 
   async function updateWorkflow(formData: FormData) {
@@ -244,7 +249,7 @@ export default async function ProspectDetailPage({
     const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
 
     if (!currentBusiness) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`${detailHref}&notice=error`);
     }
 
     const status = String(formData.get('status') ?? '').trim();
@@ -253,13 +258,13 @@ export default async function ProspectDetailPage({
     const nextActionAtValue = String(formData.get('nextActionAt') ?? '').trim();
 
     if (!status) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`${detailHref}&notice=error`);
     }
 
     const nextActionAt = nextActionAtValue ? new Date(nextActionAtValue) : null;
 
     if (nextActionAt && Number.isNaN(nextActionAt.getTime())) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`${detailHref}&notice=error`);
     }
 
     let response: Response;
@@ -283,15 +288,15 @@ export default async function ProspectDetailPage({
         }
       );
     } catch {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`${detailHref}&notice=error`);
     }
 
     if (!response.ok) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`${detailHref}&notice=error`);
     }
 
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`/prospects/${prospectSid}?notice=saved`);
+    redirect(`${detailHref}&notice=saved`);
   }
 
   async function logAttempt(formData: FormData) {
@@ -301,7 +306,7 @@ export default async function ProspectDetailPage({
     const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
 
     if (!currentBusiness) {
-      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+      redirect(`${detailHref}&notice=attempt-error`);
     }
 
     const channel = String(formData.get('channel') ?? '').trim();
@@ -310,13 +315,13 @@ export default async function ProspectDetailPage({
     const attemptedAtValue = String(formData.get('attemptedAt') ?? '').trim();
 
     if (!channel || !outcome) {
-      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+      redirect(`${detailHref}&notice=attempt-error`);
     }
 
     const attemptedAt = attemptedAtValue ? new Date(attemptedAtValue) : new Date();
 
     if (Number.isNaN(attemptedAt.getTime())) {
-      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+      redirect(`${detailHref}&notice=attempt-error`);
     }
 
     let response: Response;
@@ -340,15 +345,15 @@ export default async function ProspectDetailPage({
         }
       );
     } catch {
-      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+      redirect(`${detailHref}&notice=attempt-error`);
     }
 
     if (!response.ok) {
-      redirect(`/prospects/${prospectSid}?notice=attempt-error`);
+      redirect(`${detailHref}&notice=attempt-error`);
     }
 
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`/prospects/${prospectSid}?notice=attempt-saved`);
+    redirect(`${detailHref}&notice=attempt-saved`);
   }
 
   return (
@@ -356,8 +361,8 @@ export default async function ProspectDetailPage({
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <Link href="/prospects" className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
-              ← Back to prospects
+            <Link href={returnTo} className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
+              ← Back to queue
             </Link>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">{title}</h1>
             <p className="mt-2 text-sm text-black/60">{metadataLine}</p>
