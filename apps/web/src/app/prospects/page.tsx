@@ -25,6 +25,7 @@ type ProspectRow = {
   sourceLabel: string | null;
   status: string;
   priority: string | null;
+  nextActionAt: string | null;
   createdAt: string;
   updatedAt: string;
 };
@@ -101,6 +102,10 @@ function formatDateTime(value: string) {
     dateStyle: 'medium',
     timeStyle: 'short'
   }).format(new Date(value));
+}
+
+function formatDateTimeNullable(value: string | null) {
+  return value ? formatDateTime(value) : '—';
 }
 
 function formatStatus(value: string) {
@@ -265,6 +270,7 @@ export default async function ProspectsPage({
                     <th className="px-5 py-3 font-medium">Name</th>
                     <th className="px-5 py-3 font-medium">Phone</th>
                     <th className="px-5 py-3 font-medium">Company</th>
+                    <th className="px-5 py-3 font-medium">Next action</th>
                     <th className="px-5 py-3 font-medium">Status</th>
                     <th className="px-5 py-3 font-medium">Priority</th>
                     <th className="px-5 py-3 font-medium">Created</th>
@@ -294,6 +300,7 @@ export default async function ProspectsPage({
                           {[prospect.city, prospect.state].filter(Boolean).join(', ') || prospect.sourceLabel || '—'}
                         </div>
                       </td>
+                      <td className="px-5 py-4 text-black/70">{formatDateTimeNullable(prospect.nextActionAt)}</td>
                       <td className="px-5 py-4 text-black/70">{formatStatus(prospect.status)}</td>
                       <td className="px-5 py-4 text-black/70">{formatPriority(prospect.priority)}</td>
                       <td className="px-5 py-4 text-black/70">{formatDateTime(prospect.createdAt)}</td>
