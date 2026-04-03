@@ -41,6 +41,7 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
         sourceLabel: true,
         status: true,
         priority: true,
+        nextActionAt: true,
         createdAt: true,
         updatedAt: true
       }
