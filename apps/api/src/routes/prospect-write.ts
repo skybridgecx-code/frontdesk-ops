@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { ProspectPriority, ProspectStatus, prisma } from '@frontdesk/db';
+import { isProspectTerminalStatus, normalizeProspectNextActionAt } from '@frontdesk/domain';
 
 const updateProspectBodySchema = z
   .object({
@@ -33,13 +34,22 @@ export async function registerProspectWriteRoutes(app: FastifyInstance) {
         prospectSid
       },
       select: {
-        id: true
+        id: true,
+        status: true
       }
     });
 
     if (!existing) {
       return reply.notFound(`Prospect not found for businessId=${businessId} prospectSid=${prospectSid}`);
     }
+
+    const nextStatus = parsed.data.status ?? existing.status;
+    const nextActionAtUpdate =
+      parsed.data.nextActionAt !== undefined
+        ? normalizeProspectNextActionAt(nextStatus, parsed.data.nextActionAt)
+        : isProspectTerminalStatus(nextStatus)
+          ? null
+          : undefined;
 
     const prospect = await prisma.prospect.update({
       where: {
@@ -49,7 +59,7 @@ export async function registerProspectWriteRoutes(app: FastifyInstance) {
         ...(parsed.data.status !== undefined ? { status: parsed.data.status } : {}),
         ...(parsed.data.priority !== undefined ? { priority: parsed.data.priority } : {}),
         ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
-        ...(parsed.data.nextActionAt !== undefined ? { nextActionAt: parsed.data.nextActionAt } : {})
+        ...(nextActionAtUpdate !== undefined ? { nextActionAt: nextActionAtUpdate } : {})
       },
       select: {
         prospectSid: true,

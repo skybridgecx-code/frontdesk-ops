@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@frontdesk/domain": ["../../packages/domain/src/index.ts"],
+      "@frontdesk/domain/*": ["../../packages/domain/src/*"]
     }
   },
   "include": [

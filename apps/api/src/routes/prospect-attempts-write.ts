@@ -3,9 +3,9 @@ import { z } from 'zod';
 import {
   ProspectAttemptChannel,
   ProspectAttemptOutcome,
-  ProspectStatus,
   prisma
 } from '@frontdesk/db';
+import { normalizeProspectStatusAfterAttempt } from '@frontdesk/domain';
 
 const createProspectAttemptBodySchema = z
   .object({
@@ -71,9 +71,7 @@ export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
         where: { id: existing.id },
         data: {
           lastAttemptAt: attemptedAt,
-          ...(existing.status === ProspectStatus.NEW || existing.status === ProspectStatus.READY
-            ? { status: ProspectStatus.ATTEMPTED }
-            : {})
+          status: normalizeProspectStatusAfterAttempt(existing.status)
         },
         select: {
           prospectSid: true,
