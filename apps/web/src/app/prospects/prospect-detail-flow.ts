@@ -255,6 +255,27 @@ export async function resolveQueueContext(
   }
 }
 
+export function buildProspectMutationRedirect(input: {
+  detailHref: string;
+  returnTo: string;
+  queueReturnTo: string | null;
+  nextProspectSid: string | null;
+  nextNotice: string;
+  fallbackNotice: string;
+}) {
+  if (!input.queueReturnTo || !input.nextProspectSid) {
+    return `${input.detailHref}&notice=${input.fallbackNotice}`;
+  }
+
+  return buildQueueContinuationHref({
+    detailHref: input.detailHref,
+    nextProspectSid: input.nextProspectSid,
+    returnTo: input.returnTo,
+    nextNotice: input.nextNotice,
+    fallbackNotice: input.fallbackNotice
+  });
+}
+
 type DetailActionContext = {
   prospectSid: string;
   detailHref: string;
@@ -332,17 +353,16 @@ export function createProspectDetailActions(context: DetailActionContext) {
     if (advanceToNext && context.queueReturnTo) {
       const nextQueueContext = await resolveQueueContext(currentBusiness.id, context.prospectSid, context.queueReturnTo);
 
-      if (nextQueueContext?.nextHref) {
-        redirect(
-          buildQueueContinuationHref({
-            detailHref: context.detailHref,
-            nextProspectSid: nextQueueContext.nextProspectSid,
-            returnTo: context.returnTo,
-            nextNotice: 'saved-next',
-            fallbackNotice: 'saved'
-          })
-        );
-      }
+      redirect(
+        buildProspectMutationRedirect({
+          detailHref: context.detailHref,
+          returnTo: context.returnTo,
+          queueReturnTo: context.queueReturnTo,
+          nextProspectSid: nextQueueContext?.nextProspectSid ?? null,
+          nextNotice: 'saved-next',
+          fallbackNotice: 'saved'
+        })
+      );
     }
 
     redirect(`${context.detailHref}&notice=saved`);
@@ -418,17 +438,16 @@ export function createProspectDetailActions(context: DetailActionContext) {
     if (advanceToNext && context.queueReturnTo) {
       const nextQueueContext = await resolveQueueContext(currentBusiness.id, context.prospectSid, context.queueReturnTo);
 
-      if (nextQueueContext?.nextHref) {
-        redirect(
-          buildQueueContinuationHref({
-            detailHref: context.detailHref,
-            nextProspectSid: nextQueueContext.nextProspectSid,
-            returnTo: context.returnTo,
-            nextNotice: 'attempt-saved-next',
-            fallbackNotice: 'attempt-saved'
-          })
-        );
-      }
+      redirect(
+        buildProspectMutationRedirect({
+          detailHref: context.detailHref,
+          returnTo: context.returnTo,
+          queueReturnTo: context.queueReturnTo,
+          nextProspectSid: nextQueueContext?.nextProspectSid ?? null,
+          nextNotice: 'attempt-saved-next',
+          fallbackNotice: 'attempt-saved'
+        })
+      );
     }
 
     redirect(`${context.detailHref}&notice=attempt-saved`);
@@ -518,10 +537,11 @@ export function createProspectDetailActions(context: DetailActionContext) {
       const nextQueueContext = await resolveQueueContext(currentBusiness.id, context.prospectSid, context.queueReturnTo);
 
       redirect(
-        buildQueueContinuationHref({
+        buildProspectMutationRedirect({
           detailHref: context.detailHref,
-          nextProspectSid: nextQueueContext?.nextProspectSid ?? null,
           returnTo: context.returnTo,
+          queueReturnTo: context.queueReturnTo,
+          nextProspectSid: nextQueueContext?.nextProspectSid ?? null,
           nextNotice: 'shortcut-saved-next',
           fallbackNotice: 'shortcut-saved'
         })
