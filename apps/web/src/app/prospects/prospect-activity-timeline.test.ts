@@ -17,8 +17,12 @@ test('buildProspectActivityTimeline keeps attempts and the current snapshot dist
       priority: 'HIGH',
       notes: 'Customer responded and wants a quote.',
       nextActionAt: '2026-04-04T15:00:00.000Z',
+      lastAttemptAt: '2026-04-03T11:30:00.000Z',
       createdAt: '2026-04-01T10:00:00.000Z',
-      updatedAt: '2026-04-03T12:00:00.000Z'
+      updatedAt: '2026-04-03T12:00:00.000Z',
+      readState: {
+        queueStateLabel: 'no next action'
+      }
     },
     [
       {
@@ -45,7 +49,9 @@ test('buildProspectActivityTimeline keeps attempts and the current snapshot dist
   assert.equal(timeline[0]?.eventTypeLabel, 'Current snapshot');
   assert.match(timeline[0]?.description ?? '', /Status Responded/);
   assert.match(timeline[0]?.description ?? '', /Priority High/);
-  assert.match(timeline[0]?.description ?? '', /Next action/);
+  assert.match(timeline[0]?.description ?? '', /Queue state no next action/);
+  assert.match(timeline[0]?.description ?? '', /Next action No next action/);
+  assert.match(timeline[0]?.description ?? '', /Last attempt/);
   assert.equal(timeline[1]?.kind, 'attempt');
   assert.equal(timeline[1]?.eventTypeLabel, 'Attempt');
   assert.match(timeline[1]?.description ?? '', /Call/);

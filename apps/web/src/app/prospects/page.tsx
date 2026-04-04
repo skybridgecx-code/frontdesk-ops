@@ -3,11 +3,11 @@ import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
   buildQueueHref,
   buildProspectsRequestUrl,
-  getQueueStateLabel,
   PROSPECT_QUEUE_FETCH_LIMIT,
   prospectQueueStatuses,
   type ProspectQueueStatus
 } from './queue-flow';
+import { type ProspectReadSignals } from '@frontdesk/domain';
 
 export const dynamic = 'force-dynamic';
 
@@ -37,6 +37,7 @@ type ProspectRow = {
   nextActionAt: string | null;
   createdAt: string;
   updatedAt: string;
+  readState: ProspectReadSignals;
 };
 
 type ProspectsResponse = {
@@ -46,6 +47,8 @@ type ProspectsResponse = {
 
 type ProspectSummary = {
   total: number;
+  active: number;
+  terminal: number;
   new: number;
   ready: number;
   inProgress: number;
@@ -195,7 +198,7 @@ export default async function ProspectsPage({
   const summary = summaryResponse.summary;
   const prospects = prospectsResponse.prospects;
   const queueHref = buildQueueHref(activeStatus);
-  const actionableProspects = prospects.filter((prospect) => Boolean(prospect.nextActionAt));
+  const actionableProspects = prospects.filter((prospect) => prospect.readState.isActionable);
   const actionableCount = actionableProspects.length;
   const openNextActionable = actionableProspects[0] ?? null;
   const nextReviewCandidate = openNextActionable;
@@ -214,12 +217,18 @@ export default async function ProspectsPage({
             title: `No prospects match ${currentFilterLabel.toLowerCase()}.`,
             description: 'Clear the filter or choose another one to reopen the worklist.'
           }
+      : summary.active === 0
+        ? {
+            label: 'completed',
+            title: 'No active prospects remain in this queue.',
+            description: 'All prospects in the current view are in terminal states.'
+          }
         : actionableCount === 0
-          ? {
-              label: 'blocked / complete',
-              title: 'Queue has records, but none are actionable right now.',
-              description: 'This queue is effectively complete until a next action is added.'
-            }
+        ? {
+            label: 'blocked / complete',
+            title: 'Queue has records, but none are actionable right now.',
+            description: 'This queue is effectively complete until a next action is added.'
+          }
           : {
               label: 'ready',
               title: 'Queue is ready for execution.',
@@ -385,7 +394,7 @@ export default async function ProspectsPage({
                     Next action: {formatDateTimeNullable(nextReviewCandidate.nextActionAt)}
                   </div>
                   <div className="text-xs uppercase tracking-[0.2em] text-black/40">
-                    {getQueueStateLabel(nextReviewCandidate.nextActionAt)}
+                    {nextReviewCandidate.readState.queueStateLabel}
                   </div>
                 </div>
               ) : (
@@ -499,16 +508,16 @@ export default async function ProspectsPage({
                       <td className="px-5 py-4">
                         <span
                           className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
-                            prospect.nextActionAt
-                              ? new Date(prospect.nextActionAt).getTime() < Date.now()
-                                ? 'bg-rose-100 text-rose-900'
-                                : new Date(prospect.nextActionAt).getTime() <= Date.now() + 24 * 60 * 60 * 1000
-                                  ? 'bg-amber-100 text-amber-900'
-                                  : 'bg-blue-100 text-blue-900'
-                              : 'bg-black/[0.06] text-black/60'
+                            prospect.readState.queueStateLabel === 'overdue'
+                              ? 'bg-rose-100 text-rose-900'
+                              : prospect.readState.queueStateLabel === 'due now'
+                                ? 'bg-amber-100 text-amber-900'
+                                : prospect.readState.queueStateLabel === 'upcoming'
+                                  ? 'bg-blue-100 text-blue-900'
+                                  : 'bg-black/[0.06] text-black/60'
                           }`}
                         >
-                          {getQueueStateLabel(prospect.nextActionAt)}
+                          {prospect.readState.queueStateLabel}
                         </span>
                       </td>
                       <td className="px-5 py-4 text-black/70">{formatStatus(prospect.status)}</td>

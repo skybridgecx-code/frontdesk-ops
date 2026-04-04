@@ -12,6 +12,7 @@ import {
   type ProspectQueueStatus
 } from './queue-flow';
 import {
+  type ProspectReadSignals,
   getProspectShortcutTransition,
   normalizeProspectNextActionAt,
   type ProspectStatusValue
@@ -39,10 +40,12 @@ export type ProspectDetail = {
   sourceLabel: string | null;
   status: string;
   priority: string | null;
+  lastAttemptAt: string | null;
   notes: string | null;
   nextActionAt: string | null;
   createdAt: string;
   updatedAt: string;
+  readState: ProspectReadSignals;
 };
 
 export type ProspectDetailResponse = {

@@ -212,6 +212,14 @@ export default async function ProspectDetailPage({
                 <dd className="mt-1 text-sm text-black">{formatDateTime(prospect.nextActionAt)}</dd>
               </div>
               <div>
+                <dt className="text-xs uppercase tracking-[0.22em] text-black/40">Last attempt</dt>
+                <dd className="mt-1 text-sm text-black">{formatDateTime(prospect.lastAttemptAt)}</dd>
+              </div>
+              <div>
+                <dt className="text-xs uppercase tracking-[0.22em] text-black/40">Queue state</dt>
+                <dd className="mt-1 text-sm text-black">{prospect.readState.queueStateLabel}</dd>
+              </div>
+              <div>
                 <dt className="text-xs uppercase tracking-[0.22em] text-black/40">Created</dt>
                 <dd className="mt-1 text-sm text-black">{formatDateTime(prospect.createdAt)}</dd>
               </div>
