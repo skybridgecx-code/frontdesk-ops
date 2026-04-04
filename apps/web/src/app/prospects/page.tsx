@@ -67,6 +67,12 @@ type SummaryCardConfig = {
   href: string;
 };
 
+type QueueExecutionState = {
+  label: string;
+  title: string;
+  description: string;
+};
+
 async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
@@ -192,16 +198,35 @@ export default async function ProspectsPage({
   const actionableProspects = prospects.filter((prospect) => Boolean(prospect.nextActionAt));
   const actionableCount = actionableProspects.length;
   const openNextActionable = actionableProspects[0] ?? null;
+  const nextReviewCandidate = openNextActionable;
   const currentFilterLabel = activeStatus === 'ALL' ? 'All prospects' : formatStatus(activeStatus);
   const queueReviewActionLabel = activeStatus === 'ALL' ? 'Start queue review' : 'Resume queue review';
-  const queueReviewStateMessage =
+  const queueExecutionState: QueueExecutionState =
     summary.total === 0
-      ? 'No prospects have been captured yet.'
+      ? {
+          label: 'empty',
+          title: 'No prospects captured yet.',
+          description: 'The business has not captured any prospects yet.'
+        }
       : prospects.length === 0
-        ? `No prospects match ${currentFilterLabel.toLowerCase()}.`
+        ? {
+            label: 'filtered empty',
+            title: `No prospects match ${currentFilterLabel.toLowerCase()}.`,
+            description: 'Clear the filter or choose another one to reopen the worklist.'
+          }
         : actionableCount === 0
-          ? 'Prospects exist in this queue, but none are actionable right now.'
-          : null;
+          ? {
+              label: 'blocked / complete',
+              title: 'Queue has records, but none are actionable right now.',
+              description: 'This queue is effectively complete until a next action is added.'
+            }
+          : {
+              label: 'ready',
+              title: 'Queue is ready for execution.',
+              description: nextReviewCandidate
+                ? `Continue with ${nextReviewCandidate.contactName || nextReviewCandidate.companyName || nextReviewCandidate.prospectSid}.`
+                : 'Continue with the first actionable prospect.'
+            };
 
   const summaryCards: SummaryCardConfig[] = [
     { label: 'Total', value: summary.total, href: buildQueueHref('ALL') },
@@ -264,28 +289,36 @@ export default async function ProspectsPage({
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
             <div className="space-y-3">
               <div className="text-xs uppercase tracking-[0.24em] text-black/50">Queue review</div>
-              <h2 className="text-2xl font-semibold tracking-[-0.04em]">{currentFilterLabel}</h2>
-              <div className="grid gap-3 sm:grid-cols-3">
+              <h2 className="text-2xl font-semibold tracking-[-0.04em]">Execution mode · {currentFilterLabel}</h2>
+              <p className="max-w-3xl text-sm text-black/60">
+                Enter the current filtered queue, understand what is actionable, and move into the next review step
+                without leaving the flow.
+              </p>
+              <div className="grid gap-3 sm:grid-cols-4">
                 <div className="rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
                   <div className="text-xs uppercase tracking-[0.2em] text-black/50">Current filter</div>
                   <div className="mt-1 text-sm font-medium text-black">{currentFilterLabel}</div>
                 </div>
                 <div className="rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
-                  <div className="text-xs uppercase tracking-[0.2em] text-black/50">Items</div>
+                  <div className="text-xs uppercase tracking-[0.2em] text-black/50">Queue items</div>
                   <div className="mt-1 text-sm font-medium text-black">{prospects.length}</div>
                 </div>
                 <div className="rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
                   <div className="text-xs uppercase tracking-[0.2em] text-black/50">Actionable</div>
                   <div className="mt-1 text-sm font-medium text-black">{actionableCount}</div>
                 </div>
+                <div className="rounded-2xl border border-black/10 bg-black/[0.02] px-4 py-3">
+                  <div className="text-xs uppercase tracking-[0.2em] text-black/50">Queue state</div>
+                  <div className="mt-1 text-sm font-medium text-black">{queueExecutionState.label}</div>
+                </div>
               </div>
             </div>
 
             <div className="flex flex-wrap gap-3">
-              {openNextActionable ? (
+              {nextReviewCandidate ? (
                 <Link
                   href={{
-                    pathname: `/prospects/${openNextActionable.prospectSid}`,
+                    pathname: `/prospects/${nextReviewCandidate.prospectSid}`,
                     query: { returnTo: queueHref }
                   }}
                   className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]"
@@ -294,18 +327,18 @@ export default async function ProspectsPage({
                 </Link>
               ) : (
                 <div className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black/40 shadow-sm">
-                  {actionableCount === 0 ? 'No actionable item' : 'Review unavailable'}
+                  {queueExecutionState.label}
                 </div>
               )}
-              {openNextActionable ? (
+              {nextReviewCandidate ? (
                 <Link
                   href={{
-                    pathname: `/prospects/${openNextActionable.prospectSid}`,
+                    pathname: `/prospects/${nextReviewCandidate.prospectSid}`,
                     query: { returnTo: queueHref }
                   }}
                   className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.02]"
                 >
-                  Open next actionable
+                  Continue with first actionable
                 </Link>
               ) : null}
             </div>
@@ -313,45 +346,59 @@ export default async function ProspectsPage({
 
           <div className="mt-5 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
             <div className="rounded-2xl border border-black/10 bg-black/[0.02] p-4">
-              <div className="text-xs uppercase tracking-[0.24em] text-black/50">Queue state</div>
-              {queueReviewStateMessage ? (
-                <p className="mt-2 text-sm text-black/70">{queueReviewStateMessage}</p>
-              ) : (
-                <div className="mt-3 grid gap-3 sm:grid-cols-3">
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-black/40">Current filter</div>
-                    <div className="mt-1 text-sm text-black">{currentFilterLabel}</div>
+              <div className="text-xs uppercase tracking-[0.24em] text-black/50">Execution summary</div>
+              <div className="mt-2 space-y-3">
+                <div className="text-base font-medium text-black">{queueExecutionState.title}</div>
+                <p className="text-sm text-black/70">{queueExecutionState.description}</p>
+                <dl className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
+                    <dt className="text-xs uppercase tracking-[0.2em] text-black/40">Total items</dt>
+                    <dd className="mt-1 text-sm font-medium text-black">{prospects.length}</dd>
                   </div>
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-black/40">Queue size</div>
-                    <div className="mt-1 text-sm text-black">{prospects.length} items</div>
+                  <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
+                    <dt className="text-xs uppercase tracking-[0.2em] text-black/40">Actionable</dt>
+                    <dd className="mt-1 text-sm font-medium text-black">{actionableCount}</dd>
                   </div>
-                  <div>
-                    <div className="text-xs uppercase tracking-[0.2em] text-black/40">Actionable</div>
-                    <div className="mt-1 text-sm text-black">{actionableCount} items</div>
+                  <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
+                    <dt className="text-xs uppercase tracking-[0.2em] text-black/40">Queue focus</dt>
+                    <dd className="mt-1 text-sm font-medium text-black">{currentFilterLabel}</dd>
                   </div>
-                </div>
-              )}
+                  <div className="rounded-2xl border border-black/10 bg-white px-4 py-3">
+                    <dt className="text-xs uppercase tracking-[0.2em] text-black/40">Execution state</dt>
+                    <dd className="mt-1 text-sm font-medium text-black">{queueExecutionState.label}</dd>
+                  </div>
+                </dl>
+              </div>
             </div>
 
             <div className="rounded-2xl border border-black/10 p-4">
-              <div className="text-xs uppercase tracking-[0.24em] text-black/50">First actionable</div>
-              {openNextActionable ? (
+              <div className="text-xs uppercase tracking-[0.24em] text-black/50">Next item to review</div>
+              {nextReviewCandidate ? (
                 <div className="mt-2 space-y-2">
                   <div className="text-base font-medium text-black">
-                    {openNextActionable.contactName || openNextActionable.companyName || openNextActionable.prospectSid}
+                    {nextReviewCandidate.contactName || nextReviewCandidate.companyName || nextReviewCandidate.prospectSid}
                   </div>
-                  <div className="text-sm text-black/70">{formatDateTimeNullable(openNextActionable.nextActionAt)}</div>
+                  <div className="text-sm text-black/70">
+                    {nextReviewCandidate.companyName || 'No company name'} · {formatStatus(nextReviewCandidate.status)}
+                  </div>
+                  <div className="text-sm text-black/70">
+                    Next action: {formatDateTimeNullable(nextReviewCandidate.nextActionAt)}
+                  </div>
                   <div className="text-xs uppercase tracking-[0.2em] text-black/40">
-                    {getQueueStateLabel(openNextActionable.nextActionAt)}
+                    {getQueueStateLabel(nextReviewCandidate.nextActionAt)}
                   </div>
                 </div>
               ) : (
-                <p className="mt-2 text-sm text-black/60">
-                  {prospects.length === 0
-                    ? 'No prospects are available in this queue.'
-                    : 'Prospects exist, but none are actionable in this queue.'}
-                </p>
+                <div className="mt-2 space-y-2">
+                  <div className="text-base font-medium text-black">No actionable item available</div>
+                  <p className="text-sm text-black/60">
+                    {summary.total === 0
+                      ? 'No prospects have been captured yet.'
+                      : prospects.length === 0
+                        ? `No prospects match ${currentFilterLabel.toLowerCase()}.`
+                        : 'Prospects exist in this queue, but none are actionable right now.'}
+                  </p>
+                </div>
               )}
             </div>
           </div>
