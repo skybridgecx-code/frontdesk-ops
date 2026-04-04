@@ -52,6 +52,15 @@ type ProspectAttemptsResponse = {
   attempts: ProspectAttempt[];
 };
 
+type ProspectQueueRow = {
+  prospectSid: string;
+};
+
+type ProspectQueueResponse = {
+  ok: true;
+  prospects: ProspectQueueRow[];
+};
+
 const prospectStatuses = [
   'NEW',
   'READY',
@@ -72,6 +81,16 @@ const prospectAttemptOutcomes = [
   'REPLIED',
   'BAD_FIT',
   'DO_NOT_CONTACT'
+] as const;
+const prospectQueueStatuses = [
+  'NEW',
+  'READY',
+  'IN_PROGRESS',
+  'ATTEMPTED',
+  'RESPONDED',
+  'QUALIFIED',
+  'DISQUALIFIED',
+  'ARCHIVED'
 ] as const;
 
 function formatDateTime(value: string | null) {
@@ -112,6 +131,25 @@ function formatDateTimeLocalNow() {
     pad(now.getMonth() + 1),
     pad(now.getDate())
   ].join('-') + `T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function isQueueStatus(value: string | null | undefined) {
+  return prospectQueueStatuses.includes(value as (typeof prospectQueueStatuses)[number]);
+}
+
+function getQueueStatusFromReturnTo(returnTo: string) {
+  try {
+    const url = new URL(returnTo, 'http://localhost');
+
+    if (!url.pathname.startsWith('/prospects')) {
+      return null;
+    }
+
+    const status = url.searchParams.get('status')?.toUpperCase() ?? null;
+    return status && isQueueStatus(status) ? status : null;
+  } catch {
+    return null;
+  }
 }
 
 function formatLabel(value: string | null | undefined) {
@@ -166,6 +204,25 @@ async function getAttempts(businessId: string, prospectSid: string) {
   return (await res.json()) as ProspectAttemptsResponse;
 }
 
+async function getProspectQueue(businessId: string, status?: string | null) {
+  const url = new URL(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`);
+
+  if (status) {
+    url.searchParams.set('status', status);
+  }
+
+  const res = await fetch(url.toString(), {
+    cache: 'no-store',
+    headers: getInternalApiHeaders()
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load prospect queue: ${res.status}`);
+  }
+
+  return (await res.json()) as ProspectQueueResponse;
+}
+
 export default async function ProspectDetailPage({
   params,
   searchParams
@@ -177,10 +234,12 @@ export default async function ProspectDetailPage({
   const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
-  const returnTo =
+  const queueReturnTo =
     resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/prospects')
       ? resolvedSearchParams.returnTo
-      : '/prospects';
+      : null;
+  const returnTo =
+    queueReturnTo ?? '/prospects';
   const noticeMessage =
     resolvedSearchParams.notice === 'saved'
       ? 'Workflow updated.'
@@ -235,11 +294,23 @@ export default async function ProspectDetailPage({
   }
 
   const attemptsResponse = await getAttempts(activeBusiness.id, prospectSid);
+  const queueResponse = queueReturnTo
+    ? await getProspectQueue(activeBusiness.id, getQueueStatusFromReturnTo(queueReturnTo))
+    : null;
   const prospect = detailResponse.prospect;
   const attempts = attemptsResponse.attempts;
+  const currentQueue = queueResponse?.prospects ?? [];
+  const currentQueueIndex = currentQueue.findIndex((item) => item.prospectSid === prospectSid);
+  const nextProspectSid =
+    currentQueueIndex >= 0 && currentQueueIndex + 1 < currentQueue.length
+      ? currentQueue[currentQueueIndex + 1]?.prospectSid ?? null
+      : null;
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
   const detailHref = `/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}`;
+  const nextHref = nextProspectSid
+    ? `/prospects/${nextProspectSid}?returnTo=${encodeURIComponent(returnTo)}`
+    : null;
   const attemptedAtDefaultValue = formatDateTimeLocalNow();
 
   async function updateWorkflow(formData: FormData) {
@@ -359,7 +430,7 @@ export default async function ProspectDetailPage({
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link href={returnTo} className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
               ← Back to queue
@@ -367,6 +438,17 @@ export default async function ProspectDetailPage({
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">{title}</h1>
             <p className="mt-2 text-sm text-black/60">{metadataLine}</p>
           </div>
+          {nextHref ? (
+            <Link
+              href={nextHref}
+              className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]"
+            >
+              Next in queue
+              <span className="ml-2" aria-hidden="true">
+                →
+              </span>
+            </Link>
+          ) : null}
         </div>
 
         {noticeMessage ? (
