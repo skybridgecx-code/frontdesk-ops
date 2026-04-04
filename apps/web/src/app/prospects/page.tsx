@@ -427,7 +427,7 @@ export default async function ProspectsPage({
               </p>
             </div>
 
-            <form action={importStarterCsv} encType="multipart/form-data" className="flex w-full max-w-md flex-col gap-3">
+            <form action={importStarterCsv} className="flex w-full max-w-md flex-col gap-3">
               <label className="space-y-2">
                 <span className="text-xs uppercase tracking-[0.2em] text-black/50">Starter CSV</span>
                 <input
