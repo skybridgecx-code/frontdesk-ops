@@ -16,6 +16,7 @@ import {
   resolveQueueContext
 } from '../prospect-detail-flow';
 import { buildProspectDetailHref } from '../queue-flow';
+import { buildProspectActivityTimeline } from '../prospect-activity-timeline';
 
 export const dynamic = 'force-dynamic';
 
@@ -89,6 +90,7 @@ export default async function ProspectDetailPage({
 
   const prospect = detailResponse.prospect;
   const attemptsResponse = await getAttempts(activeBusiness.id, prospectSid);
+  const activityTimeline = buildProspectActivityTimeline(prospect, attemptsResponse.attempts);
   const queueContext = await resolveQueueContext(activeBusiness.id, prospectSid, queueReturnTo);
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
@@ -496,34 +498,37 @@ export default async function ProspectDetailPage({
 
         <section className="rounded-2xl border border-black/10 bg-white shadow-sm">
           <div className="border-b border-black/10 px-6 py-5">
-            <div className="text-xs uppercase tracking-[0.24em] text-black/50">Attempt history</div>
-            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em]">Latest attempts first</h2>
+            <div className="text-xs uppercase tracking-[0.24em] text-black/50">Activity timeline</div>
+            <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em]">Attempts plus current record snapshot</h2>
+            <p className="mt-2 max-w-3xl text-sm text-black/60">
+              Attempts below are real backend events. The snapshot shows the current prospect state because the system
+              does not keep a full field-change audit trail yet.
+            </p>
           </div>
 
-          {attemptsResponse.attempts.length === 0 ? (
-            <div className="px-6 py-8 text-sm text-black/60">No attempts recorded.</div>
+          {activityTimeline.length === 0 ? (
+            <div className="px-6 py-8 text-sm text-black/60">No activity recorded.</div>
           ) : (
-            <div className="overflow-x-auto">
-              <table className="min-w-full text-left text-sm">
-                <thead className="bg-black/[0.03] text-black/60">
-                  <tr>
-                    <th className="px-6 py-3 font-medium">Attempted</th>
-                    <th className="px-6 py-3 font-medium">Channel</th>
-                    <th className="px-6 py-3 font-medium">Outcome</th>
-                    <th className="px-6 py-3 font-medium">Note</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attemptsResponse.attempts.map((attempt) => (
-                    <tr key={attempt.id} className="border-t border-black/10 align-top">
-                      <td className="px-6 py-4 text-black/70">{formatDateTime(attempt.attemptedAt)}</td>
-                      <td className="px-6 py-4 text-black/70">{attempt.channel}</td>
-                      <td className="px-6 py-4 text-black/70">{attempt.outcome}</td>
-                      <td className="px-6 py-4 text-black/70">{attempt.note || '—'}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+            <div className="space-y-4 p-6">
+              {activityTimeline.map((entry) => (
+                <article
+                  key={entry.id}
+                  className={`rounded-2xl border p-4 shadow-sm ${
+                    entry.kind === 'snapshot' ? 'border-amber-200 bg-amber-50' : 'border-black/10 bg-white'
+                  }`}
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <div className="text-xs uppercase tracking-[0.22em] text-black/45">{entry.eventTypeLabel}</div>
+                      <h3 className="mt-1 text-sm font-medium text-black">{entry.description}</h3>
+                    </div>
+                    <time className="shrink-0 text-xs uppercase tracking-[0.16em] text-black/40">
+                      {formatDateTime(entry.timestamp)}
+                    </time>
+                  </div>
+                  <p className="mt-3 text-sm text-black/70">{entry.detail}</p>
+                </article>
+              ))}
             </div>
           )}
         </section>
