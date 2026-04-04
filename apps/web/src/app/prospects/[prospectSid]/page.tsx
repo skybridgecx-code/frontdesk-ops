@@ -151,12 +151,17 @@ export default async function ProspectDetailPage({
   searchParams
 }: {
   params: Promise<{ prospectSid: string }>;
-  searchParams: Promise<{ notice?: string }>;
+  searchParams: Promise<{ notice?: string; returnTo?: string }>;
 }) {
   const { prospectSid } = await params;
   const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const queueReturnTo =
+    resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/prospects')
+      ? resolvedSearchParams.returnTo
+      : null;
+  const returnTo = queueReturnTo ?? '/prospects';
   const noticeMessage =
     resolvedSearchParams.notice === 'saved'
       ? 'Workflow updated.'
@@ -174,10 +179,10 @@ export default async function ProspectDetailPage({
             Prospect detail cannot load until an active business is available.
           </p>
           <Link
-            href="/prospects"
+            href={returnTo}
             className="mt-6 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
           >
-            Back to prospects
+            Back to queue
           </Link>
         </div>
       </main>
@@ -196,10 +201,10 @@ export default async function ProspectDetailPage({
             We could not find that prospect for the active business.
           </p>
           <Link
-            href="/prospects"
+            href={returnTo}
             className="mt-6 inline-flex rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
           >
-            Back to prospects
+            Back to queue
           </Link>
         </div>
       </main>
@@ -219,7 +224,7 @@ export default async function ProspectDetailPage({
     const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
 
     if (!currentBusiness) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+    redirect(`/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}&notice=error`);
     }
 
     const status = String(formData.get('status') ?? '').trim();
@@ -258,15 +263,15 @@ export default async function ProspectDetailPage({
         }
       );
     } catch {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}&notice=error`);
     }
 
     if (!response.ok) {
-      redirect(`/prospects/${prospectSid}?notice=error`);
+      redirect(`/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}&notice=error`);
     }
 
     revalidatePath(`/prospects/${prospectSid}`);
-    redirect(`/prospects/${prospectSid}?notice=saved`);
+    redirect(`/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}&notice=saved`);
   }
 
   return (
@@ -274,8 +279,8 @@ export default async function ProspectDetailPage({
       <div className="mx-auto max-w-6xl space-y-8">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <Link href="/prospects" className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
-              ← Back to prospects
+            <Link href={returnTo} className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
+              ← Back to queue
             </Link>
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">{title}</h1>
             <p className="mt-2 text-sm text-black/60">{metadataLine}</p>

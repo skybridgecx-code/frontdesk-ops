@@ -26,9 +26,17 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
         businessId,
         ...(parsed.data.status ? { status: parsed.data.status } : {})
       },
-      orderBy: {
-        createdAt: 'desc'
-      },
+      orderBy: [
+        {
+          nextActionAt: {
+            sort: 'asc',
+            nulls: 'last'
+          }
+        },
+        {
+          createdAt: 'desc'
+        }
+      ],
       take: parsed.data.limit ?? 50,
       select: {
         prospectSid: true,
@@ -41,6 +49,8 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
         sourceLabel: true,
         status: true,
         priority: true,
+        lastAttemptAt: true,
+        nextActionAt: true,
         createdAt: true,
         updatedAt: true
       }
