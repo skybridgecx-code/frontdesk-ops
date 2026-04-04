@@ -3,6 +3,7 @@ import { z } from 'zod';
 import {
   ProspectAttemptChannel,
   ProspectAttemptOutcome,
+  ProspectStatus,
   prisma
 } from '@frontdesk/db';
 import { normalizeProspectStatusAfterAttempt } from '@frontdesk/domain';
@@ -15,6 +16,16 @@ const createProspectAttemptBodySchema = z
     attemptedAt: z.coerce.date().optional()
   })
   .strict();
+
+export function buildProspectAttemptUpdateData(input: {
+  currentStatus: ProspectStatus;
+  attemptedAt: Date;
+}) {
+  return {
+    lastAttemptAt: input.attemptedAt,
+    status: normalizeProspectStatusAfterAttempt(input.currentStatus) as ProspectStatus
+  };
+}
 
 export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/:prospectSid/attempts', async (request, reply) => {
@@ -69,10 +80,10 @@ export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
       }),
       prisma.prospect.update({
         where: { id: existing.id },
-        data: {
-          lastAttemptAt: attemptedAt,
-          status: normalizeProspectStatusAfterAttempt(existing.status)
-        },
+        data: buildProspectAttemptUpdateData({
+          currentStatus: existing.status,
+          attemptedAt
+        }),
         select: {
           prospectSid: true,
           status: true,
