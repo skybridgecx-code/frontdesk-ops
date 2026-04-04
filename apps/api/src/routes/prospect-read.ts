@@ -21,32 +21,64 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
       });
     }
 
-    const prospects = await prisma.prospect.findMany({
-      where: {
-        businessId,
-        ...(parsed.data.status ? { status: parsed.data.status } : {})
-      },
-      orderBy: {
-        createdAt: 'desc'
-      },
-      take: parsed.data.limit ?? 50,
-      select: {
-        prospectSid: true,
-        companyName: true,
-        contactName: true,
-        contactPhone: true,
-        contactEmail: true,
-        city: true,
-        state: true,
-        sourceLabel: true,
-        status: true,
-        priority: true,
-        lastAttemptAt: true,
-        nextActionAt: true,
-        createdAt: true,
-        updatedAt: true
-      }
-    });
+    const prospects = parsed.data.status
+      ? await prisma.$queryRaw`
+          SELECT
+            "prospectSid",
+            "companyName",
+            "contactName",
+            "contactPhone",
+            "contactEmail",
+            "city",
+            "state",
+            "sourceLabel",
+            "status",
+            "priority",
+            "lastAttemptAt",
+            "nextActionAt",
+            "createdAt",
+            "updatedAt"
+          FROM "Prospect"
+          WHERE "businessId" = ${businessId}
+            AND "status" = ${parsed.data.status}
+          ORDER BY
+            CASE
+              WHEN "nextActionAt" IS NOT NULL AND "nextActionAt" <= NOW() THEN 0
+              WHEN "nextActionAt" IS NOT NULL THEN 1
+              ELSE 2
+            END,
+            CASE WHEN "nextActionAt" IS NOT NULL THEN "nextActionAt" END ASC,
+            "createdAt" DESC
+          LIMIT ${parsed.data.limit ?? 50}
+        `
+      : await prisma.$queryRaw`
+          SELECT
+            "prospectSid",
+            "companyName",
+            "contactName",
+            "contactPhone",
+            "contactEmail",
+            "city",
+            "state",
+            "sourceLabel",
+            "status",
+            "priority",
+            "lastAttemptAt",
+            "nextActionAt",
+            "createdAt",
+            "updatedAt"
+          FROM "Prospect"
+          WHERE "businessId" = ${businessId}
+          ORDER BY
+            CASE
+              WHEN "nextActionAt" IS NOT NULL AND "nextActionAt" <= NOW() THEN 0
+              WHEN "nextActionAt" IS NOT NULL THEN 1
+              ELSE 2
+            END,
+            CASE WHEN "nextActionAt" IS NOT NULL THEN "nextActionAt" END ASC,
+            "createdAt" DESC
+          LIMIT ${parsed.data.limit ?? 50}
+        `;
 
     return {
       ok: true,
