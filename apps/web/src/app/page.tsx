@@ -5,9 +5,9 @@ import { InteractiveCallFlow } from './interactive-call-flow';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'SkybridgeCX | AI front desk for service businesses',
+  title: 'SkybridgeCX | Done-for-you AI front desk for home-service businesses',
   description:
-    'SkybridgeCX answers calls, captures requests, routes urgent work, and keeps follow-up clean for service businesses.'
+    'SkybridgeCX helps home-service businesses capture, qualify, route, and follow up on inbound requests so fewer jobs get missed.'
 };
 
 const problemBefore = [
@@ -27,13 +27,13 @@ const problemAfter = [
 const howItWorks = [
   {
     step: '01',
-    title: 'Connect the business',
+    title: 'Connect your front desk',
     body: 'Point SkybridgeCX at the number and intake path already in use.'
   },
   {
     step: '02',
-    title: 'SkybridgeCX handles the call',
-    body: 'The caller is answered, qualified, and routed with the right context attached.'
+    title: 'Answer, qualify, and route',
+    body: 'SkybridgeCX handles the call, captures the request, and routes the right work.'
   },
   {
     step: '03',
@@ -77,8 +77,8 @@ const industries = [
 
 const operationalProof = [
   {
-    title: '24/7 coverage',
-    body: 'The front desk keeps answering when the office is closed.'
+    title: '24/7 front-desk coverage',
+    body: 'The call gets answered when the office is closed.'
   },
   {
     title: 'Urgent-call routing',
@@ -117,32 +117,32 @@ const faqs = [
   {
     question: 'Will it sound robotic?',
     answer:
-      'No. It should sound like a calm front desk interaction that gets the basics without overtalking the caller.'
+      'No. It should sound like a calm front desk operator, not a bot script.'
   },
   {
     question: 'What happens after hours?',
     answer:
-      'The call still gets answered, the request is captured, and urgent work can be flagged for the next step.'
+      'After hours, it still answers, captures the request, and flags urgent work for follow-up.'
   },
   {
     question: 'Can it route urgent calls?',
     answer:
-      'Yes. Time-sensitive calls can be separated from routine requests and routed with the right context attached.'
+      'Yes. It separates urgent calls from routine requests and sends the right next step.'
   },
   {
     question: 'Can it book appointments?',
     answer:
-      'It can capture the request and move qualified calls toward booking or the right follow-up path.'
+      'It can capture the request, qualify the lead, and move the call toward booking or callback.'
   },
   {
     question: 'Does it replace my staff?',
     answer:
-      'No. It reduces missed calls and repetitive intake so the team can focus on the calls that need a person.'
+      'No. It handles intake and follow-up so staff can focus on jobs and the calls that need a person.'
   },
   {
     question: 'How fast can setup happen?',
     answer:
-      'Setup depends on the workflow, but the first pass should stay focused on the number, the call path, and the handoff.'
+      'Setup starts with your number, routing rules, and the handoff you want the team to see.'
   }
 ];
 
@@ -517,16 +517,17 @@ export default async function Home({
             <div className="max-w-3xl">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#f0e4bf] bg-[#fff4c9] px-4 py-2 text-xs font-medium uppercase tracking-[0.28em] text-[#5c4a12] shadow-[0_10px_24px_rgba(213,179,48,0.12)]">
                 <span className="inline-block h-2 w-2 rounded-full bg-[#7c5cff]" />
-                Always-on intake for service businesses
+                Done-for-you front desk for home-service businesses
               </div>
 
               <h1 className="mt-8 max-w-4xl text-5xl font-semibold tracking-[-0.08em] text-[#0b1020] md:text-7xl lg:text-[5.8rem] lg:leading-[0.92]">
-                Never miss another <span className="italic text-[#7c5cff]">booked job.</span>
+                A done-for-you AI front desk that keeps inbound jobs from slipping away.
               </h1>
 
               <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5f6678] md:text-xl">
-                SkybridgeCX is the AI front desk for home-service businesses. It answers inbound calls 24/7, qualifies the
-                request, routes urgent work, books next steps, and hands your team a clean summary.
+                SkybridgeCX runs the front desk for HVAC, plumbing, electrical, roofing, garage door, and locksmith
+                teams. It answers inbound calls 24/7, captures the request, qualifies urgency, routes the right work,
+                follows up on callbacks, and hands your team a clean summary.
               </p>
 
               <div className="mt-10 flex flex-col gap-3 sm:flex-row">
@@ -546,14 +547,14 @@ export default async function Home({
 
               <div className="mt-10 overflow-hidden rounded-[1.7rem] border border-[#dfe4f0] bg-[linear-gradient(180deg,#ffffff,#f8fafc)] shadow-[0_18px_40px_rgba(17,24,39,0.06)]">
                 <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e7ebf3] px-5 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7c5cff]">Live signals</div>
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7c5cff]">Service signals</div>
                   <div className="text-[11px] uppercase tracking-[0.24em] text-[#7b84a1]">
                     Answers after hours · captures callback · routes urgent work
                   </div>
                 </div>
                 <div className="grid divide-y divide-[#e7ebf3] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
                   {[
-                    { label: 'Answers after hours', body: 'The call still gets handled.' },
+                    { label: 'Answers after hours', body: 'The front desk keeps handling calls.' },
                     { label: 'Captures issue + callback', body: 'The details stay attached.' },
                     { label: 'Routes urgent work', body: 'The right next step moves forward.' }
                   ].map((item) => (
@@ -579,13 +580,13 @@ export default async function Home({
       <section className="mx-auto max-w-7xl px-6 py-10 md:px-10 lg:px-12">
         <div className="grid gap-6 lg:grid-cols-[0.94fr_1.06fr] lg:items-stretch">
           <div className="rounded-[2.25rem] border border-[#dfe4f0] bg-[linear-gradient(180deg,#0f172a,#111827_60%,#0c1325)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-            <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Operational proof</div>
+            <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Service proof</div>
             <div className="mt-4 max-w-lg text-3xl font-semibold tracking-[-0.06em] text-white">
-              What the team sees after the call.
+              What your team sees after the call.
             </div>
             <p className="mt-5 max-w-lg text-base leading-8 text-[#cbd2f0]">
-              One surface for the details that matter most: what the caller needed, where they were, how urgent it
-              is, and what should happen next.
+              One surface for the details that matter most: what the caller needed, where they were, how urgent it is,
+              and what should happen next.
             </p>
 
             <div className="mt-7 grid gap-3">
@@ -725,8 +726,8 @@ export default async function Home({
       <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10 lg:px-12">
         <SectionHeading
           eyebrow="How it works"
-          title="Three steps. Clean handoff."
-          description="The setup should be simple. The caller should get answered, the details should stay organized, and the business should see the next move clearly."
+          title="The service is delivered in three steps."
+          description="We connect the front desk to your number, handle calls live, and give your team a structured handoff."
         />
 
         <div className="mt-10 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
@@ -796,9 +797,9 @@ export default async function Home({
 
       <section id="industries" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-16 md:px-10 lg:px-12">
         <SectionHeading
-          eyebrow="Industries"
-          title="Built for the businesses that live on the phone."
-          description="The call patterns change by trade, but the need is the same."
+          eyebrow="Who it is for"
+          title="Built for home-service teams that live on the phone."
+          description="HVAC, plumbing, electrical, roofing, garage door, locksmith, and other field-service businesses that need the front desk to catch more than one ring."
         />
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
@@ -834,7 +835,7 @@ export default async function Home({
         <SectionHeading
           eyebrow="Outcome"
           title="Less interruption. More booked work."
-          description="The owner gets fewer false alarms. The office gets fewer distractions. The business gets more of the demand already calling in."
+          description="The owner gets fewer false alarms. The office gets fewer distractions. The business keeps more of the demand already calling in."
           centered
         />
 
@@ -847,7 +848,7 @@ export default async function Home({
               </div>
               <p className="mt-5 max-w-xl text-base leading-8 text-[#cbd2f0]">
                 SkybridgeCX cuts the friction between the first ring and the next step, so the business keeps more of the
-                  calls that should have become booked work.
+                calls that should have become booked work.
               </p>
             </div>
 
@@ -873,12 +874,7 @@ export default async function Home({
 
       <section id="faq" className="bg-[#0e1426] py-20 text-white">
         <div className="mx-auto max-w-7xl scroll-mt-24 px-6 md:px-10 lg:px-12">
-        <SectionHeading
-          eyebrow="FREQUENTLY ASKED QUESTIONS"
-          title="Common questions, clear answers."
-          centered
-          tone="dark"
-        />
+        <SectionHeading eyebrow="FREQUENTLY ASKED QUESTIONS" title="Common questions, clear answers." centered tone="dark" />
 
         <div className="mt-10 grid gap-4">
           {faqs.map((item) => (
@@ -903,7 +899,7 @@ export default async function Home({
           <div className="max-w-xl">
             <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Book a demo</div>
             <h2 className="mt-4 text-4xl font-semibold tracking-[-0.06em] text-white md:text-6xl">
-              Capture more of the revenue already calling you.
+              See the front desk service for your business.
             </h2>
             <p className="mt-6 text-base leading-8 text-[#cbd2f0]">
               We’ll walk through how routine, urgent, and after-hours calls would be handled for your business.
@@ -944,10 +940,11 @@ export default async function Home({
               action={requestConsultation}
               className="grid gap-4 rounded-[2rem] border border-white/10 bg-white p-6 text-[#111827] shadow-[0_24px_80px_rgba(17,24,39,0.16)]"
             >
-              <div className="grid gap-2">
+                <div className="grid gap-2">
                 <div className="text-xs uppercase tracking-[0.34em] text-[#7c5cff]">Request details</div>
                 <p className="text-sm leading-6 text-[#5f6678]">
-                  Tell us what calls you want handled. We’ll show how your calls would be answered, qualified, and routed.
+                  Tell us what calls you want handled. We’ll show how SkybridgeCX would answer, qualify, route, and
+                  follow them up.
                 </p>
               </div>
 
@@ -1018,7 +1015,7 @@ export default async function Home({
         <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-12">
           <div>
             <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">SkybridgeCX</div>
-            <p className="mt-1 text-sm text-[#6b7280]">AI front desk for service businesses.</p>
+            <p className="mt-1 text-sm text-[#6b7280]">Done-for-you AI front desk for home-service businesses.</p>
           </div>
           <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#4b5563]">
             <a href="#product" className="transition hover:text-[#111827]">

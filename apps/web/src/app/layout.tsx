@@ -13,8 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SkybridgeCX",
-  description: "AI front desk intake and follow-up workflow for HVAC, plumbing, and electrical teams that need inbound calls and requests to stay visible and actionable."
+  title: "SkybridgeCX | Done-for-you AI front desk for home-service businesses",
+  description:
+    "SkybridgeCX helps HVAC, plumbing, electrical, roofing, garage door, and locksmith teams capture, qualify, route, and follow up on inbound requests so fewer jobs get missed."
 };
 
 export default function RootLayout({
