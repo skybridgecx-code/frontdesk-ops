@@ -125,6 +125,12 @@ function formatDateTimeLocalNow() {
   )}:${pad(now.getMinutes())}`;
 }
 
+function buildRelativeDate(hoursFromNow: number) {
+  const next = new Date();
+  next.setHours(next.getHours() + hoursFromNow);
+  return next;
+}
+
 function formatLabel(value: string | null | undefined) {
   if (!value) return '—';
   return value
@@ -132,6 +138,10 @@ function formatLabel(value: string | null | undefined) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
+}
+
+function shouldMarkAttemptedStatus(value: string) {
+  return value === 'NEW' || value === 'READY' || value === 'IN_PROGRESS' || value === 'ATTEMPTED';
 }
 
 async function getBootstrap() {
@@ -255,6 +265,12 @@ export default async function ProspectDetailPage({
               ? 'Could not save workflow changes.'
               : resolvedSearchParams.notice === 'attempt-error'
                 ? 'Could not save attempt.'
+                : resolvedSearchParams.notice === 'shortcut-saved'
+                  ? 'Disposition shortcut applied.'
+                  : resolvedSearchParams.notice === 'shortcut-saved-next'
+                    ? 'Disposition shortcut applied. Moved to next prospect.'
+                    : resolvedSearchParams.notice === 'shortcut-error'
+                      ? 'Could not apply disposition shortcut.'
                 : null;
 
   if (!activeBusiness) {
@@ -472,6 +488,222 @@ export default async function ProspectDetailPage({
     return logAttemptMutation(formData, true);
   }
 
+  async function applyShortcutMutation(
+    options: {
+      status: string;
+      nextActionAt: Date | null;
+      attempt?: {
+        channel: (typeof prospectAttemptChannels)[number];
+        outcome: (typeof prospectAttemptOutcomes)[number];
+        note: string;
+      };
+    },
+    advanceToNext: boolean
+  ) {
+    'use server';
+
+    const bootstrap = await getBootstrap();
+    const currentBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+
+    if (!currentBusiness) {
+      redirect(`${detailHref}&notice=shortcut-error`);
+    }
+
+    if (options.attempt) {
+      let attemptResponse: Response;
+
+      try {
+        attemptResponse = await fetch(
+          `${getApiBaseUrl()}/v1/businesses/${currentBusiness.id}/prospects/${prospectSid}/attempts`,
+          {
+            method: 'POST',
+            cache: 'no-store',
+            headers: {
+              ...getInternalApiHeaders(),
+              'content-type': 'application/json'
+            },
+            body: JSON.stringify({
+              channel: options.attempt.channel,
+              outcome: options.attempt.outcome,
+              note: options.attempt.note,
+              attemptedAt: new Date().toISOString()
+            })
+          }
+        );
+      } catch {
+        redirect(`${detailHref}&notice=shortcut-error`);
+      }
+
+      if (!attemptResponse.ok) {
+        redirect(`${detailHref}&notice=shortcut-error`);
+      }
+    }
+
+    let updateResponse: Response;
+
+    try {
+      updateResponse = await fetch(
+        `${getApiBaseUrl()}/v1/businesses/${currentBusiness.id}/prospects/${prospectSid}`,
+        {
+          method: 'PATCH',
+          cache: 'no-store',
+          headers: {
+            ...getInternalApiHeaders(),
+            'content-type': 'application/json'
+          },
+          body: JSON.stringify({
+            status: options.status,
+            nextActionAt: options.nextActionAt ? options.nextActionAt.toISOString() : null
+          })
+        }
+      );
+    } catch {
+      redirect(`${detailHref}&notice=shortcut-error`);
+    }
+
+    if (!updateResponse.ok) {
+      redirect(`${detailHref}&notice=shortcut-error`);
+    }
+
+    revalidatePath(`/prospects/${prospectSid}`);
+
+    if (advanceToNext && queueReturnTo) {
+      const nextQueueContext = await resolveQueueContext(currentBusiness.id, prospectSid, queueReturnTo);
+
+      redirect(
+        buildQueueContinuationHref({
+          detailHref,
+          nextProspectSid: nextQueueContext?.nextProspectSid ?? null,
+          returnTo,
+          nextNotice: 'shortcut-saved-next',
+          fallbackNotice: 'shortcut-saved'
+        })
+      );
+    }
+
+    redirect(`${detailHref}&notice=shortcut-saved`);
+  }
+
+  async function noAnswerShortcut() {
+    'use server';
+
+    const shouldAttempt = shouldMarkAttemptedStatus(prospect.status);
+
+    return applyShortcutMutation(
+      {
+        status: shouldAttempt ? 'ATTEMPTED' : prospect.status,
+        nextActionAt: shouldAttempt ? buildRelativeDate(24) : null,
+        attempt: {
+          channel: 'CALL',
+          outcome: 'NO_ANSWER',
+          note: 'No answer. Follow-up scheduled.'
+        }
+      },
+      false
+    );
+  }
+
+  async function noAnswerShortcutAndNext() {
+    'use server';
+
+    const shouldAttempt = shouldMarkAttemptedStatus(prospect.status);
+
+    return applyShortcutMutation(
+      {
+        status: shouldAttempt ? 'ATTEMPTED' : prospect.status,
+        nextActionAt: shouldAttempt ? buildRelativeDate(24) : null,
+        attempt: {
+          channel: 'CALL',
+          outcome: 'NO_ANSWER',
+          note: 'No answer. Follow-up scheduled.'
+        }
+      },
+      true
+    );
+  }
+
+  async function voicemailShortcut() {
+    'use server';
+
+    const shouldAttempt = shouldMarkAttemptedStatus(prospect.status);
+
+    return applyShortcutMutation(
+      {
+        status: shouldAttempt ? 'ATTEMPTED' : prospect.status,
+        nextActionAt: shouldAttempt ? buildRelativeDate(48) : null,
+        attempt: {
+          channel: 'CALL',
+          outcome: 'LEFT_VOICEMAIL',
+          note: 'Left voicemail. Follow-up scheduled.'
+        }
+      },
+      false
+    );
+  }
+
+  async function voicemailShortcutAndNext() {
+    'use server';
+
+    const shouldAttempt = shouldMarkAttemptedStatus(prospect.status);
+
+    return applyShortcutMutation(
+      {
+        status: shouldAttempt ? 'ATTEMPTED' : prospect.status,
+        nextActionAt: shouldAttempt ? buildRelativeDate(48) : null,
+        attempt: {
+          channel: 'CALL',
+          outcome: 'LEFT_VOICEMAIL',
+          note: 'Left voicemail. Follow-up scheduled.'
+        }
+      },
+      true
+    );
+  }
+
+  async function updateStatusShortcut(nextStatus: string, advanceToNext: boolean) {
+    'use server';
+
+    return applyShortcutMutation(
+      {
+        status: nextStatus,
+        nextActionAt: null
+      },
+      advanceToNext
+    );
+  }
+
+  async function markResponded() {
+    return updateStatusShortcut('RESPONDED', false);
+  }
+
+  async function markRespondedAndNext() {
+    return updateStatusShortcut('RESPONDED', true);
+  }
+
+  async function markQualified() {
+    return updateStatusShortcut('QUALIFIED', false);
+  }
+
+  async function markQualifiedAndNext() {
+    return updateStatusShortcut('QUALIFIED', true);
+  }
+
+  async function markDisqualified() {
+    return updateStatusShortcut('DISQUALIFIED', false);
+  }
+
+  async function markDisqualifiedAndNext() {
+    return updateStatusShortcut('DISQUALIFIED', true);
+  }
+
+  async function archiveProspect() {
+    return updateStatusShortcut('ARCHIVED', false);
+  }
+
+  async function archiveProspectAndNext() {
+    return updateStatusShortcut('ARCHIVED', true);
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-6xl space-y-8">
@@ -500,7 +732,12 @@ export default async function ProspectDetailPage({
         {noticeMessage ? (
           <div
             className={`rounded-2xl border px-4 py-3 text-sm shadow-sm ${
-              resolvedSearchParams.notice === 'saved' || resolvedSearchParams.notice === 'saved-next'
+              resolvedSearchParams.notice === 'saved' ||
+              resolvedSearchParams.notice === 'saved-next' ||
+              resolvedSearchParams.notice === 'attempt-saved' ||
+              resolvedSearchParams.notice === 'attempt-saved-next' ||
+              resolvedSearchParams.notice === 'shortcut-saved' ||
+              resolvedSearchParams.notice === 'shortcut-saved-next'
                 ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
                 : 'border-red-200 bg-red-50 text-red-900'
             }`}
@@ -720,6 +957,122 @@ export default async function ProspectDetailPage({
               </button>
             </div>
           </form>
+        </section>
+
+        <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
+          <div className="text-xs uppercase tracking-[0.24em] text-black/50">Disposition shortcuts</div>
+          <p className="mt-2 text-sm text-black/60">
+            Apply the most common outcomes directly when the call is already clear.
+          </p>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-black/10 p-4">
+              <div className="text-sm font-medium text-black">No answer</div>
+              <p className="mt-1 text-sm text-black/60">Logs a call attempt and schedules follow-up.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <form action={noAnswerShortcut}>
+                  <button className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                    No answer
+                  </button>
+                </form>
+                {nextHref ? (
+                  <form action={noAnswerShortcutAndNext}>
+                    <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                      No answer and next
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-black/10 p-4">
+              <div className="text-sm font-medium text-black">Left voicemail</div>
+              <p className="mt-1 text-sm text-black/60">Logs the voicemail and schedules the next touch.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <form action={voicemailShortcut}>
+                  <button className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                    Left voicemail
+                  </button>
+                </form>
+                {nextHref ? (
+                  <form action={voicemailShortcutAndNext}>
+                    <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                      Voicemail and next
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-black/10 p-4">
+              <div className="text-sm font-medium text-black">Responded</div>
+              <p className="mt-1 text-sm text-black/60">Marks the prospect as replied and clears the queue signal.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <form action={markResponded}>
+                  <button className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                    Responded
+                  </button>
+                </form>
+                {nextHref ? (
+                  <form action={markRespondedAndNext}>
+                    <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                      Responded and next
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-black/10 p-4">
+              <div className="text-sm font-medium text-black">Qualified</div>
+              <p className="mt-1 text-sm text-black/60">Marks the prospect qualified and clears scheduling.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <form action={markQualified}>
+                  <button className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                    Qualified
+                  </button>
+                </form>
+                {nextHref ? (
+                  <form action={markQualifiedAndNext}>
+                    <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                      Qualified and next
+                    </button>
+                  </form>
+                ) : null}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-black/10 p-4">
+              <div className="text-sm font-medium text-black">Disqualified / archive</div>
+              <p className="mt-1 text-sm text-black/60">Clears the queue and marks the record closed.</p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <form action={markDisqualified}>
+                  <button className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                    Disqualified
+                  </button>
+                </form>
+                <form action={archiveProspect}>
+                  <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                    Archive
+                  </button>
+                </form>
+                {nextHref ? (
+                  <>
+                    <form action={markDisqualifiedAndNext}>
+                      <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                        Disqualified and next
+                      </button>
+                    </form>
+                    <form action={archiveProspectAndNext}>
+                      <button className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]">
+                        Archive and next
+                      </button>
+                    </form>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
         </section>
 
         <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
