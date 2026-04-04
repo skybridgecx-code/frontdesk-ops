@@ -17,6 +17,7 @@ import {
 } from '../prospect-detail-flow';
 import { buildProspectDetailHref } from '../queue-flow';
 import { buildProspectActivityTimeline } from '../prospect-activity-timeline';
+import type { ProspectStatusValue } from '@frontdesk/domain';
 
 export const dynamic = 'force-dynamic';
 
@@ -122,7 +123,7 @@ export default async function ProspectDetailPage({
     detailHref,
     returnTo,
     queueReturnTo,
-    prospectStatus: prospect.status
+    prospectStatus: prospect.status as ProspectStatusValue
   });
 
   return (

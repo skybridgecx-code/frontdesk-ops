@@ -11,6 +11,11 @@ import {
   prospectQueueStatuses,
   type ProspectQueueStatus
 } from './queue-flow';
+import {
+  getProspectShortcutTransition,
+  normalizeProspectNextActionAt,
+  type ProspectStatusValue
+} from '@frontdesk/domain';
 
 export type BootstrapResponse = {
   ok: true;
@@ -131,16 +136,6 @@ export function formatLabel(value: string | null | undefined) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
-}
-
-export function buildRelativeDate(hoursFromNow: number) {
-  const next = new Date();
-  next.setHours(next.getHours() + hoursFromNow);
-  return next;
-}
-
-export function shouldMarkAttemptedStatus(value: string) {
-  return value === 'NEW' || value === 'READY' || value === 'IN_PROGRESS' || value === 'ATTEMPTED';
 }
 
 export function getProspectDetailNotice(notice: string | undefined) {
@@ -265,7 +260,7 @@ type DetailActionContext = {
   detailHref: string;
   returnTo: string;
   queueReturnTo: string | null;
-  prospectStatus: string;
+  prospectStatus: ProspectStatusValue;
 };
 
 type ShortcutMutationOptions = {
@@ -320,7 +315,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
             status,
             priority: priority ? priority : null,
             notes: notes ? notes : null,
-            nextActionAt: nextActionAt ? nextActionAt.toISOString() : null
+            nextActionAt: normalizeProspectNextActionAt(status, nextActionAt)?.toISOString() ?? null
           })
         }
       );
@@ -402,13 +397,13 @@ export function createProspectDetailActions(context: DetailActionContext) {
             ...getInternalApiHeaders(),
             'content-type': 'application/json'
           },
-          body: JSON.stringify({
-            channel,
-            outcome,
-            note: note ? note : null,
-            attemptedAt: attemptedAt.toISOString()
-          })
-        }
+            body: JSON.stringify({
+              channel,
+              outcome,
+              note: note ? note : null,
+              attemptedAt: attemptedAt.toISOString()
+            })
+          }
       );
     } catch {
       redirect(`${context.detailHref}&notice=attempt-error`);
@@ -505,7 +500,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
           },
           body: JSON.stringify({
             status: options.status,
-            nextActionAt: options.nextActionAt ? options.nextActionAt.toISOString() : null
+            nextActionAt: normalizeProspectNextActionAt(options.status, options.nextActionAt)?.toISOString() ?? null
           })
         }
       );
@@ -539,77 +534,25 @@ export function createProspectDetailActions(context: DetailActionContext) {
   async function noAnswerShortcut() {
     'use server';
 
-    const shouldAttempt = shouldMarkAttemptedStatus(context.prospectStatus);
-
-    return applyShortcutMutation(
-      {
-        status: shouldAttempt ? 'ATTEMPTED' : context.prospectStatus,
-        nextActionAt: shouldAttempt ? buildRelativeDate(24) : null,
-        attempt: {
-          channel: 'CALL',
-          outcome: 'NO_ANSWER',
-          note: 'No answer. Follow-up scheduled.'
-        }
-      },
-      false
-    );
+    return applyShortcutMutation(getProspectShortcutTransition('no-answer', context.prospectStatus), false);
   }
 
   async function noAnswerShortcutAndNext() {
     'use server';
 
-    const shouldAttempt = shouldMarkAttemptedStatus(context.prospectStatus);
-
-    return applyShortcutMutation(
-      {
-        status: shouldAttempt ? 'ATTEMPTED' : context.prospectStatus,
-        nextActionAt: shouldAttempt ? buildRelativeDate(24) : null,
-        attempt: {
-          channel: 'CALL',
-          outcome: 'NO_ANSWER',
-          note: 'No answer. Follow-up scheduled.'
-        }
-      },
-      true
-    );
+    return applyShortcutMutation(getProspectShortcutTransition('no-answer', context.prospectStatus), true);
   }
 
   async function voicemailShortcut() {
     'use server';
 
-    const shouldAttempt = shouldMarkAttemptedStatus(context.prospectStatus);
-
-    return applyShortcutMutation(
-      {
-        status: shouldAttempt ? 'ATTEMPTED' : context.prospectStatus,
-        nextActionAt: shouldAttempt ? buildRelativeDate(48) : null,
-        attempt: {
-          channel: 'CALL',
-          outcome: 'LEFT_VOICEMAIL',
-          note: 'Left voicemail. Follow-up scheduled.'
-        }
-      },
-      false
-    );
+    return applyShortcutMutation(getProspectShortcutTransition('voicemail', context.prospectStatus), false);
   }
 
   async function voicemailShortcutAndNext() {
     'use server';
 
-    const shouldAttempt = shouldMarkAttemptedStatus(context.prospectStatus);
-
-    return applyShortcutMutation(
-      {
-        status: shouldAttempt ? 'ATTEMPTED' : context.prospectStatus,
-        nextActionAt: shouldAttempt ? buildRelativeDate(48) : null,
-        attempt: {
-          channel: 'CALL',
-          outcome: 'LEFT_VOICEMAIL',
-          note: 'Left voicemail. Follow-up scheduled.'
-        }
-      },
-      true
-    );
+    return applyShortcutMutation(getProspectShortcutTransition('voicemail', context.prospectStatus), true);
   }
 
   async function updateStatusShortcut(nextStatus: string, advanceToNext: boolean) {
