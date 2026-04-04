@@ -53,6 +53,12 @@ type ProspectSummaryResponse = {
   summary: ProspectSummary;
 };
 
+type StatusFilterOption = {
+  status: 'ALL' | 'NEW' | 'READY' | 'IN_PROGRESS' | 'ATTEMPTED' | 'RESPONDED' | 'QUALIFIED' | 'DISQUALIFIED' | 'ARCHIVED';
+  label: string;
+  count: number;
+};
+
 async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
@@ -122,6 +128,20 @@ function formatPriority(value: string | null) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 
+function getQueueStateLabel(nextActionAt: string | null, now = Date.now()) {
+  if (!nextActionAt) {
+    return 'No next action';
+  }
+
+  const nextActionTime = new Date(nextActionAt).getTime();
+
+  if (Number.isNaN(nextActionTime)) {
+    return 'No next action';
+  }
+
+  return nextActionTime <= now ? 'Due now / overdue' : 'Upcoming';
+}
+
 function buildQueueHref(status: string) {
   const params = new URLSearchParams();
 
@@ -149,17 +169,29 @@ function isValidStatus(value: string | undefined) {
 
 function SummaryCard({
   label,
-  value
+  value,
+  href
 }: {
   label: string;
   value: number;
+  href?: string;
 }) {
-  return (
-    <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
+  const content = (
+    <>
       <div className="text-xs uppercase tracking-[0.2em] text-black/50">{label}</div>
       <div className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-black">{value}</div>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <Link href={href} className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm transition hover:border-black/20 hover:bg-black/[0.02]">
+        {content}
+      </Link>
+    );
+  }
+
+  return <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">{content}</div>;
 }
 
 export default async function ProspectsPage({
@@ -194,11 +226,35 @@ export default async function ProspectsPage({
 
   const summary = summaryResponse.summary;
   const prospects = prospectsResponse.prospects;
+  const queueHref = buildQueueHref(activeStatus);
+  const openNextActionable = prospects[0]?.nextActionAt ? prospects[0] : null;
+  const statusFilterOptions: StatusFilterOption[] = [
+    { status: 'ALL', label: 'All', count: summary.total },
+    { status: 'NEW', label: 'New', count: summary.new },
+    { status: 'READY', label: 'Ready', count: summary.ready },
+    { status: 'IN_PROGRESS', label: 'In progress', count: summary.inProgress },
+    { status: 'ATTEMPTED', label: 'Attempted', count: summary.attempted },
+    { status: 'RESPONDED', label: 'Responded', count: summary.responded },
+    { status: 'QUALIFIED', label: 'Qualified', count: summary.qualified },
+    { status: 'DISQUALIFIED', label: 'Disqualified', count: summary.disqualified },
+    { status: 'ARCHIVED', label: 'Archived', count: summary.archived }
+  ];
+
+  const summaryCards = [
+    { label: 'Total', value: summary.total, href: buildQueueHref('ALL') },
+    { label: 'New', value: summary.new, href: buildQueueHref('NEW') },
+    { label: 'Ready', value: summary.ready, href: buildQueueHref('READY') },
+    { label: 'In progress', value: summary.inProgress, href: buildQueueHref('IN_PROGRESS') },
+    { label: 'Attempted', value: summary.attempted, href: buildQueueHref('ATTEMPTED') },
+    { label: 'Responded', value: summary.responded, href: buildQueueHref('RESPONDED') },
+    { label: 'Qualified', value: summary.qualified, href: buildQueueHref('QUALIFIED') },
+    { label: 'Archived', value: summary.archived, href: buildQueueHref('ARCHIVED') }
+  ];
 
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-7xl space-y-8">
-        <div className="flex items-end justify-between gap-4">
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <div className="text-sm uppercase tracking-[0.24em] text-black/50">Operator view</div>
             <h1 className="mt-2 text-4xl font-semibold tracking-[-0.04em]">Prospects</h1>
@@ -207,23 +263,31 @@ export default async function ProspectsPage({
             </p>
           </div>
 
-          <Link
-            href="/"
-            className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
-          >
-            Back to homepage
-          </Link>
+          <div className="flex flex-wrap gap-3">
+            {openNextActionable ? (
+              <Link
+                href={{
+                  pathname: `/prospects/${openNextActionable.prospectSid}`,
+                  query: { returnTo: queueHref }
+                }}
+                className="rounded-full bg-[#111827] px-4 py-2 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]"
+              >
+                Open next actionable
+              </Link>
+            ) : null}
+            <Link
+              href="/"
+              className="rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm"
+            >
+              Back to homepage
+            </Link>
+          </div>
         </div>
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-          <SummaryCard label="Total" value={summary.total} />
-          <SummaryCard label="New" value={summary.new} />
-          <SummaryCard label="Ready" value={summary.ready} />
-          <SummaryCard label="In progress" value={summary.inProgress} />
-          <SummaryCard label="Attempted" value={summary.attempted} />
-          <SummaryCard label="Responded" value={summary.responded} />
-          <SummaryCard label="Qualified" value={summary.qualified} />
-          <SummaryCard label="Archived" value={summary.archived} />
+          {summaryCards.map((card) => (
+            <SummaryCard key={card.label} label={card.label} value={card.value} href={card.href} />
+          ))}
         </section>
 
         <section className="overflow-hidden rounded-2xl border border-black/10 bg-white shadow-sm">
@@ -236,7 +300,7 @@ export default async function ProspectsPage({
 
           <div className="border-b border-black/10 px-5 py-4">
             <div className="flex flex-wrap gap-2">
-              {(['ALL', 'NEW', 'READY', 'IN_PROGRESS', 'ATTEMPTED', 'RESPONDED', 'QUALIFIED', 'DISQUALIFIED', 'ARCHIVED'] as const).map((status) => {
+              {statusFilterOptions.map(({ status, label, count }) => {
                 const isActive = activeStatus === status;
 
                 return (
@@ -244,13 +308,20 @@ export default async function ProspectsPage({
                     key={status}
                     href={buildQueueHref(status)}
                     aria-current={isActive ? 'page' : undefined}
-                    className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                    className={`inline-flex items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium transition ${
                       isActive
                         ? 'bg-[#111827] text-white shadow-sm'
                         : 'border border-black/10 bg-white text-black/70 hover:text-black'
                     }`}
                   >
-                    {status === 'ALL' ? 'All' : formatStatus(status)}
+                    <span>{label}</span>
+                    <span
+                      className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${
+                        isActive ? 'bg-white/15 text-white' : 'bg-black/[0.06] text-black/60'
+                      }`}
+                    >
+                      {count}
+                    </span>
                   </Link>
                 );
               })}
@@ -273,6 +344,7 @@ export default async function ProspectsPage({
                     <th className="px-5 py-3 font-medium">Company</th>
                     <th className="px-5 py-3 font-medium">Last attempt</th>
                     <th className="px-5 py-3 font-medium">Next action</th>
+                    <th className="px-5 py-3 font-medium">Queue state</th>
                     <th className="px-5 py-3 font-medium">Status</th>
                     <th className="px-5 py-3 font-medium">Priority</th>
                     <th className="px-5 py-3 font-medium">Created</th>
@@ -304,6 +376,19 @@ export default async function ProspectsPage({
                       </td>
                       <td className="px-5 py-4 text-black/70">{formatDateTimeNullable(prospect.lastAttemptAt)}</td>
                       <td className="px-5 py-4 text-black/70">{formatDateTimeNullable(prospect.nextActionAt)}</td>
+                      <td className="px-5 py-4">
+                        <span
+                          className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
+                            prospect.nextActionAt
+                              ? new Date(prospect.nextActionAt).getTime() <= Date.now()
+                                ? 'bg-amber-100 text-amber-900'
+                                : 'bg-blue-100 text-blue-900'
+                              : 'bg-black/[0.06] text-black/60'
+                          }`}
+                        >
+                          {getQueueStateLabel(prospect.nextActionAt)}
+                        </span>
+                      </td>
                       <td className="px-5 py-4 text-black/70">{formatStatus(prospect.status)}</td>
                       <td className="px-5 py-4 text-black/70">{formatPriority(prospect.priority)}</td>
                       <td className="px-5 py-4 text-black/70">{formatDateTime(prospect.createdAt)}</td>
