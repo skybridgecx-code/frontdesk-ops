@@ -52,6 +52,20 @@ type ProspectAttemptsResponse = {
   attempts: ProspectAttempt[];
 };
 
+type ProspectQueueRow = {
+  prospectSid: string;
+};
+
+type ProspectQueueResponse = {
+  ok: true;
+  prospects: ProspectQueueRow[];
+};
+
+type ProspectQueueContext = {
+  nextProspectSid: string | null;
+  nextHref: string | null;
+};
+
 const prospectStatuses = [
   'NEW',
   'READY',
@@ -72,6 +86,16 @@ const prospectAttemptOutcomes = [
   'REPLIED',
   'BAD_FIT',
   'DO_NOT_CONTACT'
+] as const;
+const prospectQueueStatuses = [
+  'NEW',
+  'READY',
+  'IN_PROGRESS',
+  'ATTEMPTED',
+  'RESPONDED',
+  'QUALIFIED',
+  'DISQUALIFIED',
+  'ARCHIVED'
 ] as const;
 
 function formatDateTime(value: string | null) {
@@ -112,6 +136,25 @@ function formatDateTimeLocalNow() {
     pad(now.getMonth() + 1),
     pad(now.getDate())
   ].join('-') + `T${pad(now.getHours())}:${pad(now.getMinutes())}`;
+}
+
+function isQueueStatus(value: string | null | undefined) {
+  return prospectQueueStatuses.includes(value as (typeof prospectQueueStatuses)[number]);
+}
+
+function getQueueStatusFromReturnTo(returnTo: string) {
+  try {
+    const url = new URL(returnTo, 'http://localhost');
+
+    if (!url.pathname.startsWith('/prospects')) {
+      return null;
+    }
+
+    const status = url.searchParams.get('status')?.toUpperCase() ?? null;
+    return status && isQueueStatus(status) ? status : null;
+  } catch {
+    return null;
+  }
 }
 
 function formatLabel(value: string | null | undefined) {
@@ -166,6 +209,57 @@ async function getAttempts(businessId: string, prospectSid: string) {
   return (await res.json()) as ProspectAttemptsResponse;
 }
 
+async function getProspectQueue(businessId: string, status?: string | null) {
+  const url = new URL(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`);
+
+  if (status) {
+    url.searchParams.set('status', status);
+  }
+
+  const res = await fetch(url.toString(), {
+    cache: 'no-store',
+    headers: getInternalApiHeaders()
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to load prospect queue: ${res.status}`);
+  }
+
+  return (await res.json()) as ProspectQueueResponse;
+}
+
+async function resolveQueueContext(
+  businessId: string,
+  prospectSid: string,
+  queueReturnTo: string | null
+): Promise<ProspectQueueContext | null> {
+  if (!queueReturnTo) {
+    return null;
+  }
+
+  const status = getQueueStatusFromReturnTo(queueReturnTo);
+
+  try {
+    const queueResponse = await getProspectQueue(businessId, status);
+    const currentQueueIndex = queueResponse.prospects.findIndex((item) => item.prospectSid === prospectSid);
+
+    if (currentQueueIndex < 0 || currentQueueIndex + 1 >= queueResponse.prospects.length) {
+      return { nextProspectSid: null, nextHref: null };
+    }
+
+    const nextProspectSid = queueResponse.prospects[currentQueueIndex + 1]?.prospectSid ?? null;
+
+    return {
+      nextProspectSid,
+      nextHref: nextProspectSid
+        ? `/prospects/${nextProspectSid}?returnTo=${encodeURIComponent(queueReturnTo)}`
+        : null
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default async function ProspectDetailPage({
   params,
   searchParams
@@ -177,15 +271,21 @@ export default async function ProspectDetailPage({
   const resolvedSearchParams = await searchParams;
   const bootstrap = await getBootstrap();
   const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
-  const returnTo =
+  const queueReturnTo =
     resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/prospects')
       ? resolvedSearchParams.returnTo
-      : '/prospects';
+      : null;
+  const returnTo =
+    queueReturnTo ?? '/prospects';
   const noticeMessage =
     resolvedSearchParams.notice === 'saved'
       ? 'Workflow updated.'
+      : resolvedSearchParams.notice === 'saved-next'
+        ? 'Workflow updated. Moved to next prospect.'
       : resolvedSearchParams.notice === 'attempt-saved'
         ? 'Attempt logged.'
+        : resolvedSearchParams.notice === 'attempt-saved-next'
+          ? 'Attempt logged. Moved to next prospect.'
       : resolvedSearchParams.notice === 'error'
         ? 'Could not save workflow changes.'
         : resolvedSearchParams.notice === 'attempt-error'
@@ -235,14 +335,16 @@ export default async function ProspectDetailPage({
   }
 
   const attemptsResponse = await getAttempts(activeBusiness.id, prospectSid);
+  const queueContext = await resolveQueueContext(activeBusiness.id, prospectSid, queueReturnTo);
   const prospect = detailResponse.prospect;
   const attempts = attemptsResponse.attempts;
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
   const detailHref = `/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}`;
+  const nextHref = queueContext?.nextHref ?? null;
   const attemptedAtDefaultValue = formatDateTimeLocalNow();
 
-  async function updateWorkflow(formData: FormData) {
+  async function saveWorkflow(formData: FormData, advanceToNext: boolean) {
     'use server';
 
     const bootstrap = await getBootstrap();
@@ -296,10 +398,27 @@ export default async function ProspectDetailPage({
     }
 
     revalidatePath(`/prospects/${prospectSid}`);
+
+    if (advanceToNext && queueReturnTo) {
+      const nextQueueContext = await resolveQueueContext(currentBusiness.id, prospectSid, queueReturnTo);
+
+      if (nextQueueContext?.nextHref) {
+        redirect(`${nextQueueContext.nextHref}&notice=saved-next`);
+      }
+    }
+
     redirect(`${detailHref}&notice=saved`);
   }
 
-  async function logAttempt(formData: FormData) {
+  async function updateWorkflow(formData: FormData) {
+    return saveWorkflow(formData, false);
+  }
+
+  async function updateWorkflowAndNext(formData: FormData) {
+    return saveWorkflow(formData, true);
+  }
+
+  async function logAttemptMutation(formData: FormData, advanceToNext: boolean) {
     'use server';
 
     const bootstrap = await getBootstrap();
@@ -353,13 +472,30 @@ export default async function ProspectDetailPage({
     }
 
     revalidatePath(`/prospects/${prospectSid}`);
+
+    if (advanceToNext && queueReturnTo) {
+      const nextQueueContext = await resolveQueueContext(currentBusiness.id, prospectSid, queueReturnTo);
+
+      if (nextQueueContext?.nextHref) {
+        redirect(`${nextQueueContext.nextHref}&notice=attempt-saved-next`);
+      }
+    }
+
     redirect(`${detailHref}&notice=attempt-saved`);
+  }
+
+  async function logAttempt(formData: FormData) {
+    return logAttemptMutation(formData, false);
+  }
+
+  async function logAttemptAndNext(formData: FormData) {
+    return logAttemptMutation(formData, true);
   }
 
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-6xl space-y-8">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <Link href={returnTo} className="text-sm font-medium text-[#6b7280] transition hover:text-[#111827]">
               ← Back to queue
@@ -367,6 +503,17 @@ export default async function ProspectDetailPage({
             <h1 className="mt-3 text-4xl font-semibold tracking-[-0.04em]">{title}</h1>
             <p className="mt-2 text-sm text-black/60">{metadataLine}</p>
           </div>
+          {nextHref ? (
+            <Link
+              href={nextHref}
+              className="inline-flex items-center justify-center rounded-full border border-black/10 bg-white px-4 py-2 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]"
+            >
+              Next in queue
+              <span className="ml-2" aria-hidden="true">
+                →
+              </span>
+            </Link>
+          ) : null}
         </div>
 
         {noticeMessage ? (
@@ -506,9 +653,17 @@ export default async function ProspectDetailPage({
 
             <div className="flex flex-wrap items-center justify-between gap-3 pt-1">
               <p className="text-sm text-black/60">Changes save to the backend and return here with a notice.</p>
-              <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
-                Save workflow
-              </button>
+              <div className="flex flex-wrap gap-3">
+                <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                  Save workflow
+                </button>
+                <button
+                  formAction={updateWorkflowAndNext}
+                  className="rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]"
+                >
+                  Save and next
+                </button>
+              </div>
             </div>
           </form>
         </section>
@@ -572,9 +727,15 @@ export default async function ProspectDetailPage({
               />
             </label>
 
-            <div className="flex items-center justify-end pt-1">
+            <div className="flex flex-wrap items-center justify-end gap-3 pt-1">
               <button className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
                 Save attempt
+              </button>
+              <button
+                formAction={logAttemptAndNext}
+                className="rounded-full border border-black/10 bg-white px-5 py-2.5 text-sm font-medium text-black shadow-sm transition hover:border-black/20 hover:bg-black/[0.03]"
+              >
+                Log and next
               </button>
             </div>
           </form>
