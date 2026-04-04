@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
+import { revalidatePath } from 'next/cache';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import {
   buildQueueHref,
@@ -8,6 +10,10 @@ import {
   type ProspectQueueStatus
 } from './queue-flow';
 import { type ProspectReadSignals } from '@frontdesk/domain';
+import {
+  buildStarterProspectImportBody,
+  parseStarterProspectCsv
+} from './prospect-csv-import';
 
 export const dynamic = 'force-dynamic';
 
@@ -75,6 +81,27 @@ type QueueExecutionState = {
   title: string;
   description: string;
 };
+
+type ProspectsSearchParams = {
+  status?: string;
+  notice?: string;
+  error?: string;
+  importedCount?: string;
+};
+
+function appendQueryParams(href: string, params: Record<string, string | undefined>) {
+  const [pathname, query = ''] = href.split('?');
+  const searchParams = new URLSearchParams(query);
+
+  for (const [key, value] of Object.entries(params)) {
+    if (value && value.trim()) {
+      searchParams.set(key, value);
+    }
+  }
+
+  const nextQuery = searchParams.toString();
+  return nextQuery ? `${pathname}?${nextQuery}` : pathname;
+}
 
 async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
@@ -165,7 +192,7 @@ function SummaryCard({
 export default async function ProspectsPage({
   searchParams
 }: {
-  searchParams: Promise<{ status?: string }>;
+  searchParams: Promise<ProspectsSearchParams>;
 }) {
   const resolvedSearchParams = await searchParams;
   const activeStatus = prospectQueueStatuses.includes(
@@ -198,6 +225,12 @@ export default async function ProspectsPage({
   const summary = summaryResponse.summary;
   const prospects = prospectsResponse.prospects;
   const queueHref = buildQueueHref(activeStatus);
+  const importNotice =
+    resolvedSearchParams.notice === 'csv-imported'
+      ? `Imported ${resolvedSearchParams.importedCount ?? '0'} prospects from CSV.`
+      : resolvedSearchParams.notice === 'csv-import-error'
+        ? `CSV import failed: ${resolvedSearchParams.error?.trim() || 'Please try again.'}`
+        : null;
   const actionableProspects = prospects.filter((prospect) => prospect.readState.isActionable);
   const actionableCount = actionableProspects.length;
   const openNextActionable = actionableProspects[0] ?? null;
@@ -261,6 +294,83 @@ export default async function ProspectsPage({
     ARCHIVED: summary.archived
   };
 
+  async function importStarterCsv(formData: FormData) {
+    'use server';
+
+    if (!activeBusiness) {
+      redirect(
+        appendQueryParams(queueHref, {
+          notice: 'csv-import-error',
+          error: 'No active business is configured for import.'
+        })
+      );
+    }
+
+    const file = formData.get('csvFile');
+    if (!(file instanceof File) || file.size === 0) {
+      redirect(
+        appendQueryParams(queueHref, {
+          notice: 'csv-import-error',
+          error: 'Choose a CSV file to import.'
+        })
+      );
+    }
+
+    let rows;
+    try {
+      rows = parseStarterProspectCsv(await file.text());
+    } catch (error) {
+      redirect(
+        appendQueryParams(queueHref, {
+          notice: 'csv-import-error',
+          error: error instanceof Error ? error.message : 'Invalid CSV format.'
+        })
+      );
+    }
+
+    if (rows.length === 0) {
+      redirect(
+        appendQueryParams(queueHref, {
+          notice: 'csv-import-error',
+          error: 'The CSV file did not contain any prospect rows.'
+        })
+      );
+    }
+
+    const response = await fetch(
+      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import`,
+      {
+        method: 'POST',
+        cache: 'no-store',
+        headers: {
+          ...getInternalApiHeaders(),
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify(buildStarterProspectImportBody(rows))
+      }
+    );
+
+    if (!response.ok) {
+      const body = (await response.json().catch(() => null)) as { error?: string } | null;
+      redirect(
+        appendQueryParams(queueHref, {
+          notice: 'csv-import-error',
+          error: body?.error ?? `CSV import failed with status ${response.status}.`
+        })
+      );
+    }
+
+    const body = (await response.json()) as { importedCount?: number };
+    revalidatePath('/prospects');
+
+    redirect(
+      appendQueryParams(queueHref, {
+        notice: 'csv-imported',
+        importedCount: String(body.importedCount ?? rows.length)
+      })
+    );
+  }
+
   return (
     <main className="min-h-screen bg-[#f7f6f2] px-6 py-10 text-[#111827]">
       <div className="mx-auto max-w-7xl space-y-8">
@@ -293,6 +403,53 @@ export default async function ProspectsPage({
             </Link>
           </div>
         </div>
+
+        {importNotice ? (
+          <div
+            className={`rounded-2xl border px-5 py-4 text-sm shadow-sm ${
+              resolvedSearchParams.notice === 'csv-import-error'
+                ? 'border-rose-200 bg-rose-50 text-rose-900'
+                : 'border-emerald-200 bg-emerald-50 text-emerald-900'
+            }`}
+          >
+            {importNotice}
+          </div>
+        ) : null}
+
+        <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+            <div className="space-y-2">
+              <div className="text-xs uppercase tracking-[0.24em] text-black/50">CSV import</div>
+              <h2 className="text-2xl font-semibold tracking-[-0.04em]">Upload a starter lead list</h2>
+              <p className="max-w-3xl text-sm text-black/60">
+                Import a CSV with company, trade, city, website, phone, email, address, and notes. Website and address
+                are preserved in notes. City and state are parsed when the city field includes both.
+              </p>
+            </div>
+
+            <form action={importStarterCsv} encType="multipart/form-data" className="flex w-full max-w-md flex-col gap-3">
+              <label className="space-y-2">
+                <span className="text-xs uppercase tracking-[0.2em] text-black/50">Starter CSV</span>
+                <input
+                  name="csvFile"
+                  type="file"
+                  accept=".csv,text/csv"
+                  required
+                  className="block w-full rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm text-black file:mr-4 file:rounded-full file:border-0 file:bg-black file:px-4 file:py-2 file:text-sm file:font-medium file:text-white"
+                />
+              </label>
+
+              <div className="flex flex-col gap-2 sm:flex-row">
+                <button className="rounded-full bg-[#111827] px-4 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120]">
+                  Import CSV
+                </button>
+                <div className="text-xs leading-6 text-black/50">
+                  Expected headers: company, trade, city, website, phone, email, address, notes
+                </div>
+              </div>
+            </form>
+          </div>
+        </section>
 
         <section className="rounded-2xl border border-black/10 bg-white p-5 shadow-sm">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
