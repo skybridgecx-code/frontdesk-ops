@@ -2,6 +2,15 @@ import { revalidatePath } from 'next/cache';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import {
+  buildProspectDetailHref,
+  buildQueueContinuationHref,
+  buildProspectsRequestUrl,
+  findNextQueueProspectSid,
+  getQueueStatusFromReturnTo,
+  PROSPECT_QUEUE_FETCH_LIMIT,
+  prospectQueueStatuses
+} from '../queue-flow';
 
 export const dynamic = 'force-dynamic';
 
@@ -52,18 +61,11 @@ type ProspectAttemptsResponse = {
   attempts: ProspectAttempt[];
 };
 
-type ProspectQueueRow = {
-  prospectSid: string;
-};
-
 type ProspectQueueResponse = {
   ok: true;
-  prospects: ProspectQueueRow[];
-};
-
-type QueueContext = {
-  nextProspectSid: string | null;
-  nextHref: string | null;
+  prospects: Array<{
+    prospectSid: string;
+  }>;
 };
 
 const prospectStatuses = [
@@ -87,17 +89,6 @@ const prospectAttemptOutcomes = [
   'BAD_FIT',
   'DO_NOT_CONTACT'
 ] as const;
-const prospectQueueStatuses = [
-  'NEW',
-  'READY',
-  'IN_PROGRESS',
-  'ATTEMPTED',
-  'RESPONDED',
-  'QUALIFIED',
-  'DISQUALIFIED',
-  'ARCHIVED'
-] as const;
-
 function formatDateTime(value: string | null) {
   return value
     ? new Intl.DateTimeFormat('en-US', {
@@ -141,25 +132,6 @@ function formatLabel(value: string | null | undefined) {
     .split('_')
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(' ');
-}
-
-function isQueueStatus(value: string | null | undefined) {
-  return prospectQueueStatuses.includes(value as (typeof prospectQueueStatuses)[number]);
-}
-
-function getQueueStatusFromReturnTo(returnTo: string) {
-  try {
-    const url = new URL(returnTo, 'http://localhost');
-
-    if (!url.pathname.startsWith('/prospects')) {
-      return null;
-    }
-
-    const status = url.searchParams.get('status')?.toUpperCase() ?? null;
-    return status && isQueueStatus(status) ? status : null;
-  } catch {
-    return null;
-  }
 }
 
 async function getBootstrap() {
@@ -206,13 +178,14 @@ async function getAttempts(businessId: string, prospectSid: string) {
 }
 
 async function getProspectQueue(businessId: string, status?: string | null) {
-  const url = new URL(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`);
+  const url = buildProspectsRequestUrl({
+    apiBaseUrl: getApiBaseUrl(),
+    businessId,
+    status: status ? (status as (typeof prospectQueueStatuses)[number]) : null,
+    limit: PROSPECT_QUEUE_FETCH_LIMIT
+  });
 
-  if (status) {
-    url.searchParams.set('status', status);
-  }
-
-  const res = await fetch(url.toString(), {
+  const res = await fetch(url, {
     cache: 'no-store',
     headers: getInternalApiHeaders()
   });
@@ -228,7 +201,7 @@ async function resolveQueueContext(
   businessId: string,
   prospectSid: string,
   queueReturnTo: string | null
-): Promise<QueueContext | null> {
+) {
   if (!queueReturnTo) {
     return null;
   }
@@ -237,18 +210,15 @@ async function resolveQueueContext(
 
   try {
     const queueResponse = await getProspectQueue(businessId, status);
-    const currentIndex = queueResponse.prospects.findIndex((item) => item.prospectSid === prospectSid);
-
-    if (currentIndex < 0 || currentIndex + 1 >= queueResponse.prospects.length) {
-      return { nextProspectSid: null, nextHref: null };
-    }
-
-    const nextProspectSid = queueResponse.prospects[currentIndex + 1]?.prospectSid ?? null;
+    const nextProspectSid = findNextQueueProspectSid(queueResponse.prospects, prospectSid);
 
     return {
       nextProspectSid,
       nextHref: nextProspectSid
-        ? `/prospects/${nextProspectSid}?returnTo=${encodeURIComponent(queueReturnTo)}`
+        ? buildProspectDetailHref({
+            prospectSid: nextProspectSid,
+            returnTo: queueReturnTo
+          })
         : null
     };
   } catch {
@@ -335,7 +305,10 @@ export default async function ProspectDetailPage({
   const attempts = attemptsResponse.attempts;
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
-  const detailHref = `/prospects/${prospectSid}?returnTo=${encodeURIComponent(returnTo)}`;
+  const detailHref = buildProspectDetailHref({
+    prospectSid,
+    returnTo
+  });
   const nextHref = queueContext?.nextHref ?? null;
   const attemptedAtDefaultValue = formatDateTimeLocalNow();
 
@@ -398,7 +371,13 @@ export default async function ProspectDetailPage({
       const nextQueueContext = await resolveQueueContext(currentBusiness.id, prospectSid, queueReturnTo);
 
       if (nextQueueContext?.nextHref) {
-        redirect(`${nextQueueContext.nextHref}&notice=saved-next`);
+        redirect(buildQueueContinuationHref({
+          detailHref,
+          nextProspectSid: nextQueueContext.nextProspectSid,
+          returnTo,
+          nextNotice: 'saved-next',
+          fallbackNotice: 'saved'
+        }));
       }
     }
 
@@ -472,7 +451,13 @@ export default async function ProspectDetailPage({
       const nextQueueContext = await resolveQueueContext(currentBusiness.id, prospectSid, queueReturnTo);
 
       if (nextQueueContext?.nextHref) {
-        redirect(`${nextQueueContext.nextHref}&notice=attempt-saved-next`);
+        redirect(buildQueueContinuationHref({
+          detailHref,
+          nextProspectSid: nextQueueContext.nextProspectSid,
+          returnTo,
+          nextNotice: 'attempt-saved-next',
+          fallbackNotice: 'attempt-saved'
+        }));
       }
     }
 

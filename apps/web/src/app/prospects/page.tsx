@@ -1,5 +1,13 @@
 import Link from 'next/link';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import {
+  buildQueueHref,
+  buildProspectsRequestUrl,
+  getQueueStateLabel,
+  PROSPECT_QUEUE_FETCH_LIMIT,
+  prospectQueueStatuses,
+  type ProspectQueueStatus
+} from './queue-flow';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,8 +21,6 @@ type BootstrapResponse = {
     }>;
   } | null;
 };
-
-type QueueStatus = 'ALL' | 'NEW' | 'READY' | 'IN_PROGRESS' | 'ATTEMPTED' | 'RESPONDED' | 'QUALIFIED' | 'DISQUALIFIED' | 'ARCHIVED';
 
 type ProspectRow = {
   prospectSid: string;
@@ -61,18 +67,6 @@ type SummaryCardConfig = {
   href: string;
 };
 
-const queueStatuses: QueueStatus[] = [
-  'ALL',
-  'NEW',
-  'READY',
-  'IN_PROGRESS',
-  'ATTEMPTED',
-  'RESPONDED',
-  'QUALIFIED',
-  'DISQUALIFIED',
-  'ARCHIVED'
-];
-
 async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
@@ -86,14 +80,15 @@ async function getBootstrap() {
   return (await res.json()) as BootstrapResponse;
 }
 
-async function getProspects(businessId: string, status: QueueStatus) {
-  const url = new URL(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects`);
+async function getProspects(businessId: string, status: ProspectQueueStatus) {
+  const url = buildProspectsRequestUrl({
+    apiBaseUrl: getApiBaseUrl(),
+    businessId,
+    status,
+    limit: PROSPECT_QUEUE_FETCH_LIMIT
+  });
 
-  if (status !== 'ALL') {
-    url.searchParams.set('status', status);
-  }
-
-  const res = await fetch(url.toString(), {
+  const res = await fetch(url, {
     cache: 'no-store',
     headers: getInternalApiHeaders()
   });
@@ -142,41 +137,6 @@ function formatPriority(value: string | null) {
   return value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
 }
 
-function buildQueueHref(status: QueueStatus) {
-  const params = new URLSearchParams();
-
-  if (status !== 'ALL') {
-    params.set('status', status);
-  }
-
-  const query = params.toString();
-  return query ? `/prospects?${query}` : '/prospects';
-}
-
-function getQueueStateLabel(nextActionAt: string | null) {
-  if (!nextActionAt) {
-    return 'no next action';
-  }
-
-  const nextActionTime = new Date(nextActionAt).getTime();
-
-  if (Number.isNaN(nextActionTime)) {
-    return 'no next action';
-  }
-
-  const now = Date.now();
-
-  if (nextActionTime < now) {
-    return 'overdue';
-  }
-
-  if (nextActionTime <= now + 24 * 60 * 60 * 1000) {
-    return 'due now';
-  }
-
-  return 'upcoming';
-}
-
 function SummaryCard({
   label,
   value,
@@ -199,8 +159,10 @@ export default async function ProspectsPage({
   searchParams: Promise<{ status?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const activeStatus = queueStatuses.includes(resolvedSearchParams.status?.toUpperCase() as QueueStatus)
-    ? (resolvedSearchParams.status!.toUpperCase() as QueueStatus)
+  const activeStatus = prospectQueueStatuses.includes(
+    resolvedSearchParams.status?.toUpperCase() as ProspectQueueStatus
+  )
+    ? (resolvedSearchParams.status!.toUpperCase() as ProspectQueueStatus)
     : 'ALL';
 
   const bootstrap = await getBootstrap();
@@ -253,7 +215,7 @@ export default async function ProspectsPage({
     { label: 'Archived', value: summary.archived, href: buildQueueHref('ARCHIVED') }
   ];
 
-  const filterCounts: Record<QueueStatus, number> = {
+  const filterCounts: Record<ProspectQueueStatus, number> = {
     ALL: summary.total,
     NEW: summary.new,
     READY: summary.ready,
@@ -411,7 +373,7 @@ export default async function ProspectsPage({
 
           <div className="border-b border-black/10 px-5 py-4">
             <div className="flex flex-wrap gap-2">
-              {queueStatuses.map((status) => {
+              {prospectQueueStatuses.map((status) => {
                 const isActive = activeStatus === status;
 
                 return (
