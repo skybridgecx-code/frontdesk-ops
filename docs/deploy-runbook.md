@@ -67,3 +67,11 @@ The realtime gateway must be publicly reachable over `wss` at `wss://frontdesk-r
 After bootstrap and service deploys are in place, validate with:
 
 `WEB_URL=https://frontdesk-ops-web.vercel.app API_URL=https://frontdesk-ops.onrender.com OPS_USER=<ops user> OPS_PASS=<ops pass> ./scripts/prod-smoke.sh`
+
+The smoke now covers:
+
+- public web access on `/`
+- protected operator access on `/calls` and `/prospects`
+- authenticated bootstrap and prospect reads
+- a prospect import plus update/attempt path
+- terminal read-state reflection on the prospect detail path
