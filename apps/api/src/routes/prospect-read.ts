@@ -9,6 +9,8 @@ const prospectReadQuerySchema = z
   })
   .strict();
 
+const DEFAULT_PROSPECT_LIST_LIMIT = 200;
+
 export async function registerProspectReadRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/prospects', async (request, reply) => {
     const { businessId } = request.params as { businessId: string };
@@ -37,7 +39,7 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
           createdAt: 'desc'
         }
       ],
-      take: parsed.data.limit ?? 50,
+      take: parsed.data.limit ?? DEFAULT_PROSPECT_LIST_LIMIT,
       select: {
         prospectSid: true,
         companyName: true,
