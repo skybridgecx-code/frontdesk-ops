@@ -1,3 +1,5 @@
+import { getProspectQueueStateLabel, type ProspectReadSignals } from '@frontdesk/domain';
+
 export const PROSPECT_QUEUE_FETCH_LIMIT = 200;
 
 export type ProspectQueueStatus =
@@ -14,6 +16,7 @@ export type ProspectQueueStatus =
 export type ProspectQueueRow = {
   prospectSid: string;
   nextActionAt?: string | null;
+  readState?: ProspectReadSignals;
 };
 
 export const prospectQueueStatuses: ProspectQueueStatus[] = [
@@ -80,25 +83,7 @@ export function buildQueueHref(status: ProspectQueueStatus) {
 }
 
 export function getQueueStateLabel(nextActionAt: string | null, nowMs = Date.now()) {
-  if (!nextActionAt) {
-    return 'no next action';
-  }
-
-  const nextActionTime = new Date(nextActionAt).getTime();
-
-  if (Number.isNaN(nextActionTime)) {
-    return 'no next action';
-  }
-
-  if (nextActionTime < nowMs) {
-    return 'overdue';
-  }
-
-  if (nextActionTime <= nowMs + 24 * 60 * 60 * 1000) {
-    return 'due now';
-  }
-
-  return 'upcoming';
+  return getProspectQueueStateLabel(nextActionAt, nowMs);
 }
 
 export function findNextQueueProspectSid(

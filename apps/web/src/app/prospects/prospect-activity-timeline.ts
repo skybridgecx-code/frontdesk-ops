@@ -4,7 +4,11 @@ export type ProspectDetail = {
   priority: string | null;
   notes: string | null;
   nextActionAt: string | null;
+  lastAttemptAt: string | null;
   updatedAt: string;
+  readState: {
+    queueStateLabel: string;
+  };
 };
 
 export type ProspectAttempt = {
@@ -68,7 +72,9 @@ export function buildProspectActivityTimeline(
     description: [
       `Status ${formatLabel(prospect.status)}`,
       `Priority ${formatLabel(prospect.priority)}`,
-      `Next action ${prospect.nextActionAt ? formatDateTime(prospect.nextActionAt) : 'No next action'}`
+      `Queue state ${prospect.readState.queueStateLabel}`,
+      `Next action ${prospect.readState.queueStateLabel === 'no next action' ? 'No next action' : formatDateTime(prospect.nextActionAt)}`,
+      `Last attempt ${prospect.lastAttemptAt ? formatDateTime(prospect.lastAttemptAt) : 'No attempts recorded'}`
     ].join(' · '),
     detail: prospect.notes ? `Note: ${truncate(prospect.notes)}` : 'No notes recorded.'
   });

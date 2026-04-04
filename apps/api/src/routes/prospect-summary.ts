@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { ProspectStatus, prisma } from '@frontdesk/db';
+import { isProspectTerminalStatus } from '@frontdesk/domain';
 
 export async function registerProspectSummaryRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/prospects/summary', async (request, reply) => {
@@ -30,6 +31,14 @@ export async function registerProspectSummaryRoutes(app: FastifyInstance) {
       ok: true,
       summary: {
         total: grouped.reduce((sum, row) => sum + row._count._all, 0),
+        active: grouped.reduce(
+          (sum, row) => sum + (isProspectTerminalStatus(row.status) ? 0 : row._count._all),
+          0
+        ),
+        terminal: grouped.reduce(
+          (sum, row) => sum + (isProspectTerminalStatus(row.status) ? row._count._all : 0),
+          0
+        ),
         new: counts.get(ProspectStatus.NEW) ?? 0,
         ready: counts.get(ProspectStatus.READY) ?? 0,
         inProgress: counts.get(ProspectStatus.IN_PROGRESS) ?? 0,

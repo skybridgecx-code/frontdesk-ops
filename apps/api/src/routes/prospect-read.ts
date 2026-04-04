@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { ProspectStatus, prisma } from '@frontdesk/db';
 import { z } from 'zod';
+import { getProspectReadSignals } from '@frontdesk/domain';
 
 const prospectReadQuerySchema = z
   .object({
@@ -60,7 +61,14 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
 
     return {
       ok: true,
-      prospects
+      prospects: prospects.map((prospect) => ({
+        ...prospect,
+        readState: getProspectReadSignals({
+          status: prospect.status,
+          nextActionAt: prospect.nextActionAt,
+          lastAttemptAt: prospect.lastAttemptAt
+        })
+      }))
     };
   });
 
@@ -86,6 +94,7 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
         sourceLabel: true,
         status: true,
         priority: true,
+        lastAttemptAt: true,
         notes: true,
         nextActionAt: true,
         createdAt: true,
@@ -99,7 +108,14 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
 
     return {
       ok: true,
-      prospect
+      prospect: {
+        ...prospect,
+        readState: getProspectReadSignals({
+          status: prospect.status,
+          nextActionAt: prospect.nextActionAt,
+          lastAttemptAt: prospect.lastAttemptAt
+        })
+      }
     };
   });
 }
