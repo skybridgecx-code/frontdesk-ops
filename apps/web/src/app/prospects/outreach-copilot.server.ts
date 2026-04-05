@@ -11,6 +11,26 @@ type SerializedSnapshot = {
   snapshot?: ProspectOutreachSnapshot;
 };
 
+const outreachGoals = ['book_call', 'send_walkthrough', 'find_right_contact'] as const;
+const outreachLengths = ['short', 'medium'] as const;
+const outreachTones = ['direct', 'warm'] as const;
+
+type OutreachGoal = (typeof outreachGoals)[number];
+type OutreachLength = (typeof outreachLengths)[number];
+type OutreachTone = (typeof outreachTones)[number];
+
+type ProspectOutreachGenerationOptions = {
+  goal: OutreachGoal;
+  length: OutreachLength;
+  tone: OutreachTone;
+};
+
+const defaultOutreachOptions: ProspectOutreachGenerationOptions = {
+  goal: 'book_call',
+  length: 'short',
+  tone: 'direct'
+};
+
 export async function getProspectOutreachAvailability() {
   const unavailableReason = isProspectOutreachConfigured()
     ? null
@@ -37,6 +57,18 @@ function readSerializedSnapshot(formData: FormData): ProspectOutreachSnapshot | 
   }
 }
 
+function readOutreachGenerationOptions(formData: FormData): ProspectOutreachGenerationOptions {
+  const goal = String(formData.get('outreachGoal') ?? '').trim();
+  const length = String(formData.get('outreachLength') ?? '').trim();
+  const tone = String(formData.get('outreachTone') ?? '').trim();
+
+  return {
+    goal: outreachGoals.includes(goal as OutreachGoal) ? (goal as OutreachGoal) : defaultOutreachOptions.goal,
+    length: outreachLengths.includes(length as OutreachLength) ? (length as OutreachLength) : defaultOutreachOptions.length,
+    tone: outreachTones.includes(tone as OutreachTone) ? (tone as OutreachTone) : defaultOutreachOptions.tone
+  };
+}
+
 export async function generateProspectOutreachDraftAction(
   previousState: ProspectOutreachState = initialProspectOutreachState,
   formData: FormData
@@ -52,6 +84,7 @@ export async function generateProspectOutreachDraftAction(
   }
 
   const snapshot = readSerializedSnapshot(formData);
+  const outreachOptions = readOutreachGenerationOptions(formData);
 
   if (!snapshot) {
     return {
@@ -77,7 +110,7 @@ export async function generateProspectOutreachDraftAction(
       nextActionAt: snapshot.prospect.nextActionAt,
       lastAttemptAt: snapshot.prospect.lastAttemptAt,
       recentAttempts: snapshot.recentAttempts
-    });
+    }, outreachOptions);
 
     return {
       status: 'success',

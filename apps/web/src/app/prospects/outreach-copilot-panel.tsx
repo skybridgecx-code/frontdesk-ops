@@ -9,6 +9,22 @@ import {
   type ProspectOutreachState
 } from './outreach-copilot.shared';
 
+const outreachGoalOptions = [
+  { value: 'book_call', label: 'Book call' },
+  { value: 'send_walkthrough', label: 'Send walkthrough' },
+  { value: 'find_right_contact', label: 'Find right contact' }
+] as const;
+
+const outreachLengthOptions = [
+  { value: 'short', label: 'Short' },
+  { value: 'medium', label: 'Medium' }
+] as const;
+
+const outreachToneOptions = [
+  { value: 'direct', label: 'Direct' },
+  { value: 'warm', label: 'Warm' }
+] as const;
+
 type OutreachCopilotAction = (
   previousState: ProspectOutreachState,
   formData: FormData
@@ -96,6 +112,48 @@ export function OutreachCopilotPanel({
 
       <form action={formAction} className="mt-5 flex flex-wrap items-center gap-3">
         <input type="hidden" name="prospectSnapshot" value={payload} />
+        <label className="space-y-2 text-sm">
+          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Goal</div>
+          <select
+            name="outreachGoal"
+            defaultValue="book_call"
+            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+          >
+            {outreachGoalOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-2 text-sm">
+          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Length</div>
+          <select
+            name="outreachLength"
+            defaultValue="short"
+            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+          >
+            {outreachLengthOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="space-y-2 text-sm">
+          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Tone</div>
+          <select
+            name="outreachTone"
+            defaultValue="direct"
+            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+          >
+            {outreachToneOptions.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <button
           type="submit"
           disabled={!enabled || pending}
@@ -104,7 +162,7 @@ export function OutreachCopilotPanel({
           {pending ? 'Generating…' : 'Generate outreach package'}
         </button>
         <p className="text-sm text-black/55">
-          Fit summary, angle, email, DM, follow-ups, call opener, and CRM note.
+          Short first-touch drafts optimized for a reply, with one angle and a clear ask.
         </p>
       </form>
 
