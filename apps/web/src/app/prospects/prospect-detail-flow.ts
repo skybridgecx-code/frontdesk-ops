@@ -38,6 +38,7 @@ export type ProspectDetail = {
   city: string | null;
   state: string | null;
   sourceLabel: string | null;
+  serviceInterest: string | null;
   status: string;
   priority: string | null;
   lastAttemptAt: string | null;

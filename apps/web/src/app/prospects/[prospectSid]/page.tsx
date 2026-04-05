@@ -17,6 +17,9 @@ import {
 } from '../prospect-detail-flow';
 import { buildProspectDetailHref } from '../queue-flow';
 import { buildProspectActivityTimeline } from '../prospect-activity-timeline';
+import { generateProspectOutreachDraftAction } from '../outreach-copilot.server';
+import { getProspectOutreachAvailability } from '../outreach-copilot.server';
+import { OutreachCopilotPanel } from '../outreach-copilot-panel';
 import type { ProspectStatusValue } from '@frontdesk/domain';
 
 export const dynamic = 'force-dynamic';
@@ -93,6 +96,7 @@ export default async function ProspectDetailPage({
   const attemptsResponse = await getAttempts(activeBusiness.id, prospectSid);
   const activityTimeline = buildProspectActivityTimeline(prospect, attemptsResponse.attempts);
   const queueContext = await resolveQueueContext(activeBusiness.id, prospectSid, queueReturnTo);
+  const outreachAvailability = await getProspectOutreachAvailability();
   const title = prospect.contactName || prospect.companyName || prospect.prospectSid;
   const metadataLine = [prospect.prospectSid, activeBusiness.name].filter(Boolean).join(' • ');
   const detailHref = buildProspectDetailHref({
@@ -160,6 +164,14 @@ export default async function ProspectDetailPage({
             {noticeMessage}
           </div>
         ) : null}
+
+        <OutreachCopilotPanel
+          prospect={prospect}
+          attempts={attemptsResponse.attempts}
+          generateOutreachDraft={generateProspectOutreachDraftAction}
+          enabled={outreachAvailability.enabled}
+          unavailableReason={outreachAvailability.unavailableReason}
+        />
 
         <section className="grid gap-6 lg:grid-cols-2">
           <div className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
