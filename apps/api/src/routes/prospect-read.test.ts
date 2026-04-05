@@ -30,6 +30,7 @@ test('prospect list reads expose readState and keep terminal prospects non-actio
           city: 'Austin',
           state: 'TX',
           sourceLabel: 'Web form',
+          serviceInterest: 'Plumbing',
           status: 'READY',
           priority: 'HIGH',
           lastAttemptAt: '2026-04-03T10:00:00.000Z',
@@ -46,6 +47,7 @@ test('prospect list reads expose readState and keep terminal prospects non-actio
           city: null,
           state: null,
           sourceLabel: null,
+          serviceInterest: null,
           status: 'ARCHIVED',
           priority: null,
           lastAttemptAt: null,
@@ -119,6 +121,7 @@ test('prospect detail reads expose lastAttemptAt and readState', async (t) => {
         city: 'Dallas',
         state: 'TX',
         sourceLabel: 'Referral',
+        serviceInterest: 'Water heater replacement',
         status: 'ARCHIVED',
         priority: 'LOW',
         lastAttemptAt: '2026-04-03T08:00:00.000Z',
@@ -144,6 +147,7 @@ test('prospect detail reads expose lastAttemptAt and readState', async (t) => {
     ok: true;
     prospect: {
       lastAttemptAt: string;
+      serviceInterest: string | null;
       readState: {
         isTerminal: boolean;
         hasNextAction: boolean;
@@ -156,6 +160,7 @@ test('prospect detail reads expose lastAttemptAt and readState', async (t) => {
 
   assert.equal(body.ok, true);
   assert.equal(body.prospect.lastAttemptAt, '2026-04-03T08:00:00.000Z');
+  assert.equal(body.prospect.serviceInterest, 'Water heater replacement');
   assert.deepEqual(body.prospect.readState, {
     isTerminal: true,
     hasNextAction: false,

@@ -41,6 +41,9 @@ importers:
       '@frontdesk/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@frontdesk/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
       '@frontdesk/integrations':
         specifier: workspace:*
         version: link:../../packages/integrations
@@ -78,6 +81,12 @@ importers:
 
   apps/web:
     dependencies:
+      '@frontdesk/domain':
+        specifier: workspace:*
+        version: link:../../packages/domain
+      '@frontdesk/integrations':
+        specifier: workspace:*
+        version: link:../../packages/integrations
       next:
         specifier: 16.2.1
         version: 16.2.1(@babel/core@7.29.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
