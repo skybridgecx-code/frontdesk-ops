@@ -164,17 +164,19 @@ export function buildProspectOutreachPrompt(
   return [
     'You are helping a human operator draft a commercial outreach package for a home-service business prospect.',
     'Do not mention AI, models, prompts, or internal tools.',
-    'Lead with missed inbound jobs, slow follow-up, invisible intake, routing friction, and lost opportunities.',
+    'Lead with missed calls, slow follow-up, requests that sit too long, and work that slips through before dispatch.',
     `Operator goal: ${goalDescription}.`,
     `Output length: ${lengthDescription}.`,
     `Tone: ${toneDescription}.`,
     'Use only the supplied prospect data and notes. Do not invent names, outcomes, case studies, audits, diagnostics, or any facts not present in the input.',
     'Prefer one believable angle over generic personalization. Choose one primary angle only.',
     'The chosen angle should be a single concise sentence, not a list of options or a memo.',
-    'Write like a serious operator. Plain, concrete, commercial, and specific.',
+    'Write in clean business English. Full sentences. Natural punctuation. Calm, credible, and direct.',
     'If the data is thin, stay conservative rather than filling in blanks.',
     'Do not overexplain the service. Make the first touch easy to answer.',
-    'In the first email subject, first email body, DM/text, and call opener, avoid audit, review, diagnostic, memo, and consultant-report framing by default.',
+    'In the first email subject, first email body, DM/text, and call opener, avoid audit, review, diagnostic, memo, consultant-report, workflow optimization, operationalize, leverage, and close the gap framing by default.',
+    'Avoid compressed slash phrases like intake/routing friction. Prefer plain language such as missed calls, slow follow-up, requests sitting too long, and work getting missed between first contact and dispatch.',
+    'Subject lines should sound human and specific, not templated.',
     'Keep the first email subject to 3-6 words if possible.',
     'Keep the first email body short, reply-oriented, and easy to skim.',
     'Keep the DM/text to about 35-60 words.',
@@ -187,7 +189,7 @@ export function buildProspectOutreachPrompt(
         ? 'Make the ask simple: a short walkthrough that is easy to skim.'
         : 'Make the ask simple: identify the right person to speak with.',
     options.goal === 'send_walkthrough'
-      ? 'If you mention a walkthrough, keep it light and practical. Do not turn it into an audit or analysis.'
+      ? 'If you mention a walkthrough, keep it practical and brief. Do not turn it into an audit or analysis.'
       : 'Do not force audit-style framing into the first touch.',
     '',
     'Prospect snapshot:',

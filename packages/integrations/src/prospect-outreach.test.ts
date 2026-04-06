@@ -32,7 +32,7 @@ test('prospect outreach prompt is grounded in the supplied prospect data', () =>
   });
 
   assert.match(prompt, /Do not mention AI/i);
-  assert.match(prompt, /missed inbound jobs/i);
+  assert.match(prompt, /missed calls/i);
   assert.match(prompt, /Company: Acme Plumbing/);
   assert.match(prompt, /Service interest: Water heater replacement/);
   assert.match(prompt, /Attempt 1/);
@@ -44,7 +44,9 @@ test('prospect outreach prompt is grounded in the supplied prospect data', () =>
   assert.match(prompt, /chosen angle should be a single concise sentence/i);
   assert.match(prompt, /first email subject to 3-6 words/i);
   assert.match(prompt, /DM\/text to about 35-60 words/i);
-  assert.match(prompt, /avoid audit, review, diagnostic, memo, and consultant-report framing by default/i);
+  assert.match(prompt, /avoid audit, review, diagnostic, memo, consultant-report, workflow optimization, operationalize, leverage, and close the gap framing by default/i);
+  assert.match(prompt, /Avoid compressed slash phrases like intake\/routing friction/i);
+  assert.match(prompt, /Subject lines should sound human and specific, not templated\./i);
   assert.match(prompt, /Do not force audit-style framing into the first touch\./i);
 });
 
@@ -107,7 +109,7 @@ test('walkthrough goal stays light and does not default to audit framing', () =>
 
   assert.match(prompt, /Operator goal: send a short walkthrough and see if they want to review it\./i);
   assert.match(prompt, /Make the ask simple: a short walkthrough that is easy to skim\./i);
-  assert.match(prompt, /If you mention a walkthrough, keep it light and practical\. Do not turn it into an audit or analysis\./i);
+  assert.match(prompt, /If you mention a walkthrough, keep it practical and brief\. Do not turn it into an audit or analysis\./i);
 });
 
 test('prospect outreach draft normalization clamps score and trims content', () => {

@@ -162,7 +162,7 @@ export function OutreachCopilotPanel({
           {pending ? 'Generating…' : 'Generate outreach package'}
         </button>
         <p className="text-sm text-black/55">
-          Short first-touch drafts optimized for a reply, with one angle and a clear ask.
+          Short first-touch drafts in plain business English, with one angle and a clear ask.
         </p>
       </form>
 
