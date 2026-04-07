@@ -17,20 +17,5 @@ services:
       timeout: 5s
       retries: 20
 
-  redis:
-    image: redis:7-alpine
-    container_name: frontdesk-redis
-    restart: unless-stopped
-    ports:
-      - "6380:6379"
-    volumes:
-      - frontdesk_redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
-
 volumes:
   frontdesk_postgres_data:
-  frontdesk_redis_data:

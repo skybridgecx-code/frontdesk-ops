@@ -16,8 +16,6 @@
     "paths": {
       "@frontdesk/domain": ["packages/domain/src/index.ts"],
       "@frontdesk/domain/*": ["packages/domain/src/*"],
-      "@frontdesk/config": ["packages/config/src/index.ts"],
-      "@frontdesk/config/*": ["packages/config/src/*"],
       "@frontdesk/db": ["packages/db/src/index.ts"],
       "@frontdesk/db/*": ["packages/db/src/*"],
       "@frontdesk/ui": ["packages/ui/src/index.ts"],
