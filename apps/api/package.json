@@ -12,9 +12,11 @@
   "dependencies": {
     "@fastify/cors": "^11.1.0",
     "@fastify/formbody": "^8.0.2",
+    "@fastify/helmet": "^13.0.2",
+    "@fastify/rate-limit": "^10.3.0",
     "@fastify/sensible": "^6.0.3",
-    "@frontdesk/domain": "workspace:*",
     "@frontdesk/db": "workspace:*",
+    "@frontdesk/domain": "workspace:*",
     "@frontdesk/integrations": "workspace:*",
     "fastify": "^5.6.1",
     "zod": "^4.1.5"

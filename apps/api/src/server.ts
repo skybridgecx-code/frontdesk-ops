@@ -2,6 +2,8 @@ import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import sensible from '@fastify/sensible';
 import formbody from '@fastify/formbody';
+import helmet from '@fastify/helmet';
+import rateLimit from '@fastify/rate-limit';
 import { registerCoreRoutes } from './routes/core.js';
 import { registerTenantRoutes } from './routes/tenants.js';
 import { registerBusinessRoutes } from './routes/businesses.js';
@@ -12,7 +14,6 @@ import { registerPhoneNumberRoutes } from './routes/phone-numbers.js';
 import { registerPhoneNumberWriteRoutes } from './routes/phone-numbers-write.js';
 import { registerCallRoutes } from './routes/calls.js';
 import { registerCallBulkTriageRoutes } from './routes/call-bulk-triage.js';
-import { registerCallReviewNextRoutes } from './routes/call-review-next.js';
 import { registerCallExtractionRoutes } from './routes/call-extract.js';
 import { registerCallReviewRoutes } from './routes/call-review.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
@@ -28,35 +29,38 @@ import { registerProspectWriteRoutes } from './routes/prospect-write.js';
 import { registerProspectAttemptWriteRoutes } from './routes/prospect-attempts-write.js';
 import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-read.js';
 import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
+import { prisma } from '@frontdesk/db';
 
 export async function buildServer() {
   const app = Fastify({
-    logger: true
+    logger: true,
+    bodyLimit: 1_048_576
   });
+
+  const allowedOrigins = [
+    process.env.FRONTDESK_WEB_URL ?? 'https://frontdesk-ops-web.vercel.app'
+  ];
+  if (process.env.NODE_ENV === 'development') {
+    allowedOrigins.push('http://localhost:3000');
+  }
 
   await app.register(cors, {
-    origin: true
+    origin: allowedOrigins,
+    credentials: true
   });
 
+  await app.register(helmet);
   await app.register(sensible);
   await app.register(formbody);
 
-  await registerCoreRoutes(app);
-  await registerTenantRoutes(app);
-  await registerBusinessRoutes(app);
-  await registerBusinessWriteRoutes(app);
-  await registerBusinessHoursRoutes(app);
-  await registerServiceAreaRoutes(app);
-  await registerPhoneNumberRoutes(app);
-  await registerPhoneNumberWriteRoutes(app);
-  await registerCallBulkTriageRoutes(app);
-  await registerCallReviewNextRoutes(app);
-  await registerCallRoutes(app);
-  await registerCallReviewRoutes(app);
-  await registerCallExtractionRoutes(app);
-  await registerCallTranscriptRoutes(app);
-  await registerCallTriageRoutes(app);
-  await registerCallBackfillRoutes(app);
+  await app.register(rateLimit, {
+    max: 100,
+    timeWindow: '1 minute',
+    allowList: (request) => {
+      return shouldSkipBasicAuth(request.url);
+    }
+  });
+
   app.addHook('onRequest', async (request, reply) => {
     if (shouldSkipBasicAuth(request.url)) {
       return;
@@ -68,6 +72,21 @@ export async function buildServer() {
     }
   });
 
+  await registerCoreRoutes(app);
+  await registerTenantRoutes(app);
+  await registerBusinessRoutes(app);
+  await registerBusinessWriteRoutes(app);
+  await registerBusinessHoursRoutes(app);
+  await registerServiceAreaRoutes(app);
+  await registerPhoneNumberRoutes(app);
+  await registerPhoneNumberWriteRoutes(app);
+  await registerCallBulkTriageRoutes(app);
+  await registerCallRoutes(app);
+  await registerCallReviewRoutes(app);
+  await registerCallExtractionRoutes(app);
+  await registerCallTranscriptRoutes(app);
+  await registerCallTriageRoutes(app);
+  await registerCallBackfillRoutes(app);
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerAgentProfileWriteRoutes(app);

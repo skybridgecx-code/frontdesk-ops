@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { CallStatus, prisma } from '@frontdesk/db';
+import { requireTwilioSignature } from '../lib/twilio-validation.js';
 
 function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof typeof CallStatus] {
   switch (status) {
@@ -35,6 +36,12 @@ function isTerminalStatus(status: typeof CallStatus[keyof typeof CallStatus]) {
 export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
   app.post('/v1/twilio/voice/status', async (request, reply) => {
     const body = (request.body ?? {}) as Record<string, string | undefined>;
+
+    const sigCheck = requireTwilioSignature(request, body);
+    if (!sigCheck.valid) {
+      app.log.warn({ msg: 'Twilio status signature validation failed', error: sigCheck.error });
+      return reply.status(403).send({ ok: false, error: 'Request validation failed' });
+    }
 
     const twilioCallSid = body.CallSid ?? '';
     const rawCallStatus = body.CallStatus;
@@ -88,18 +95,28 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
       data: updateData
     });
 
-    const eventCount = await prisma.callEvent.count({
-      where: { callId: existingCall.id }
-    });
-
-    await prisma.callEvent.create({
-      data: {
-        callId: existingCall.id,
-        type: `twilio.status.${rawCallStatus ?? 'unknown'}`,
-        sequence: eventCount + 1,
-        payloadJson: body
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const eventCount = await prisma.callEvent.count({
+        where: { callId: existingCall.id }
+      });
+      try {
+        await prisma.callEvent.create({
+          data: {
+            callId: existingCall.id,
+            type: `twilio.status.${rawCallStatus ?? 'unknown'}`,
+            sequence: eventCount + 1,
+            payloadJson: body
+          }
+        });
+        break;
+      } catch (error: unknown) {
+        const isUniqueViolation =
+          error instanceof Error &&
+          (error.message.includes('Unique constraint') ||
+            error.message.includes('unique constraint'));
+        if (!isUniqueViolation || attempt === 2) throw error;
       }
-    });
+    }
 
     return {
       ok: true,

@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
+import { requireTwilioSignature } from '../lib/twilio-validation.js';
 
 function escapeXml(value: string) {
   return value
@@ -19,9 +20,18 @@ function twimlConnectStream(input: {
   callSid: string;
   phoneNumberId: string;
   agentProfileId: string | null;
+  internalSecret: string | null;
 }) {
   const base = input.streamBaseUrl.replace(/\/$/, '');
-  const url = `${base}?callSid=${encodeURIComponent(input.callSid)}&phoneNumberId=${encodeURIComponent(input.phoneNumberId)}&agentProfileId=${encodeURIComponent(input.agentProfileId ?? '')}`;
+  const params = new URLSearchParams({
+    callSid: input.callSid,
+    phoneNumberId: input.phoneNumberId,
+    agentProfileId: input.agentProfileId ?? ''
+  });
+  if (input.internalSecret) {
+    params.set('token', input.internalSecret);
+  }
+  const url = `${base}?${params.toString()}`;
 
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect><Stream url="${escapeXml(url)}" /></Connect></Response>`;
 }
@@ -129,6 +139,15 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
   app.post('/v1/twilio/voice/inbound', async (request, reply) => {
     const body = (request.body ?? {}) as Record<string, string | undefined>;
 
+    const sigCheck = requireTwilioSignature(request, body);
+    if (!sigCheck.valid) {
+      app.log.warn({ msg: 'Twilio signature validation failed', error: sigCheck.error });
+      reply.header('Content-Type', 'text/xml; charset=utf-8');
+      return reply.status(403).send(
+        twimlSayAndHangup('Request validation failed.')
+      );
+    }
+
     const twilioCallSid = body.CallSid ?? '';
     const fromE164 = body.From ?? null;
     const toE164 = body.To ?? null;
@@ -217,18 +236,28 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       }
     });
 
-    const existingEventCount = await prisma.callEvent.count({
-      where: { callId: call.id }
-    });
-
-    await prisma.callEvent.create({
-      data: {
-        callId: call.id,
-        type: 'twilio.inbound.received',
-        sequence: existingEventCount + 1,
-        payloadJson: body
+        for (let attempt = 0; attempt < 3; attempt++) {
+      const existingEventCount = await prisma.callEvent.count({
+        where: { callId: call.id }
+      });
+      try {
+        await prisma.callEvent.create({
+          data: {
+            callId: call.id,
+            type: 'twilio.inbound.received',
+            sequence: existingEventCount + 1,
+            payloadJson: body
+          }
+        });
+        break;
+      } catch (error: unknown) {
+        const isUniqueViolation =
+          error instanceof Error &&
+          (error.message.includes('Unique constraint') ||
+            error.message.includes('unique constraint'));
+        if (!isUniqueViolation || attempt === 2) throw error;
       }
-    });
+    }
 
     reply.header('Content-Type', 'text/xml; charset=utf-8');
 
@@ -237,12 +266,15 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
         process.env.PUBLIC_REALTIME_WS_BASE_URL ??
         process.env.FRONTDESK_REALTIME_WS_BASE_URL ?? 'ws://127.0.0.1:4001/ws/media-stream';
 
+      const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET ?? null;
+
       return reply.send(
         twimlConnectStream({
           streamBaseUrl,
           callSid: twilioCallSid,
           phoneNumberId: call.phoneNumberId,
-          agentProfileId: call.agentProfileId ?? null
+          agentProfileId: call.agentProfileId ?? null,
+          internalSecret
         })
       );
     }

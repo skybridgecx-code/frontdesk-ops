@@ -8,8 +8,8 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
-    "format": "prettier --write ."
-  },
+    "format": "prettier --write .",
+    "test": "turbo run test"  },
   "devDependencies": {
     "@types/node": "^24.3.0",
     "eslint": "^9.34.0",

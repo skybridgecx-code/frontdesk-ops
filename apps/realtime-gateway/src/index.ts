@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'node:crypto';
 import Fastify from 'fastify';
 import websocket from '@fastify/websocket';
 import { prisma } from '@frontdesk/db';
@@ -113,6 +114,15 @@ app.get(
     const queryCallSid = url.searchParams.get('callSid');
     const phoneNumberId = url.searchParams.get('phoneNumberId');
     const agentProfileId = url.searchParams.get('agentProfileId');
+    const token = url.searchParams.get('token');
+    const expectedSecret = process.env.FRONTDESK_INTERNAL_API_SECRET;
+    if (expectedSecret) {
+      if (!token || !timingSafeEqual(Buffer.from(token), Buffer.from(expectedSecret))) {
+        app.log.warn({ msg: 'Unauthorized WebSocket connection attempt', callSid: queryCallSid });
+        socket.close(4401, 'Unauthorized');
+        return;
+      }
+    }
 
     let callId: string | null = null;
     let sequence = 0;
@@ -173,20 +183,33 @@ app.get(
       return { callId, sequence };
     }
 
-    async function persistEvent(type: string, payloadJson: JsonRecord) {
+        async function persistEvent(type: string, payloadJson: JsonRecord) {
       const context = await ensureCallContext();
       if (!context) return;
 
-      sequence += 1;
-
-      await prisma.callEvent.create({
-        data: {
-          callId: context.callId,
-          type,
-          sequence,
-          payloadJson: payloadJson as Prisma.InputJsonValue
+      for (let attempt = 0; attempt < 3; attempt++) {
+        const count = await prisma.callEvent.count({
+          where: { callId: context.callId }
+        });
+        try {
+          await prisma.callEvent.create({
+            data: {
+              callId: context.callId,
+              type,
+              sequence: count + 1,
+              payloadJson: payloadJson as Prisma.InputJsonValue
+            }
+          });
+          sequence = count + 1;
+          return;
+        } catch (error: unknown) {
+          const isUniqueViolation =
+            error instanceof Error &&
+            (error.message.includes('Unique constraint') ||
+              error.message.includes('unique constraint'));
+          if (!isUniqueViolation || attempt === 2) throw error;
         }
-      });
+      }
     }
 
     app.log.info({
@@ -456,10 +479,18 @@ app.get(
             enqueue(async () => {
               const context = await ensureCallContext();
 
-              if (context && transcript) {
+                            if (context && transcript) {
+                const existing = await prisma.call.findUnique({
+                  where: { id: context.callId },
+                  select: { callerTranscript: true }
+                });
                 await prisma.call.update({
                   where: { id: context.callId },
-                  data: { callerTranscript: transcript }
+                  data: {
+                    callerTranscript: existing?.callerTranscript
+                      ? `${existing.callerTranscript}\n${transcript}`
+                      : transcript
+                  }
                 });
               }
 
@@ -532,10 +563,18 @@ app.get(
           enqueue(async () => {
             const context = await ensureCallContext();
 
-            if (context && transcript) {
+                        if (context && transcript) {
+              const existing = await prisma.call.findUnique({
+                where: { id: context.callId },
+                select: { assistantTranscript: true }
+              });
               await prisma.call.update({
                 where: { id: context.callId },
-                data: { assistantTranscript: transcript }
+                data: {
+                  assistantTranscript: existing?.assistantTranscript
+                    ? `${existing.assistantTranscript}\n${transcript}`
+                    : transcript
+                }
               });
             }
 
@@ -771,15 +810,7 @@ app.get(
           const media = isRecord(message.media) ? message.media : null;
           const payload = media ? getString(media, 'payload') : null;
 
-          await persistEvent('twilio.media.media', {
-            callSid: queryCallSid,
-            streamSid: getString(message, 'streamSid'),
-            track: media ? getString(media, 'track') : null,
-            chunk: media ? getNumberOrString(media, 'chunk') : null,
-            timestamp: media ? getNumberOrString(media, 'timestamp') : null,
-            payloadSize: payload?.length ?? 0,
-            size
-          });
+      
 
           app.log.info({
             msg: 'media stream media received',
@@ -806,14 +837,6 @@ app.get(
                 })
               );
 
-              await persistEvent('openai.audio.append.sent', {
-                callSid: queryCallSid,
-                streamSid,
-                chunk,
-                track,
-                payloadSize: payload.length,
-                source: 'live'
-              });
 
               app.log.info({
                 msg: 'openai audio append sent',
@@ -831,13 +854,6 @@ app.get(
                 track
               });
 
-              await persistEvent('openai.audio.append.queued', {
-                callSid: queryCallSid,
-                streamSid,
-                chunk,
-                track,
-                payloadSize: payload.length
-              });
 
               app.log.info({
                 msg: 'openai audio append queued',
@@ -995,4 +1011,12 @@ try {
 } catch (error) {
   app.log.error(error);
   process.exit(1);
+} 
+for (const signal of ['SIGTERM', 'SIGINT'] as const) {
+  process.on(signal, async () => {
+    app.log.info({ msg: `Received ${signal}, shutting down realtime gateway` });
+    await app.close();
+    await prisma.$disconnect();
+    process.exit(0);
+  });
 }

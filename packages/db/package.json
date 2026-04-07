@@ -19,12 +19,11 @@
     "prisma:migrate:deploy": "prisma migrate deploy"
   },
   "dependencies": {
-    "@prisma/adapter-pg": "latest",
-    "@prisma/client": "latest",
+    "@prisma/adapter-pg": "^6.9.0",
+    "@prisma/client": "^6.9.0",
     "dotenv": "^16.6.1",
     "pg": "^8.16.3"
   },
   "devDependencies": {
-    "prisma": "latest"
-  }
+    "prisma": "^6.9.0"  }
 }

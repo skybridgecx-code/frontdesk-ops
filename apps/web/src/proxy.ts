@@ -1,6 +1,15 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+function constantTimeEqual(a: string, b: string): boolean {
+  const maxLen = Math.max(a.length, b.length);
+  let result = a.length ^ b.length;
+  for (let i = 0; i < maxLen; i++) {
+    result |= (a.charCodeAt(i) || 0) ^ (b.charCodeAt(i) || 0);
+  }
+  return result === 0;
+}
+
 function unauthorized() {
   return new NextResponse('Authentication required', {
     status: 401,
@@ -36,7 +45,7 @@ export function proxy(request: NextRequest) {
     const user = separator >= 0 ? decoded.slice(0, separator) : '';
     const pass = separator >= 0 ? decoded.slice(separator + 1) : '';
 
-    if (user !== expectedUser || pass !== expectedPass) {
+    if (!constantTimeEqual(user, expectedUser) || !constantTimeEqual(pass, expectedPass)) {
       return unauthorized();
     }
 
