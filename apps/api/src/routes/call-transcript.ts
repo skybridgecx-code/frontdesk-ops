@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '@frontdesk/db';
+import { callSidParams } from '../lib/params.js';
 
 const updateTranscriptBodySchema = z.object({
   callerTranscript: z.string().nullable().optional(),
@@ -9,7 +10,7 @@ const updateTranscriptBodySchema = z.object({
 
 export async function registerCallTranscriptRoutes(app: FastifyInstance) {
   app.patch('/v1/calls/:callSid/transcript', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
     const parsed = updateTranscriptBodySchema.safeParse(request.body);
 
     if (!parsed.success) {

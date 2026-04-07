@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { prospectParams } from '../lib/params.js';
 import { ProspectPriority, ProspectStatus, prisma } from '@frontdesk/db';
 import { isProspectTerminalStatus, normalizeProspectNextActionAt } from '@frontdesk/domain';
 
@@ -37,10 +38,7 @@ export function buildProspectWriteUpdateData(input: {
 
 export async function registerProspectWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/businesses/:businessId/prospects/:prospectSid', async (request, reply) => {
-    const { businessId, prospectSid } = request.params as {
-      businessId: string;
-      prospectSid: string;
-    };
+        const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const parsed = updateProspectBodySchema.safeParse(request.body);
 

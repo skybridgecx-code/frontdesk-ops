@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { businessIdParams } from '../lib/params.js';
 import { ProspectPriority, ProspectStatus } from '@frontdesk/db';
 import { BusinessNotFoundError, importProspectsForBusiness } from '../lib/prospect-import.js';
 
@@ -47,7 +48,7 @@ function trimImportValue(value: unknown): unknown {
 
 export async function registerProspectImportRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/import', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = importProspectsBodySchema.safeParse(trimImportValue(request.body));
 
     if (!parsed.success) {

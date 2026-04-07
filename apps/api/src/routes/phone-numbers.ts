@@ -1,9 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
+import { phoneNumberIdParams } from '../lib/params.js';
 
 export async function registerPhoneNumberRoutes(app: FastifyInstance) {
   app.get('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
-    const { phoneNumberId } = request.params as { phoneNumberId: string };
+    const { phoneNumberId } = phoneNumberIdParams.parse(request.params);
 
     const phoneNumber = await prisma.phoneNumber.findUnique({
       where: { id: phoneNumberId },

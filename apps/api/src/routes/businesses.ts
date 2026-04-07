@@ -1,9 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
+import { businessIdParams } from '../lib/params.js';
 
 export async function registerBusinessRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
 
     const business = await prisma.business.findUnique({
       where: {

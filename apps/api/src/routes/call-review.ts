@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma, CallReviewStatus } from '@frontdesk/db';
+import { callSidParams } from '../lib/params.js';
 
 const updateCallBodySchema = z
   .object({
@@ -18,7 +19,7 @@ const updateCallBodySchema = z
 // PATCH /v1/calls/:callSid
 export async function registerCallReviewRoutes(app: FastifyInstance) {
   app.patch('/v1/calls/:callSid', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
     const parsed = updateCallBodySchema.safeParse(request.body);
 
     if (!parsed.success) {

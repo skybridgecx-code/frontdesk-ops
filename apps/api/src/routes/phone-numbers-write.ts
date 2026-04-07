@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { PhoneRoutingMode, prisma } from '@frontdesk/db';
+import { phoneNumberIdParams } from '../lib/params.js';
 
 const updatePhoneNumberBodySchema = z.object({
   label: z.string().min(1).max(120).optional(),
@@ -13,7 +14,7 @@ const updatePhoneNumberBodySchema = z.object({
 
 export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
-    const { phoneNumberId } = request.params as { phoneNumberId: string };
+    const { phoneNumberId } = phoneNumberIdParams.parse(request.params);
     const parsed = updatePhoneNumberBodySchema.safeParse(request.body);
 
     if (!parsed.success) {

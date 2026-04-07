@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
-
+import { callSidParams } from '../lib/params.js';
 const callListSelect = {
   twilioCallSid: true,
   twilioStreamSid: true,
@@ -173,7 +173,7 @@ export async function registerCallRoutes(app: FastifyInstance) {
   });
 
   app.get('/v1/calls/:callSid', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
 
     const call = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },

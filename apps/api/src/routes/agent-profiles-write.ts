@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { AgentChannel, prisma } from '@frontdesk/db';
+import { businessIdParams, agentProfileIdParams } from '../lib/params.js';
 
 const createAgentProfileBodySchema = z.object({
   name: z.string().min(1).max(120),
@@ -22,7 +23,7 @@ const updateAgentProfileBodySchema = z.object({
 
 export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/agent-profiles', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = createAgentProfileBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -70,7 +71,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
   });
 
   app.patch('/v1/agent-profiles/:agentProfileId', async (request, reply) => {
-    const { agentProfileId } = request.params as { agentProfileId: string };
+    const { agentProfileId } = agentProfileIdParams.parse(request.params);
     const parsed = updateAgentProfileBodySchema.safeParse(request.body);
 
     if (!parsed.success) {

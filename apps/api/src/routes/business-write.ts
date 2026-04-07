@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { BusinessVertical, prisma } from '@frontdesk/db';
+import { businessIdParams } from '../lib/params.js';
 
 const updateBusinessBodySchema = z.object({
   name: z.string().min(1).max(120).optional(),
@@ -23,7 +24,7 @@ const createLocationBodySchema = z.object({
 
 export async function registerBusinessWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/businesses/:businessId', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = updateBusinessBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -62,7 +63,7 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
   });
 
   app.post('/v1/businesses/:businessId/locations', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = createLocationBodySchema.safeParse(request.body);
 
     if (!parsed.success) {

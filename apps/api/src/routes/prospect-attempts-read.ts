@@ -1,12 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
+import { prospectParams } from '../lib/params.js';
 
 export async function registerProspectAttemptReadRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/prospects/:prospectSid/attempts', async (request, reply) => {
-    const { businessId, prospectSid } = request.params as {
-      businessId: string;
-      prospectSid: string;
-    };
+        const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const prospect = await prisma.prospect.findFirst({
       where: {

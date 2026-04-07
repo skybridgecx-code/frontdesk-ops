@@ -1,9 +1,10 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallTriageStatus } from '@frontdesk/db';
+import { callSidParams } from '../lib/params.js';
 
 export async function registerCallTriageRoutes(app: FastifyInstance) {
   app.post('/v1/calls/:callSid/mark-contacted', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+        const { callSid } = callSidParams.parse(request.params);
 
     const existing = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },
@@ -35,7 +36,7 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
   });
 
   app.post('/v1/calls/:callSid/archive', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+        const { callSid } = callSidParams.parse(request.params);
 
     const existing = await prisma.call.findUnique({
       where: { twilioCallSid: callSid },

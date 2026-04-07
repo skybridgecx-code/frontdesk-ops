@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
+import { prospectParams } from '../lib/params.js';
 import {
+  
   ProspectAttemptChannel,
   ProspectAttemptOutcome,
   ProspectStatus,
@@ -29,10 +31,7 @@ export function buildProspectAttemptUpdateData(input: {
 
 export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/:prospectSid/attempts', async (request, reply) => {
-    const { businessId, prospectSid } = request.params as {
-      businessId: string;
-      prospectSid: string;
-    };
+        const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const parsed = createProspectAttemptBodySchema.safeParse(request.body);
 
