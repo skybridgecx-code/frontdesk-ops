@@ -1,6 +1,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { getCurrentTenant, type TenantContext } from '@/lib/tenant';
 import {
   buildProspectDetailHref,
   buildProspectsRequestUrl,
@@ -20,13 +21,7 @@ import {
 
 export type BootstrapResponse = {
   ok: true;
-  tenant: {
-    id: string;
-    businesses: Array<{
-      id: string;
-      name: string;
-    }>;
-  } | null;
+  tenant: TenantContext | null;
 };
 
 export type ProspectDetail = {
@@ -167,17 +162,11 @@ export function getProspectDetailNotice(notice: string | undefined) {
   }
 }
 
-export async function getBootstrap() {
-  const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
-
-  if (!res.ok) {
-    return null;
-  }
-
-  return (await res.json()) as BootstrapResponse;
+export async function getBootstrap(): Promise<BootstrapResponse> {
+  return {
+    ok: true,
+    tenant: await getCurrentTenant()
+  };
 }
 
 export async function getProspect(businessId: string, prospectSid: string) {

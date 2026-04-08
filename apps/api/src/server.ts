@@ -21,6 +21,8 @@ import { registerCallTriageRoutes } from './routes/call-triage.js';
 import { registerCallBackfillRoutes } from './routes/call-backfill.js';
 import { enforceBasicAuth } from './lib/basic-auth.js';
 import { enforceClerkAuth, shouldSkipDashboardAuth } from './lib/clerk-auth.js';
+import { resolveTenant } from './lib/tenant-resolver.js';
+import { requireActiveSubscription } from './lib/subscription-guard.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
@@ -32,6 +34,31 @@ import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-re
 import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
 import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
+
+function getPathname(url: string) {
+  return url.split('?')[0] ?? url;
+}
+
+function shouldSkipTenantResolver(url: string) {
+  const pathname = getPathname(url);
+
+  return (
+    pathname === '/health' ||
+    pathname === '/v1/ping' ||
+    pathname.startsWith('/v1/twilio/') ||
+    pathname.startsWith('/v1/stripe/')
+  );
+}
+
+function shouldSkipSubscriptionGuard(url: string) {
+  const pathname = getPathname(url);
+
+  return (
+    shouldSkipTenantResolver(pathname) ||
+    pathname === '/v1/bootstrap' ||
+    pathname.startsWith('/v1/billing/')
+  );
+}
 
 export async function buildServer() {
   const app = Fastify({
@@ -78,6 +105,30 @@ export async function buildServer() {
 
     const ok = enforceBasicAuth(request, reply);
     if (!ok) {
+      return reply;
+    }
+  });
+
+  app.addHook('preHandler', async (request, reply) => {
+    if (!process.env.CLERK_SECRET_KEY) {
+      return;
+    }
+
+    if (shouldSkipTenantResolver(request.url)) {
+      return;
+    }
+
+    const tenantResolved = await resolveTenant(request, reply);
+    if (!tenantResolved) {
+      return reply;
+    }
+
+    if (shouldSkipSubscriptionGuard(request.url)) {
+      return;
+    }
+
+    const hasSubscription = await requireActiveSubscription(request, reply);
+    if (!hasSubscription) {
       return reply;
     }
   });

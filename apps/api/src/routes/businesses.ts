@@ -6,9 +6,10 @@ export async function registerBusinessRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId', async (request, reply) => {
     const { businessId } = businessIdParams.parse(request.params);
 
-    const business = await prisma.business.findUnique({
+    const business = await prisma.business.findFirst({
       where: {
-        id: businessId
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true,

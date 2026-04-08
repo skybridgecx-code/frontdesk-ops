@@ -2,7 +2,6 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prospectParams } from '../lib/params.js';
 import {
-  
   ProspectAttemptChannel,
   ProspectAttemptOutcome,
   ProspectStatus,
@@ -31,7 +30,7 @@ export function buildProspectAttemptUpdateData(input: {
 
 export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/prospects/:prospectSid/attempts', async (request, reply) => {
-        const { businessId, prospectSid } = prospectParams.parse(request.params);
+    const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const parsed = createProspectAttemptBodySchema.safeParse(request.body);
 
@@ -45,7 +44,8 @@ export async function registerProspectAttemptWriteRoutes(app: FastifyInstance) {
     const existing = await prisma.prospect.findFirst({
       where: {
         businessId,
-        prospectSid
+        prospectSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true,

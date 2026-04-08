@@ -4,10 +4,13 @@ import { callSidParams } from '../lib/params.js';
 
 export async function registerCallTriageRoutes(app: FastifyInstance) {
   app.post('/v1/calls/:callSid/mark-contacted', async (request, reply) => {
-        const { callSid } = callSidParams.parse(request.params);
+    const { callSid } = callSidParams.parse(request.params);
 
-    const existing = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const existing = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -16,7 +19,7 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
     }
 
     const call = await prisma.call.update({
-      where: { twilioCallSid: callSid },
+      where: { id: existing.id },
       data: {
         triageStatus: CallTriageStatus.CONTACTED,
         contactedAt: new Date()
@@ -36,10 +39,13 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
   });
 
   app.post('/v1/calls/:callSid/archive', async (request, reply) => {
-        const { callSid } = callSidParams.parse(request.params);
+    const { callSid } = callSidParams.parse(request.params);
 
-    const existing = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const existing = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -48,7 +54,7 @@ export async function registerCallTriageRoutes(app: FastifyInstance) {
     }
 
     const call = await prisma.call.update({
-      where: { twilioCallSid: callSid },
+      where: { id: existing.id },
       data: {
         triageStatus: CallTriageStatus.ARCHIVED,
         archivedAt: new Date()

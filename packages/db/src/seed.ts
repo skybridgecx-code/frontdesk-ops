@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 /**
  * Demo seed script - creates a complete demo tenant with:
  * - Tenant (Demo HVAC) + Owner user + Membership
@@ -42,6 +43,28 @@ async function main() {
       update: { role: MembershipRole.OWNER },
       create: { tenantId: tenant.id, userId: user.id, role: MembershipRole.OWNER }
     });
+
+    await tx.$executeRaw`
+      INSERT INTO "TenantUser" (
+        "id",
+        "clerkUserId",
+        "tenantId",
+        "role",
+        "createdAt",
+        "updatedAt"
+      ) VALUES (
+        ${randomUUID()},
+        'user_demo',
+        ${tenant.id},
+        'owner',
+        CURRENT_TIMESTAMP,
+        CURRENT_TIMESTAMP
+      )
+      ON CONFLICT ("clerkUserId") DO UPDATE SET
+        "tenantId" = EXCLUDED."tenantId",
+        "role" = EXCLUDED."role",
+        "updatedAt" = CURRENT_TIMESTAMP
+    `;
 
     const existingBusiness = await tx.business.findFirst({
       where: { tenantId: tenant.id, slug: 'patriot-hvac' }

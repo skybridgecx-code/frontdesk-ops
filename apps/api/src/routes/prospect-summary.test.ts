@@ -36,7 +36,7 @@ describe('prospect summary routes', () => {
 
     Object.defineProperty(prisma, 'business', {
       configurable: true,
-      value: { findUnique: async () => ({ id: 'biz_123' }) },
+      value: { findFirst: async () => ({ id: 'biz_123' }) },
     });
     Object.defineProperty(prisma, 'prospect', {
       configurable: true,

@@ -38,7 +38,7 @@ export function buildProspectWriteUpdateData(input: {
 
 export async function registerProspectWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/businesses/:businessId/prospects/:prospectSid', async (request, reply) => {
-        const { businessId, prospectSid } = prospectParams.parse(request.params);
+    const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const parsed = updateProspectBodySchema.safeParse(request.body);
 
@@ -52,7 +52,8 @@ export async function registerProspectWriteRoutes(app: FastifyInstance) {
     const existing = await prisma.prospect.findFirst({
       where: {
         businessId,
-        prospectSid
+        prospectSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true,

@@ -27,6 +27,7 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
     const prospects = await prisma.prospect.findMany({
       where: {
         businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {}),
         ...(parsed.data.status ? { status: parsed.data.status } : {})
       },
       orderBy: [
@@ -74,12 +75,13 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
   });
 
   app.get('/v1/businesses/:businessId/prospects/:prospectSid', async (request, reply) => {
-        const { businessId, prospectSid } = prospectParams.parse(request.params);
+    const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const prospect = await prisma.prospect.findFirst({
       where: {
         businessId,
-        prospectSid
+        prospectSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         prospectSid: true,

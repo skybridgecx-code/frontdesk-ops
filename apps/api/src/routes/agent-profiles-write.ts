@@ -30,8 +30,11 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true, tenantId: true }
     });
 
@@ -78,8 +81,11 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.agentProfile.findUnique({
-      where: { id: agentProfileId },
+    const existing = await prisma.agentProfile.findFirst({
+      where: {
+        id: agentProfileId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -88,7 +94,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
     }
 
     const agentProfile = await prisma.agentProfile.update({
-      where: { id: agentProfileId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,

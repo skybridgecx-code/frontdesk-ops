@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { getCurrentTenant } from '@/lib/tenant';
 import { Card } from '../components/card';
 import { StatCard } from '../components/stat-card';
 import { StatusBadge } from '../components/status-badge';
@@ -10,17 +11,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
-
-type BootstrapResponse = {
-  ok: true;
-  tenant: {
-    id: string;
-    businesses: Array<{
-      id: string;
-      name: string;
-    }>;
-  } | null;
-};
 
 type CallRow = {
   twilioCallSid: string;
@@ -48,19 +38,6 @@ type ProspectSummaryResponse = {
     new: number;
   };
 };
-
-async function getBootstrap() {
-  const response = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return (await response.json()) as BootstrapResponse;
-}
 
 async function getCalls() {
   const response = await fetch(`${getApiBaseUrl()}/v1/calls?limit=50&page=1`, {
@@ -141,8 +118,8 @@ function AvgDuration({ seconds }: { seconds: number }) {
 }
 
 export default async function DashboardOverviewPage() {
-  const [bootstrap, callsData, callSummary] = await Promise.all([getBootstrap(), getCalls(), getCallSummary()]);
-  const businessId = bootstrap?.tenant?.businesses[0]?.id ?? null;
+  const [tenant, callsData, callSummary] = await Promise.all([getCurrentTenant(), getCalls(), getCallSummary()]);
+  const businessId = tenant?.businesses[0]?.id ?? null;
   const prospectsSummary = businessId ? await getProspectSummary(businessId) : null;
   const calls = callsData?.calls ?? [];
   const callsToday = calls.filter((call) => isToday(call.startedAt));

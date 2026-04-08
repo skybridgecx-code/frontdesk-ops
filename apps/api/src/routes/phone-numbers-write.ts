@@ -21,8 +21,11 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existingPhoneNumber = await prisma.phoneNumber.findUnique({
-      where: { id: phoneNumberId },
+    const existingPhoneNumber = await prisma.phoneNumber.findFirst({
+      where: {
+        id: phoneNumberId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: {
         id: true,
         businessId: true,
@@ -35,8 +38,11 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     if (parsed.data.primaryAgentProfileId) {
-      const primaryAgent = await prisma.agentProfile.findUnique({
-        where: { id: parsed.data.primaryAgentProfileId },
+      const primaryAgent = await prisma.agentProfile.findFirst({
+        where: {
+          id: parsed.data.primaryAgentProfileId,
+          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+        },
         select: { id: true, businessId: true, tenantId: true }
       });
 
@@ -56,8 +62,11 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     if (parsed.data.afterHoursAgentProfileId) {
-      const afterHoursAgent = await prisma.agentProfile.findUnique({
-        where: { id: parsed.data.afterHoursAgentProfileId },
+      const afterHoursAgent = await prisma.agentProfile.findFirst({
+        where: {
+          id: parsed.data.afterHoursAgentProfileId,
+          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+        },
         select: { id: true, businessId: true, tenantId: true }
       });
 
@@ -77,7 +86,7 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     const phoneNumber = await prisma.phoneNumber.update({
-      where: { id: phoneNumberId },
+      where: { id: existingPhoneNumber.id },
       data: parsed.data,
       select: {
         id: true,

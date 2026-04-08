@@ -16,7 +16,6 @@ const updateCallBodySchema = z
   })
   .strict();
 
-// PATCH /v1/calls/:callSid
 export async function registerCallReviewRoutes(app: FastifyInstance) {
   app.patch('/v1/calls/:callSid', async (request, reply) => {
     const { callSid } = callSidParams.parse(request.params);
@@ -36,8 +35,11 @@ export async function registerCallReviewRoutes(app: FastifyInstance) {
       });
     }
 
-    const existing = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const existing = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -50,7 +52,7 @@ export async function registerCallReviewRoutes(app: FastifyInstance) {
       parsed.data.reviewStatus === CallReviewStatus.NEEDS_REVIEW;
 
     const call = await prisma.call.update({
-      where: { twilioCallSid: callSid },
+      where: { id: existing.id },
       data: {
         leadName: parsed.data.leadName,
         leadPhone: parsed.data.leadPhone,

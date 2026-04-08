@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import Stripe from 'stripe';
 import { z } from 'zod';
 import { getSubscriptionByTenantId } from '../lib/subscription-store.js';
@@ -39,6 +39,25 @@ function formatBillingStatus(status: string) {
   return status.toLowerCase();
 }
 
+function enforceTenantMatch(
+  request: FastifyRequest,
+  reply: FastifyReply,
+  tenantId: string
+) {
+  if (!request.tenantId) {
+    return true;
+  }
+
+  if (request.tenantId !== tenantId) {
+    reply.status(403).send({
+      error: 'Forbidden'
+    });
+    return false;
+  }
+
+  return true;
+}
+
 export async function registerBillingRoutes(app: FastifyInstance) {
   app.post('/v1/billing/create-checkout-session', async (request, reply) => {
     const parsed = tenantBodySchema.safeParse(request.body);
@@ -48,6 +67,10 @@ export async function registerBillingRoutes(app: FastifyInstance) {
         ok: false,
         error: parsed.error.flatten()
       });
+    }
+
+    if (!enforceTenantMatch(request, reply, parsed.data.tenantId)) {
+      return reply;
     }
 
     const stripe = getStripeClient();
@@ -104,6 +127,10 @@ export async function registerBillingRoutes(app: FastifyInstance) {
       });
     }
 
+    if (!enforceTenantMatch(request, reply, parsed.data.tenantId)) {
+      return reply;
+    }
+
     const stripe = getStripeClient();
 
     if (!stripe) {
@@ -140,6 +167,10 @@ export async function registerBillingRoutes(app: FastifyInstance) {
         ok: false,
         error: parsed.error.flatten()
       });
+    }
+
+    if (!enforceTenantMatch(request, reply, parsed.data.tenantId)) {
+      return reply;
     }
 
     const subscription = await getSubscriptionByTenantId(parsed.data.tenantId);

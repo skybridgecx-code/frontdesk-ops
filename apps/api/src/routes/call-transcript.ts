@@ -20,8 +20,11 @@ export async function registerCallTranscriptRoutes(app: FastifyInstance) {
       });
     }
 
-    const existing = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const existing = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -30,7 +33,7 @@ export async function registerCallTranscriptRoutes(app: FastifyInstance) {
     }
 
     const call = await prisma.call.update({
-      where: { twilioCallSid: callSid },
+      where: { id: existing.id },
       data: {
         callerTranscript:
           parsed.data.callerTranscript === undefined

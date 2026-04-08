@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { businessIdParams } from '../lib/params.js';
-import { ProspectPriority, ProspectStatus } from '@frontdesk/db';
+import { prisma, ProspectPriority, ProspectStatus } from '@frontdesk/db';
 import { BusinessNotFoundError, importProspectsForBusiness } from '../lib/prospect-import.js';
 
 const importProspectItemSchema = z
@@ -56,6 +56,20 @@ export async function registerProspectImportRoutes(app: FastifyInstance) {
         ok: false,
         error: parsed.error.flatten()
       });
+    }
+
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
+      select: {
+        id: true
+      }
+    });
+
+    if (!business) {
+      return reply.notFound(`Business not found for id=${businessId}`);
     }
 
     try {

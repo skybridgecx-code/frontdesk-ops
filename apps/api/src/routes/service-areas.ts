@@ -21,8 +21,11 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/service-areas', async (request, reply) => {
     const { businessId } = businessIdParams.parse(request.params);
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -57,8 +60,11 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -99,8 +105,11 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.serviceArea.findUnique({
-      where: { id: serviceAreaId },
+    const existing = await prisma.serviceArea.findFirst({
+      where: {
+        id: serviceAreaId,
+        ...(request.tenantId ? { business: { tenantId: request.tenantId } } : {})
+      },
       select: { id: true }
     });
 
@@ -109,7 +118,7 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
     }
 
     const serviceArea = await prisma.serviceArea.update({
-      where: { id: serviceAreaId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,

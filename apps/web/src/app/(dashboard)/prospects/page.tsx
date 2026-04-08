@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { getCurrentTenant } from '@/lib/tenant';
 import { Card } from '../components/card';
 import { EmptyState } from '../components/empty-state';
 import { SearchInput } from '../components/search-input';
@@ -10,17 +11,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
-
-type BootstrapResponse = {
-  ok: true;
-  tenant: {
-    id: string;
-    businesses: Array<{
-      id: string;
-      name: string;
-    }>;
-  } | null;
-};
 
 type ProspectRow = {
   prospectSid: string;
@@ -83,19 +73,6 @@ function buildProspectsHref(status: string, q: string) {
   return query ? `/prospects?${query}` : '/prospects';
 }
 
-async function getBootstrap() {
-  const response = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return (await response.json()) as BootstrapResponse;
-}
-
 async function getProspects(businessId: string) {
   const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects?limit=200`, {
     cache: 'no-store',
@@ -141,8 +118,8 @@ export default async function ProspectsPage({
   const resolvedSearchParams = await searchParams;
   const search = normalizeText(resolvedSearchParams.q);
   const statusFilter = normalizeText(resolvedSearchParams.status) || 'all';
-  const bootstrap = await getBootstrap();
-  const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
+  const tenant = await getCurrentTenant();
+  const activeBusiness = tenant?.businesses[0] ?? null;
 
   if (!activeBusiness) {
     return (

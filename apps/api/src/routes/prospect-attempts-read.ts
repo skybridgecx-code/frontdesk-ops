@@ -4,12 +4,13 @@ import { prospectParams } from '../lib/params.js';
 
 export async function registerProspectAttemptReadRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/prospects/:prospectSid/attempts', async (request, reply) => {
-        const { businessId, prospectSid } = prospectParams.parse(request.params);
+    const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const prospect = await prisma.prospect.findFirst({
       where: {
         businessId,
-        prospectSid
+        prospectSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true

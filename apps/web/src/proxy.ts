@@ -9,12 +9,23 @@ const isPublicRoute = createRouteMatcher([
   '/sign-up(.*)'
 ]);
 
+function nextWithPathHeader(request: NextRequest) {
+  const requestHeaders = new Headers(request.headers);
+  requestHeaders.set('x-skybridge-pathname', request.nextUrl.pathname);
+
+  return NextResponse.next({
+    request: {
+      headers: requestHeaders
+    }
+  });
+}
+
 const clerkProxy = clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
 
-  return NextResponse.next();
+  return nextWithPathHeader(request);
 });
 
 function constantTimeEqual(a: string, b: string): boolean {
@@ -44,14 +55,14 @@ function shouldProtectWithBasicAuth(pathname: string) {
   );
 }
 
-export async function proxy(request: NextRequest, event: import("next/server").NextFetchEvent) {
+export async function proxy(request: NextRequest, event: import('next/server').NextFetchEvent) {
   if (process.env.CLERK_SECRET_KEY) {
     return clerkProxy(request, event);
   }
 
   const pathname = new URL(request.url).pathname;
   if (!shouldProtectWithBasicAuth(pathname)) {
-    return NextResponse.next();
+    return nextWithPathHeader(request);
   }
 
   const required = process.env.FRONTDESK_REQUIRE_BASIC_AUTH === 'true';
@@ -59,7 +70,7 @@ export async function proxy(request: NextRequest, event: import("next/server").N
   const expectedPass = process.env.FRONTDESK_BASIC_AUTH_PASS;
 
   if (!required) {
-    return NextResponse.next();
+    return nextWithPathHeader(request);
   }
 
   if (!expectedUser || !expectedPass) {
@@ -83,12 +94,12 @@ export async function proxy(request: NextRequest, event: import("next/server").N
       return unauthorized();
     }
 
-    return NextResponse.next();
+    return nextWithPathHeader(request);
   } catch {
     return unauthorized();
   }
 }
 
 export const config = {
-  matcher: ['/((?!_next|.*\\.\\..*).*)', '/(api|trpc)(.*)']
+  matcher: ['/((?!_next|.*\.\..*).*)', '/(api|trpc)(.*)']
 };

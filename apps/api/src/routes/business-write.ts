@@ -31,8 +31,11 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.business.findUnique({
-      where: { id: businessId },
+    const existing = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -41,7 +44,7 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
     }
 
     const business = await prisma.business.update({
-      where: { id: businessId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,
@@ -70,8 +73,11 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existingBusiness = await prisma.business.findUnique({
-      where: { id: businessId },
+    const existingBusiness = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 

@@ -6,8 +6,11 @@ export async function registerPhoneNumberRoutes(app: FastifyInstance) {
   app.get('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
     const { phoneNumberId } = phoneNumberIdParams.parse(request.params);
 
-    const phoneNumber = await prisma.phoneNumber.findUnique({
-      where: { id: phoneNumberId },
+    const phoneNumber = await prisma.phoneNumber.findFirst({
+      where: {
+        id: phoneNumberId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: {
         id: true,
         tenantId: true,

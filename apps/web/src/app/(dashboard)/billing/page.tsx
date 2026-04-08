@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { getCurrentTenant } from '@/lib/tenant';
 import { Card } from '../components/card';
 import { EmptyState } from '../components/empty-state';
 import { StatusBadge } from '../components/status-badge';
@@ -10,14 +11,6 @@ export const metadata: Metadata = {
 };
 
 export const dynamic = 'force-dynamic';
-
-type BootstrapResponse = {
-  ok: true;
-  tenant: {
-    id: string;
-    name: string;
-  } | null;
-};
 
 type BillingStatusResponse =
   | {
@@ -47,20 +40,6 @@ function formatDate(value: string) {
   }).format(new Date(value));
 }
 
-async function getActiveTenant() {
-  const response = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  const data = (await response.json()) as BootstrapResponse;
-  return data.tenant;
-}
-
 async function getBillingStatus(tenantId: string): Promise<BillingStatusResponse> {
   const response = await fetch(`${getApiBaseUrl()}/v1/billing/status/${tenantId}`, {
     cache: 'no-store',
@@ -82,13 +61,13 @@ export default async function BillingPage({
   searchParams: Promise<{ checkout?: string; notice?: string }>;
 }) {
   const resolvedSearchParams = await searchParams;
-  const tenant = await getActiveTenant();
+  const tenant = await getCurrentTenant();
 
   if (!tenant) {
     return (
       <EmptyState
         title="Billing unavailable"
-        description="Billing is unavailable until an active tenant is configured."
+        description="Billing is unavailable because your account is not linked to a tenant yet."
       />
     );
   }
@@ -107,7 +86,9 @@ export default async function BillingPage({
           ? 'Could not create Stripe checkout session.'
           : resolvedSearchParams.notice === 'portal-error'
             ? 'Could not open Stripe billing portal.'
-            : null;
+            : resolvedSearchParams.notice === 'subscription-required'
+              ? 'Active subscription required to access dashboard pages.'
+              : null;
 
   async function createCheckoutSession() {
     'use server';
