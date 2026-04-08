@@ -62,7 +62,7 @@ test('proxy blocks unauthenticated operator requests when basic auth is enabled'
   const response = await proxy(makeRequest('/prospects'));
 
   assert.equal(response.status, 401);
-  assert.equal(response.headers.get('www-authenticate'), 'Basic realm="Frontdesk Ops"');
+  assert.equal(response.headers.get('www-authenticate'), 'Basic realm="SkybridgeCX"');
 });
 
 test('proxy allows authenticated operator requests when credentials match', async () => {

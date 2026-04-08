@@ -44,7 +44,12 @@ function getClaimString(claims: ClerkTokenClaims, key: keyof ClerkTokenClaims) {
 
 export function shouldSkipDashboardAuth(url: string) {
   const pathname = url.split('?')[0] ?? url;
-  return pathname === '/health' || pathname === '/v1/ping' || pathname.startsWith('/v1/twilio/');
+  return (
+    pathname === '/health' ||
+    pathname === '/v1/ping' ||
+    pathname.startsWith('/v1/twilio/') ||
+    pathname.startsWith('/v1/stripe/')
+  );
 }
 
 export async function enforceClerkAuth(request: FastifyRequest, reply: FastifyReply) {

@@ -64,9 +64,9 @@ function OutputBlock({
   monospace?: boolean;
 }) {
   return (
-    <div className="rounded-2xl border border-black/10 bg-white p-4 shadow-sm">
-      <div className="text-xs uppercase tracking-[0.22em] text-black/40">{label}</div>
-      <div className={`${monospace ? 'font-mono text-[13px] leading-6' : 'text-sm leading-7'} mt-2 whitespace-pre-wrap text-black`}>
+    <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
+      <div className="text-xs uppercase tracking-wide text-gray-500">{label}</div>
+      <div className={`${monospace ? 'font-mono text-[13px] leading-6' : 'text-sm leading-7'} mt-2 whitespace-pre-wrap text-gray-800`}>
         {value}
       </div>
     </div>
@@ -96,28 +96,28 @@ export function OutreachCopilotPanel({
         : null;
 
   return (
-    <section className="rounded-2xl border border-black/10 bg-white p-6 shadow-sm">
-      <div className="text-xs uppercase tracking-[0.24em] text-black/50">Outreach copilot</div>
-      <h2 className="mt-2 text-xl font-semibold tracking-[-0.03em]">Generate a structured outreach package</h2>
-      <p className="mt-2 max-w-3xl text-sm text-black/60">
-        This uses the current prospect record, notes, and recent attempts to draft operator-reviewed outreach. No
-        sending, no external CRM sync, and no browser-exposed model credentials.
+    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <div className="text-xs uppercase tracking-wide text-indigo-600">SkybridgeCX copilot</div>
+      <h2 className="mt-2 text-xl font-semibold text-gray-900">Outreach draft generator</h2>
+      <p className="mt-2 max-w-3xl text-sm text-gray-600">
+        Build operator-ready outreach drafts from the latest prospect profile and attempt history.
       </p>
 
       {!enabled && unavailableReason ? (
-        <div className="mt-4 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+        <div className="mt-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
           {unavailableReason}
         </div>
       ) : null}
 
-      <form action={formAction} className="mt-5 flex flex-wrap items-center gap-3">
+      <form action={formAction} className="mt-5 grid gap-4 lg:grid-cols-[1fr_1fr_1fr_auto]">
         <input type="hidden" name="prospectSnapshot" value={payload} />
-        <label className="space-y-2 text-sm">
-          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Goal</div>
+
+        <label className="space-y-2 text-sm text-gray-600">
+          <span className="font-medium text-gray-700">Goal</span>
           <select
             name="outreachGoal"
             defaultValue="book_call"
-            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachGoalOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -126,12 +126,13 @@ export function OutreachCopilotPanel({
             ))}
           </select>
         </label>
-        <label className="space-y-2 text-sm">
-          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Length</div>
+
+        <label className="space-y-2 text-sm text-gray-600">
+          <span className="font-medium text-gray-700">Length</span>
           <select
             name="outreachLength"
             defaultValue="short"
-            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachLengthOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -140,12 +141,13 @@ export function OutreachCopilotPanel({
             ))}
           </select>
         </label>
-        <label className="space-y-2 text-sm">
-          <div className="text-xs uppercase tracking-[0.22em] text-black/40">Tone</div>
+
+        <label className="space-y-2 text-sm text-gray-600">
+          <span className="font-medium text-gray-700">Tone</span>
           <select
             name="outreachTone"
             defaultValue="direct"
-            className="rounded-xl border border-black/10 bg-white px-3 py-2.5 text-sm text-black shadow-sm outline-none ring-0 transition focus:border-black/20"
+            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachToneOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -154,24 +156,24 @@ export function OutreachCopilotPanel({
             ))}
           </select>
         </label>
-        <button
-          type="submit"
-          disabled={!enabled || pending}
-          className="rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-sm transition hover:bg-[#0b1120] disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {pending ? 'Generating…' : 'Generate outreach package'}
-        </button>
-        <p className="text-sm text-black/55">
-          Short first-touch drafts in plain business English, with one angle and a clear ask.
-        </p>
+
+        <div className="flex items-end">
+          <button
+            type="submit"
+            disabled={!enabled || pending}
+            className="w-full rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {pending ? 'Generating…' : 'Generate'}
+          </button>
+        </div>
       </form>
 
       {statusMessage ? (
         <div
-          className={`mt-4 rounded-2xl border px-4 py-3 text-sm ${
+          className={`mt-4 rounded-md border px-4 py-3 text-sm ${
             state.status === 'success'
               ? 'border-emerald-200 bg-emerald-50 text-emerald-900'
-              : 'border-red-200 bg-red-50 text-red-900'
+              : 'border-rose-200 bg-rose-50 text-rose-900'
           }`}
         >
           {statusMessage}
@@ -181,14 +183,13 @@ export function OutreachCopilotPanel({
       {generatedDraft ? (
         <div className="mt-6 grid gap-4">
           <div className="grid gap-4 lg:grid-cols-3">
-            <div className="rounded-2xl border border-black/10 bg-[#f8faf8] p-4 shadow-sm">
-              <div className="text-xs uppercase tracking-[0.22em] text-black/40">Qualification score</div>
-              <div className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-black">
+            <div className="rounded-md border border-gray-200 bg-indigo-50 p-4">
+              <div className="text-xs uppercase tracking-wide text-indigo-700">Qualification score</div>
+              <div className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
                 {generatedDraft.qualificationScore}/25
               </div>
-              <div className="mt-1 text-sm text-black/60">{getPriorityBandLabel(generatedDraft.priorityBand)} priority</div>
+              <div className="mt-1 text-sm text-gray-700">{getPriorityBandLabel(generatedDraft.priorityBand)} priority</div>
             </div>
-
             <OutputBlock label="Fit summary" value={generatedDraft.fitSummary} />
             <OutputBlock label="Chosen angle" value={generatedDraft.chosenAngle} />
           </div>
@@ -211,8 +212,12 @@ export function OutreachCopilotPanel({
           </div>
 
           {state.generatedAt ? (
-            <div className="text-xs uppercase tracking-[0.22em] text-black/40">
-              Generated {new Intl.DateTimeFormat('en-US', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(state.generatedAt))}
+            <div className="text-xs uppercase tracking-wide text-gray-500">
+              Generated{' '}
+              {new Intl.DateTimeFormat('en-US', {
+                dateStyle: 'medium',
+                timeStyle: 'short'
+              }).format(new Date(state.generatedAt))}
             </div>
           ) : null}
         </div>

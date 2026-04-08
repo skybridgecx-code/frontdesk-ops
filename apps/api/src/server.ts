@@ -30,6 +30,8 @@ import { registerProspectWriteRoutes } from './routes/prospect-write.js';
 import { registerProspectAttemptWriteRoutes } from './routes/prospect-attempts-write.js';
 import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-read.js';
 import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
+import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
+import { registerBillingRoutes } from './routes/billing.js';
 
 export async function buildServer() {
   const app = Fastify({
@@ -97,6 +99,8 @@ export async function buildServer() {
   await registerCallBackfillRoutes(app);
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
+  await registerStripeWebhookRoutes(app);
+  await registerBillingRoutes(app);
   await registerAgentProfileWriteRoutes(app);
   await registerProspectImportRoutes(app);
   await registerProspectReadRoutes(app);

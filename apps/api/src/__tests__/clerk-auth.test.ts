@@ -50,6 +50,7 @@ async function createAuthTestApp() {
   app.get('/health', async () => ({ ok: true }));
   app.get('/v1/ping', async () => ({ pong: true }));
   app.post('/v1/twilio/voice/inbound/mock', async () => ({ ok: true }));
+  app.post('/v1/stripe/webhooks', async () => ({ ok: true }));
 
   return app;
 }
@@ -161,6 +162,21 @@ describe('clerk auth integration hook', () => {
 
     expect(healthResponse.statusCode).toBe(200);
     expect(pingResponse.statusCode).toBe(200);
+    expect(verifyTokenMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('stripe webhook routes skip Clerk auth entirely', async () => {
+    process.env.CLERK_SECRET_KEY = 'sk_test_123';
+
+    const app = await createAuthTestApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/stripe/webhooks'
+    });
+
+    expect(response.statusCode).toBe(200);
     expect(verifyTokenMock).not.toHaveBeenCalled();
 
     await app.close();

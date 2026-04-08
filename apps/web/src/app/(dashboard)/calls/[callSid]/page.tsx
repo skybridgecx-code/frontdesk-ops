@@ -1,6 +1,10 @@
+import type { Metadata } from 'next';
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
+import { Breadcrumb } from '../../components/breadcrumb';
+import { Card } from '../../components/card';
+import { StatusBadge } from '../../components/status-badge';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
 
 export const dynamic = 'force-dynamic';
@@ -28,150 +32,77 @@ type CallDetail = {
   startedAt: string;
   endedAt: string | null;
   durationSeconds: number | null;
+  routeKind: string | null;
   phoneNumber: {
     e164: string;
     label: string | null;
     routingMode: string;
   };
-  agentProfile: {
-    name: string;
-    voiceName: string | null;
-    isActive: boolean;
-  } | null;
-  events: Array<{
-    type: string;
-    sequence: number;
-    createdAt: string;
-  }>;
 };
 
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ callSid: string }>;
+}): Promise<Metadata> {
+  const { callSid } = await params;
 
-function badgeClass(value: string | null | undefined) {
-  switch (value) {
-    case 'OPEN':
-      return 'bg-amber-100 text-amber-900';
-    case 'CONTACTED':
-      return 'bg-blue-100 text-blue-900';
-    case 'ARCHIVED':
-      return 'bg-neutral-200 text-neutral-800';
-    case 'UNREVIEWED':
-      return 'bg-neutral-100 text-neutral-700';
-    case 'REVIEWED':
-      return 'bg-emerald-100 text-emerald-900';
-    case 'NEEDS_REVIEW':
-      return 'bg-rose-100 text-rose-900';
-    case 'high':
-      return 'bg-orange-100 text-orange-900';
-    case 'emergency':
-      return 'bg-red-100 text-red-900';
-    case 'medium':
-      return 'bg-yellow-100 text-yellow-900';
-    case 'low':
-      return 'bg-green-100 text-green-900';
-    case 'COMPLETED':
-      return 'bg-green-100 text-green-900';
-    case 'RINGING':
-    case 'IN_PROGRESS':
-      return 'bg-blue-100 text-blue-900';
-    default:
-      return 'bg-neutral-100 text-neutral-700';
-  }
+  return {
+    title: `Call ${callSid} | SkybridgeCX`
+  };
 }
 
 async function getCall(callSid: string) {
-  const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+  const response = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
     cache: 'no-store',
     headers: await getInternalApiHeaders()
   });
 
-  if (!res.ok) {
-    throw new Error(`Failed to load call: ${res.status}`);
+  if (!response.ok) {
+    throw new Error(`Failed to load call: ${response.status}`);
   }
 
-  return (await res.json()) as { ok: true; call: CallDetail };
+  return (await response.json()) as { ok: true; call: CallDetail };
 }
 
 function formatDateTime(value: string | null) {
-  return value ? new Date(value).toLocaleString() : '—';
+  if (!value) {
+    return '—';
+  }
+
+  return new Intl.DateTimeFormat('en-US', {
+    dateStyle: 'medium',
+    timeStyle: 'short'
+  }).format(new Date(value));
 }
 
 function formatDuration(seconds: number | null) {
-  if (seconds == null) {
+  if (seconds === null) {
     return '—';
   }
 
   const minutes = Math.floor(seconds / 60);
-  const remainingSeconds = seconds % 60;
-  return `${minutes}m ${String(remainingSeconds).padStart(2, '0')}s`;
+  const remainder = seconds % 60;
+  return `${minutes}m ${String(remainder).padStart(2, '0')}s`;
 }
 
-function HistoryItem({
-  label,
-  value
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-xl border border-neutral-200 bg-neutral-50 px-4 py-3">
-      <div className="text-xs font-medium uppercase tracking-wide text-neutral-500">{label}</div>
-      <div className="mt-1 text-sm text-black">{value}</div>
-    </div>
-  );
-}
-
-function formatReviewStatusLabel(value: string | undefined) {
-  switch (value) {
-    case 'UNREVIEWED':
-      return 'Unreviewed';
-    case 'NEEDS_REVIEW':
-      return 'Needs review';
-    case 'REVIEWED':
-      return 'Reviewed';
-    default:
-      return value;
-  }
-}
-
-function formatTriageStatusLabel(value: string | undefined) {
-  switch (value) {
-    case 'OPEN':
-      return 'Open';
-    case 'CONTACTED':
-      return 'Contacted';
-    case 'ARCHIVED':
-      return 'Archived';
-    default:
-      return value;
-  }
-}
-
-function formatUrgencyLabel(value: string | undefined) {
-  switch (value) {
-    case 'low':
-      return 'Low urgency';
-    case 'medium':
-      return 'Medium urgency';
-    case 'high':
-      return 'High urgency';
-    case 'emergency':
-      return 'Emergency';
+function getNoticeMessage(notice: string | undefined) {
+  switch (notice) {
+    case 'contacted':
+      return 'Call marked contacted.';
+    case 'archived':
+      return 'Call archived.';
+    case 'extracted':
+      return 'Extraction rerun queued.';
+    case 'saved':
+      return 'Review changes saved.';
+    case 'saved-next':
+      return 'Review changes saved. Moved to next call.';
+    case 'no-review-calls':
+      return 'Review changes saved. No more calls need review.';
     default:
       return null;
   }
-}
-
-function buildReturnContextSummary(returnTo: string) {
-  const url = new URL(returnTo, 'http://localhost');
-  const parts = [
-    formatTriageStatusLabel(url.searchParams.get('triageStatus') ?? 'OPEN'),
-    formatReviewStatusLabel(url.searchParams.get('reviewStatus') ?? undefined),
-    formatUrgencyLabel(url.searchParams.get('urgency') ?? undefined),
-    url.searchParams.get('q')?.trim() ? `Search: "${url.searchParams.get('q')?.trim()}"` : null,
-    url.searchParams.get('page') ? `Page ${url.searchParams.get('page')}` : null
-  ].filter(Boolean);
-
-  return parts.join(' • ');
 }
 
 export default async function CallDetailPage({
@@ -186,30 +117,17 @@ export default async function CallDetailPage({
   const returnTo =
     resolvedSearchParams.returnTo && resolvedSearchParams.returnTo.startsWith('/calls')
       ? resolvedSearchParams.returnTo
-      : '/calls?triageStatus=OPEN';
-  const notice =
-    resolvedSearchParams.notice === 'contacted'
-      ? 'Call marked contacted.'
-      : resolvedSearchParams.notice === 'archived'
-        ? 'Call archived.'
-        : resolvedSearchParams.notice === 'extracted'
-          ? 'Extraction rerun queued.'
-          : resolvedSearchParams.notice === 'saved'
-            ? 'Review changes saved.'
-            : resolvedSearchParams.notice === 'saved-next'
-                ? 'Review changes saved. Moved to the next call needing review.'
-                : resolvedSearchParams.notice === 'no-review-calls'
-                  ? 'Review changes saved. No more calls need review.'
-                  : null;
+      : '/calls';
   const data = await getCall(callSid);
   const call = data.call;
+  const noticeMessage = getNoticeMessage(resolvedSearchParams.notice);
+
   const detailHref = `/calls/${callSid}?returnTo=${encodeURIComponent(returnTo)}`;
   const reviewFormId = 'call-review-form';
   const notesFieldId = 'operator-notes';
   const reviewStatusFieldId = 'review-status';
   const saveButtonId = 'save-review-button';
   const saveNextButtonId = 'save-review-next-button';
-  const returnContextSummary = buildReturnContextSummary(returnTo);
 
   async function markContacted() {
     'use server';
@@ -253,21 +171,18 @@ export default async function CallDetailPage({
   async function saveReview(formData: FormData) {
     'use server';
 
-    const reviewStatus = String(formData.get('reviewStatus') ?? '');
-    const urgency = String(formData.get('urgency') ?? '');
-
     const payload = {
       leadName: String(formData.get('leadName') ?? '').trim() || null,
       leadPhone: String(formData.get('leadPhone') ?? '').trim() || null,
       leadIntent: String(formData.get('leadIntent') ?? '').trim() || null,
-      urgency: urgency || null,
+      urgency: String(formData.get('urgency') ?? '').trim() || null,
       serviceAddress: String(formData.get('serviceAddress') ?? '').trim() || null,
       summary: String(formData.get('summary') ?? '').trim() || null,
       operatorNotes: String(formData.get('operatorNotes') ?? '').trim() || null,
-      reviewStatus
+      reviewStatus: String(formData.get('reviewStatus') ?? '').trim()
     };
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+    const response = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
@@ -276,8 +191,8 @@ export default async function CallDetailPage({
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) {
-      throw new Error(`Failed to save call review: ${res.status}`);
+    if (!response.ok) {
+      throw new Error(`Failed to save call review: ${response.status}`);
     }
 
     revalidatePath('/calls');
@@ -288,21 +203,18 @@ export default async function CallDetailPage({
   async function saveAndReviewNext(formData: FormData) {
     'use server';
 
-    const reviewStatus = String(formData.get('reviewStatus') ?? '');
-    const urgency = String(formData.get('urgency') ?? '');
-
     const payload = {
       leadName: String(formData.get('leadName') ?? '').trim() || null,
       leadPhone: String(formData.get('leadPhone') ?? '').trim() || null,
       leadIntent: String(formData.get('leadIntent') ?? '').trim() || null,
-      urgency: urgency || null,
+      urgency: String(formData.get('urgency') ?? '').trim() || null,
       serviceAddress: String(formData.get('serviceAddress') ?? '').trim() || null,
       summary: String(formData.get('summary') ?? '').trim() || null,
       operatorNotes: String(formData.get('operatorNotes') ?? '').trim() || null,
-      reviewStatus
+      reviewStatus: String(formData.get('reviewStatus') ?? '').trim()
     };
 
-    const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
+    const response = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
@@ -311,23 +223,23 @@ export default async function CallDetailPage({
       body: JSON.stringify(payload)
     });
 
-    if (!res.ok) {
-      throw new Error(`Failed to save call review: ${res.status}`);
+    if (!response.ok) {
+      throw new Error(`Failed to save call review: ${response.status}`);
     }
 
-    revalidatePath('/calls');
-    revalidatePath(`/calls/${callSid}`);
-
-    const nextRes = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
+    const nextResponse = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
       cache: 'no-store',
       headers: await getInternalApiHeaders()
     });
 
-    if (!nextRes.ok) {
-      throw new Error(`Failed to load review-next call: ${nextRes.status}`);
+    if (!nextResponse.ok) {
+      throw new Error(`Failed to load next review call: ${nextResponse.status}`);
     }
 
-    const nextData = (await nextRes.json()) as { ok: true; callSid: string | null };
+    const nextData = (await nextResponse.json()) as { ok: true; callSid: string | null };
+
+    revalidatePath('/calls');
+    revalidatePath(`/calls/${callSid}`);
 
     if (!nextData.callSid) {
       redirect(`${detailHref}&notice=no-review-calls`);
@@ -337,304 +249,230 @@ export default async function CallDetailPage({
   }
 
   return (
-    <main className="min-h-screen bg-white text-black p-6">
-      <div className="mx-auto max-w-5xl space-y-6">
-        <DetailReviewShortcuts
-          formId={reviewFormId}
-          notesFieldId={notesFieldId}
-          reviewStatusFieldId={reviewStatusFieldId}
-          saveButtonId={saveButtonId}
-          saveNextButtonId={saveNextButtonId}
-        />
+    <div className="space-y-6">
+      <DetailReviewShortcuts
+        formId={reviewFormId}
+        notesFieldId={notesFieldId}
+        reviewStatusFieldId={reviewStatusFieldId}
+        saveButtonId={saveButtonId}
+        saveNextButtonId={saveNextButtonId}
+      />
 
-        {notice ? (
-          <div className="rounded-2xl border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-900">
-            {notice}
-          </div>
-        ) : null}
+      <Breadcrumb
+        items={[
+          { label: 'Calls', href: returnTo },
+          { label: `Call from ${call.leadName ?? call.fromE164 ?? 'Unknown caller'}` }
+        ]}
+      />
 
-        <div className="flex items-start justify-between gap-4">
+      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <a href={returnTo} className="text-sm underline underline-offset-2 text-neutral-600">
-              ← Back to filtered queue
+            <a href={returnTo} className="text-sm font-medium text-gray-500 transition hover:text-indigo-600">
+              ← Back to calls list
             </a>
-            <div className="mt-2 text-sm text-neutral-600">Return to: {returnContextSummary}</div>
-            <h1 className="text-3xl font-semibold tracking-tight mt-2">{call.twilioCallSid}</h1>
-            <div className="mt-2 flex flex-wrap gap-2">
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.status)}`}>
-                {call.status}
-              </span>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.triageStatus)}`}>
-                {formatTriageStatusLabel(call.triageStatus)}
-              </span>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.reviewStatus)}`}>
-                {formatReviewStatusLabel(call.reviewStatus)}
-              </span>
-              <span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${badgeClass(call.urgency)}`}>
-                {call.urgency ?? 'no urgency'}
-              </span>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
+              {call.leadName ?? call.fromE164 ?? call.twilioCallSid}
+            </h1>
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <StatusBadge value={call.urgency ?? 'unknown'} type="urgency" fallback="Unknown" />
+              <StatusBadge value={call.triageStatus} type="triage" />
+              <StatusBadge value={call.reviewStatus} type="review" />
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <form action={rerunExtraction}>
-              <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
-                Extract
-              </button>
-            </form>
-            <form action={markContacted}>
-              <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
-                Mark contacted
-              </button>
-            </form>
-            <form action={archiveCall}>
-              <button className="rounded-xl border border-neutral-300 px-4 py-2 text-sm">
-                Archive
-              </button>
-            </form>
-          </div>
+          <div className="text-sm text-gray-500">Call SID: {call.twilioCallSid}</div>
         </div>
+      </section>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Lead</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div><span className="text-neutral-500">Name:</span> {call.leadName ?? '—'}</div>
-              <div><span className="text-neutral-500">Phone:</span> {call.leadPhone ?? '—'}</div>
-              <div><span className="text-neutral-500">Intent:</span> {call.leadIntent ?? '—'}</div>
-              <div><span className="text-neutral-500">Urgency:</span> {call.urgency ?? '—'}</div>
-              <div><span className="text-neutral-500">Address:</span> {call.serviceAddress ?? '—'}</div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Call</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div><span className="text-neutral-500">From:</span> {call.fromE164 ?? '—'}</div>
-              <div><span className="text-neutral-500">To:</span> {call.toE164 ?? '—'}</div>
-              <div><span className="text-neutral-500">Number:</span> {call.phoneNumber.label ?? '—'} · {call.phoneNumber.e164}</div>
-              <div><span className="text-neutral-500">Routing:</span> {call.phoneNumber.routingMode}</div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Agent</h2>
-            <div className="mt-3 space-y-2 text-sm">
-              <div><span className="text-neutral-500">Name:</span> {call.agentProfile?.name ?? '—'}</div>
-              <div><span className="text-neutral-500">Voice:</span> {call.agentProfile?.voiceName ?? '—'}</div>
-              <div><span className="text-neutral-500">Active:</span> {call.agentProfile ? String(call.agentProfile.isActive) : '—'}</div>
-            </div>
-          </section>
+      {noticeMessage ? (
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+          {noticeMessage}
         </div>
+      ) : null}
 
-        <section className="rounded-2xl border border-neutral-200 p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-medium">Activity history</h2>
-              <p className="mt-1 text-sm text-neutral-600">
-                Read-only timeline from existing call and review timestamps.
-              </p>
+      <form id={reviewFormId} action={saveReview} className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(300px,1fr)]">
+        <div className="space-y-6">
+          <Card title="Extracted lead info" subtitle="Verify and correct AI extracted fields before disposition.">
+            <div className="grid gap-4 md:grid-cols-2">
+              <label className="space-y-2 text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Name</span>
+                <input
+                  name="leadName"
+                  defaultValue={call.leadName ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Phone</span>
+                <input
+                  name="leadPhone"
+                  defaultValue={call.leadPhone ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-gray-600 md:col-span-2">
+                <span className="font-medium text-gray-700">Intent</span>
+                <input
+                  name="leadIntent"
+                  defaultValue={call.leadIntent ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-gray-600 md:col-span-2">
+                <span className="font-medium text-gray-700">Address</span>
+                <input
+                  name="serviceAddress"
+                  defaultValue={call.serviceAddress ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+              <label className="space-y-2 text-sm text-gray-600 md:col-span-2">
+                <span className="font-medium text-gray-700">Summary</span>
+                <textarea
+                  name="summary"
+                  rows={4}
+                  defaultValue={call.summary ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
             </div>
-          </div>
+          </Card>
 
-          <div className="mt-4 grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            <HistoryItem label="Started" value={formatDateTime(call.startedAt)} />
-            <HistoryItem label="Ended" value={formatDateTime(call.endedAt)} />
-            <HistoryItem label="Duration" value={formatDuration(call.durationSeconds)} />
-            <HistoryItem label="Reviewed" value={formatDateTime(call.reviewedAt)} />
-            <HistoryItem label="Contacted" value={formatDateTime(call.contactedAt)} />
-            <HistoryItem label="Archived" value={formatDateTime(call.archivedAt)} />
-          </div>
-        </section>
-
-        <section className="rounded-2xl border border-neutral-200 p-4">
-          <div className="flex items-center justify-between gap-4">
-            <div>
-              <h2 className="font-medium">Operator review</h2>
-              <p className="mt-1 text-sm text-neutral-600">
-                Correct extracted fields, add notes, and mark the review state.
-              </p>
-            </div>
-          </div>
-
-          <div className="mt-4 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3 text-sm text-neutral-700">
-            <span className="font-medium text-black">Shortcuts</span>{' '}
-            <span className="mr-3">Cmd/Ctrl+S Save</span>
-            <span className="mr-3">Cmd/Ctrl+Enter Save and review next</span>
-            <span className="mr-3">Alt+R Reviewed</span>
-            <span className="mr-3">Alt+N Needs review</span>
-            <span className="mr-3">Alt+U Unreviewed</span>
-            <span>/ Focus notes</span>
-          </div>
-
-          <form id={reviewFormId} action={saveReview} className="mt-4 space-y-4">
-            <div className="grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(18rem,0.8fr)]">
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Lead details</h3>
-                  <div className="mt-4 grid gap-4 md:grid-cols-2">
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead name</div>
-                      <input
-                        name="leadName"
-                        defaultValue={call.leadName ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm">
-                      <div className="mb-2 font-medium">Lead phone</div>
-                      <input
-                        name="leadPhone"
-                        defaultValue={call.leadPhone ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Lead intent</div>
-                      <input
-                        name="leadIntent"
-                        defaultValue={call.leadIntent ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm md:col-span-2">
-                      <div className="mb-2 font-medium">Service address</div>
-                      <input
-                        name="serviceAddress"
-                        defaultValue={call.serviceAddress ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
-
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review summary</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Summary</div>
-                      <textarea
-                        name="summary"
-                        defaultValue={call.summary ?? ''}
-                        rows={5}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Operator notes</div>
-                      <textarea
-                        id={notesFieldId}
-                        name="operatorNotes"
-                        defaultValue={call.operatorNotes ?? ''}
-                        rows={8}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      />
-                    </label>
-                  </div>
-                </section>
+          <Card title="Transcript" subtitle="Conversation transcript for context during review.">
+            <div className="grid gap-3 text-sm">
+              <div className="max-h-52 overflow-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-gray-700">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">Caller</p>
+                <p className="whitespace-pre-wrap">{call.callerTranscript ?? 'No caller transcript available.'}</p>
               </div>
-
-              <div className="space-y-4">
-                <section className="rounded-2xl border border-neutral-200 p-4">
-                  <h3 className="text-sm font-medium text-black">Review controls</h3>
-                  <div className="mt-4 space-y-4">
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Urgency</div>
-                      <select
-                        name="urgency"
-                        defaultValue={call.urgency ?? ''}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="">Unspecified</option>
-                        <option value="low">Low</option>
-                        <option value="medium">Medium</option>
-                        <option value="high">High</option>
-                        <option value="emergency">Emergency</option>
-                      </select>
-                    </label>
-
-                    <label className="text-sm block">
-                      <div className="mb-2 font-medium">Review status</div>
-                      <select
-                        id={reviewStatusFieldId}
-                        name="reviewStatus"
-                        defaultValue={call.reviewStatus}
-                        className="w-full rounded-xl border border-neutral-300 px-3 py-2"
-                      >
-                        <option value="UNREVIEWED">Unreviewed</option>
-                        <option value="NEEDS_REVIEW">Needs review</option>
-                        <option value="REVIEWED">Reviewed</option>
-                      </select>
-                    </label>
-                  </div>
-                </section>
-
-                <div className="lg:sticky lg:top-4">
-                  <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
-                    <h3 className="text-sm font-medium text-black">Actions</h3>
-                    <p className="mt-1 text-sm text-neutral-600">
-                      Keep moving through review without losing your place.
-                    </p>
-                    <div className="mt-4 flex flex-col gap-2">
-                      <button
-                        id={saveButtonId}
-                        className="rounded-xl border border-black bg-black px-4 py-2 text-sm text-white"
-                      >
-                        Save review changes
-                      </button>
-                      <button
-                        id={saveNextButtonId}
-                        formAction={saveAndReviewNext}
-                        className="rounded-xl border border-neutral-300 px-4 py-2 text-sm"
-                      >
-                        Save and review next
-                      </button>
-                    </div>
-                  </section>
-                </div>
+              <div className="max-h-52 overflow-auto rounded-md border border-gray-200 bg-gray-50 p-3 text-gray-700">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-gray-500">SkybridgeCX Assistant</p>
+                <p className="whitespace-pre-wrap">{call.assistantTranscript ?? 'No assistant transcript available.'}</p>
               </div>
             </div>
-          </form>
-        </section>
-
-        <section className="rounded-2xl border border-neutral-200 p-4">
-          <h2 className="font-medium">Summary</h2>
-          <p className="mt-3 text-sm whitespace-pre-wrap">{call.summary ?? '—'}</p>
-        </section>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Caller transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.callerTranscript ?? '—'}</p>
-          </section>
-
-          <section className="rounded-2xl border border-neutral-200 p-4">
-            <h2 className="font-medium">Assistant transcript</h2>
-            <p className="mt-3 text-sm whitespace-pre-wrap">{call.assistantTranscript ?? '—'}</p>
-          </section>
+          </Card>
         </div>
 
-        <section className="rounded-2xl border border-neutral-200 p-4">
-          <h2 className="font-medium">Event timeline</h2>
-          <div className="mt-3 space-y-2 text-sm">
-            {call.events.map((event) => (
-              <div key={`${event.sequence}-${event.type}`} className="flex items-start gap-3">
-                <div className="w-10 text-neutral-500">{event.sequence}</div>
-                <div className="min-w-0 flex-1">
-                  <div>{event.type}</div>
-                  <div className="text-neutral-500">
-                    {new Date(event.createdAt).toLocaleString()}
-                  </div>
-                </div>
+        <div className="space-y-6">
+          <Card title="Call metadata">
+            <dl className="space-y-3 text-sm">
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">Duration</dt>
+                <dd className="font-medium text-gray-900">{formatDuration(call.durationSeconds)}</dd>
               </div>
-            ))}
-          </div>
-        </section>
-      </div>
-    </main>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">Start time</dt>
+                <dd className="text-right text-gray-900">{formatDateTime(call.startedAt)}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">End time</dt>
+                <dd className="text-right text-gray-900">{formatDateTime(call.endedAt)}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">Route kind</dt>
+                <dd className="text-right text-gray-900">{call.routeKind ?? '—'}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">Inbound number</dt>
+                <dd className="text-right text-gray-900">{call.phoneNumber.e164}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">From</dt>
+                <dd className="text-right text-gray-900">{call.fromE164 ?? '—'}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">To</dt>
+                <dd className="text-right text-gray-900">{call.toE164 ?? '—'}</dd>
+              </div>
+              <div className="flex items-start justify-between gap-3">
+                <dt className="text-gray-500">Twilio SID</dt>
+                <dd className="text-right text-xs text-gray-700">{call.twilioCallSid}</dd>
+              </div>
+            </dl>
+          </Card>
+
+          <Card title="Review actions" subtitle="Update status, save quickly, and continue queue review.">
+            <div className="space-y-4">
+              <label className="block space-y-2 text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Urgency</span>
+                <select
+                  name="urgency"
+                  defaultValue={call.urgency ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="">Unknown</option>
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                  <option value="emergency">Emergency</option>
+                </select>
+              </label>
+
+              <label className="block space-y-2 text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Review status</span>
+                <select
+                  id={reviewStatusFieldId}
+                  name="reviewStatus"
+                  defaultValue={call.reviewStatus}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                >
+                  <option value="UNREVIEWED">Unreviewed</option>
+                  <option value="NEEDS_REVIEW">Needs review</option>
+                  <option value="REVIEWED">Reviewed</option>
+                </select>
+              </label>
+
+              <label className="block space-y-2 text-sm text-gray-600">
+                <span className="font-medium text-gray-700">Operator notes</span>
+                <textarea
+                  id={notesFieldId}
+                  name="operatorNotes"
+                  rows={6}
+                  defaultValue={call.operatorNotes ?? ''}
+                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                />
+              </label>
+
+              <div className="rounded-md border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-500">
+                Shortcuts: Cmd/Ctrl+S save, Cmd/Ctrl+Enter save + next, Alt+R reviewed, Alt+N needs review, Alt+U unreviewed, / focus notes.
+              </div>
+
+              <div className="grid gap-2">
+                <button
+                  id={saveButtonId}
+                  className="rounded-md bg-indigo-600 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500"
+                >
+                  Save review changes
+                </button>
+                <button
+                  id={saveNextButtonId}
+                  formAction={saveAndReviewNext}
+                  className="rounded-md border border-gray-200 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+                >
+                  Save and review next
+                </button>
+              </div>
+
+              <div className="grid gap-2">
+                <form action={rerunExtraction}>
+                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                    Rerun extraction
+                  </button>
+                </form>
+                <form action={markContacted}>
+                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                    Mark contacted
+                  </button>
+                </form>
+                <form action={archiveCall}>
+                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                    Archive call
+                  </button>
+                </form>
+              </div>
+            </div>
+          </Card>
+        </div>
+      </form>
+    </div>
   );
 }
