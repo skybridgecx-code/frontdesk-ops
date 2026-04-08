@@ -5,12 +5,6 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/*.test.ts'],
-    exclude: [
-      'src/routes/prospect-write.test.ts',
-      'src/routes/prospect-attempts-write.test.ts',
-      'src/routes/prospect-summary.test.ts',
-      'src/routes/prospect-read.test.ts'
-    ],
-    restoreMocks: true
-  }
+    restoreMocks: true,
+  },
 });

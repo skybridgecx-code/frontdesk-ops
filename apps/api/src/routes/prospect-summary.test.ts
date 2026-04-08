@@ -1,5 +1,4 @@
-import assert from 'node:assert/strict';
-import test from 'node:test';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import fastify from 'fastify';
 import sensible from '@fastify/sensible';
 import { prisma } from '@frontdesk/db';
@@ -12,61 +11,74 @@ async function createApp() {
   return app;
 }
 
-test('prospect summary reads expose terminal and active counts from the backend read model', async (t) => {
-  const app = await createApp();
-  t.after(() => app.close());
+describe('prospect summary routes', () => {
+  let originalBusiness: typeof prisma.business;
+  let originalProspect: typeof prisma.prospect;
 
-  const originalBusiness = prisma.business;
-  const originalProspect = prisma.prospect;
-  Object.defineProperty(prisma, 'business', {
-    configurable: true,
-    value: {
-      findUnique: async () => ({ id: 'biz_123' })
-    }
-  });
-  Object.defineProperty(prisma, 'prospect', {
-    configurable: true,
-    value: {
-      groupBy: async () => [
-        { status: 'NEW', _count: { _all: 2 } },
-        { status: 'READY', _count: { _all: 1 } },
-        { status: 'ARCHIVED', _count: { _all: 3 } },
-        { status: 'RESPONDED', _count: { _all: 4 } }
-      ]
-    }
-  });
-  t.after(() => {
-    delete (prisma as { business?: unknown }).business;
-    delete (prisma as { prospect?: unknown }).prospect;
-    void originalBusiness;
-    void originalProspect;
+  beforeEach(() => {
+    originalBusiness = prisma.business;
+    originalProspect = prisma.prospect;
   });
 
-  const response = await app.inject({
-    method: 'GET',
-    url: '/v1/businesses/biz_123/prospects/summary'
+  afterEach(() => {
+    Object.defineProperty(prisma, 'business', {
+      configurable: true,
+      value: originalBusiness,
+    });
+    Object.defineProperty(prisma, 'prospect', {
+      configurable: true,
+      value: originalProspect,
+    });
   });
 
-  assert.equal(response.statusCode, 200);
-  const body = response.json() as {
-    ok: true;
-    summary: {
-      total: number;
-      active: number;
-      terminal: number;
-      new: number;
-      ready: number;
-      responded: number;
-      archived: number;
+  it('exposes terminal and active counts from the backend read model', async () => {
+    const app = await createApp();
+
+    Object.defineProperty(prisma, 'business', {
+      configurable: true,
+      value: { findUnique: async () => ({ id: 'biz_123' }) },
+    });
+    Object.defineProperty(prisma, 'prospect', {
+      configurable: true,
+      value: {
+        groupBy: async () => [
+          { status: 'NEW', _count: { _all: 2 } },
+          { status: 'READY', _count: { _all: 1 } },
+          { status: 'ARCHIVED', _count: { _all: 3 } },
+          { status: 'RESPONDED', _count: { _all: 4 } },
+        ],
+      },
+    });
+
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/businesses/biz_123/prospects/summary',
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const body = response.json() as {
+      ok: true;
+      summary: {
+        total: number;
+        active: number;
+        terminal: number;
+        new: number;
+        ready: number;
+        responded: number;
+        archived: number;
+      };
     };
-  };
 
-  assert.equal(body.ok, true);
-  assert.equal(body.summary.total, 10);
-  assert.equal(body.summary.active, 3);
-  assert.equal(body.summary.terminal, 7);
-  assert.equal(body.summary.new, 2);
-  assert.equal(body.summary.ready, 1);
-  assert.equal(body.summary.responded, 4);
-  assert.equal(body.summary.archived, 3);
+    expect(body.ok).toBe(true);
+    expect(body.summary.total).toBe(10);
+    expect(body.summary.active).toBe(3);
+    expect(body.summary.terminal).toBe(7);
+    expect(body.summary.new).toBe(2);
+    expect(body.summary.ready).toBe(1);
+    expect(body.summary.responded).toBe(4);
+    expect(body.summary.archived).toBe(3);
+
+    await app.close();
+  });
 });
