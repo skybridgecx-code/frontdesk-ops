@@ -1,3 +1,15 @@
+/**
+ * Call event persistence with automatic call context resolution and retry.
+ *
+ * On the first call, `ensureCallContext()` looks up the Call record by
+ * `twilioCallSid` and caches the `callId` + current event count. Subsequent
+ * calls return the cached context immediately.
+ *
+ * `persistEvent()` creates a CallEvent with a monotonically increasing
+ * sequence number. If a unique constraint violation occurs (concurrent writers),
+ * it re-reads the count and retries up to 3 times before throwing.
+ */
+
 import { prisma } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
 import type { FastifyBaseLogger } from 'fastify';
@@ -8,9 +20,6 @@ export interface CallContext {
   sequence: number;
 }
 
-/**
- * Manages call context lookup and event persistence with retry on unique constraint violations.
- */
 export class EventPersistence {
   private callId: string | null = null;
   private sequence = 0;
@@ -22,6 +31,10 @@ export class EventPersistence {
     this.log = log;
   }
 
+  /**
+   * Resolves and caches the call context (callId + current sequence).
+   * Returns null if `queryCallSid` is missing or the call doesn't exist in the DB.
+   */
   async ensureCallContext(): Promise<CallContext | null> {
     if (this.callId) {
       return { callId: this.callId, sequence: this.sequence };
@@ -47,6 +60,15 @@ export class EventPersistence {
     return { callId: this.callId, sequence: this.sequence };
   }
 
+  /**
+   * Persists a CallEvent with retry on unique constraint violation.
+   *
+   * The sequence number is determined by counting existing events for the call,
+   * then incrementing. If another writer inserts between the count and the create,
+   * the unique constraint on (callId, sequence) fires and we retry (up to 3 times).
+   *
+   * Silently skips if no call context is available.
+   */
   async persistEvent(type: string, payloadJson: JsonRecord): Promise<void> {
     const context = await this.ensureCallContext();
     if (!context) return;

@@ -1,8 +1,29 @@
+/**
+ * Twilio Media Stream event handlers.
+ *
+ * Twilio sends three event types over the WebSocket media stream:
+ *
+ * - `start`  — Stream initialized. Contains `streamSid` and `callSid`.
+ *   We store the stream ID on the Call record and persist a start event.
+ *
+ * - `media`  — An audio chunk (base64 mulaw). If the OpenAI WebSocket is
+ *   ready, the chunk is forwarded immediately via `input_audio_buffer.append`.
+ *   Otherwise it's queued in `state.pendingAudio` for later drain.
+ *
+ * - `stop`   — Stream ended (caller hung up or Twilio closed). We mark the
+ *   call as COMPLETED, commit the audio buffer, and trigger a final response
+ *   from OpenAI (or queue the trigger if not yet connected).
+ */
+
 import { prisma } from '@frontdesk/db';
 import type { SessionState, JsonRecord } from '../types.js';
 import type { EventPersistence } from '../services/event-persistence.js';
 import { isRecord, getString, getNumberOrString } from '../lib/ws-utils.js';
 
+/**
+ * Handles the `start` event — stream initialization.
+ * Stores `streamSid` on the session state and links it to the Call record.
+ */
 export async function handleStart(
   message: JsonRecord,
   state: SessionState,
@@ -39,6 +60,13 @@ export async function handleStart(
   });
 }
 
+/**
+ * Handles the `media` event — an inbound audio chunk.
+ *
+ * If OpenAI is connected and ready, sends the audio immediately.
+ * Otherwise queues it in `state.pendingAudio` to be drained when
+ * the OpenAI bridge comes up.
+ */
 export function handleMedia(
   message: JsonRecord,
   state: SessionState
@@ -86,6 +114,14 @@ export function handleMedia(
   }
 }
 
+/**
+ * Handles the `stop` event — stream ended.
+ *
+ * 1. Persists a stop event.
+ * 2. Marks the call as COMPLETED if still in progress.
+ * 3. Commits the OpenAI audio buffer and triggers a final response
+ *    (or queues the trigger if OpenAI isn't connected yet).
+ */
 export async function handleStop(
   message: JsonRecord,
   state: SessionState,

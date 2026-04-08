@@ -1,7 +1,25 @@
+/**
+ * Twilio inbound voice webhook - the entry point for all incoming calls.
+ *
+ * Flow:
+ * 1. Validate the Twilio request signature (reject with 403 if invalid).
+ * 2. Look up the dialed phone number in the database.
+ * 3. Check business hours to determine if the business is currently open.
+ * 4. Resolve the call route based on the phone number routing mode:
+ *    - AI_ALWAYS: always route to AI agent
+ *    - AI_AFTER_HOURS: AI during hours, after-hours agent outside hours
+ *    - HUMAN_ONLY: reject with a human-not-connected message
+ *    - OVERFLOW: not yet implemented, falls through to human message
+ * 5. Create/upsert the Call record and persist an inbound event.
+ * 6. Return TwiML: either a Connect+Stream to the realtime gateway,
+ *    or a Say+Hangup for non-AI routes.
+ */
+
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 
+/** Escapes XML special characters for safe embedding in TwiML responses. */
 function escapeXml(value: string) {
   return value
     .replaceAll('&', '&amp;')
@@ -11,10 +29,18 @@ function escapeXml(value: string) {
     .replaceAll("'", '&apos;');
 }
 
+/** Returns TwiML that speaks a message and then hangs up. */
 function twimlSayAndHangup(message: string) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>${escapeXml(message)}</Say><Hangup/></Response>`;
 }
 
+/**
+ * Returns TwiML that connects the call to a media stream WebSocket.
+ *
+ * The stream URL includes query params that the realtime gateway uses
+ * to look up the call, phone number, and agent profile. The internal
+ * secret is passed as a `token` param for WebSocket authentication.
+ */
 function twimlConnectStream(input: {
   streamBaseUrl: string;
   callSid: string;
@@ -36,6 +62,10 @@ function twimlConnectStream(input: {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect><Stream url="${escapeXml(url)}" /></Connect></Response>`;
 }
 
+/**
+ * Returns the current weekday and HH:MM local time for the given timezone.
+ * Used to check whether the business is currently open.
+ */
 function getWeekdayAndTime(timezone: string) {
   const weekdayParts = new Intl.DateTimeFormat('en-US', {
     timeZone: timezone,
@@ -69,6 +99,10 @@ function getWeekdayAndTime(timezone: string) {
   };
 }
 
+/**
+ * Checks whether the business is currently open based on its
+ * configured business hours and timezone.
+ */
 function isBusinessOpen(
   timezone: string,
   hours: Array<{
@@ -88,6 +122,13 @@ function isBusinessOpen(
   return localTime >= today.openTime && localTime < today.closeTime;
 }
 
+/**
+ * Determines the call route based on the phone number routing mode
+ * and whether the business is currently open.
+ *
+ * Returns the route kind (AI or HUMAN), the agent profile to use,
+ * and a descriptive message for logging or fallback TwiML.
+ */
 function resolveRoute(input: {
   routingMode: typeof PhoneRoutingMode[keyof typeof PhoneRoutingMode];
   isOpen: boolean;
@@ -236,7 +277,7 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       }
     });
 
-        for (let attempt = 0; attempt < 3; attempt++) {
+    for (let attempt = 0; attempt < 3; attempt++) {
       const existingEventCount = await prisma.callEvent.count({
         where: { callId: call.id }
       });

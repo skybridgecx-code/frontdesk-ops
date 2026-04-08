@@ -1,6 +1,20 @@
+/**
+ * Call data extraction via OpenAI Responses API.
+ *
+ * After each assistant transcript turn completes, the realtime gateway calls
+ * `extractCallData()` with the current caller and assistant transcripts.
+ * The model extracts structured lead fields (name, phone, intent, urgency,
+ * address, summary) using a strict JSON schema — no free-form generation.
+ *
+ * Fields that aren't clearly supported by the transcript are returned as null.
+ * The extraction runs on `gpt-5-mini` by default (configurable via
+ * `OPENAI_EXTRACTION_MODEL` env var).
+ */
+
 import type OpenAI from 'openai';
 import OpenAIClient from 'openai';
 
+/** Structured fields extracted from a phone call transcript. */
 export type ExtractedCallData = {
   leadName: string | null;
   leadPhone: string | null;
@@ -51,6 +65,16 @@ function cleanNullableString(value: unknown) {
   return trimmed.length > 0 ? trimmed : null;
 }
 
+/**
+ * Extracts structured lead data from caller + assistant transcripts.
+ *
+ * Sends both transcripts to the OpenAI Responses API with a strict JSON schema.
+ * Returns null for any field not clearly supported by the conversation.
+ *
+ * @param input.callerTranscript  - Full caller transcript (newline-separated turns)
+ * @param input.assistantTranscript - Full assistant transcript (newline-separated turns)
+ * @returns Extracted call data with null for missing/unclear fields
+ */
 export async function extractCallData(input: {
   callerTranscript: string | null;
   assistantTranscript: string | null;

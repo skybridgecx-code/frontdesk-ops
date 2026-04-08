@@ -1,3 +1,16 @@
+/**
+ * Manages caller and assistant transcript accumulation during a live call.
+ *
+ * As the OpenAI Realtime API streams transcript deltas, completed turns are
+ * appended to the Call record in the database (newline-separated). After each
+ * assistant turn completes, call extraction runs against the full transcripts
+ * to update structured lead fields (name, phone, intent, urgency, etc.) in
+ * near real-time.
+ *
+ * Each method is fire-and-forget safe — if no call context exists (e.g. the
+ * call record hasn't been created yet), operations are silently skipped.
+ */
+
 import { prisma } from '@frontdesk/db';
 import { extractCallData } from '@frontdesk/integrations/call-extraction';
 import type { FastifyBaseLogger } from 'fastify';
@@ -19,7 +32,10 @@ export class TranscriptManager {
   }
 
   /**
-   * Appends a completed caller transcript turn and persists it.
+   * Appends a completed caller transcript turn to the Call record.
+   *
+   * Reads the current `callerTranscript`, appends the new turn with a newline
+   * separator, and persists a `openai.input_audio_transcription.completed` event.
    */
   async appendCallerTranscript(
     transcript: string,
@@ -52,8 +68,17 @@ export class TranscriptManager {
   }
 
   /**
-   * Appends a completed assistant transcript turn, persists it,
-   * then runs call extraction against the full transcripts.
+   * Appends a completed assistant transcript turn, then runs call extraction.
+   *
+   * 1. Reads the current `assistantTranscript` and appends the new turn.
+   * 2. Persists a `openai.output_audio_transcript.done` event.
+   * 3. Loads the full caller + assistant transcripts.
+   * 4. Calls `extractCallData()` to get structured lead fields.
+   * 5. Updates the Call record with extracted data.
+   * 6. Persists a `openai.call_extraction.completed` event.
+   *
+   * Extraction runs after every assistant turn so the operator dashboard
+   * shows progressively refined lead data during the call.
    */
   async appendAssistantTranscriptAndExtract(
     transcript: string,

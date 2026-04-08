@@ -1,7 +1,24 @@
+/**
+ * Twilio voice status callback webhook.
+ *
+ * Twilio POSTs status updates as a call progresses through its lifecycle:
+ * ringing -> in-progress -> completed/busy/no-answer/failed/canceled.
+ *
+ * This handler:
+ * 1. Validates the Twilio request signature.
+ * 2. Maps the Twilio status string to our CallStatus enum.
+ * 3. Updates the Call record (status, answeredAt, endedAt, durationSeconds).
+ * 4. Persists a CallEvent for audit trail.
+ *
+ * Terminal statuses (completed, busy, no-answer, failed, canceled) trigger
+ * setting endedAt. The in-progress status triggers setting answeredAt.
+ */
+
 import type { FastifyInstance } from 'fastify';
 import { CallStatus, prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 
+/** Maps Twilio status strings to our CallStatus enum values. */
 function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof typeof CallStatus] {
   switch (status) {
     case 'ringing':
@@ -23,6 +40,7 @@ function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof ty
   }
 }
 
+/** Returns true if the status represents a terminal call state (no further updates expected). */
 function isTerminalStatus(status: typeof CallStatus[keyof typeof CallStatus]) {
   return (
     status === CallStatus.COMPLETED ||

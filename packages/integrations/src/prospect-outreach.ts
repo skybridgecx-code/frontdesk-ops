@@ -1,6 +1,23 @@
+/**
+ * Prospect outreach draft generation via OpenAI Responses API.
+ *
+ * Given a prospect snapshot (company info, contact details, status, notes,
+ * recent attempt history), generates a multi-channel outreach package:
+ * - Qualification score (0-25) and priority band
+ * - First email (subject + body), DM/text, two follow-ups, call opener
+ * - CRM note for the operator
+ *
+ * The prompt is tuned for home-service businesses and avoids AI/audit/consultant
+ * framing. Generation options control goal (book_call, send_walkthrough,
+ * find_right_contact), length (short, medium), and tone (direct, warm).
+ *
+ * Uses `gpt-5-mini` by default (configurable via `OPENAI_OUTREACH_MODEL`).
+ */
+
 import type OpenAI from 'openai';
 import OpenAIClient from 'openai';
 
+/** Summary of a single outreach attempt, used as context for draft generation. */
 export type ProspectOutreachAttemptSummary = {
   attemptedAt: string;
   channel: string;
@@ -8,6 +25,7 @@ export type ProspectOutreachAttemptSummary = {
   note: string | null;
 };
 
+/** All prospect fields needed to generate an outreach draft. */
 export type ProspectOutreachInput = {
   companyName: string | null;
   contactName: string | null;
@@ -25,6 +43,7 @@ export type ProspectOutreachInput = {
   recentAttempts: ProspectOutreachAttemptSummary[];
 };
 
+/** The complete outreach package returned to the operator dashboard. */
 export type ProspectOutreachDraft = {
   qualificationScore: number;
   priorityBand: 'low' | 'medium' | 'high' | 'urgent';
@@ -43,6 +62,7 @@ export type ProspectOutreachGoal = 'book_call' | 'send_walkthrough' | 'find_righ
 export type ProspectOutreachLength = 'short' | 'medium';
 export type ProspectOutreachTone = 'direct' | 'warm';
 
+/** Operator-configurable options that shape the generated outreach copy. */
 export type ProspectOutreachGenerationOptions = {
   goal: ProspectOutreachGoal;
   length: ProspectOutreachLength;
@@ -94,6 +114,13 @@ function clampQualificationScore(value: unknown) {
   return Math.max(0, Math.min(25, Math.trunc(score)));
 }
 
+/**
+ * Maps a 0-25 qualification score to a priority band.
+ * - 0-9: low
+ * - 10-16: medium
+ * - 17-21: high
+ * - 22-25: urgent
+ */
 export function getProspectOutreachPriorityBand(score: number): ProspectOutreachDraft['priorityBand'] {
   if (score >= 22) {
     return 'urgent';
@@ -148,6 +175,12 @@ function describeProspectOutreachTone(tone: ProspectOutreachTone) {
   return tone === 'warm' ? 'warm' : 'direct';
 }
 
+/**
+ * Assembles the full prompt sent to the outreach generation model.
+ *
+ * Includes the prospect snapshot, recent attempts, and operator-selected
+ * generation options (goal, length, tone). Exported for testing.
+ */
 export function buildProspectOutreachPrompt(
   input: ProspectOutreachInput,
   options: ProspectOutreachGenerationOptions = defaultProspectOutreachGenerationOptions
@@ -252,6 +285,11 @@ const outreachDraftSchema: OpenAI.Responses.ResponseFormatTextJSONSchemaConfig =
   }
 };
 
+/**
+ * Validates and normalizes raw model output into a typed outreach draft.
+ * Clamps `qualificationScore` to 0-25 and derives `priorityBand`.
+ * Throws if any required string field is missing or empty.
+ */
 export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>): ProspectOutreachDraft {
   const qualificationScore = clampQualificationScore(parsed.qualificationScore);
 
@@ -270,6 +308,16 @@ export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>):
   };
 }
 
+/**
+ * Generates a complete outreach draft for a prospect.
+ *
+ * Sends the prospect snapshot + generation options to the OpenAI Responses API
+ * with a strict JSON schema, then normalizes the output into a typed draft.
+ *
+ * @param input   - Prospect data snapshot
+ * @param options - Goal, length, and tone preferences (defaults to book_call / short / direct)
+ * @returns Validated outreach draft with score, priority band, and all copy blocks
+ */
 export async function generateProspectOutreachDraft(
   input: ProspectOutreachInput,
   options: ProspectOutreachGenerationOptions = defaultProspectOutreachGenerationOptions
@@ -289,6 +337,7 @@ export async function generateProspectOutreachDraft(
   return normalizeProspectOutreachDraft(parsed);
 }
 
+/** Returns true if `OPENAI_API_KEY` is set (outreach generation is available). */
 export function isProspectOutreachConfigured() {
   return Boolean(process.env.OPENAI_API_KEY);
 }

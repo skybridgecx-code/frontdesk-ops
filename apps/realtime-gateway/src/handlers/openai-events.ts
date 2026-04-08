@@ -1,8 +1,35 @@
+/**
+ * OpenAI Realtime API server event handler.
+ *
+ * Routes all events received from the OpenAI WebSocket to the appropriate
+ * handler. The main event categories are:
+ *
+ * - **Audio delta** (`response.output_audio.delta`) — base64 audio relayed
+ *   directly to Twilio via the media stream WebSocket.
+ *
+ * - **Caller transcript** (delta / completed / failed) — accumulated in
+ *   `state.callerTranscriptBuffer`, then persisted on completion via
+ *   `TranscriptManager.appendCallerTranscript()`.
+ *
+ * - **Assistant transcript** (delta / done) — accumulated in
+ *   `state.assistantTranscriptBuffer`, then persisted + extraction triggered
+ *   via `TranscriptManager.appendAssistantTranscriptAndExtract()`.
+ *
+ * - **Errors** — logged and persisted as `openai.server.error` events.
+ *
+ * - **Low-value events** (session.created, rate_limits.updated, etc.) —
+ *   logged but not persisted to avoid database bloat.
+ *
+ * All database writes are enqueued via the `enqueue` callback to avoid
+ * blocking the WebSocket message loop.
+ */
+
 import type { SessionState, WsRaw, JsonRecord } from '../types.js';
 import type { EventPersistence } from '../services/event-persistence.js';
 import type { TranscriptManager } from '../services/transcript-manager.js';
 import { rawToText, isRecord, getString } from '../lib/ws-utils.js';
 
+/** Event types that are logged but not persisted to the database. */
 const LOW_VALUE_EVENT_TYPES = new Set([
   'session.created',
   'session.updated',
@@ -14,6 +41,15 @@ const LOW_VALUE_EVENT_TYPES = new Set([
   'rate_limits.updated'
 ]);
 
+/**
+ * Parses and routes a single OpenAI Realtime API server event.
+ *
+ * @param raw         - Raw WebSocket message (string or Buffer)
+ * @param state       - Mutable session state for this call
+ * @param events      - Event persistence service
+ * @param transcripts - Transcript accumulation + extraction service
+ * @param enqueue     - Callback to schedule async work without blocking the WS loop
+ */
 export function handleOpenAIMessage(
   raw: unknown,
   state: SessionState,
@@ -40,13 +76,11 @@ export function handleOpenAIMessage(
 
   state.log.info({ msg: 'openai realtime server event', callSid: state.queryCallSid, eventType });
 
-  // --- Audio delta → relay to Twilio ---
   if (eventType === 'response.output_audio.delta') {
     handleAudioDelta(message, state, events, enqueue);
     return;
   }
 
-  // --- Input audio committed ---
   if (eventType === 'input_audio_buffer.committed') {
     const itemId = getString(message, 'item_id');
     state.currentInputItemId = itemId;
@@ -66,25 +100,21 @@ export function handleOpenAIMessage(
     return;
   }
 
-  // --- Caller transcript delta ---
   if (eventType === 'conversation.item.input_audio_transcription.delta') {
     handleCallerTranscriptDelta(message, state);
     return;
   }
 
-  // --- Caller transcript completed ---
   if (eventType === 'conversation.item.input_audio_transcription.completed') {
     handleCallerTranscriptCompleted(message, state, transcripts, enqueue);
     return;
   }
 
-  // --- Caller transcript failed ---
   if (eventType === 'conversation.item.input_audio_transcription.failed') {
     handleCallerTranscriptFailed(message, state, events, enqueue);
     return;
   }
 
-  // --- Assistant transcript delta ---
   if (eventType === 'response.output_audio_transcript.delta') {
     const delta = getString(message, 'delta') ?? '';
     if (delta) {
@@ -99,7 +129,6 @@ export function handleOpenAIMessage(
     return;
   }
 
-  // --- Assistant transcript done → persist + extract ---
   if (eventType === 'response.output_audio_transcript.done') {
     const transcript = getString(message, 'transcript') ?? state.assistantTranscriptBuffer;
     enqueue(async () => {
@@ -114,7 +143,6 @@ export function handleOpenAIMessage(
     return;
   }
 
-  // --- Output audio done ---
   if (eventType === 'response.output_audio.done') {
     enqueue(async () => {
       await events.persistEvent('openai.output_audio.done', {
@@ -125,7 +153,6 @@ export function handleOpenAIMessage(
     return;
   }
 
-  // --- Response done ---
   if (eventType === 'response.done') {
     enqueue(async () => {
       await events.persistEvent('openai.response.done', {
@@ -136,13 +163,11 @@ export function handleOpenAIMessage(
     return;
   }
 
-  // --- Error ---
   if (eventType === 'error') {
     handleError(message, state, events, enqueue);
     return;
   }
 
-  // --- Persist anything that's not low-value ---
   if (!LOW_VALUE_EVENT_TYPES.has(eventType)) {
     enqueue(async () => {
       await events.persistEvent('openai.server.event', {
@@ -153,8 +178,7 @@ export function handleOpenAIMessage(
   }
 }
 
-// ─── Helpers ────────────────────────────────────────────────────
-
+/** Relays base64 audio from OpenAI back to the Twilio media stream. */
 function handleAudioDelta(
   message: JsonRecord,
   state: SessionState,
@@ -193,6 +217,7 @@ function handleAudioDelta(
   });
 }
 
+/** Accumulates partial caller transcript deltas into the buffer. */
 function handleCallerTranscriptDelta(message: JsonRecord, state: SessionState): void {
   const itemId = getString(message, 'item_id');
   const delta = getString(message, 'delta') ?? '';
@@ -211,6 +236,7 @@ function handleCallerTranscriptDelta(message: JsonRecord, state: SessionState): 
   }
 }
 
+/** Handles a completed caller transcript — persists it and resets the buffer. */
 function handleCallerTranscriptCompleted(
   message: JsonRecord,
   state: SessionState,
@@ -234,6 +260,7 @@ function handleCallerTranscriptCompleted(
   }
 }
 
+/** Handles a failed caller transcription — logs the error and resets the buffer. */
 function handleCallerTranscriptFailed(
   message: JsonRecord,
   state: SessionState,
@@ -263,6 +290,7 @@ function handleCallerTranscriptFailed(
   state.callerTranscriptBuffer = '';
 }
 
+/** Persists OpenAI error events with structured error details. */
 function handleError(
   message: JsonRecord,
   state: SessionState,
