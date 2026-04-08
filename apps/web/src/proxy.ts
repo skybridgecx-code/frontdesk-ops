@@ -1,5 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+
+const isPublicRoute = createRouteMatcher([
+  '/',
+  '/api/webhooks(.*)',
+  '/sign-in(.*)',
+  '/sign-up(.*)'
+]);
+
+const clerkProxy = clerkMiddleware(async (auth, request) => {
+  if (!isPublicRoute(request)) {
+    await auth.protect();
+  }
+
+  return NextResponse.next();
+});
 
 function constantTimeEqual(a: string, b: string): boolean {
   const maxLen = Math.max(a.length, b.length);
@@ -19,7 +35,25 @@ function unauthorized() {
   });
 }
 
-export function proxy(request: NextRequest) {
+function shouldProtectWithBasicAuth(pathname: string) {
+  return (
+    pathname === '/calls' ||
+    pathname.startsWith('/calls/') ||
+    pathname === '/prospects' ||
+    pathname.startsWith('/prospects/')
+  );
+}
+
+export async function proxy(request: NextRequest, event: import("next/server").NextFetchEvent) {
+  if (process.env.CLERK_SECRET_KEY) {
+    return clerkProxy(request, event);
+  }
+
+  const pathname = new URL(request.url).pathname;
+  if (!shouldProtectWithBasicAuth(pathname)) {
+    return NextResponse.next();
+  }
+
   const required = process.env.FRONTDESK_REQUIRE_BASIC_AUTH === 'true';
   const expectedUser = process.env.FRONTDESK_BASIC_AUTH_USER;
   const expectedPass = process.env.FRONTDESK_BASIC_AUTH_PASS;
@@ -56,5 +90,5 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/calls', '/calls/:path*', '/prospects', '/prospects/:path*']
+  matcher: ['/((?!_next|.*\\.\\..*).*)', '/(api|trpc)(.*)']
 };

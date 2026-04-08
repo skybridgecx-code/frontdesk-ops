@@ -19,7 +19,8 @@ import { registerCallReviewRoutes } from './routes/call-review.js';
 import { registerCallTranscriptRoutes } from './routes/call-transcript.js';
 import { registerCallTriageRoutes } from './routes/call-triage.js';
 import { registerCallBackfillRoutes } from './routes/call-backfill.js';
-import { enforceBasicAuth, shouldSkipBasicAuth } from './lib/basic-auth.js';
+import { enforceBasicAuth } from './lib/basic-auth.js';
+import { enforceClerkAuth, shouldSkipDashboardAuth } from './lib/clerk-auth.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
@@ -29,7 +30,6 @@ import { registerProspectWriteRoutes } from './routes/prospect-write.js';
 import { registerProspectAttemptWriteRoutes } from './routes/prospect-attempts-write.js';
 import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-read.js';
 import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
-import { prisma } from '@frontdesk/db';
 
 export async function buildServer() {
   const app = Fastify({
@@ -57,12 +57,20 @@ export async function buildServer() {
     max: 100,
     timeWindow: '1 minute',
     allowList: (request) => {
-      return shouldSkipBasicAuth(request.url);
+      return shouldSkipDashboardAuth(request.url);
     }
   });
 
   app.addHook('onRequest', async (request, reply) => {
-    if (shouldSkipBasicAuth(request.url)) {
+    if (shouldSkipDashboardAuth(request.url)) {
+      return;
+    }
+
+    if (process.env.CLERK_SECRET_KEY) {
+      const ok = await enforceClerkAuth(request, reply);
+      if (!ok) {
+        return reply;
+      }
       return;
     }
 

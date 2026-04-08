@@ -89,7 +89,7 @@ async function getCalls(input: {
 
   const res = await fetch(`${getApiBaseUrl()}/v1/calls?${params.toString()}`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -102,7 +102,7 @@ async function getCalls(input: {
 async function getCallsSummary() {
   const res = await fetch(`${getApiBaseUrl()}/v1/calls/summary`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -345,7 +345,7 @@ export default async function CallsPage({
 
     const res = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
       cache: 'no-store',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     if (!res.ok) {
@@ -372,7 +372,7 @@ export default async function CallsPage({
 
     const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/mark-contacted`, {
       method: 'POST',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     if (!res.ok) {
@@ -395,7 +395,7 @@ export default async function CallsPage({
 
     const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/archive`, {
       method: 'POST',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     if (!res.ok) {
@@ -423,7 +423,7 @@ export default async function CallsPage({
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        ...getInternalApiHeaders()
+        ...(await getInternalApiHeaders())
       },
       body: JSON.stringify({ callSids })
     });
@@ -456,7 +456,7 @@ export default async function CallsPage({
       method: 'POST',
       headers: {
         'content-type': 'application/json',
-        ...getInternalApiHeaders()
+        ...(await getInternalApiHeaders())
       },
       body: JSON.stringify({ callSids })
     });
@@ -492,7 +492,7 @@ export default async function CallsPage({
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
-        ...getInternalApiHeaders()
+        ...(await getInternalApiHeaders())
       },
       body: JSON.stringify(payload)
     });

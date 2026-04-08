@@ -170,7 +170,7 @@ export function getProspectDetailNotice(notice: string | undefined) {
 export async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -183,7 +183,7 @@ export async function getBootstrap() {
 export async function getProspect(businessId: string, prospectSid: string) {
   const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects/${prospectSid}`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (res.status === 404) {
@@ -200,7 +200,7 @@ export async function getProspect(businessId: string, prospectSid: string) {
 export async function getAttempts(businessId: string, prospectSid: string) {
   const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects/${prospectSid}/attempts`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -220,7 +220,7 @@ export async function getProspectQueue(businessId: string, status?: string | nul
 
   const res = await fetch(url, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -333,7 +333,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
           method: 'PATCH',
           cache: 'no-store',
           headers: {
-            ...getInternalApiHeaders(),
+            ...(await getInternalApiHeaders()),
             'content-type': 'application/json'
           },
           body: JSON.stringify({
@@ -418,7 +418,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
           method: 'POST',
           cache: 'no-store',
           headers: {
-            ...getInternalApiHeaders(),
+            ...(await getInternalApiHeaders()),
             'content-type': 'application/json'
           },
             body: JSON.stringify({
@@ -489,7 +489,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
             method: 'POST',
             cache: 'no-store',
             headers: {
-              ...getInternalApiHeaders(),
+              ...(await getInternalApiHeaders()),
               'content-type': 'application/json'
             },
             body: JSON.stringify({
@@ -518,7 +518,7 @@ export function createProspectDetailActions(context: DetailActionContext) {
           method: 'PATCH',
           cache: 'no-store',
           headers: {
-            ...getInternalApiHeaders(),
+            ...(await getInternalApiHeaders()),
             'content-type': 'application/json'
           },
           body: JSON.stringify({

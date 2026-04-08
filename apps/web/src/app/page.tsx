@@ -340,7 +340,7 @@ async function getBootstrap() {
   try {
     const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
       cache: 'no-store',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     if (!res.ok) {
@@ -419,7 +419,7 @@ export default async function Home({
       method: 'POST',
       cache: 'no-store',
       headers: {
-        ...getInternalApiHeaders(),
+        ...(await getInternalApiHeaders()),
         'content-type': 'application/json'
       },
       body: JSON.stringify({

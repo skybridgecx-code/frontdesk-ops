@@ -81,7 +81,7 @@ function badgeClass(value: string | null | undefined) {
 async function getCall(callSid: string) {
   const res = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -216,7 +216,7 @@ export default async function CallDetailPage({
 
     await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/mark-contacted`, {
       method: 'POST',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     revalidatePath('/calls');
@@ -229,7 +229,7 @@ export default async function CallDetailPage({
 
     await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/archive`, {
       method: 'POST',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     revalidatePath('/calls');
@@ -242,7 +242,7 @@ export default async function CallDetailPage({
 
     await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}/extract`, {
       method: 'POST',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     revalidatePath('/calls');
@@ -271,7 +271,7 @@ export default async function CallDetailPage({
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
-        ...getInternalApiHeaders()
+        ...(await getInternalApiHeaders())
       },
       body: JSON.stringify(payload)
     });
@@ -306,7 +306,7 @@ export default async function CallDetailPage({
       method: 'PATCH',
       headers: {
         'content-type': 'application/json',
-        ...getInternalApiHeaders()
+        ...(await getInternalApiHeaders())
       },
       body: JSON.stringify(payload)
     });
@@ -320,7 +320,7 @@ export default async function CallDetailPage({
 
     const nextRes = await fetch(`${getApiBaseUrl()}/v1/calls/review-next`, {
       cache: 'no-store',
-      headers: getInternalApiHeaders()
+      headers: await getInternalApiHeaders()
     });
 
     if (!nextRes.ok) {

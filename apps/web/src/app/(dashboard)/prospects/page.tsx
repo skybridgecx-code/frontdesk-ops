@@ -106,7 +106,7 @@ function appendQueryParams(href: string, params: Record<string, string | undefin
 async function getBootstrap() {
   const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -126,7 +126,7 @@ async function getProspects(businessId: string, status: ProspectQueueStatus) {
 
   const res = await fetch(url, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -139,7 +139,7 @@ async function getProspects(businessId: string, status: ProspectQueueStatus) {
 async function getProspectSummary(businessId: string) {
   const res = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects/summary`, {
     cache: 'no-store',
-    headers: getInternalApiHeaders()
+    headers: await getInternalApiHeaders()
   });
 
   if (!res.ok) {
@@ -343,7 +343,7 @@ export default async function ProspectsPage({
         method: 'POST',
         cache: 'no-store',
         headers: {
-          ...getInternalApiHeaders(),
+          ...(await getInternalApiHeaders()),
           'content-type': 'application/json'
         },
         body: JSON.stringify(buildStarterProspectImportBody(rows))
