@@ -7,12 +7,13 @@
  * to update structured lead fields (name, phone, intent, urgency, etc.) in
  * near real-time.
  *
- * Each method is fire-and-forget safe — if no call context exists (e.g. the
- * call record hasn't been created yet), operations are silently skipped.
+ * After extraction completes, a notification email is sent to configured
+ * operators with the extracted lead data and a link to the call dashboard.
  */
 
 import { prisma } from '@frontdesk/db';
 import { extractCallData } from '@frontdesk/integrations/call-extraction';
+import { sendCallCompletedNotification } from '@frontdesk/notifications';
 import type { FastifyBaseLogger } from 'fastify';
 import type { EventPersistence } from './event-persistence.js';
 
@@ -33,9 +34,6 @@ export class TranscriptManager {
 
   /**
    * Appends a completed caller transcript turn to the Call record.
-   *
-   * Reads the current `callerTranscript`, appends the new turn with a newline
-   * separator, and persists a `openai.input_audio_transcription.completed` event.
    */
   async appendCallerTranscript(
     transcript: string,
@@ -68,17 +66,8 @@ export class TranscriptManager {
   }
 
   /**
-   * Appends a completed assistant transcript turn, then runs call extraction.
-   *
-   * 1. Reads the current `assistantTranscript` and appends the new turn.
-   * 2. Persists a `openai.output_audio_transcript.done` event.
-   * 3. Loads the full caller + assistant transcripts.
-   * 4. Calls `extractCallData()` to get structured lead fields.
-   * 5. Updates the Call record with extracted data.
-   * 6. Persists a `openai.call_extraction.completed` event.
-   *
-   * Extraction runs after every assistant turn so the operator dashboard
-   * shows progressively refined lead data during the call.
+   * Appends a completed assistant transcript turn, runs extraction,
+   * then sends a notification email to configured operators.
    */
   async appendAssistantTranscriptAndExtract(
     transcript: string,
@@ -150,5 +139,84 @@ export class TranscriptManager {
       leadIntent: extracted.leadIntent,
       urgency: extracted.urgency
     });
+
+    // --- Send notification email ---
+    await this.sendLeadNotification(context.callId, extracted);
+  }
+
+  /**
+   * Loads full call context and sends a lead notification email.
+   * Failures are logged but never block the call flow.
+   */
+  private async sendLeadNotification(
+    callId: string,
+    extracted: {
+      leadName: string | null;
+      leadPhone: string | null;
+      leadIntent: string | null;
+      urgency: string | null;
+      serviceAddress: string | null;
+      summary: string | null;
+    }
+  ): Promise<void> {
+    try {
+      const call = await prisma.call.findUnique({
+        where: { id: callId },
+        select: {
+          twilioCallSid: true,
+          fromE164: true,
+          callerTranscript: true,
+          assistantTranscript: true,
+          durationSeconds: true,
+          answeredAt: true,
+          business: { select: { name: true } }
+        }
+      });
+
+      if (!call) return;
+
+      const result = await sendCallCompletedNotification({
+        callId,
+        callSid: call.twilioCallSid,
+        businessName: call.business.name,
+        fromE164: call.fromE164,
+        leadName: extracted.leadName,
+        leadPhone: extracted.leadPhone,
+        leadIntent: extracted.leadIntent,
+        urgency: extracted.urgency,
+        serviceAddress: extracted.serviceAddress,
+        summary: extracted.summary,
+        callerTranscript: call.callerTranscript,
+        assistantTranscript: call.assistantTranscript,
+        durationSeconds: call.durationSeconds,
+        answeredAt: call.answeredAt
+      });
+
+      if (result.sent) {
+        this.log.info({
+          msg: 'lead notification email sent',
+          callSid: this.queryCallSid,
+          leadName: extracted.leadName
+        });
+
+        await this.events.persistEvent('notification.email.sent', {
+          callSid: this.queryCallSid,
+          leadName: extracted.leadName,
+          urgency: extracted.urgency
+        });
+      } else {
+        this.log.warn({
+          msg: 'lead notification email skipped',
+          callSid: this.queryCallSid,
+          reason: result.error
+        });
+      }
+    } catch (error) {
+      this.log.error({
+        msg: 'lead notification email failed',
+        callSid: this.queryCallSid,
+        error: String(error)
+      });
+    }
   }
 }
