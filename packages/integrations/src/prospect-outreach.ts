@@ -1,4 +1,5 @@
-import OpenAI from 'openai';
+import type OpenAI from 'openai';
+import OpenAIClient from 'openai';
 
 export type ProspectOutreachAttemptSummary = {
   attemptedAt: string;
@@ -56,12 +57,8 @@ export const defaultProspectOutreachGenerationOptions: ProspectOutreachGeneratio
 
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not set');
-  }
-
-  return new OpenAI({ apiKey });
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
+  return new OpenAIClient({ apiKey });
 }
 
 function cleanNullableString(value: unknown) {
@@ -217,6 +214,44 @@ export function buildProspectOutreachPrompt(
   ].join('\n');
 }
 
+const outreachDraftSchema: OpenAI.Responses.ResponseFormatTextJSONSchemaConfig = {
+  type: 'json_schema',
+  name: 'prospect_outreach_draft',
+  strict: true,
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      qualificationScore: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 25
+      },
+      fitSummary: { type: 'string' },
+      chosenAngle: { type: 'string' },
+      firstEmailSubject: { type: 'string' },
+      firstEmailBody: { type: 'string' },
+      shortDmText: { type: 'string' },
+      followUp1: { type: 'string' },
+      followUp2: { type: 'string' },
+      callOpener: { type: 'string' },
+      crmNote: { type: 'string' }
+    },
+    required: [
+      'qualificationScore',
+      'fitSummary',
+      'chosenAngle',
+      'firstEmailSubject',
+      'firstEmailBody',
+      'shortDmText',
+      'followUp1',
+      'followUp2',
+      'callOpener',
+      'crmNote'
+    ]
+  }
+};
+
 export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>): ProspectOutreachDraft {
   const qualificationScore = clampQualificationScore(parsed.qualificationScore);
 
@@ -238,91 +273,17 @@ export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>):
 export async function generateProspectOutreachDraft(
   input: ProspectOutreachInput,
   options: ProspectOutreachGenerationOptions = defaultProspectOutreachGenerationOptions
-) {
+): Promise<ProspectOutreachDraft> {
   const client = getOpenAIClient();
 
   const response = await client.responses.create({
     model: process.env.OPENAI_OUTREACH_MODEL ?? 'gpt-5-mini',
     store: false,
-    input: [
-      {
-        role: 'system',
-        content: [
-          {
-            type: 'input_text',
-            text:
-              'Draft a structured outreach package for a home-service prospect. Do not mention AI. Do not invent facts. Keep the copy plain, commercial, and operator-useful.'
-          }
-        ]
-      },
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'input_text',
-            text: buildProspectOutreachPrompt(input, options)
-          }
-        ]
-      }
-    ],
-    text: {
-      format: {
-        type: 'json_schema',
-        name: 'prospect_outreach_draft',
-        strict: true,
-        schema: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            qualificationScore: {
-              type: 'integer',
-              minimum: 0,
-              maximum: 25
-            },
-            fitSummary: {
-              type: 'string'
-            },
-            chosenAngle: {
-              type: 'string'
-            },
-            firstEmailSubject: {
-              type: 'string'
-            },
-            firstEmailBody: {
-              type: 'string'
-            },
-            shortDmText: {
-              type: 'string'
-            },
-            followUp1: {
-              type: 'string'
-            },
-            followUp2: {
-              type: 'string'
-            },
-            callOpener: {
-              type: 'string'
-            },
-            crmNote: {
-              type: 'string'
-            }
-          },
-          required: [
-            'qualificationScore',
-            'fitSummary',
-            'chosenAngle',
-            'firstEmailSubject',
-            'firstEmailBody',
-            'shortDmText',
-            'followUp1',
-            'followUp2',
-            'callOpener',
-            'crmNote'
-          ]
-        }
-      }
-    }
-  } as never);
+    instructions:
+      'Draft a structured outreach package for a home-service prospect. Do not mention AI. Do not invent facts. Keep the copy plain, commercial, and operator-useful.',
+    input: buildProspectOutreachPrompt(input, options),
+    text: { format: outreachDraftSchema }
+  });
 
   const parsed = JSON.parse(response.output_text) as Record<string, unknown>;
   return normalizeProspectOutreachDraft(parsed);
