@@ -14,3 +14,5 @@ apps/api/dist
 apps/realtime-gateway/dist
 apps/worker/dist
 packages/*/dist
+.vercel
+packages/db/src/generated/prisma/*.node

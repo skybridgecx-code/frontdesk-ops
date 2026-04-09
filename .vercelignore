@@ -1,0 +1,3 @@
+packages/db/src/generated/prisma/*.node
+packages/db/src/generated/prisma/*.dylib.node
+*.dylib.node
