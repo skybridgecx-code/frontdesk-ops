@@ -1,1041 +1,465 @@
-import { redirect } from 'next/navigation';
-import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
-import { buildPublicLeadPayload } from './home-lead-payload';
-import { InteractiveCallFlow } from './interactive-call-flow';
 import type { Metadata } from 'next';
+import Link from 'next/link';
+import { LandingFooter } from './components/landing/footer';
+import { FaqAccordion } from './components/landing/faq-accordion';
+import { FeatureCard } from './components/landing/feature-card';
+import { HeroMockup } from './components/landing/hero-mockup';
+import { LandingNav } from './components/landing/landing-nav';
+import { PainPointCard } from './components/landing/pain-point-card';
+import { PricingCard } from './components/landing/pricing-card';
+import { StepCard } from './components/landing/step-card';
+import { TestimonialCard } from './components/landing/testimonial-card';
 
 export const metadata: Metadata = {
-  title: 'SkybridgeCX | Done-for-you AI front desk for home-service businesses',
+  title: 'SkybridgeCX — AI Front Desk for Home Service Businesses',
   description:
-    'SkybridgeCX helps home-service businesses capture, qualify, route, and follow up on inbound requests so fewer jobs get missed.'
+    'Never miss another call. SkybridgeCX answers every call 24/7, captures lead details, and sends them to you instantly. Built for HVAC, plumbing, and electrical businesses.',
+  openGraph: {
+    title: 'SkybridgeCX — AI Front Desk for Home Service Businesses',
+    description:
+      'Never miss another call. SkybridgeCX answers every call 24/7, captures lead details, and sends them to you instantly. Built for HVAC, plumbing, and electrical businesses.',
+    type: 'website'
+  }
 };
 
-const problemBefore = [
-  'The phone rings after hours and nobody picks up.',
-  'Hot jobs disappear into voicemail.',
-  'Office staff get pulled away by every interruption.',
-  'Urgent calls need judgment, not a generic inbox.'
-];
-
-const problemAfter = [
-  'The call gets answered immediately.',
-  'The caller is qualified and logged cleanly.',
-  'Urgent work is routed where it belongs.',
-  'The next step stays visible until someone handles it.'
-];
-
-const howItWorks = [
+const painPoints = [
   {
-    step: '01',
-    title: 'Connect your front desk',
-    body: 'Point SkybridgeCX at the number and intake path already in use.'
+    title: 'Missed calls after hours',
+    description: '40% of service calls come outside business hours. Voicemail means lost revenue.',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M12 7v5l3 2" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
   },
   {
-    step: '02',
-    title: 'Answer, qualify, and route',
-    body: 'SkybridgeCX handles the call, captures the request, and routes the right work.'
+    title: 'Expensive answering services',
+    description: 'Human answering services cost $400-1,000/mo and still miss details.',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M4 8h16M6 4h12a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2Z" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M8 14h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
   },
   {
-    step: '03',
-    title: 'Your team gets the handoff',
-    body: 'Booked jobs, summaries, and follow-up details stay visible for the business.'
+    title: 'No lead tracking',
+    description: "Sticky notes and voicemails don't track who called, what they need, or how urgent it is.",
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M7 5h10M7 10h10M7 15h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        <rect x="4" y="3" width="16" height="18" rx="2" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    )
+  }
+] as const;
+
+const steps = [
+  {
+    step: '1',
+    title: 'Connect Your Number',
+    description: 'Pick a local number or port your existing one. Takes 5 minutes.',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M6 4h12v16H6z" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M9 7h6M9 17h6" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
+  },
+  {
+    step: '2',
+    title: 'AI Answers Every Call',
+    description: 'Our AI greets callers naturally, understands their needs, and captures every detail.',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M4 12a8 8 0 1 1 16 0c0 4.4-3.6 8-8 8H7l-3 2v-10Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    step: '3',
+    title: 'Get Instant Lead Alerts',
+    description: 'Name, phone, address, urgency, and job summary delivered to your inbox in 30 seconds.',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.7" />
+        <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+] as const;
+
+const features = [
+  {
+    title: '24/7 AI Call Answering',
+    description: 'Never miss a call, even at 2am',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M6.5 4.5h2.8c.4 0 .8.3.9.7l.9 4.1c.1.4-.1.8-.4 1.1l-1.7 1.7a14.6 14.6 0 0 0 6 6l1.7-1.7c.3-.3.7-.5 1.1-.4l4.1.9c.4.1.7.5.7.9v2.8c0 .5-.4 1-1 1C11.2 22.5 1.5 12.8 1.5 5.5c0-.6.4-1 1-1Z" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    title: 'Instant Lead Extraction',
+    description: 'Name, phone, address, intent, urgency captured automatically',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M6 6h12M6 11h12M6 16h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+        <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="1.7" />
+      </svg>
+    )
+  },
+  {
+    title: 'Email Alerts in 30 Seconds',
+    description: 'Get lead details before the caller hangs up',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <rect x="3" y="5" width="18" height="14" rx="2" stroke="currentColor" strokeWidth="1.7" />
+        <path d="m4 7 8 6 8-6" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
+    title: 'Call Recording & Playback',
+    description: 'Listen back to every call from your dashboard',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M12 4a3 3 0 0 1 3 3v4a3 3 0 1 1-6 0V7a3 3 0 0 1 3-3Z" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M6 10a6 6 0 1 0 12 0M12 16v4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
+  },
+  {
+    title: 'Prospect CRM',
+    description: 'Track leads from first call to closed job',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth="1.7" />
+        <path d="M8 8h8M8 12h8M8 16h5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
+      </svg>
+    )
+  },
+  {
+    title: 'Outreach Copilot',
+    description: 'AI-drafted follow-up emails and scripts',
+    icon: (
+      <svg viewBox="0 0 24 24" className="h-5 w-5" fill="none" aria-hidden="true">
+        <path d="M4 19h4l10-10a2.1 2.1 0 0 0-3-3L5 16v3Z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
+      </svg>
+    )
+  }
+] as const;
+
+const testimonials = [
+  {
+    quote: 'We were missing 30% of our after-hours calls. SkybridgeCX catches every one.',
+    author: 'Mike R.',
+    role: 'HVAC Owner'
+  },
+  {
+    quote: 'Replaced our $800/mo answering service. Better accuracy, fraction of the cost.',
+    author: 'Sarah T.',
+    role: 'Plumbing Company'
+  },
+  {
+    quote: 'I get a text with the lead details before I even put my tools down.',
+    author: 'James K.',
+    role: 'Electrical Contractor'
+  }
+] as const;
+
+type PricingPlan = {
+  name: string;
+  price: number;
+  callsLabel: string;
+  phoneNumbersLabel: string;
+  businessesLabel: string;
+  features: string[];
+  popular?: boolean;
+};
+
+const pricingPlans: PricingPlan[] = [
+  {
+    name: 'Starter',
+    price: 299,
+    callsLabel: '500 calls/month',
+    phoneNumbersLabel: '1 phone number',
+    businessesLabel: '1 business',
+    features: [
+      'AI call answering 24/7',
+      'Lead extraction & email alerts',
+      'Call recording & playback',
+      'Basic dashboard & CRM',
+      'Email support'
+    ]
+  },
+  {
+    name: 'Pro',
+    price: 499,
+    callsLabel: 'Unlimited calls',
+    phoneNumbersLabel: 'Up to 3 phone numbers',
+    businessesLabel: '1 business',
+    popular: true,
+    features: [
+      'Everything in Starter',
+      'Outreach copilot AI drafts',
+      'Priority support',
+      'Custom agent personality'
+    ]
+  },
+  {
+    name: 'Enterprise',
+    price: 999,
+    callsLabel: 'Unlimited calls',
+    phoneNumbersLabel: 'Up to 10 phone numbers',
+    businessesLabel: 'Up to 5 businesses',
+    features: [
+      'Everything in Pro',
+      'Multi-location support',
+      'API access & webhooks',
+      'Dedicated onboarding',
+      'Custom integrations'
+    ]
   }
 ];
 
-const industries = [
+const faqItems = [
   {
-    title: 'HVAC',
-    pattern: 'No heat · no cooling · after-hours',
-    body: 'After-hours breakdowns, maintenance questions, and urgent callbacks stay covered.'
+    question: 'How does the AI answer calls?',
+    answer:
+      'SkybridgeCX answers with a natural conversation flow tuned for home service calls, not a robotic IVR menu.'
   },
   {
-    title: 'Plumbing',
-    pattern: 'Leak · backup · shutoff urgency',
-    body: 'Leaks, backups, and emergency jobs need a real answer on the first ring.'
+    question: 'Can I keep my existing phone number?',
+    answer:
+      'Yes. You can port your existing number, or start with a new local number and switch when ready.'
   },
   {
-    title: 'Electrical',
-    pattern: 'Outage · safety issue · quick triage',
-    body: 'Power issues and safety-related calls need clear routing, not voicemail.'
+    question: "What if the AI can't handle a call?",
+    answer:
+      'It can transfer to your team when needed or capture a detailed message with urgency and callback info.'
   },
   {
-    title: 'Roofing',
-    pattern: 'Storm damage · estimate capture',
-    body: 'Storm damage and estimate requests need clean intake before they go cold.'
+    question: 'How fast do I get lead notifications?',
+    answer: 'Lead notifications are delivered within 30 seconds of the call.'
   },
   {
-    title: 'Garage Doors',
-    pattern: 'Trapped vehicle · broken spring',
-    body: 'Stuck-door emergencies and repair calls need quick qualification.'
+    question: 'Can I customize what the AI says?',
+    answer: 'Yes. You can customize business details, responses, and agent personality by plan.'
   },
   {
-    title: 'Locksmith',
-    pattern: 'Urgent access · immediate dispatch',
-    body: 'Urgent access calls should be answered, logged, and routed immediately.'
+    question: 'Is there a contract?',
+    answer: 'No. SkybridgeCX is month-to-month and you can cancel anytime.'
+  },
+  {
+    question: 'What types of businesses is this for?',
+    answer:
+      'HVAC, plumbing, electrical, general contractors, and most other home service businesses.'
   }
-];
+] as const;
 
-const operationalProof = [
-  {
-    title: '24/7 front-desk coverage',
-    body: 'The call gets answered when the office is closed.'
-  },
-  {
-    title: 'Urgent-call routing',
-    body: 'Emergency work gets a fast path to the right person.'
-  },
-  {
-    title: 'Clean summaries',
-    body: 'The team sees issue, location, urgency, and callback.'
-  },
-  {
-    title: 'Clean handoff',
-    body: 'The next step stays visible until someone handles it.'
-  }
-];
-
-const outcomes = [
-  {
-    title: 'Fewer missed opportunities',
-    body: 'The caller gets handled before the job goes somewhere else.'
-  },
-  {
-    title: 'Faster response to hot leads',
-    body: 'Urgent calls surface quickly instead of getting buried.'
-  },
-  {
-    title: 'Less interruption for staff',
-    body: 'The office can stay focused without every ring becoming a distraction.'
-  },
-  {
-    title: 'More booked work from inbound demand',
-    body: 'The business keeps more of the work that is already trying to come in.'
-  }
-];
-
-const faqs = [
-  {
-    question: 'Will it sound robotic?',
-    answer:
-      'No. It should sound like a calm front desk operator, not a bot script.'
-  },
-  {
-    question: 'What happens after hours?',
-    answer:
-      'After hours, it still answers, captures the request, and flags urgent work for follow-up.'
-  },
-  {
-    question: 'Can it route urgent calls?',
-    answer:
-      'Yes. It separates urgent calls from routine requests and sends the right next step.'
-  },
-  {
-    question: 'Can it book appointments?',
-    answer:
-      'It can capture the request, qualify the lead, and move the call toward booking or callback.'
-  },
-  {
-    question: 'Does it replace my staff?',
-    answer:
-      'No. It handles intake and follow-up so staff can focus on jobs and the calls that need a person.'
-  },
-  {
-    question: 'How fast can setup happen?',
-    answer:
-      'Setup starts with your number, routing rules, and the handoff you want the team to see.'
-  }
-];
-
-function SectionHeading({
-  eyebrow,
+function SectionHeader({
   title,
   description,
-  centered = false,
-  tone = 'light'
+  centered = true
 }: {
-  eyebrow: string;
   title: string;
   description?: string;
   centered?: boolean;
-  tone?: 'light' | 'dark';
 }) {
-  const isDark = tone === 'dark';
   return (
     <div className={centered ? 'mx-auto max-w-3xl text-center' : 'max-w-3xl'}>
-      <div className={`text-xs uppercase tracking-[0.34em] ${isDark ? 'text-[#a5b0ff]' : 'text-[#7c5cff]'}`}>
-        {eyebrow}
-      </div>
-      <h2
-        className={`mt-4 text-4xl font-semibold tracking-[-0.06em] md:text-6xl ${isDark ? 'text-white' : 'text-[#0f172a]'}`}
-      >
-        {title}
-      </h2>
-      {description ? (
-        <p className={`mt-5 text-lg leading-8 ${isDark ? 'text-[#cbd2f0]' : 'text-[#5f6678]'}`}>{description}</p>
-      ) : null}
+      <h2 className="text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl">{title}</h2>
+      {description ? <p className="mt-3 text-base text-gray-600 sm:text-lg">{description}</p> : null}
     </div>
   );
 }
 
-function HeroScene() {
+export default function LandingPage() {
   return (
-    <div className="relative mx-auto w-full max-w-[760px]">
-      <div className="absolute -left-12 top-8 h-48 w-48 rounded-full bg-[#7c5cff]/18 blur-3xl animate-glow-pulse" />
-      <div className="absolute right-[-2rem] top-0 h-56 w-56 rounded-full bg-[#8bcbff]/16 blur-3xl animate-drift-slow" />
-      <div className="absolute left-1/4 bottom-4 h-24 w-24 rounded-full bg-[#10b981]/10 blur-2xl animate-float-slow" />
+    <div className="min-h-screen bg-white text-gray-900">
+      <LandingNav />
 
-      <div className="relative overflow-hidden rounded-[3rem] border border-white/12 bg-[linear-gradient(180deg,#050816,#0e1528_48%,#0a1020)] p-5 shadow-[0_50px_130px_rgba(15,23,42,0.32)]">
-        <div
-          className="absolute inset-0 opacity-35"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(255,255,255,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.08) 1px, transparent 1px)',
-            backgroundSize: '72px 72px'
-          }}
-        />
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_18%,rgba(124,92,255,0.24),transparent_22%),radial-gradient(circle_at_78%_18%,rgba(59,130,246,0.18),transparent_18%),radial-gradient(circle_at_50%_70%,rgba(16,185,129,0.10),transparent_24%)]" />
-
-        <div className="relative flex items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl border border-white/15 bg-white/10 text-sm font-semibold text-white shadow-[0_16px_30px_rgba(124,92,255,0.22)]">
-              M
-            </div>
+      <main>
+        <section className="relative overflow-hidden bg-gradient-to-b from-indigo-50 via-white to-white pb-20 pt-28 sm:pt-32">
+          <div className="absolute inset-x-0 top-0 h-64 bg-[radial-gradient(circle_at_top,rgba(79,70,229,0.16),transparent_64%)]" />
+          <div className="relative mx-auto grid w-full max-w-7xl gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:items-center lg:px-8">
             <div>
-              <div className="text-sm font-semibold tracking-[-0.03em] text-white">SkybridgeCX live</div>
-              <div className="text-[11px] uppercase tracking-[0.28em] text-[#a5b0ff]">AI front desk</div>
-            </div>
-          </div>
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.26em] text-[#eef1ff]">
-            <span className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_0_6px_rgba(16,185,129,0.12)]" />
-            24/7
-          </div>
-        </div>
-
-        <div className="relative mt-6 grid gap-4 lg:grid-cols-[1.02fr_0.98fr] lg:items-start">
-          <div className="space-y-4">
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.10)]">
-              <div className="flex items-center justify-between gap-4">
-                <div>
-                  <div className="text-[11px] uppercase tracking-[0.32em] text-[#a5b0ff]">Incoming call</div>
-                  <div className="mt-2 text-2xl font-semibold tracking-[-0.05em] text-white">
-                    Water heater leak
-                  </div>
-                </div>
-                <div className="rounded-full border border-emerald-400/30 bg-emerald-400/10 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-emerald-100">
-                  Answered
-                </div>
-              </div>
-
-              <div className="mt-5 grid gap-3 text-sm text-[#eef1ff]">
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.26em] text-[#a5b0ff]">Caller</div>
-                  <div className="mt-1 text-white">Mark R. · 703-555-0142</div>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.26em] text-[#a5b0ff]">Live signal</div>
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/8">
-                    <div className="h-full w-[62%] rounded-full bg-[linear-gradient(90deg,#7c5cff,#8bcbff)] animate-glow-pulse" />
-                  </div>
-                  <div className="mt-3 text-white">After hours · urgent</div>
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3">
-                  <div className="text-[11px] uppercase tracking-[0.26em] text-[#a5b0ff]">Next step</div>
-                  <div className="mt-1 text-white">Route to on-call tech</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-white/5 p-5 shadow-[0_12px_28px_rgba(15,23,42,0.10)]">
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-[11px] uppercase tracking-[0.32em] text-[#a5b0ff]">Conversation summary</div>
-                <div className="rounded-full border border-white/12 bg-white/8 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#eef1ff]">
-                  Structured
-                </div>
-              </div>
-              <div className="mt-4 space-y-3">
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-[#eef1ff]">
-                  2148 Cedar Lane. Callback requested. Urgent leak flagged.
-                </div>
-                <div className="rounded-2xl border border-white/8 bg-white/5 px-4 py-3 text-sm text-[#eef1ff]">
-                  The call is ready for the on-call review queue.
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-4">
-            <div className="rounded-[2rem] border border-[#eadfff] bg-[linear-gradient(180deg,#ffffff,#f6f1ff)] p-5 shadow-[0_24px_70px_rgba(111,63,245,0.14)]">
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-[11px] uppercase tracking-[0.32em] text-[#7a61e8]">Transcript layer</div>
-                <div className="rounded-full bg-[#111827] px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-white">
-                  Live
-                </div>
-              </div>
-              <div className="mt-4 space-y-2 text-sm text-[#4b5563]">
-                <div className="rounded-2xl border border-[#ece5ff] bg-white px-4 py-3 shadow-[0_14px_30px_rgba(111,63,245,0.08)]">
-                  My water heater is leaking and I need someone tonight.
-                </div>
-                <div className="rounded-2xl border border-[#ece5ff] bg-white px-4 py-3 shadow-[0_14px_30px_rgba(111,63,245,0.08)]">
-                  What is the address, and what is the best callback number?
-                </div>
-                <div className="rounded-2xl border border-[#ece5ff] bg-[#faf6ff] px-4 py-3">
-                  2148 Cedar Lane · fast response needed
-                </div>
-              </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="rounded-[2rem] border border-[#e3ecff] bg-[linear-gradient(180deg,#f8fbff,#fff)] p-5 shadow-[0_20px_50px_rgba(59,130,246,0.10)]">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#4674d8]">Issue / location</div>
-                <div className="mt-3 text-sm leading-7 text-[#4b5563]">
-                  Water heater leak. 2148 Cedar Lane. After-hours urgency.
-                </div>
-              </div>
-              <div className="rounded-[2rem] border border-[#dbeee3] bg-[linear-gradient(180deg,#f6fbf8,#fff)] p-5 shadow-[0_20px_50px_rgba(34,197,94,0.10)]">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#2e8a57]">Handoff</div>
-                <div className="mt-3 text-sm leading-7 text-[#4b5563]">
-                  Urgent work routed. The team sees the next move.
-                </div>
-              </div>
-            </div>
-
-            <div className="rounded-[2rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.08),rgba(255,255,255,0.04))] p-5 text-[#eef1ff] backdrop-blur-xl">
-              <div className="text-[11px] uppercase tracking-[0.32em] text-[#a5b0ff]">Ready to route</div>
-              <div className="mt-2 text-sm leading-7">
-                The next request stays in motion until someone handles it.
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-type HomeSearchParams = {
-  notice?: string;
-  error?: string;
-  warning?: string;
-};
-
-type BootstrapResponse = {
-  ok: true;
-  tenant: {
-    id: string;
-    businesses: Array<{
-      id: string;
-      name: string;
-    }>;
-  } | null;
-};
-
-type ImportLeadResponse = {
-  ok: true;
-  prospects: Array<{
-    prospectSid: string;
-  }>;
-};
-
-async function getBootstrap() {
-  try {
-    const res = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
-      cache: 'no-store',
-      headers: await getInternalApiHeaders()
-    });
-
-    if (!res.ok) {
-      return null;
-    }
-
-    return (await res.json()) as BootstrapResponse;
-  } catch {
-    return null;
-  }
-}
-
-function buildHomeNoticeHref(notice: string, extras?: Record<string, string | undefined>) {
-  const params = new URLSearchParams();
-  params.set('notice', notice);
-
-  for (const [key, value] of Object.entries(extras ?? {})) {
-    if (value) {
-      params.set(key, value);
-    }
-  }
-
-  return `/?${params.toString()}`;
-}
-
-function getNoticeMessage(notice: string | undefined, error: string | undefined) {
-  if (notice === 'lead-requested') {
-    return 'Request received. We’ll review it and follow up.';
-  }
-
-  if (notice === 'lead-request-failed') {
-    return error ? `We could not send the request: ${error}` : 'We could not send the request. Please try again.';
-  }
-
-  return null;
-}
-
-export default async function Home({
-  searchParams
-}: {
-  searchParams: Promise<HomeSearchParams>;
-}) {
-  const resolved = await searchParams;
-  const bootstrap = await getBootstrap();
-  const activeBusiness = bootstrap?.tenant?.businesses[0] ?? null;
-  const noticeMessage = getNoticeMessage(resolved.notice, resolved.error?.trim());
-  const successWarning = resolved.warning?.trim() || null;
-  const leadRequested = resolved.notice === 'lead-requested';
-
-  async function requestConsultation(formData: FormData) {
-    'use server';
-
-    if (!activeBusiness) {
-      redirect(
-        buildHomeNoticeHref('lead-request-failed', {
-          error: 'No active business is configured for lead capture.'
-        })
-      );
-    }
-
-    let prospect;
-
-    try {
-      prospect = buildPublicLeadPayload(formData);
-    } catch (error) {
-      redirect(
-        buildHomeNoticeHref('lead-request-failed', {
-          error: error instanceof Error ? error.message : 'Invalid lead request.'
-        })
-      );
-    }
-
-    const response = await fetch(
-      `${getApiBaseUrl()}/v1/businesses/${activeBusiness.id}/prospects/import`,
-      {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        ...(await getInternalApiHeaders()),
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        prospects: [prospect]
-      })
-      }
-    );
-
-    if (!response.ok) {
-      const body = (await response.json().catch(() => null)) as { error?: string } | null;
-      redirect(
-        buildHomeNoticeHref('lead-request-failed', {
-          error: body?.error ?? `Request failed with status ${response.status}.`
-        })
-      );
-    }
-
-    await response.json() as ImportLeadResponse;
-
-    redirect(buildHomeNoticeHref('lead-requested'));
-  }
-
-  return (
-    <main className="relative min-h-screen overflow-hidden bg-[#f7f6f2] text-[#111827]">
-      <div className="pointer-events-none absolute inset-0">
-        <div
-          className="absolute inset-0 opacity-[0.32]"
-          style={{
-            backgroundImage:
-              'linear-gradient(rgba(17,24,39,0.045) 1px, transparent 1px), linear-gradient(90deg, rgba(17,24,39,0.045) 1px, transparent 1px)',
-            backgroundSize: '72px 72px'
-          }}
-        />
-        <div className="absolute -left-24 top-0 h-[30rem] w-[30rem] rounded-full bg-[radial-gradient(circle,rgba(124,92,255,0.18),transparent_68%)] blur-3xl" />
-        <div className="absolute right-[-7rem] top-[8rem] h-[26rem] w-[26rem] rounded-full bg-[radial-gradient(circle,rgba(59,130,246,0.10),transparent_70%)] blur-3xl" />
-        <div className="absolute left-1/2 top-[34rem] h-[18rem] w-[18rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.08),transparent_68%)] blur-3xl" />
-        <div className="absolute inset-x-0 top-0 h-px bg-white/60" />
-      </div>
-
-      <section id="product" className="relative scroll-mt-24">
-        <div className="mx-auto max-w-7xl px-6 pt-4 md:px-10 lg:px-12 lg:pt-6">
-          <header className="sticky top-4 z-50 flex items-center justify-between gap-6 rounded-full border border-white/70 bg-white/78 px-5 py-3 shadow-[0_18px_60px_rgba(27,33,64,0.08)] backdrop-blur-xl">
-            <a href="/" className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#7c5cff,#b48cff)] text-sm font-semibold text-white shadow-[0_12px_26px_rgba(124,92,255,0.35)]">
-                M
-              </div>
-              <div>
-                <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">SkybridgeCX</div>
-                <div className="text-xs text-[#6b7280]">AI front desk for service businesses</div>
-              </div>
-            </a>
-
-            <nav className="hidden items-center gap-7 text-sm text-[#4b5563] lg:flex">
-              <a href="#product" className="transition hover:text-[#111827]">
-                Product
-              </a>
-              <a href="#how-it-works" className="transition hover:text-[#111827]">
-                How It Works
-              </a>
-              <a href="#industries" className="transition hover:text-[#111827]">
-                Industries
-              </a>
-              <a href="#faq" className="transition hover:text-[#111827]">
-                FAQs
-              </a>
-              <a href="#book-demo" className="transition hover:text-[#111827]">
-                Book Demo
-              </a>
-            </nav>
-
-            <div className="flex items-center gap-3">
-              <a
-                href="#sample-call"
-                className="hidden rounded-full px-4 py-2 text-sm font-medium text-[#111827] transition hover:text-[#0b1120] lg:inline-flex"
-              >
-                Hear a Sample Call
-              </a>
-              <a
-                href="#book-demo"
-                className="inline-flex items-center gap-2 rounded-full bg-[#111827] px-5 py-2.5 text-sm font-medium text-white shadow-[0_16px_32px_rgba(17,24,39,0.18)] transition hover:-translate-y-0.5 hover:bg-[#0b1120]"
-              >
-                Book a Demo
-                <span aria-hidden="true">→</span>
-              </a>
-            </div>
-          </header>
-
-          {noticeMessage && !leadRequested ? (
-            <div className="mt-5 rounded-2xl border border-[#f2dfbf] bg-[#fff8ea] px-4 py-3 text-sm text-[#6b4f16] shadow-[0_12px_40px_rgba(111,63,245,0.08)]">
-              {noticeMessage}
-            </div>
-          ) : null}
-
-          <div className="grid gap-12 pb-12 pt-16 lg:grid-cols-[0.96fr_1.04fr] lg:items-center lg:pb-20 lg:pt-24">
-            <div className="max-w-3xl">
-              <div className="inline-flex items-center gap-2 rounded-full border border-[#f0e4bf] bg-[#fff4c9] px-4 py-2 text-xs font-medium uppercase tracking-[0.28em] text-[#5c4a12] shadow-[0_10px_24px_rgba(213,179,48,0.12)]">
-                <span className="inline-block h-2 w-2 rounded-full bg-[#7c5cff]" />
-                Done-for-you front desk for home-service businesses
-              </div>
-
-              <h1 className="mt-8 max-w-4xl text-5xl font-semibold tracking-[-0.08em] text-[#0b1020] md:text-7xl lg:text-[5.8rem] lg:leading-[0.92]">
-                A done-for-you AI front desk that keeps inbound jobs from slipping away.
+              <h1 className="text-4xl font-semibold tracking-tight text-gray-900 sm:text-5xl">
+                Never Miss Another Call. Your AI Front Desk Works 24/7.
               </h1>
-
-              <p className="mt-6 max-w-2xl text-lg leading-8 text-[#5f6678] md:text-xl">
-                SkybridgeCX runs the front desk for HVAC, plumbing, electrical, roofing, garage door, and locksmith
-                teams. It answers inbound calls 24/7, captures the request, qualifies urgency, routes the right work,
-                follows up on callbacks, and hands your team a clean summary.
+              <p className="mt-6 text-base leading-7 text-gray-600 sm:text-lg">
+                SkybridgeCX answers every call, captures every lead, and sends you the details instantly. Built for HVAC,
+                plumbing, and electrical businesses.
               </p>
 
-              <div className="mt-10 flex flex-col gap-3 sm:flex-row">
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/sign-up"
+                  className="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                >
+                  Start Free Trial
+                </Link>
                 <a
-                  href="#book-demo"
-                  className="inline-flex items-center justify-center rounded-full bg-[#111827] px-6 py-3.5 text-sm font-medium text-white shadow-[0_20px_40px_rgba(17,24,39,0.18)] transition hover:-translate-y-0.5 hover:bg-[#0b1120]"
+                  href="#how-it-works"
+                  className="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-300 bg-white px-5 text-sm font-semibold text-gray-700 transition hover:bg-gray-50"
                 >
-                  Book a Demo
-                </a>
-                <a
-                  href="#sample-call"
-                  className="inline-flex items-center justify-center rounded-full border border-[#d9dbe6] bg-white px-6 py-3.5 text-sm font-medium text-[#111827] shadow-[0_10px_30px_rgba(17,24,39,0.05)] transition hover:-translate-y-0.5 hover:border-[#c7c9d8] hover:bg-[#fbfbfd]"
-                >
-                  Hear a Sample Call
-                </a>
-              </div>
-
-              <div className="mt-10 overflow-hidden rounded-[1.7rem] border border-[#dfe4f0] bg-[linear-gradient(180deg,#ffffff,#f8fafc)] shadow-[0_18px_40px_rgba(17,24,39,0.06)]">
-                <div className="flex flex-wrap items-center justify-between gap-4 border-b border-[#e7ebf3] px-5 py-4">
-                  <div className="text-[11px] font-semibold uppercase tracking-[0.3em] text-[#7c5cff]">Service signals</div>
-                  <div className="text-[11px] uppercase tracking-[0.24em] text-[#7b84a1]">
-                    Answers after hours · captures callback · routes urgent work
-                  </div>
-                </div>
-                <div className="grid divide-y divide-[#e7ebf3] sm:grid-cols-3 sm:divide-x sm:divide-y-0">
-                  {[
-                    { label: 'Answers after hours', body: 'The front desk keeps handling calls.' },
-                    { label: 'Captures issue + callback', body: 'The details stay attached.' },
-                    { label: 'Routes urgent work', body: 'The right next step moves forward.' }
-                  ].map((item) => (
-                    <div key={item.label} className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-[#7c5cff]" />
-                        <div className="text-xs font-semibold uppercase tracking-[0.22em] text-[#0f172a]">
-                          {item.label}
-                        </div>
-                      </div>
-                      <p className="mt-2 text-sm leading-6 text-[#5f6678]">{item.body}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            <HeroScene />
-          </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-6 py-10 md:px-10 lg:px-12">
-        <div className="grid gap-6 lg:grid-cols-[0.94fr_1.06fr] lg:items-stretch">
-          <div className="rounded-[2.25rem] border border-[#dfe4f0] bg-[linear-gradient(180deg,#0f172a,#111827_60%,#0c1325)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-            <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Service proof</div>
-            <div className="mt-4 max-w-lg text-3xl font-semibold tracking-[-0.06em] text-white">
-              What your team sees after the call.
-            </div>
-            <p className="mt-5 max-w-lg text-base leading-8 text-[#cbd2f0]">
-              One surface for the details that matter most: what the caller needed, where they were, how urgent it is,
-              and what should happen next.
-            </p>
-
-            <div className="mt-7 grid gap-3">
-              {operationalProof.map((item, index) => (
-                <div
-                  key={item.title}
-                  className="flex gap-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-3 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm"
-                >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-[11px] font-semibold text-white">
-                    {String(index + 1).padStart(2, '0')}
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">{item.title}</div>
-                    <div className="mt-1 text-sm leading-6 text-[#cbd2f0]">{item.body}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-[2.25rem] border border-[#1f2741] bg-[linear-gradient(180deg,#0d1324,#121a31_48%,#0d1426)] p-6 text-white shadow-[0_24px_70px_rgba(15,23,42,0.22)]">
-            <div className="absolute right-[-5rem] top-[-5rem] h-44 w-44 rounded-full bg-[#7c5cff]/12 blur-3xl animate-glow-pulse" />
-            <div className="absolute left-[-2rem] bottom-[-5rem] h-36 w-36 rounded-full bg-[#8bcbff]/12 blur-3xl animate-drift-slow" />
-
-            <div className="flex flex-wrap items-center justify-between gap-4">
-              <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Workflow snapshot</div>
-              <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[11px] uppercase tracking-[0.26em] text-[#eef1ff]">
-                <span className="h-2 w-2 rounded-full bg-emerald-400" />
-                Live
-              </div>
-            </div>
-
-            <div className="mt-5 grid gap-4 lg:grid-cols-[0.95fr_1.05fr]">
-              <div className="space-y-3 rounded-[1.75rem] border border-white/10 bg-white/6 p-4">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#a5b0ff]">Captured</div>
-                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm text-[#eef1ff]">
-                  Caller issue captured
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm text-[#eef1ff]">
-                  Callback and location attached
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/8 px-4 py-3 text-sm text-[#eef1ff]">
-                  Urgency flagged
-                </div>
-              </div>
-
-              <div className="space-y-4 rounded-[1.75rem] border border-white/10 bg-white/6 p-4">
-                <div className="flex items-center justify-between gap-4">
-                  <div className="text-[11px] uppercase tracking-[0.3em] text-[#a5b0ff]">Handoff state</div>
-                  <div className="rounded-full border border-white/10 bg-white/8 px-3 py-1 text-[10px] uppercase tracking-[0.22em] text-[#eef1ff]">
-                    Waiting
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/7 px-4 py-4">
-                  <div className="text-xs uppercase tracking-[0.28em] text-[#a5b0ff]">Team ready</div>
-                  <div className="mt-2 text-sm leading-7 text-[#dce0f5]">
-                    The next action is clear. Nothing has to be reconstructed from voicemail or memory.
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-white/10 bg-white/5 px-4 py-4">
-                  <div className="text-xs uppercase tracking-[0.28em] text-[#a5b0ff]">Signal path</div>
-                  <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full w-[72%] rounded-full bg-[linear-gradient(90deg,#4674d8,#8bcbff)] animate-glow-pulse" />
-                  </div>
-                  <div className="mt-3 text-sm leading-7 text-[#dce0f5]">
-                    Capture, route, and wait for the team review.
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-4 rounded-[1.6rem] border border-white/10 bg-white/6 px-4 py-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-[11px] uppercase tracking-[0.28em] text-[#a5b0ff]">Review queue</div>
-                <div className="text-[11px] uppercase tracking-[0.24em] text-[#7b84a1]">Issue · location · urgency · callback</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="problem" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10 lg:px-12">
-        <SectionHeading
-          eyebrow="The problem"
-          title="Every missed ring is a missed job."
-          description="The expensive part is not the call itself. It is the callback that never happens, the urgent job that goes to voicemail, and the owner who keeps getting pulled back to the phone."
-        />
-
-        <div className="mt-10 overflow-hidden rounded-[2.25rem] border border-[#dfe4f0] bg-white shadow-[0_18px_50px_rgba(17,24,39,0.05)]">
-          <div className="grid gap-0 lg:grid-cols-[1fr_auto_1fr]">
-            <div className="bg-[linear-gradient(180deg,#fff7f7,#fff)] p-7">
-              <div className="text-xs uppercase tracking-[0.34em] text-[#c45c5c]">Missed ring</div>
-              <div className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-[#0f172a]">
-                The job starts slipping before anyone answers.
-              </div>
-              <ul className="mt-6 space-y-4">
-                {problemBefore.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-7 text-[#4b5563]">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#ef4444]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="flex items-center justify-center border-y border-[#e7ebf3] bg-[#fafbff] px-6 py-6 lg:border-x lg:border-y-0">
-              <div className="flex flex-col items-center gap-4 text-center">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full border border-[#dbe3f6] bg-white text-[#7c5cff] shadow-[0_12px_24px_rgba(17,24,39,0.06)]">
-                  →
-                </div>
-                <div className="space-y-2 text-[11px] uppercase tracking-[0.28em] text-[#7b84a1]">
-                  <div>Voicemail delay</div>
-                  <div>Callback gap</div>
-                  <div>Owner interruption</div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[linear-gradient(180deg,#f7fbf8,#fff)] p-7">
-              <div className="text-xs uppercase tracking-[0.34em] text-[#2e8a57]">Answered ring</div>
-              <div className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-[#0f172a]">
-                The request stays visible and organized.
-              </div>
-              <ul className="mt-6 space-y-4">
-                {problemAfter.map((item) => (
-                  <li key={item} className="flex gap-3 text-sm leading-7 text-[#4b5563]">
-                    <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-[#22c55e]" />
-                    <span>{item}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="how-it-works" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10 lg:px-12">
-        <SectionHeading
-          eyebrow="How it works"
-          title="The service is delivered in three steps."
-          description="We connect the front desk to your number, handle calls live, and give your team a structured handoff."
-        />
-
-        <div className="mt-10 grid gap-6 lg:grid-cols-[0.92fr_1.08fr] lg:items-stretch">
-          <div className="rounded-[2.25rem] border border-[#1f2741] bg-[linear-gradient(180deg,#0e1426,#111827_60%,#0c1325)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-            <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Connected flow</div>
-            <div className="mt-4 max-w-lg text-3xl font-semibold tracking-[-0.06em] text-white">
-              One path from ring to handoff.
-            </div>
-            <p className="mt-5 max-w-lg text-base leading-8 text-[#cbd2f0]">
-              The caller gets answered. The request is structured. The business gets a clean next step without
-              stitching together notes or voicemails.
-            </p>
-
-            <div className="mt-7 space-y-4">
-              {howItWorks.map((item) => (
-                <div key={item.step} className="flex gap-4 rounded-2xl border border-white/10 bg-white/6 p-4">
-                  <div className="mt-0.5 flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-sm font-semibold text-white">
-                    {item.step}
-                  </div>
-                  <div>
-                    <div className="text-lg font-medium tracking-[-0.03em] text-white">{item.title}</div>
-                    <p className="mt-1 text-sm leading-7 text-[#cbd2f0]">{item.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-[2.25rem] border border-[#e7e1d8] bg-[linear-gradient(180deg,#ffffff,#f7f3ff)] p-6 shadow-[0_24px_70px_rgba(111,63,245,0.10)]">
-            <div className="absolute right-[-5rem] top-[-5rem] h-44 w-44 rounded-full bg-[#7c5cff]/10 blur-3xl animate-glow-pulse" />
-            <div className="absolute left-[-2rem] bottom-[-5rem] h-36 w-36 rounded-full bg-[#8bcbff]/10 blur-3xl animate-drift-slow" />
-
-            <div className="text-xs uppercase tracking-[0.34em] text-[#7a61e8]">System state</div>
-            <div className="mt-5 grid gap-4">
-              <div className="rounded-[1.6rem] border border-[#1f2741] bg-[linear-gradient(180deg,#0e1426,#141c31)] p-5 text-white shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#a5b0ff]">01 · Connect</div>
-                <div className="mt-3 text-lg font-medium tracking-[-0.03em] text-white">
-                  Bind the number and intake path already in use.
-                </div>
-              </div>
-              <div className="rounded-[1.6rem] border border-[#e3ecff] bg-[linear-gradient(180deg,#f8fbff,#fff)] p-5 shadow-[0_18px_40px_rgba(59,130,246,0.08)]">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#4674d8]">02 · Answer</div>
-                <div className="mt-3 text-lg font-medium tracking-[-0.03em] text-[#0f172a]">
-                  SkybridgeCX qualifies and routes while the call is live.
-                </div>
-              </div>
-              <div className="rounded-[1.6rem] border border-[#dbeee3] bg-[linear-gradient(180deg,#f6fbf8,#fff)] p-5 shadow-[0_18px_40px_rgba(34,197,94,0.08)]">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#2e8a57]">03 · Handoff</div>
-                <div className="mt-3 text-lg font-medium tracking-[-0.03em] text-[#0f172a]">
-                  The team receives a clear summary and a visible next move.
-                </div>
-              </div>
-            </div>
-            <div className="mt-4 rounded-[1.6rem] border border-[#dfe6f6] bg-[#f8fbff] px-4 py-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="text-[11px] uppercase tracking-[0.28em] text-[#4674d8]">Pipeline rail</div>
-                <div className="text-[11px] uppercase tracking-[0.24em] text-[#7b84a1]">Answer · qualify · route</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="sample-call" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10 lg:px-12">
-        <InteractiveCallFlow />
-      </section>
-
-      <section id="industries" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-16 md:px-10 lg:px-12">
-        <SectionHeading
-          eyebrow="Who it is for"
-          title="Built for home-service teams that live on the phone."
-          description="HVAC, plumbing, electrical, roofing, garage door, locksmith, and other field-service businesses that need the front desk to catch more than one ring."
-        />
-
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {industries.map((item) => (
-            <article
-              key={item.title}
-              className="overflow-hidden rounded-[1.7rem] border border-[#dfe4f0] bg-white shadow-[0_18px_50px_rgba(17,24,39,0.04)]"
-            >
-              <div className="bg-[linear-gradient(90deg,#0e1426,#151c33)] px-5 py-4 text-white">
-                <div className="text-[11px] uppercase tracking-[0.3em] text-[#a5b0ff]">{item.title}</div>
-                <div className="mt-2 text-sm font-medium text-white">{item.pattern}</div>
-              </div>
-              <div className="p-5">
-                <p className="text-sm leading-7 text-[#5f6678]">{item.body}</p>
-                <div className="mt-4 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-[#e7e1d8] bg-[#faf8f4] px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-[#6b7280]">
-                    Urgent
-                  </span>
-                  <span className="rounded-full border border-[#e7e1d8] bg-[#faf8f4] px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-[#6b7280]">
-                    After hours
-                  </span>
-                  <span className="rounded-full border border-[#e7e1d8] bg-[#faf8f4] px-3 py-1 text-[11px] uppercase tracking-[0.22em] text-[#6b7280]">
-                    Clean handoff
-                  </span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section id="outcome" className="mx-auto max-w-7xl scroll-mt-24 px-6 py-20 md:px-10 lg:px-12">
-        <SectionHeading
-          eyebrow="Outcome"
-          title="Less interruption. More booked work."
-          description="The owner gets fewer false alarms. The office gets fewer distractions. The business keeps more of the demand already calling in."
-          centered
-        />
-
-        <div className="mt-10 rounded-[2.25rem] border border-[#1f2741] bg-[linear-gradient(180deg,#0e1426,#111827_60%,#0c1325)] p-7 text-white shadow-[0_24px_70px_rgba(15,23,42,0.18)]">
-          <div className="grid gap-6 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
-            <div>
-              <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Why it matters</div>
-              <div className="mt-4 text-3xl font-semibold tracking-[-0.06em] text-white">
-                The revenue already calling in stays visible.
-              </div>
-              <p className="mt-5 max-w-xl text-base leading-8 text-[#cbd2f0]">
-                SkybridgeCX cuts the friction between the first ring and the next step, so the business keeps more of the
-                calls that should have become booked work.
-              </p>
-            </div>
-
-            <div className="grid gap-3">
-              {outcomes.map((item, index) => (
-                <div
-                  key={item.title}
-                  className="flex gap-4 rounded-2xl border border-white/10 bg-white/6 px-4 py-4 shadow-[0_18px_40px_rgba(15,23,42,0.08)] backdrop-blur-sm"
-                >
-                  <div className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/10 text-[11px] font-semibold text-white">
-                    {String(index + 1).padStart(2, '0')}
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-white">{item.title}</div>
-                    <p className="mt-1 text-sm leading-7 text-[#cbd2f0]">{item.body}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="faq" className="bg-[#0e1426] py-20 text-white">
-        <div className="mx-auto max-w-7xl scroll-mt-24 px-6 md:px-10 lg:px-12">
-        <SectionHeading eyebrow="FREQUENTLY ASKED QUESTIONS" title="Common questions, clear answers." centered tone="dark" />
-
-        <div className="mt-10 grid gap-4">
-          {faqs.map((item) => (
-            <details
-              key={item.question}
-              className="group rounded-[1.5rem] border border-white/10 bg-white/5 px-6 py-5 shadow-[0_18px_50px_rgba(15,23,42,0.12)]"
-            >
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-left text-lg font-semibold tracking-[-0.03em] text-white">
-                <span>{item.question}</span>
-                <span className="text-[#a5b0ff] transition group-open:rotate-45">+</span>
-              </summary>
-              <p className="mt-4 max-w-3xl text-base leading-8 text-[#cbd2f0]">{item.answer}</p>
-            </details>
-          ))}
-        </div>
-        </div>
-      </section>
-
-      <section id="book-demo" className="relative overflow-hidden bg-[#0e1426] py-20 text-white">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(124,92,255,0.24),transparent_28%),radial-gradient(circle_at_78%_18%,rgba(59,130,246,0.18),transparent_22%)]" />
-        <div className="relative mx-auto grid max-w-7xl gap-10 px-6 md:px-10 lg:grid-cols-[0.95fr_1.05fr] lg:px-12">
-          <div className="max-w-xl">
-            <div className="text-xs uppercase tracking-[0.34em] text-[#a5b0ff]">Book a demo</div>
-            <h2 className="mt-4 text-4xl font-semibold tracking-[-0.06em] text-white md:text-6xl">
-              See the front desk service for your business.
-            </h2>
-            <p className="mt-6 text-base leading-8 text-[#cbd2f0]">
-              We’ll walk through how routine, urgent, and after-hours calls would be handled for your business.
-            </p>
-          </div>
-
-          {leadRequested ? (
-            <div className="grid gap-4 rounded-[2rem] border border-emerald-200 bg-[linear-gradient(180deg,#ffffff,#f2fbf5)] p-7 shadow-[0_24px_70px_rgba(17,24,39,0.06)]">
-              <div className="text-xs uppercase tracking-[0.34em] text-emerald-700">Demo request received</div>
-              <div className="max-w-2xl text-3xl font-semibold tracking-[-0.05em] text-[#0f172a]">
-                Thanks. We have your request.
-              </div>
-              {successWarning ? (
-                <div className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
-                  {successWarning}
-                </div>
-              ) : null}
-              <p className="max-w-2xl text-base leading-8 text-[#5f6678]">
-                We’ll review the call flow and follow up with the next step.
-              </p>
-              <div className="flex flex-col gap-3 sm:flex-row">
-                <a
-                  href="/"
-                  className="rounded-full bg-[#111827] px-6 py-3 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-[#0b1120]"
-                >
-                  Send another request
-                </a>
-                <a
-                  href="#sample-call"
-                  className="rounded-full border border-[#d9dbe6] bg-white px-6 py-3 text-sm font-medium text-[#111827] transition hover:-translate-y-0.5 hover:bg-[#fbfbfd]"
-                >
-                  Hear a sample call
+                  See How It Works
                 </a>
               </div>
+
+              <div className="mt-8 grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-3 sm:gap-3">
+                <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  No credit card required
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Setup in 5 minutes
+                </div>
+                <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  Cancel anytime
+                </div>
+              </div>
             </div>
-          ) : (
-            <form
-              action={requestConsultation}
-              className="grid gap-4 rounded-[2rem] border border-white/10 bg-white p-6 text-[#111827] shadow-[0_24px_80px_rgba(17,24,39,0.16)]"
-            >
-                <div className="grid gap-2">
-                <div className="text-xs uppercase tracking-[0.34em] text-[#7c5cff]">Request details</div>
-                <p className="text-sm leading-6 text-[#5f6678]">
-                  Tell us what calls you want handled. We’ll show how SkybridgeCX would answer, qualify, route, and
-                  follow them up.
-                </p>
-              </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
-                <label className="space-y-2 text-sm">
-                  <span className="font-medium text-[#111827]">Company name</span>
-                  <input
-                    name="companyName"
-                    placeholder="Sterling Plumbing"
-                    required
-                    className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
-                  />
-                </label>
-                <label className="space-y-2 text-sm">
-                  <span className="font-medium text-[#111827]">Contact name</span>
-                  <input
-                    name="contactName"
-                    placeholder="Alicia Grant"
-                    className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
-                  />
-                </label>
-                <label className="space-y-2 text-sm">
-                  <span className="font-medium text-[#111827]">Phone</span>
-                  <input
-                    name="contactPhone"
-                    placeholder="703-555-0200"
-                    className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
-                  />
-                </label>
-                <label className="space-y-2 text-sm">
-                  <span className="font-medium text-[#111827]">Email</span>
-                  <input
-                    name="contactEmail"
-                    type="email"
-                    placeholder="owner@example.com"
-                    className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-2.5 text-sm text-[#111827] placeholder:text-[#8b95a7]"
-                  />
-                  <span className="block text-xs leading-6 text-[#6b7280]">
-                    Add a phone number or email so we know where to follow up.
-                  </span>
-                </label>
-              </div>
+            <HeroMockup />
+          </div>
+        </section>
 
-              <label className="space-y-2 text-sm">
-                <span className="font-medium text-[#111827]">What calls do you want handled?</span>
-                <textarea
-                  name="serviceInterest"
-                  rows={3}
-                  placeholder="After-hours emergencies, new estimates, and routine scheduling calls"
-                  className="w-full rounded-xl border border-[#d9dbe6] bg-[#fbfbfd] px-3 py-3 text-sm text-[#111827] placeholder:text-[#8b95a7]"
+        <section className="bg-white py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader
+              title="Every Missed Call Is a Lost Job"
+              description="Home service demand is high, but missed calls and messy intake quietly kill revenue."
+            />
+
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {painPoints.map((point) => (
+                <PainPointCard
+                  key={point.title}
+                  title={point.title}
+                  description={point.description}
+                  icon={point.icon}
                 />
-              </label>
-
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <p className="max-w-md text-sm leading-6 text-[#5f6678]">
-                  We’ll show how routine, urgent, and after-hours calls would be handled for your business.
-                </p>
-                <button className="rounded-full bg-[#111827] px-6 py-3 text-sm font-medium text-white transition hover:-translate-y-0.5 hover:bg-[#0b1120]">
-                  Book a 15-minute demo
-                </button>
-              </div>
-            </form>
-          )}
-        </div>
-      </section>
-
-      <footer className="border-t border-[#e8e3db] bg-white/80">
-        <div className="mx-auto flex max-w-7xl flex-col gap-6 px-6 py-8 md:px-10 lg:flex-row lg:items-center lg:justify-between lg:px-12">
-          <div>
-            <div className="text-sm font-semibold tracking-[-0.03em] text-[#111827]">SkybridgeCX</div>
-            <p className="mt-1 text-sm text-[#6b7280]">Done-for-you AI front desk for home-service businesses.</p>
+              ))}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#4b5563]">
-            <a href="#product" className="transition hover:text-[#111827]">
-              Product
-            </a>
-            <a href="#how-it-works" className="transition hover:text-[#111827]">
-              How It Works
-            </a>
-            <a href="#industries" className="transition hover:text-[#111827]">
-              Industries
-            </a>
-            <a href="#faq" className="transition hover:text-[#111827]">
-              FAQs
-            </a>
-            <a href="#book-demo" className="transition hover:text-[#111827]">
-              Book Demo
-            </a>
+        </section>
+
+        <section id="how-it-works" className="bg-gray-50 py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="3 Steps to Never Miss a Lead Again" />
+
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {steps.map((step) => (
+                <StepCard
+                  key={step.title}
+                  step={step.step}
+                  title={step.title}
+                  description={step.description}
+                  icon={step.icon}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      </footer>
-    </main>
+        </section>
+
+        <section id="features" className="bg-white py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Everything You Need to Capture Every Lead" />
+
+            <div className="mt-10 grid grid-cols-2 gap-4 lg:grid-cols-3">
+              {features.map((feature) => (
+                <FeatureCard
+                  key={feature.title}
+                  title={feature.title}
+                  description={feature.description}
+                  icon={feature.icon}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-gray-50 py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Trusted by Home Service Businesses" />
+
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {testimonials.map((testimonial) => (
+                <TestimonialCard
+                  key={testimonial.quote}
+                  quote={testimonial.quote}
+                  author={testimonial.author}
+                  role={testimonial.role}
+                />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <section id="pricing" className="bg-white py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Simple Pricing. No Hidden Fees." />
+
+            <div className="mt-10 grid gap-4 md:grid-cols-3">
+              {pricingPlans.map((plan) => (
+                <PricingCard
+                  key={plan.name}
+                  name={plan.name}
+                  price={plan.price}
+                  callsLabel={plan.callsLabel}
+                  phoneNumbersLabel={plan.phoneNumbersLabel}
+                  businessesLabel={plan.businessesLabel}
+                  popular={plan.popular}
+                  features={[...plan.features]}
+                />
+              ))}
+            </div>
+
+            <p className="mt-6 text-center text-sm text-gray-600">
+              All plans include a 14-day free trial. No credit card required.
+            </p>
+          </div>
+        </section>
+
+        <section id="faq" className="bg-gray-50 py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-4xl px-4 sm:px-6 lg:px-8">
+            <SectionHeader title="Frequently Asked Questions" />
+            <div className="mt-10">
+              <FaqAccordion items={[...faqItems]} />
+            </div>
+          </div>
+        </section>
+
+        <section className="bg-indigo-900 py-16 sm:py-20">
+          <div className="mx-auto w-full max-w-4xl px-4 text-center sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Stop Losing Leads. Start Closing More Jobs.
+            </h2>
+            <p className="mt-4 text-base text-indigo-100 sm:text-lg">
+              Join hundreds of home service businesses using SkybridgeCX to capture every call.
+            </p>
+
+            <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/sign-up"
+                className="inline-flex min-h-11 items-center justify-center rounded-md bg-white px-6 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-50"
+              >
+                Get Started Free
+              </Link>
+              <a href="mailto:hello@skybridgecx.com" className="text-sm font-medium text-indigo-100 underline underline-offset-4">
+                Questions? Email us at hello@skybridgecx.com
+              </a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <LandingFooter />
+    </div>
   );
 }
