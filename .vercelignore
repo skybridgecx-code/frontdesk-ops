@@ -1,10 +1,3 @@
-node_modules
 .turbo
 .git
-packages/db/src/generated/prisma/*.node
-packages/db/src/generated/prisma/*.dylib.node
-*.dylib.node
-*.node
-apps/api
-apps/realtime-gateway
-apps/worker
+packages/db/src/generated/prisma/libquery_engine-darwin-arm64.dylib.node
