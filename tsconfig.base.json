@@ -1,7 +1,9 @@
 {
   "compilerOptions": {
     "target": "ES2022",
-    "lib": ["ES2022"],
+    "lib": [
+      "ES2022"
+    ],
     "module": "ESNext",
     "moduleResolution": "Bundler",
     "allowSyntheticDefaultImports": true,
@@ -14,22 +16,30 @@
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@frontdesk/domain": ["packages/domain/src/index.ts"],
-      "@frontdesk/domain/*": ["packages/domain/src/*"],
-      "@frontdesk/config": ["packages/config/src/index.ts"],
-      "@frontdesk/config/*": ["packages/config/src/*"],
-      "@frontdesk/db": ["packages/db/src/index.ts"],
-      "@frontdesk/db/*": ["packages/db/src/*"],
-      "@frontdesk/ui": ["packages/ui/src/index.ts"],
-      "@frontdesk/ui/*": ["packages/ui/src/*"],
-      "@frontdesk/prompts": ["packages/prompts/src/index.ts"],
-      "@frontdesk/prompts/*": ["packages/prompts/src/*"],
-      "@frontdesk/integrations": ["packages/integrations/src/index.ts"],
-      "@frontdesk/integrations/*": ["packages/integrations/src/*"],
-      "@frontdesk/analytics": ["packages/analytics/src/index.ts"],
-      "@frontdesk/analytics/*": ["packages/analytics/src/*"],
-      "@frontdesk/voice": ["packages/voice/src/index.ts"],
-      "@frontdesk/voice/*": ["packages/voice/src/*"]
+      "@frontdesk/domain": [
+        "packages/domain/src/index.ts"
+      ],
+      "@frontdesk/domain/*": [
+        "packages/domain/src/*"
+      ],
+      "@frontdesk/db": [
+        "packages/db/src/index.ts"
+      ],
+      "@frontdesk/db/*": [
+        "packages/db/src/*"
+      ],
+      "@frontdesk/integrations": [
+        "packages/integrations/src/index.ts"
+      ],
+      "@frontdesk/integrations/*": [
+        "packages/integrations/src/*"
+      ],
+      "@frontdesk/notifications": [
+        "packages/notifications/src/index.ts"
+      ],
+      "@frontdesk/notifications/*": [
+        "packages/notifications/src/*"
+      ]
     }
   }
 }

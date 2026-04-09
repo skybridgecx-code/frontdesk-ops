@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { PhoneRoutingMode, prisma } from '@frontdesk/db';
+import { phoneNumberIdParams } from '../lib/params.js';
 
 const updatePhoneNumberBodySchema = z.object({
   label: z.string().min(1).max(120).optional(),
@@ -13,15 +14,18 @@ const updatePhoneNumberBodySchema = z.object({
 
 export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
-    const { phoneNumberId } = request.params as { phoneNumberId: string };
+    const { phoneNumberId } = phoneNumberIdParams.parse(request.params);
     const parsed = updatePhoneNumberBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existingPhoneNumber = await prisma.phoneNumber.findUnique({
-      where: { id: phoneNumberId },
+    const existingPhoneNumber = await prisma.phoneNumber.findFirst({
+      where: {
+        id: phoneNumberId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: {
         id: true,
         businessId: true,
@@ -34,8 +38,11 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     if (parsed.data.primaryAgentProfileId) {
-      const primaryAgent = await prisma.agentProfile.findUnique({
-        where: { id: parsed.data.primaryAgentProfileId },
+      const primaryAgent = await prisma.agentProfile.findFirst({
+        where: {
+          id: parsed.data.primaryAgentProfileId,
+          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+        },
         select: { id: true, businessId: true, tenantId: true }
       });
 
@@ -55,8 +62,11 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     if (parsed.data.afterHoursAgentProfileId) {
-      const afterHoursAgent = await prisma.agentProfile.findUnique({
-        where: { id: parsed.data.afterHoursAgentProfileId },
+      const afterHoursAgent = await prisma.agentProfile.findFirst({
+        where: {
+          id: parsed.data.afterHoursAgentProfileId,
+          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+        },
         select: { id: true, businessId: true, tenantId: true }
       });
 
@@ -76,7 +86,7 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
     }
 
     const phoneNumber = await prisma.phoneNumber.update({
-      where: { id: phoneNumberId },
+      where: { id: existingPhoneNumber.id },
       data: parsed.data,
       select: {
         id: true,

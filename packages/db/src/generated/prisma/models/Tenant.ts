@@ -8,7 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
-import type * as runtime from "@prisma/client/runtime/client"
+import type * as runtime from "@prisma/client/runtime/library"
 import type * as $Enums from "../enums"
 import type * as Prisma from "../internal/prismaNamespace"
 
@@ -28,6 +28,7 @@ export type TenantMinAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  status: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -36,6 +37,7 @@ export type TenantMaxAggregateOutputType = {
   id: string | null
   name: string | null
   slug: string | null
+  status: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -44,6 +46,7 @@ export type TenantCountAggregateOutputType = {
   id: number
   name: number
   slug: number
+  status: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -54,6 +57,7 @@ export type TenantMinAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -62,6 +66,7 @@ export type TenantMaxAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -70,6 +75,7 @@ export type TenantCountAggregateInputType = {
   id?: true
   name?: true
   slug?: true
+  status?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -151,6 +157,7 @@ export type TenantGroupByOutputType = {
   id: string
   name: string
   slug: string
+  status: string
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -180,6 +187,7 @@ export type TenantWhereInput = {
   id?: Prisma.StringFilter<"Tenant"> | string
   name?: Prisma.StringFilter<"Tenant"> | string
   slug?: Prisma.StringFilter<"Tenant"> | string
+  status?: Prisma.StringFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -189,12 +197,16 @@ export type TenantWhereInput = {
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
   prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
+  subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
+  tenantUsers?: Prisma.TenantUserListRelationFilter
 }
 
 export type TenantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
@@ -204,6 +216,9 @@ export type TenantOrderByWithRelationInput = {
   calls?: Prisma.CallOrderByRelationAggregateInput
   prospects?: Prisma.ProspectOrderByRelationAggregateInput
   prospectImportBatches?: Prisma.ProspectImportBatchOrderByRelationAggregateInput
+  subscription?: Prisma.SubscriptionOrderByWithRelationInput
+  webhookEndpoints?: Prisma.WebhookEndpointOrderByRelationAggregateInput
+  tenantUsers?: Prisma.TenantUserOrderByRelationAggregateInput
 }
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
@@ -213,6 +228,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   name?: Prisma.StringFilter<"Tenant"> | string
+  status?: Prisma.StringFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -222,12 +238,16 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   calls?: Prisma.CallListRelationFilter
   prospects?: Prisma.ProspectListRelationFilter
   prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
+  subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
+  tenantUsers?: Prisma.TenantUserListRelationFilter
 }, "id" | "slug">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -242,6 +262,7 @@ export type TenantScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   name?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   slug?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  status?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -250,6 +271,7 @@ export type TenantCreateInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -259,12 +281,16 @@ export type TenantCreateInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -274,12 +300,16 @@ export type TenantUncheckedCreateInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -289,12 +319,16 @@ export type TenantUpdateInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -304,12 +338,16 @@ export type TenantUncheckedUpdateInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateManyInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -318,6 +356,7 @@ export type TenantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -326,6 +365,7 @@ export type TenantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -334,6 +374,7 @@ export type TenantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -342,6 +383,7 @@ export type TenantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -350,6 +392,7 @@ export type TenantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   slug?: Prisma.SortOrder
+  status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -365,6 +408,48 @@ export type StringFieldUpdateOperationsInput = {
 
 export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
+}
+
+export type TenantCreateNestedOneWithoutSubscriptionInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSubscriptionInput, Prisma.TenantUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSubscriptionInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutSubscriptionNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutSubscriptionInput, Prisma.TenantUncheckedCreateWithoutSubscriptionInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutSubscriptionInput
+  upsert?: Prisma.TenantUpsertWithoutSubscriptionInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.TenantUpdateWithoutSubscriptionInput>, Prisma.TenantUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type TenantCreateNestedOneWithoutWebhookEndpointsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhookEndpointsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutWebhookEndpointsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhookEndpointsInput
+  upsert?: Prisma.TenantUpsertWithoutWebhookEndpointsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutWebhookEndpointsInput, Prisma.TenantUpdateWithoutWebhookEndpointsInput>, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
+}
+
+export type TenantCreateNestedOneWithoutTenantUsersInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutTenantUsersInput, Prisma.TenantUncheckedCreateWithoutTenantUsersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutTenantUsersInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutTenantUsersNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutTenantUsersInput, Prisma.TenantUncheckedCreateWithoutTenantUsersInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutTenantUsersInput
+  upsert?: Prisma.TenantUpsertWithoutTenantUsersInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutTenantUsersInput, Prisma.TenantUpdateWithoutTenantUsersInput>, Prisma.TenantUncheckedUpdateWithoutTenantUsersInput>
 }
 
 export type TenantCreateNestedOneWithoutMembershipsInput = {
@@ -465,10 +550,275 @@ export type TenantUpdateOneRequiredWithoutProspectImportBatchesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutProspectImportBatchesInput, Prisma.TenantUpdateWithoutProspectImportBatchesInput>, Prisma.TenantUncheckedUpdateWithoutProspectImportBatchesInput>
 }
 
+export type TenantCreateWithoutSubscriptionInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutSubscriptionInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutSubscriptionInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSubscriptionInput, Prisma.TenantUncheckedCreateWithoutSubscriptionInput>
+}
+
+export type TenantUpsertWithoutSubscriptionInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutSubscriptionInput, Prisma.TenantUncheckedUpdateWithoutSubscriptionInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutSubscriptionInput, Prisma.TenantUncheckedCreateWithoutSubscriptionInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutSubscriptionInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutSubscriptionInput, Prisma.TenantUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type TenantUpdateWithoutSubscriptionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutSubscriptionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutWebhookEndpointsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+}
+
+export type TenantUpsertWithoutWebhookEndpointsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutWebhookEndpointsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
+}
+
+export type TenantUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutTenantUsersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutTenantUsersInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutTenantUsersInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutTenantUsersInput, Prisma.TenantUncheckedCreateWithoutTenantUsersInput>
+}
+
+export type TenantUpsertWithoutTenantUsersInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutTenantUsersInput, Prisma.TenantUncheckedUpdateWithoutTenantUsersInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutTenantUsersInput, Prisma.TenantUncheckedCreateWithoutTenantUsersInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutTenantUsersInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutTenantUsersInput, Prisma.TenantUncheckedUpdateWithoutTenantUsersInput>
+}
+
+export type TenantUpdateWithoutTenantUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutTenantUsersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+}
+
 export type TenantCreateWithoutMembershipsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
@@ -477,12 +827,16 @@ export type TenantCreateWithoutMembershipsInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutMembershipsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
@@ -491,6 +845,9 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutMembershipsInput = {
@@ -513,6 +870,7 @@ export type TenantUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
@@ -521,12 +879,16 @@ export type TenantUpdateWithoutMembershipsInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
@@ -535,12 +897,16 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutBusinessesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -549,12 +915,16 @@ export type TenantCreateWithoutBusinessesInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutBusinessesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -563,6 +933,9 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutBusinessesInput = {
@@ -585,6 +958,7 @@ export type TenantUpdateWithoutBusinessesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -593,12 +967,16 @@ export type TenantUpdateWithoutBusinessesInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutBusinessesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -607,12 +985,16 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutPhoneNumbersInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -621,12 +1003,16 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -635,6 +1021,9 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutPhoneNumbersInput = {
@@ -657,6 +1046,7 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -665,12 +1055,16 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -679,12 +1073,16 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutAgentProfilesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -693,12 +1091,16 @@ export type TenantCreateWithoutAgentProfilesInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -707,6 +1109,9 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutAgentProfilesInput = {
@@ -729,6 +1134,7 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -737,12 +1143,16 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -751,12 +1161,16 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutCallsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -765,12 +1179,16 @@ export type TenantCreateWithoutCallsInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutCallsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -779,6 +1197,9 @@ export type TenantUncheckedCreateWithoutCallsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutCallsInput = {
@@ -801,6 +1222,7 @@ export type TenantUpdateWithoutCallsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -809,12 +1231,16 @@ export type TenantUpdateWithoutCallsInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutCallsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -823,12 +1249,16 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProspectsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -837,12 +1267,16 @@ export type TenantCreateWithoutProspectsInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProspectsInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -851,6 +1285,9 @@ export type TenantUncheckedCreateWithoutProspectsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProspectsInput = {
@@ -873,6 +1310,7 @@ export type TenantUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -881,12 +1319,16 @@ export type TenantUpdateWithoutProspectsInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -895,12 +1337,16 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutProspectImportBatchesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -909,12 +1355,16 @@ export type TenantCreateWithoutProspectImportBatchesInput = {
   agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   id?: string
   name: string
   slug: string
+  status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -923,6 +1373,9 @@ export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutProspectImportBatchesInput = {
@@ -945,6 +1398,7 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -953,12 +1407,16 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
   agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -967,6 +1425,9 @@ export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 
@@ -982,6 +1443,8 @@ export type TenantCountOutputType = {
   calls: number
   prospects: number
   prospectImportBatches: number
+  webhookEndpoints: number
+  tenantUsers: number
 }
 
 export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -992,6 +1455,8 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   calls?: boolean | TenantCountOutputTypeCountCallsArgs
   prospects?: boolean | TenantCountOutputTypeCountProspectsArgs
   prospectImportBatches?: boolean | TenantCountOutputTypeCountProspectImportBatchesArgs
+  webhookEndpoints?: boolean | TenantCountOutputTypeCountWebhookEndpointsArgs
+  tenantUsers?: boolean | TenantCountOutputTypeCountTenantUsersArgs
 }
 
 /**
@@ -1053,11 +1518,26 @@ export type TenantCountOutputTypeCountProspectImportBatchesArgs<ExtArgs extends 
   where?: Prisma.ProspectImportBatchWhereInput
 }
 
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountWebhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebhookEndpointWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
+export type TenantCountOutputTypeCountTenantUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TenantUserWhereInput
+}
+
 
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
@@ -1067,6 +1547,9 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
   prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
+  subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Tenant$webhookEndpointsArgs<ExtArgs>
+  tenantUsers?: boolean | Prisma.Tenant$tenantUsersArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
 
@@ -1074,6 +1557,7 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1082,6 +1566,7 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   id?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1090,11 +1575,12 @@ export type TenantSelectScalar = {
   id?: boolean
   name?: boolean
   slug?: boolean
+  status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
@@ -1103,6 +1589,9 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   calls?: boolean | Prisma.Tenant$callsArgs<ExtArgs>
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
   prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
+  subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Tenant$webhookEndpointsArgs<ExtArgs>
+  tenantUsers?: boolean | Prisma.Tenant$tenantUsersArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TenantIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1118,11 +1607,15 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     calls: Prisma.$CallPayload<ExtArgs>[]
     prospects: Prisma.$ProspectPayload<ExtArgs>[]
     prospectImportBatches: Prisma.$ProspectImportBatchPayload<ExtArgs>[]
+    subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+    webhookEndpoints: Prisma.$WebhookEndpointPayload<ExtArgs>[]
+    tenantUsers: Prisma.$TenantUserPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     slug: string
+    status: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -1526,6 +2019,9 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   calls<T extends Prisma.Tenant$callsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$callsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CallPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prospects<T extends Prisma.Tenant$prospectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prospectImportBatches<T extends Prisma.Tenant$prospectImportBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subscription<T extends Prisma.Tenant$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$subscriptionArgs<ExtArgs>>): Prisma.Prisma__SubscriptionClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  webhookEndpoints<T extends Prisma.Tenant$webhookEndpointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$webhookEndpointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tenantUsers<T extends Prisma.Tenant$tenantUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$tenantUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1558,6 +2054,7 @@ export interface TenantFieldRefs {
   readonly id: Prisma.FieldRef<"Tenant", 'String'>
   readonly name: Prisma.FieldRef<"Tenant", 'String'>
   readonly slug: Prisma.FieldRef<"Tenant", 'String'>
+  readonly status: Prisma.FieldRef<"Tenant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }
@@ -1756,11 +2253,6 @@ export type TenantFindManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
    * Skip the first `n` Tenants.
    */
   skip?: number
-  /**
-   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
-   * 
-   * Filter by unique combinations of Tenants.
-   */
   distinct?: Prisma.TenantScalarFieldEnum | Prisma.TenantScalarFieldEnum[]
 }
 
@@ -2118,6 +2610,73 @@ export type Tenant$prospectImportBatchesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.ProspectImportBatchScalarFieldEnum | Prisma.ProspectImportBatchScalarFieldEnum[]
+}
+
+/**
+ * Tenant.subscription
+ */
+export type Tenant$subscriptionArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Subscription
+   */
+  select?: Prisma.SubscriptionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Subscription
+   */
+  omit?: Prisma.SubscriptionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SubscriptionInclude<ExtArgs> | null
+  where?: Prisma.SubscriptionWhereInput
+}
+
+/**
+ * Tenant.webhookEndpoints
+ */
+export type Tenant$webhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebhookEndpoint
+   */
+  select?: Prisma.WebhookEndpointSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebhookEndpoint
+   */
+  omit?: Prisma.WebhookEndpointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebhookEndpointInclude<ExtArgs> | null
+  where?: Prisma.WebhookEndpointWhereInput
+  orderBy?: Prisma.WebhookEndpointOrderByWithRelationInput | Prisma.WebhookEndpointOrderByWithRelationInput[]
+  cursor?: Prisma.WebhookEndpointWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebhookEndpointScalarFieldEnum | Prisma.WebhookEndpointScalarFieldEnum[]
+}
+
+/**
+ * Tenant.tenantUsers
+ */
+export type Tenant$tenantUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the TenantUser
+   */
+  select?: Prisma.TenantUserSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the TenantUser
+   */
+  omit?: Prisma.TenantUserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TenantUserInclude<ExtArgs> | null
+  where?: Prisma.TenantUserWhereInput
+  orderBy?: Prisma.TenantUserOrderByWithRelationInput | Prisma.TenantUserOrderByWithRelationInput[]
+  cursor?: Prisma.TenantUserWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TenantUserScalarFieldEnum | Prisma.TenantUserScalarFieldEnum[]
 }
 
 /**

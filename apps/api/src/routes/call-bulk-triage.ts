@@ -47,7 +47,8 @@ export async function registerCallBulkTriageRoutes(app: FastifyInstance) {
       where: {
         twilioCallSid: {
           in: parsed.callSids
-        }
+        },
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       data: {
         triageStatus: CallTriageStatus.CONTACTED,
@@ -77,7 +78,8 @@ export async function registerCallBulkTriageRoutes(app: FastifyInstance) {
       where: {
         twilioCallSid: {
           in: parsed.callSids
-        }
+        },
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       data: {
         triageStatus: CallTriageStatus.ARCHIVED,

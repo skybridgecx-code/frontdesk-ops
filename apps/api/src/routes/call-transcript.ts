@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '@frontdesk/db';
+import { callSidParams } from '../lib/params.js';
 
 const updateTranscriptBodySchema = z.object({
   callerTranscript: z.string().nullable().optional(),
@@ -9,7 +10,7 @@ const updateTranscriptBodySchema = z.object({
 
 export async function registerCallTranscriptRoutes(app: FastifyInstance) {
   app.patch('/v1/calls/:callSid/transcript', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
     const parsed = updateTranscriptBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -19,8 +20,11 @@ export async function registerCallTranscriptRoutes(app: FastifyInstance) {
       });
     }
 
-    const existing = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const existing = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -29,7 +33,7 @@ export async function registerCallTranscriptRoutes(app: FastifyInstance) {
     }
 
     const call = await prisma.call.update({
-      where: { twilioCallSid: callSid },
+      where: { id: existing.id },
       data: {
         callerTranscript:
           parsed.data.callerTranscript === undefined

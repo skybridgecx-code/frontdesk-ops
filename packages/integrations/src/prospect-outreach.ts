@@ -1,5 +1,23 @@
-import OpenAI from 'openai';
+/**
+ * Prospect outreach draft generation via OpenAI Responses API.
+ *
+ * Given a prospect snapshot (company info, contact details, status, notes,
+ * recent attempt history), generates a multi-channel outreach package:
+ * - Qualification score (0-25) and priority band
+ * - First email (subject + body), DM/text, two follow-ups, call opener
+ * - CRM note for the operator
+ *
+ * The prompt is tuned for home-service businesses and avoids AI/audit/consultant
+ * framing. Generation options control goal (book_call, send_walkthrough,
+ * find_right_contact), length (short, medium), and tone (direct, warm).
+ *
+ * Uses `gpt-5-mini` by default (configurable via `OPENAI_OUTREACH_MODEL`).
+ */
 
+import type OpenAI from 'openai';
+import OpenAIClient from 'openai';
+
+/** Summary of a single outreach attempt, used as context for draft generation. */
 export type ProspectOutreachAttemptSummary = {
   attemptedAt: string;
   channel: string;
@@ -7,6 +25,7 @@ export type ProspectOutreachAttemptSummary = {
   note: string | null;
 };
 
+/** All prospect fields needed to generate an outreach draft. */
 export type ProspectOutreachInput = {
   companyName: string | null;
   contactName: string | null;
@@ -24,6 +43,7 @@ export type ProspectOutreachInput = {
   recentAttempts: ProspectOutreachAttemptSummary[];
 };
 
+/** The complete outreach package returned to the operator dashboard. */
 export type ProspectOutreachDraft = {
   qualificationScore: number;
   priorityBand: 'low' | 'medium' | 'high' | 'urgent';
@@ -42,6 +62,7 @@ export type ProspectOutreachGoal = 'book_call' | 'send_walkthrough' | 'find_righ
 export type ProspectOutreachLength = 'short' | 'medium';
 export type ProspectOutreachTone = 'direct' | 'warm';
 
+/** Operator-configurable options that shape the generated outreach copy. */
 export type ProspectOutreachGenerationOptions = {
   goal: ProspectOutreachGoal;
   length: ProspectOutreachLength;
@@ -56,12 +77,8 @@ export const defaultProspectOutreachGenerationOptions: ProspectOutreachGeneratio
 
 function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
-
-  if (!apiKey) {
-    throw new Error('OPENAI_API_KEY is not set');
-  }
-
-  return new OpenAI({ apiKey });
+  if (!apiKey) throw new Error('OPENAI_API_KEY is not set');
+  return new OpenAIClient({ apiKey });
 }
 
 function cleanNullableString(value: unknown) {
@@ -97,6 +114,13 @@ function clampQualificationScore(value: unknown) {
   return Math.max(0, Math.min(25, Math.trunc(score)));
 }
 
+/**
+ * Maps a 0-25 qualification score to a priority band.
+ * - 0-9: low
+ * - 10-16: medium
+ * - 17-21: high
+ * - 22-25: urgent
+ */
 export function getProspectOutreachPriorityBand(score: number): ProspectOutreachDraft['priorityBand'] {
   if (score >= 22) {
     return 'urgent';
@@ -151,6 +175,12 @@ function describeProspectOutreachTone(tone: ProspectOutreachTone) {
   return tone === 'warm' ? 'warm' : 'direct';
 }
 
+/**
+ * Assembles the full prompt sent to the outreach generation model.
+ *
+ * Includes the prospect snapshot, recent attempts, and operator-selected
+ * generation options (goal, length, tone). Exported for testing.
+ */
 export function buildProspectOutreachPrompt(
   input: ProspectOutreachInput,
   options: ProspectOutreachGenerationOptions = defaultProspectOutreachGenerationOptions
@@ -217,6 +247,49 @@ export function buildProspectOutreachPrompt(
   ].join('\n');
 }
 
+const outreachDraftSchema: OpenAI.Responses.ResponseFormatTextJSONSchemaConfig = {
+  type: 'json_schema',
+  name: 'prospect_outreach_draft',
+  strict: true,
+  schema: {
+    type: 'object',
+    additionalProperties: false,
+    properties: {
+      qualificationScore: {
+        type: 'integer',
+        minimum: 0,
+        maximum: 25
+      },
+      fitSummary: { type: 'string' },
+      chosenAngle: { type: 'string' },
+      firstEmailSubject: { type: 'string' },
+      firstEmailBody: { type: 'string' },
+      shortDmText: { type: 'string' },
+      followUp1: { type: 'string' },
+      followUp2: { type: 'string' },
+      callOpener: { type: 'string' },
+      crmNote: { type: 'string' }
+    },
+    required: [
+      'qualificationScore',
+      'fitSummary',
+      'chosenAngle',
+      'firstEmailSubject',
+      'firstEmailBody',
+      'shortDmText',
+      'followUp1',
+      'followUp2',
+      'callOpener',
+      'crmNote'
+    ]
+  }
+};
+
+/**
+ * Validates and normalizes raw model output into a typed outreach draft.
+ * Clamps `qualificationScore` to 0-25 and derives `priorityBand`.
+ * Throws if any required string field is missing or empty.
+ */
 export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>): ProspectOutreachDraft {
   const qualificationScore = clampQualificationScore(parsed.qualificationScore);
 
@@ -235,99 +308,36 @@ export function normalizeProspectOutreachDraft(parsed: Record<string, unknown>):
   };
 }
 
+/**
+ * Generates a complete outreach draft for a prospect.
+ *
+ * Sends the prospect snapshot + generation options to the OpenAI Responses API
+ * with a strict JSON schema, then normalizes the output into a typed draft.
+ *
+ * @param input   - Prospect data snapshot
+ * @param options - Goal, length, and tone preferences (defaults to book_call / short / direct)
+ * @returns Validated outreach draft with score, priority band, and all copy blocks
+ */
 export async function generateProspectOutreachDraft(
   input: ProspectOutreachInput,
   options: ProspectOutreachGenerationOptions = defaultProspectOutreachGenerationOptions
-) {
+): Promise<ProspectOutreachDraft> {
   const client = getOpenAIClient();
 
   const response = await client.responses.create({
     model: process.env.OPENAI_OUTREACH_MODEL ?? 'gpt-5-mini',
     store: false,
-    input: [
-      {
-        role: 'system',
-        content: [
-          {
-            type: 'input_text',
-            text:
-              'Draft a structured outreach package for a home-service prospect. Do not mention AI. Do not invent facts. Keep the copy plain, commercial, and operator-useful.'
-          }
-        ]
-      },
-      {
-        role: 'user',
-        content: [
-          {
-            type: 'input_text',
-            text: buildProspectOutreachPrompt(input, options)
-          }
-        ]
-      }
-    ],
-    text: {
-      format: {
-        type: 'json_schema',
-        name: 'prospect_outreach_draft',
-        strict: true,
-        schema: {
-          type: 'object',
-          additionalProperties: false,
-          properties: {
-            qualificationScore: {
-              type: 'integer',
-              minimum: 0,
-              maximum: 25
-            },
-            fitSummary: {
-              type: 'string'
-            },
-            chosenAngle: {
-              type: 'string'
-            },
-            firstEmailSubject: {
-              type: 'string'
-            },
-            firstEmailBody: {
-              type: 'string'
-            },
-            shortDmText: {
-              type: 'string'
-            },
-            followUp1: {
-              type: 'string'
-            },
-            followUp2: {
-              type: 'string'
-            },
-            callOpener: {
-              type: 'string'
-            },
-            crmNote: {
-              type: 'string'
-            }
-          },
-          required: [
-            'qualificationScore',
-            'fitSummary',
-            'chosenAngle',
-            'firstEmailSubject',
-            'firstEmailBody',
-            'shortDmText',
-            'followUp1',
-            'followUp2',
-            'callOpener',
-            'crmNote'
-          ]
-        }
-      }
-    }
-  } as never);
+    instructions:
+      'Draft a structured outreach package for a home-service prospect. Do not mention AI. Do not invent facts. Keep the copy plain, commercial, and operator-useful.',
+    input: buildProspectOutreachPrompt(input, options),
+    text: { format: outreachDraftSchema }
+  });
 
   const parsed = JSON.parse(response.output_text) as Record<string, unknown>;
   return normalizeProspectOutreachDraft(parsed);
 }
 
+/** Returns true if `OPENAI_API_KEY` is set (outreach generation is available). */
 export function isProspectOutreachConfigured() {
   return Boolean(process.env.OPENAI_API_KEY);
 }

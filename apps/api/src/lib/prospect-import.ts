@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { prisma, ProspectPriority, ProspectStatus } from '@frontdesk/db';
 import { sendProspectCreatedAlert } from './prospect-alerts.js';
+import { dispatchWebhook } from './webhook-dispatcher.js';
 
 export type ProspectImportInput = {
   companyName: string;
@@ -158,6 +159,25 @@ export async function importProspectsForBusiness(input: {
         contactPhone: prospect.contactPhone ?? null,
         sourceLabel: created.sourceLabel ?? 'manual_import',
         createdAt: new Date().toISOString()
+      });
+
+      void dispatchWebhook(business.tenantId, 'prospect.created', {
+        businessId: business.id,
+        prospectSid: created.prospectSid,
+        companyName: created.companyName,
+        contactName: prospect.contactName ?? null,
+        contactEmail: prospect.contactEmail ?? null,
+        contactPhone: prospect.contactPhone ?? null,
+        sourceLabel: created.sourceLabel ?? 'manual_import',
+        status: created.status,
+        priority: created.priority,
+        createdAt: new Date().toISOString()
+      }).catch((error: unknown) => {
+        console.error('Failed to dispatch prospect.created webhook', {
+          error,
+          tenantId: business.tenantId,
+          prospectSid: created.prospectSid
+        });
       });
     } catch (error) {
       if (!isUniqueConstraintError(error)) {

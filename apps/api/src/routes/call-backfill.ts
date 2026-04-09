@@ -11,12 +11,13 @@ const terminalTypeToStatus = {
 } as const;
 
 export async function registerCallBackfillRoutes(app: FastifyInstance) {
-  app.post('/v1/admin/calls/backfill-statuses', async () => {
+  app.post('/v1/admin/calls/backfill-statuses', async (request) => {
     const candidates = await prisma.call.findMany({
       where: {
         status: {
           in: ['RINGING', 'IN_PROGRESS']
-        }
+        },
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       orderBy: {
         createdAt: 'desc'

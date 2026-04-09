@@ -1,13 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
+import { businessIdParams } from '../lib/params.js';
 
 export async function registerBusinessRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
 
-    const business = await prisma.business.findUnique({
+    const business = await prisma.business.findFirst({
       where: {
-        id: businessId
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true,
@@ -76,6 +78,7 @@ export async function registerBusinessRoutes(app: FastifyInstance) {
             channel: true,
             language: true,
             voiceName: true,
+            missedCallTextBackMessage: true,
             isActive: true
           }
         },

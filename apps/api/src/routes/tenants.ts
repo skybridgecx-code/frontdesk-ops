@@ -1,13 +1,15 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
+import { slugParams } from '../lib/params.js';
 
 export async function registerTenantRoutes(app: FastifyInstance) {
   app.get('/v1/tenants/:slug', async (request, reply) => {
-    const { slug } = request.params as { slug: string };
+    const { slug } = slugParams.parse(request.params);
 
-    const tenant = await prisma.tenant.findUnique({
+    const tenant = await prisma.tenant.findFirst({
       where: {
-        slug
+        slug,
+        ...(request.tenantId ? { id: request.tenantId } : {})
       },
       select: {
         id: true,

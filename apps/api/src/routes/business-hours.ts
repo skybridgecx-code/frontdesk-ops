@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma, Weekday } from '@frontdesk/db';
+import { businessIdParams } from '../lib/params.js';
 
 const businessHoursItemSchema = z.object({
   weekday: z.nativeEnum(Weekday),
@@ -15,10 +16,13 @@ const putBusinessHoursBodySchema = z.object({
 
 export async function registerBusinessHoursRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/hours', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -46,15 +50,18 @@ export async function registerBusinessHoursRoutes(app: FastifyInstance) {
   });
 
   app.put('/v1/businesses/:businessId/hours', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = putBusinessHoursBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 

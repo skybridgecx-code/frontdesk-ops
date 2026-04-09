@@ -1,4 +1,15 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+
+function safeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) {
+    const padded = a.padEnd(Math.max(a.length, b.length));
+    const target = b.padEnd(Math.max(a.length, b.length));
+    timingSafeEqual(Buffer.from(padded), Buffer.from(target));
+    return false;
+  }
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 function unauthorized(reply: FastifyReply) {
   reply
@@ -31,7 +42,7 @@ export function enforceBasicAuth(request: FastifyRequest, reply: FastifyReply) {
   if (
     internalSecret &&
     typeof internalHeader === 'string' &&
-    internalHeader === internalSecret
+    safeEqual(internalHeader, internalSecret)
   ) {
     return true;
   }
@@ -56,7 +67,7 @@ export function enforceBasicAuth(request: FastifyRequest, reply: FastifyReply) {
     const user = separator >= 0 ? decoded.slice(0, separator) : '';
     const pass = separator >= 0 ? decoded.slice(separator + 1) : '';
 
-    if (user !== expectedUser || pass !== expectedPass) {
+    if (!safeEqual(user, expectedUser) || !safeEqual(pass, expectedPass)) {
       unauthorized(reply);
       return false;
     }

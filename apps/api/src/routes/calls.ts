@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
+import { callSidParams } from '../lib/params.js';
 
 const callListSelect = {
   twilioCallSid: true,
@@ -27,6 +28,12 @@ const callListSelect = {
   answeredAt: true,
   endedAt: true,
   durationSeconds: true,
+  recordingUrl: true,
+  recordingSid: true,
+  recordingDuration: true,
+  recordingStatus: true,
+  textBackSent: true,
+  textBackSentAt: true,
   phoneNumber: {
     select: {
       e164: true,
@@ -49,13 +56,18 @@ function parseLimit(value: string | undefined) {
   return Math.min(Math.max(Number(value ?? '25') || 25, 1), 100);
 }
 
-function buildCallWhere(query: {
-  triageStatus?: string;
-  reviewStatus?: string;
-  urgency?: string;
-  q?: string;
-}) {
-  const where: Prisma.CallWhereInput = {};
+function buildCallWhere(
+  query: {
+    triageStatus?: string;
+    reviewStatus?: string;
+    urgency?: string;
+    q?: string;
+  },
+  tenantId?: string
+) {
+  const where: Prisma.CallWhereInput = {
+    ...(tenantId ? { tenantId } : {})
+  };
 
   if (
     query.triageStatus === CallTriageStatus.OPEN ||
@@ -112,7 +124,7 @@ export async function registerCallRoutes(app: FastifyInstance) {
 
     const page = parsePage(query.page);
     const limit = parseLimit(query.limit);
-    const where = buildCallWhere(query);
+    const where = buildCallWhere(query, request.tenantId);
 
     const [total, calls] = await prisma.$transaction([
       prisma.call.count({ where }),
@@ -135,7 +147,9 @@ export async function registerCallRoutes(app: FastifyInstance) {
     };
   });
 
-  app.get('/v1/calls/summary', async () => {
+  app.get('/v1/calls/summary', async (request) => {
+    const tenantWhere = request.tenantId ? { tenantId: request.tenantId } : {};
+
     const [
       totalCalls,
       openCalls,
@@ -147,15 +161,15 @@ export async function registerCallRoutes(app: FastifyInstance) {
       highUrgencyCalls,
       emergencyCalls
     ] = await prisma.$transaction([
-      prisma.call.count(),
-      prisma.call.count({ where: { triageStatus: CallTriageStatus.OPEN } }),
-      prisma.call.count({ where: { triageStatus: CallTriageStatus.CONTACTED } }),
-      prisma.call.count({ where: { triageStatus: CallTriageStatus.ARCHIVED } }),
-      prisma.call.count({ where: { reviewStatus: CallReviewStatus.UNREVIEWED } }),
-      prisma.call.count({ where: { reviewStatus: CallReviewStatus.NEEDS_REVIEW } }),
-      prisma.call.count({ where: { reviewStatus: CallReviewStatus.REVIEWED } }),
-      prisma.call.count({ where: { urgency: 'high' } }),
-      prisma.call.count({ where: { urgency: 'emergency' } })
+      prisma.call.count({ where: tenantWhere }),
+      prisma.call.count({ where: { ...tenantWhere, triageStatus: CallTriageStatus.OPEN } }),
+      prisma.call.count({ where: { ...tenantWhere, triageStatus: CallTriageStatus.CONTACTED } }),
+      prisma.call.count({ where: { ...tenantWhere, triageStatus: CallTriageStatus.ARCHIVED } }),
+      prisma.call.count({ where: { ...tenantWhere, reviewStatus: CallReviewStatus.UNREVIEWED } }),
+      prisma.call.count({ where: { ...tenantWhere, reviewStatus: CallReviewStatus.NEEDS_REVIEW } }),
+      prisma.call.count({ where: { ...tenantWhere, reviewStatus: CallReviewStatus.REVIEWED } }),
+      prisma.call.count({ where: { ...tenantWhere, urgency: 'high' } }),
+      prisma.call.count({ where: { ...tenantWhere, urgency: 'emergency' } })
     ]);
 
     return {
@@ -173,10 +187,13 @@ export async function registerCallRoutes(app: FastifyInstance) {
   });
 
   app.get('/v1/calls/:callSid', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
 
-    const call = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const call = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: {
         id: true,
         twilioCallSid: true,
@@ -204,6 +221,12 @@ export async function registerCallRoutes(app: FastifyInstance) {
         answeredAt: true,
         endedAt: true,
         durationSeconds: true,
+        recordingUrl: true,
+        recordingSid: true,
+        recordingDuration: true,
+        recordingStatus: true,
+        textBackSent: true,
+        textBackSentAt: true,
         phoneNumber: {
           select: {
             id: true,

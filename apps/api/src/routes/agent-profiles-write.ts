@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { AgentChannel, prisma } from '@frontdesk/db';
+import { businessIdParams, agentProfileIdParams } from '../lib/params.js';
 
 const createAgentProfileBodySchema = z.object({
   name: z.string().min(1).max(120),
@@ -8,6 +9,7 @@ const createAgentProfileBodySchema = z.object({
   language: z.string().min(2).max(16).default('en'),
   voiceName: z.string().min(1).max(80).nullable().optional(),
   systemPrompt: z.string().min(1).nullable().optional(),
+  missedCallTextBackMessage: z.string().min(1).max(640).nullable().optional(),
   isActive: z.boolean().optional()
 });
 
@@ -17,20 +19,24 @@ const updateAgentProfileBodySchema = z.object({
   language: z.string().min(2).max(16).optional(),
   voiceName: z.string().min(1).max(80).nullable().optional(),
   systemPrompt: z.string().min(1).nullable().optional(),
+  missedCallTextBackMessage: z.string().min(1).max(640).nullable().optional(),
   isActive: z.boolean().optional()
 });
 
 export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
   app.post('/v1/businesses/:businessId/agent-profiles', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = createAgentProfileBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true, tenantId: true }
     });
 
@@ -47,6 +53,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: parsed.data.language,
         voiceName: parsed.data.voiceName ?? null,
         systemPrompt: parsed.data.systemPrompt ?? null,
+        missedCallTextBackMessage: parsed.data.missedCallTextBackMessage ?? null,
         isActive: parsed.data.isActive ?? true
       },
       select: {
@@ -58,6 +65,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: true,
         voiceName: true,
         systemPrompt: true,
+        missedCallTextBackMessage: true,
         isActive: true,
         createdAt: true
       }
@@ -70,15 +78,18 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
   });
 
   app.patch('/v1/agent-profiles/:agentProfileId', async (request, reply) => {
-    const { agentProfileId } = request.params as { agentProfileId: string };
+    const { agentProfileId } = agentProfileIdParams.parse(request.params);
     const parsed = updateAgentProfileBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.agentProfile.findUnique({
-      where: { id: agentProfileId },
+    const existing = await prisma.agentProfile.findFirst({
+      where: {
+        id: agentProfileId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -87,7 +98,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
     }
 
     const agentProfile = await prisma.agentProfile.update({
-      where: { id: agentProfileId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,
@@ -98,6 +109,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: true,
         voiceName: true,
         systemPrompt: true,
+        missedCallTextBackMessage: true,
         isActive: true,
         updatedAt: true
       }

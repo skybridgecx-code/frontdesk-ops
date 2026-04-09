@@ -1,13 +1,17 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { extractCallData } from '@frontdesk/integrations/call-extraction';
+import { callSidParams } from '../lib/params.js';
 
 export async function registerCallExtractionRoutes(app: FastifyInstance) {
   app.post('/v1/calls/:callSid/extract', async (request, reply) => {
-    const { callSid } = request.params as { callSid: string };
+    const { callSid } = callSidParams.parse(request.params);
 
-    const call = await prisma.call.findUnique({
-      where: { twilioCallSid: callSid },
+    const call = await prisma.call.findFirst({
+      where: {
+        twilioCallSid: callSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: {
         id: true,
         twilioCallSid: true,

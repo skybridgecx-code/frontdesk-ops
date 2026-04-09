@@ -1,6 +1,8 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { BusinessVertical, prisma } from '@frontdesk/db';
+import { businessIdParams } from '../lib/params.js';
+import { enforceUsageLimits } from '../lib/usage-limiter.js';
 
 const updateBusinessBodySchema = z.object({
   name: z.string().min(1).max(120).optional(),
@@ -23,15 +25,18 @@ const createLocationBodySchema = z.object({
 
 export async function registerBusinessWriteRoutes(app: FastifyInstance) {
   app.patch('/v1/businesses/:businessId', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = updateBusinessBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.business.findUnique({
-      where: { id: businessId },
+    const existing = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -40,7 +45,7 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
     }
 
     const business = await prisma.business.update({
-      where: { id: businessId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,
@@ -61,16 +66,22 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
     };
   });
 
-  app.post('/v1/businesses/:businessId/locations', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+  app.post(
+    '/v1/businesses/:businessId/locations',
+    { preHandler: enforceUsageLimits('businesses') },
+    async (request, reply) => {
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = createLocationBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existingBusiness = await prisma.business.findUnique({
-      where: { id: businessId },
+    const existingBusiness = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -116,5 +127,6 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
       ok: true,
       location
     };
-  });
+    }
+  );
 }

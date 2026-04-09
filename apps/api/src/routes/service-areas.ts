@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { prisma } from '@frontdesk/db';
+import { businessIdParams, serviceAreaIdParams } from '../lib/params.js';
 
 const createServiceAreaBodySchema = z.object({
   label: z.string().min(1).max(120),
@@ -18,10 +19,13 @@ const updateServiceAreaBodySchema = z.object({
 
 export async function registerServiceAreaRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/service-areas', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -49,15 +53,18 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
   });
 
   app.post('/v1/businesses/:businessId/service-areas', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = createServiceAreaBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const business = await prisma.business.findUnique({
-      where: { id: businessId },
+    const business = await prisma.business.findFirst({
+      where: {
+        id: businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+      },
       select: { id: true }
     });
 
@@ -91,15 +98,18 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
   });
 
   app.patch('/v1/service-areas/:serviceAreaId', async (request, reply) => {
-    const { serviceAreaId } = request.params as { serviceAreaId: string };
+    const { serviceAreaId } = serviceAreaIdParams.parse(request.params);
     const parsed = updateServiceAreaBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
-    const existing = await prisma.serviceArea.findUnique({
-      where: { id: serviceAreaId },
+    const existing = await prisma.serviceArea.findFirst({
+      where: {
+        id: serviceAreaId,
+        ...(request.tenantId ? { business: { tenantId: request.tenantId } } : {})
+      },
       select: { id: true }
     });
 
@@ -108,7 +118,7 @@ export async function registerServiceAreaRoutes(app: FastifyInstance) {
     }
 
     const serviceArea = await prisma.serviceArea.update({
-      where: { id: serviceAreaId },
+      where: { id: existing.id },
       data: parsed.data,
       select: {
         id: true,

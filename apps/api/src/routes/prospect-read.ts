@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { ProspectStatus, prisma } from '@frontdesk/db';
 import { z } from 'zod';
+import { businessIdParams, prospectParams } from '../lib/params.js';
 import { getProspectReadSignals } from '@frontdesk/domain';
 
 const prospectReadQuerySchema = z
@@ -14,8 +15,7 @@ const DEFAULT_PROSPECT_LIST_LIMIT = 200;
 
 export async function registerProspectReadRoutes(app: FastifyInstance) {
   app.get('/v1/businesses/:businessId/prospects', async (request, reply) => {
-    const { businessId } = request.params as { businessId: string };
-
+    const { businessId } = businessIdParams.parse(request.params);
     const parsed = prospectReadQuerySchema.safeParse(request.query ?? {});
     if (!parsed.success) {
       return reply.status(400).send({
@@ -27,6 +27,7 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
     const prospects = await prisma.prospect.findMany({
       where: {
         businessId,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {}),
         ...(parsed.data.status ? { status: parsed.data.status } : {})
       },
       orderBy: [
@@ -74,15 +75,13 @@ export async function registerProspectReadRoutes(app: FastifyInstance) {
   });
 
   app.get('/v1/businesses/:businessId/prospects/:prospectSid', async (request, reply) => {
-    const { businessId, prospectSid } = request.params as {
-      businessId: string;
-      prospectSid: string;
-    };
+    const { businessId, prospectSid } = prospectParams.parse(request.params);
 
     const prospect = await prisma.prospect.findFirst({
       where: {
         businessId,
-        prospectSid
+        prospectSid,
+        ...(request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         prospectSid: true,

@@ -5,6 +5,7 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
 }
 
 enum MembershipRole {
@@ -125,6 +126,7 @@ model Tenant {
   id            String         @id @default(cuid())
   name          String
   slug          String         @unique
+  status        String         @default("active")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -135,8 +137,81 @@ model Tenant {
   calls         Call[]
   prospects     Prospect[]
   prospectImportBatches ProspectImportBatch[]
+  subscription  Subscription?
+  webhookEndpoints WebhookEndpoint[]
+  tenantUsers   TenantUser[]
 
   @@index([slug])
+  @@index([status])
+}
+
+model Subscription {
+  id                   String   @id @default(uuid())
+  tenantId             String   @unique
+  stripeCustomerId     String
+  stripeSubscriptionId String   @unique
+  stripePriceId        String
+  planKey              String?
+  status               String
+  currentPeriodStart   DateTime
+  currentPeriodEnd     DateTime
+  cancelAtPeriodEnd    Boolean  @default(false)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  tenant               Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([stripeCustomerId])
+}
+
+model WebhookEndpoint {
+  id          String           @id @default(uuid())
+  tenantId    String
+  url         String
+  secret      String
+  events      String[]
+  isActive    Boolean          @default(true)
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([tenantId])
+}
+
+model WebhookDelivery {
+  id                String          @id @default(uuid())
+  webhookEndpointId String
+  eventType         String
+  payload           String
+  responseStatus    Int?
+  responseBody      String?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  attempts          Int             @default(0)
+  createdAt         DateTime        @default(now())
+
+  webhookEndpoint   WebhookEndpoint @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+
+  @@index([webhookEndpointId])
+  @@index([createdAt])
+}
+
+model TenantUser {
+  id          String   @id @default(uuid())
+  clerkUserId String   @unique
+  tenantId    String
+  role        String   @default("owner")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([clerkUserId])
+  @@index([tenantId])
 }
 
 model User {
@@ -176,6 +251,7 @@ model Business {
   vertical       BusinessVertical  @default(OTHER)
   websiteUrl     String?
   timezone       String            @default("America/New_York")
+  isDefault      Boolean           @default(false)
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
 
@@ -191,6 +267,7 @@ model Business {
 
   @@unique([tenantId, slug])
   @@index([tenantId])
+  @@index([isDefault])
 }
 
 model Location {
@@ -254,6 +331,7 @@ model AgentProfile {
   language                  String        @default("en")
   voiceName                 String?
   systemPrompt              String?
+  missedCallTextBackMessage String?
   isActive                  Boolean       @default(true)
   createdAt                 DateTime      @default(now())
   updatedAt                 DateTime      @updatedAt
@@ -333,6 +411,12 @@ model Call {
   answeredAt        DateTime?
   endedAt           DateTime?
   durationSeconds   Int?
+  recordingUrl      String?
+  recordingSid      String?
+  recordingDuration Int?
+  recordingStatus   String?
+  textBackSent      Boolean        @default(false)
+  textBackSentAt    DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 
@@ -349,6 +433,11 @@ model Call {
   @@index([twilioCallSid])
   @@index([twilioStreamSid])
   @@index([status])
+  @@index([createdAt])
+  @@index([createdAt, status])
+  @@index([triageStatus])
+  @@index([reviewStatus])
+  @@index([fromE164])
   @@index([routeKind])
 }
 
@@ -417,6 +506,7 @@ model Prospect {
   @@index([priority])
   @@index([nextActionAt])
   @@index([lastAttemptAt])
+  @@index([companyName])
   @@unique([tenantId, businessId, normalizedEmail])
   @@unique([tenantId, businessId, normalizedPhone])
   @@unique([tenantId, businessId, sourceProvider, sourceProviderRecordId])
