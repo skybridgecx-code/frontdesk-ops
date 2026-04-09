@@ -12,7 +12,8 @@ function shouldSkipTenantResolver(url: string) {
     pathname === '/health' ||
     pathname === '/v1/ping' ||
     pathname.startsWith('/v1/twilio/') ||
-    pathname.startsWith('/v1/stripe/')
+    pathname.startsWith('/v1/stripe/') ||
+    pathname.startsWith('/v1/clerk/')
   );
 }
 
@@ -45,6 +46,7 @@ async function createApp() {
   app.get('/health', async () => ({ ok: true }));
   app.get('/v1/ping', async () => ({ pong: true }));
   app.post('/v1/twilio/voice/inbound/mock', async () => ({ ok: true }));
+  app.post('/v1/clerk/webhooks', async () => ({ ok: true }));
 
   return app;
 }
@@ -116,6 +118,20 @@ describe('tenant resolver middleware', () => {
     const response = await app.inject({
       method: 'POST',
       url: '/v1/twilio/voice/inbound/mock'
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(queryRawMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('clerk webhook routes skip tenant resolution', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/clerk/webhooks'
     });
 
     expect(response.statusCode).toBe(200);

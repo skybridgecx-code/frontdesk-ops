@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
-import { getCurrentTenant } from '@/lib/tenant';
+import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
 import { SidebarNav } from './components/sidebar-nav';
 
 export const metadata: Metadata = {
@@ -55,8 +55,10 @@ export default async function DashboardLayout({
   const requestHeaders = await headers();
   const pathname = getRequestPathname(requestHeaders);
   const isBillingPage = pathname === '/billing' || pathname.startsWith('/billing/');
+  const isWelcomePage = pathname === '/welcome' || pathname.startsWith('/welcome/');
 
-  const tenant = await getCurrentTenant();
+  const [tenant, onboardingStatus] = await Promise.all([getCurrentTenant(), getOnboardingStatus()]);
+
   const billingStatus = tenant
     ? await getBillingStatus(tenant.id)
     : {
@@ -69,11 +71,19 @@ export default async function DashboardLayout({
     normalizedBillingStatus === 'trialing' ||
     normalizedBillingStatus === 'past_due';
 
-  if (!isBillingPage && !canAccessDashboard) {
+  const shouldRedirectToWelcome = onboardingStatus
+    ? !onboardingStatus.isOnboardingComplete && !onboardingStatus.hasPhoneNumbers && !isBillingPage && !isWelcomePage
+    : false;
+
+  if (shouldRedirectToWelcome) {
+    redirect('/welcome');
+  }
+
+  if (!isBillingPage && !isWelcomePage && !canAccessDashboard) {
     redirect('/billing?notice=subscription-required');
   }
 
-  const showPastDueBanner = !isBillingPage && normalizedBillingStatus === 'past_due';
+  const showPastDueBanner = !isBillingPage && !isWelcomePage && normalizedBillingStatus === 'past_due';
 
   return (
     <div className="min-h-screen bg-gray-50 text-gray-900">

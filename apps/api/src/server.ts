@@ -33,7 +33,9 @@ import { registerProspectAttemptWriteRoutes } from './routes/prospect-attempts-w
 import { registerProspectAttemptReadRoutes } from './routes/prospect-attempts-read.js';
 import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
 import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
+import { registerClerkWebhookRoutes } from './routes/clerk-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
+import { registerOnboardingRoutes } from './routes/onboarding.js';
 
 function getPathname(url: string) {
   return url.split('?')[0] ?? url;
@@ -46,7 +48,8 @@ function shouldSkipTenantResolver(url: string) {
     pathname === '/health' ||
     pathname === '/v1/ping' ||
     pathname.startsWith('/v1/twilio/') ||
-    pathname.startsWith('/v1/stripe/')
+    pathname.startsWith('/v1/stripe/') ||
+    pathname.startsWith('/v1/clerk/')
   );
 }
 
@@ -56,7 +59,8 @@ function shouldSkipSubscriptionGuard(url: string) {
   return (
     shouldSkipTenantResolver(pathname) ||
     pathname === '/v1/bootstrap' ||
-    pathname.startsWith('/v1/billing/')
+    pathname.startsWith('/v1/billing/') ||
+    pathname.startsWith('/v1/onboarding/')
   );
 }
 
@@ -151,7 +155,9 @@ export async function buildServer() {
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerStripeWebhookRoutes(app);
+  await registerClerkWebhookRoutes(app);
   await registerBillingRoutes(app);
+  await registerOnboardingRoutes(app);
   await registerAgentProfileWriteRoutes(app);
   await registerProspectImportRoutes(app);
   await registerProspectReadRoutes(app);

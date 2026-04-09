@@ -13,7 +13,9 @@ function shouldSkipSubscriptionGuard(url: string) {
     pathname === '/v1/ping' ||
     pathname.startsWith('/v1/twilio/') ||
     pathname.startsWith('/v1/stripe/') ||
-    pathname.startsWith('/v1/billing/')
+    pathname.startsWith('/v1/clerk/') ||
+    pathname.startsWith('/v1/billing/') ||
+    pathname.startsWith('/v1/onboarding/')
   );
 }
 
@@ -58,7 +60,9 @@ async function createApp() {
     subscriptionWarning: request.subscriptionWarning ?? null
   }));
   app.get('/v1/billing/status/tenant_1', async () => ({ ok: true }));
+  app.get('/v1/onboarding/status', async () => ({ ok: true }));
   app.post('/v1/twilio/voice/inbound/mock', async () => ({ ok: true }));
+  app.post('/v1/clerk/webhooks', async () => ({ ok: true }));
 
   return app;
 }
@@ -161,6 +165,26 @@ describe('subscription guard middleware', () => {
   it('billing routes skip subscription guard', async () => {
     const app = await createApp();
     const response = await app.inject({ method: 'GET', url: '/v1/billing/status/tenant_1' });
+
+    expect(response.statusCode).toBe(200);
+    expect(queryRawMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('onboarding routes skip subscription guard', async () => {
+    const app = await createApp();
+    const response = await app.inject({ method: 'GET', url: '/v1/onboarding/status' });
+
+    expect(response.statusCode).toBe(200);
+    expect(queryRawMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('clerk webhook routes skip subscription guard', async () => {
+    const app = await createApp();
+    const response = await app.inject({ method: 'POST', url: '/v1/clerk/webhooks' });
 
     expect(response.statusCode).toBe(200);
     expect(queryRawMock).not.toHaveBeenCalled();
