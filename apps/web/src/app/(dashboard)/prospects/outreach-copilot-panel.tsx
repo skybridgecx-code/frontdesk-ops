@@ -1,6 +1,6 @@
 'use client';
 
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import type { ProspectAttempt, ProspectDetail } from './prospect-detail-flow';
 import {
   buildProspectOutreachSnapshot,
@@ -65,8 +65,10 @@ function OutputBlock({
 }) {
   return (
     <div className="rounded-md border border-gray-200 bg-gray-50 p-4">
-      <div className="text-xs uppercase tracking-wide text-gray-500">{label}</div>
-      <div className={`${monospace ? 'font-mono text-[13px] leading-6' : 'text-sm leading-7'} mt-2 whitespace-pre-wrap text-gray-800`}>
+      <div className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">{label}</div>
+      <div
+        className={`${monospace ? 'font-mono text-sm leading-6' : 'text-sm leading-7'} mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap text-gray-800`}
+      >
         {value}
       </div>
     </div>
@@ -77,6 +79,35 @@ function getPriorityBandLabel(value: ProspectOutreachDraft['priorityBand']) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
+function buildDraftCopyText(draft: ProspectOutreachDraft) {
+  return [
+    `Qualification score: ${draft.qualificationScore}/25 (${getPriorityBandLabel(draft.priorityBand)} priority)`,
+    '',
+    `Fit summary: ${draft.fitSummary}`,
+    `Chosen angle: ${draft.chosenAngle}`,
+    '',
+    `First email subject: ${draft.firstEmailSubject}`,
+    '',
+    'First email body:',
+    draft.firstEmailBody,
+    '',
+    'Short DM / text:',
+    draft.shortDmText,
+    '',
+    'Follow-up 1:',
+    draft.followUp1,
+    '',
+    'Follow-up 2:',
+    draft.followUp2,
+    '',
+    'Call opener:',
+    draft.callOpener,
+    '',
+    'CRM note:',
+    draft.crmNote
+  ].join('\n');
+}
+
 export function OutreachCopilotPanel({
   prospect,
   attempts,
@@ -85,6 +116,7 @@ export function OutreachCopilotPanel({
   unavailableReason
 }: OutreachCopilotPanelProps) {
   const [state, formAction, pending] = useActionState(generateOutreachDraft, initialProspectOutreachState);
+  const [copied, setCopied] = useState(false);
   const snapshot = buildProspectOutreachSnapshot(prospect, attempts);
   const payload = JSON.stringify({ snapshot });
   const generatedDraft = state.draft;
@@ -95,8 +127,22 @@ export function OutreachCopilotPanel({
         ? state.message
         : null;
 
+  async function copyDraftToClipboard() {
+    if (!generatedDraft) {
+      return;
+    }
+
+    try {
+      await navigator.clipboard.writeText(buildDraftCopyText(generatedDraft));
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      setCopied(false);
+    }
+  }
+
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+    <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
       <div className="text-xs uppercase tracking-wide text-indigo-600">SkybridgeCX copilot</div>
       <h2 className="mt-2 text-xl font-semibold text-gray-900">Outreach draft generator</h2>
       <p className="mt-2 max-w-3xl text-sm text-gray-600">
@@ -117,7 +163,7 @@ export function OutreachCopilotPanel({
           <select
             name="outreachGoal"
             defaultValue="book_call"
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+            className="min-h-11 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachGoalOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -132,7 +178,7 @@ export function OutreachCopilotPanel({
           <select
             name="outreachLength"
             defaultValue="short"
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+            className="min-h-11 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachLengthOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -147,7 +193,7 @@ export function OutreachCopilotPanel({
           <select
             name="outreachTone"
             defaultValue="direct"
-            className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+            className="min-h-11 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
           >
             {outreachToneOptions.map((option) => (
               <option key={option.value} value={option.value}>
@@ -161,7 +207,7 @@ export function OutreachCopilotPanel({
           <button
             type="submit"
             disabled={!enabled || pending}
-            className="w-full rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 w-full rounded-md bg-indigo-600 px-5 py-2.5 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {pending ? 'Generating…' : 'Generate'}
           </button>
@@ -182,9 +228,20 @@ export function OutreachCopilotPanel({
 
       {generatedDraft ? (
         <div className="mt-6 grid gap-4">
+          <div className="grid gap-2 sm:flex sm:items-center sm:justify-between">
+            <p className="text-sm font-medium text-gray-700">Generated draft</p>
+            <button
+              type="button"
+              onClick={copyDraftToClipboard}
+              className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto"
+            >
+              {copied ? 'Copied' : 'Copy full draft'}
+            </button>
+          </div>
+
           <div className="grid gap-4 lg:grid-cols-3">
             <div className="rounded-md border border-gray-200 bg-indigo-50 p-4">
-              <div className="text-xs uppercase tracking-wide text-indigo-700">Qualification score</div>
+              <div className="text-sm uppercase tracking-wide text-indigo-700 sm:text-xs">Qualification score</div>
               <div className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
                 {generatedDraft.qualificationScore}/25
               </div>
@@ -212,7 +269,7 @@ export function OutreachCopilotPanel({
           </div>
 
           {state.generatedAt ? (
-            <div className="text-xs uppercase tracking-wide text-gray-500">
+            <div className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">
               Generated{' '}
               {new Intl.DateTimeFormat('en-US', {
                 dateStyle: 'medium',

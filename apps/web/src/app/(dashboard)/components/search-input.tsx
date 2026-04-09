@@ -16,7 +16,7 @@ export function SearchInput(props: InputHTMLAttributes<HTMLInputElement>) {
       <input
         {...props}
         className={[
-          'w-full rounded-md border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 outline-none transition',
+          'min-h-11 w-full rounded-md border border-gray-200 bg-white py-2.5 pl-9 pr-3 text-sm text-gray-900 outline-none transition',
           'placeholder:text-gray-400 focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100',
           props.className
         ]

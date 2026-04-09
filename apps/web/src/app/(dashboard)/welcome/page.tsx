@@ -25,7 +25,7 @@ function StepRow({
   badge?: string;
 }) {
   return (
-    <div className="flex items-start justify-between gap-4 rounded-lg border border-gray-200 bg-white p-4">
+    <div className="flex flex-col gap-4 rounded-lg border border-gray-200 bg-white p-4 sm:flex-row sm:items-start sm:justify-between">
       <div className="flex items-start gap-3">
         <span
           className={`mt-0.5 inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold ${
@@ -40,9 +40,9 @@ function StepRow({
         </div>
       </div>
 
-      <div className="shrink-0">
+      <div className="w-full shrink-0 sm:w-auto">
         {badge ? (
-          <span className="rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-medium text-gray-600">
+          <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-sm font-medium text-gray-600 sm:text-xs">
             {badge}
           </span>
         ) : null}
@@ -50,7 +50,7 @@ function StepRow({
         {action ? (
           <Link
             href={action.href}
-            className="inline-flex items-center rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 transition hover:bg-indigo-100"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700 transition hover:bg-indigo-100 sm:w-auto sm:text-xs"
           >
             {action.label}
           </Link>

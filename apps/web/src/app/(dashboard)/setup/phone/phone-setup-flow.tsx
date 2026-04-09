@@ -197,17 +197,17 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
       >
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Area code</span>
+            <span className="text-sm font-medium uppercase tracking-wide text-gray-500 sm:text-xs">Area code</span>
             <input
               value={areaCode}
               onChange={(event) => setAreaCode(event.target.value.replace(/[^0-9]/g, '').slice(0, 3))}
               placeholder="703"
-              className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+              className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
             />
           </label>
 
           <label className="space-y-2 md:col-span-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Contains</span>
+            <span className="text-sm font-medium uppercase tracking-wide text-gray-500 sm:text-xs">Contains</span>
             <SearchInput
               value={contains}
               onChange={(event) => setContains(event.target.value)}
@@ -221,7 +221,7 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
             type="button"
             onClick={searchNumbers}
             disabled={searching}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {searching ? 'Searching...' : 'Search Available Numbers'}
           </button>
@@ -252,9 +252,9 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
                   }`}
                 >
                   <div className="text-base font-semibold text-gray-900">{number.friendlyName}</div>
-                  <div className="mt-1 text-xs text-gray-500">{number.phoneNumber}</div>
-                  <div className="mt-2 text-xs text-gray-600">{locationText(number)}</div>
-                  <div className="mt-1 text-xs text-gray-500">{capabilityText(number.capabilities)}</div>
+                  <div className="mt-1 text-sm text-gray-500 sm:text-xs">{number.phoneNumber}</div>
+                  <div className="mt-2 text-sm text-gray-600 sm:text-xs">{locationText(number)}</div>
+                  <div className="mt-1 text-sm text-gray-500 sm:text-xs">{capabilityText(number.capabilities)}</div>
                 </button>
               );
             })}
@@ -265,7 +265,7 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
       <Card title="Step 2: Confirm purchase" subtitle="Assign the selected number to a business and activate voice handling.">
         <div className="grid gap-4 md:grid-cols-2">
           <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
-            <div className="text-xs uppercase tracking-wide text-gray-500">Selected number</div>
+            <div className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Selected number</div>
             <div className="mt-2 text-lg font-semibold text-gray-900">
               {selectedNumber ? selectedNumber.friendlyName : 'No number selected'}
             </div>
@@ -273,12 +273,12 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
           </div>
 
           <label className="space-y-2">
-            <span className="text-xs font-medium uppercase tracking-wide text-gray-500">Business</span>
+            <span className="text-sm font-medium uppercase tracking-wide text-gray-500 sm:text-xs">Business</span>
             <select
               value={selectedBusinessId}
               onChange={(event) => setSelectedBusinessId(event.target.value)}
               disabled={businesses.length <= 1}
-              className="w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 disabled:bg-gray-50 disabled:text-gray-500"
+              className="min-h-11 w-full rounded-md border border-gray-200 bg-white px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100 disabled:bg-gray-50 disabled:text-gray-500"
             >
               {businesses.map((business) => (
                 <option key={business.id} value={business.id}>
@@ -289,18 +289,18 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
           </label>
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-3">
+        <div className="mt-4 grid gap-3 sm:flex sm:flex-wrap sm:items-center">
           <button
             type="button"
             onClick={purchaseNumber}
             disabled={!canPurchase}
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+            className="min-h-11 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
           >
             {purchasing ? 'Activating...' : 'Activate This Number'}
           </button>
 
           {hasPhoneNumbers ? (
-            <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700">
+            <span className="inline-flex min-h-11 items-center rounded-full border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-sm font-medium text-emerald-700 sm:min-h-0 sm:text-xs">
               A phone number is already connected
             </span>
           ) : null}
@@ -314,16 +314,16 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
             will be answered by SkybridgeCX.
           </p>
 
-          <div className="mt-4 flex flex-wrap gap-3">
+          <div className="mt-4 grid gap-3 sm:flex sm:flex-wrap">
             <Link
               href="/dashboard"
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 sm:w-auto"
             >
               Go to Dashboard
             </Link>
             <a
               href={`tel:${purchasedNumber.e164}`}
-              className="rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-indigo-50"
+              className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-semibold text-gray-700 transition hover:bg-indigo-50 sm:w-auto"
             >
               Make a Test Call
             </a>

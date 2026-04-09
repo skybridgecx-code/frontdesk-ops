@@ -122,13 +122,13 @@ export default async function ProspectDetailPage({
         ]}
       />
 
-      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
-            <Link href={returnTo} className="text-sm font-medium text-gray-500 transition hover:text-indigo-600">
+            <Link href={returnTo} className="inline-flex min-h-11 items-center text-sm font-medium text-gray-500 transition hover:text-indigo-600">
               ← Back to prospects list
             </Link>
-            <h1 className="mt-2 text-3xl font-semibold tracking-tight text-gray-900">
+            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
               {prospect.companyName ?? prospect.contactName ?? prospect.prospectSid}
             </h1>
             <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -141,7 +141,7 @@ export default async function ProspectDetailPage({
             {nextHref ? (
               <Link
                 href={nextHref}
-                className="rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+                className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto"
               >
                 Next in queue
               </Link>
@@ -165,27 +165,27 @@ export default async function ProspectDetailPage({
           <Card title="Contact info" subtitle="Core lead details captured by SkybridgeCX.">
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Company</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Company</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.companyName ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Contact</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Contact</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.contactName ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Phone</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Phone</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.contactPhone ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">Email</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Email</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.contactEmail ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">City</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">City</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.city ?? '—'}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-gray-500">State</dt>
+                <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">State</dt>
                 <dd className="mt-1 text-sm text-gray-900">{prospect.state ?? '—'}</dd>
               </div>
             </dl>
@@ -199,7 +199,7 @@ export default async function ProspectDetailPage({
                   <select
                     name="status"
                     defaultValue={prospect.status}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                    className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
                   >
                     {prospectStatuses.map((value) => (
                       <option key={value} value={value}>
@@ -214,7 +214,7 @@ export default async function ProspectDetailPage({
                   <select
                     name="priority"
                     defaultValue={prospect.priority ?? ''}
-                    className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                    className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
                   >
                     <option value="">No priority</option>
                     {prospectPriorities.map((value) => (
@@ -232,7 +232,7 @@ export default async function ProspectDetailPage({
                   name="nextActionAt"
                   type="datetime-local"
                   defaultValue={formatDateTimeLocalInput(prospect.nextActionAt)}
-                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                  className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
                 />
               </label>
 
@@ -242,20 +242,20 @@ export default async function ProspectDetailPage({
                   name="notes"
                   rows={6}
                   defaultValue={prospect.notes ?? ''}
-                  className="w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
+                  className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2.5 text-sm text-gray-900 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-100"
                 />
               </label>
 
-              <div className="flex flex-wrap items-center justify-end gap-2">
+              <div className="grid gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
                 <button
                   type="submit"
-                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+                  className="min-h-11 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
                 >
                   Save workflow
                 </button>
                 <button
                   formAction={updateWorkflowAndNext}
-                  className="rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+                  className="min-h-11 rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
                 >
                   Save and next
                 </button>
@@ -283,7 +283,7 @@ export default async function ProspectDetailPage({
                     <p className="text-sm font-medium text-gray-900">
                       {formatLabel(attempt.channel)} · {formatLabel(attempt.outcome)}
                     </p>
-                    <p className="mt-1 text-xs text-gray-500">{formatDateTime(attempt.attemptedAt)}</p>
+                    <p className="mt-1 text-sm text-gray-500 sm:text-xs">{formatDateTime(attempt.attemptedAt)}</p>
                     <p className="mt-2 text-sm text-gray-600">{attempt.note ?? 'No note provided.'}</p>
                   </li>
                 ))}
@@ -305,7 +305,7 @@ export default async function ProspectDetailPage({
                   >
                     <div className="flex items-start justify-between gap-3">
                       <p className="text-sm font-medium text-gray-900">{entry.eventTypeLabel}</p>
-                      <p className="text-xs text-gray-500">{formatDateTime(entry.timestamp)}</p>
+                      <p className="text-sm text-gray-500 sm:text-xs">{formatDateTime(entry.timestamp)}</p>
                     </div>
                     <p className="mt-1 text-sm text-gray-700">{entry.description}</p>
                     <p className="mt-2 text-sm text-gray-600">{entry.detail ?? '—'}</p>
@@ -318,49 +318,49 @@ export default async function ProspectDetailPage({
           <Card title="Quick disposition" subtitle="Apply common outcomes from the detail view.">
             <div className="grid gap-2">
               <form action={markResponded}>
-                <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                   Mark responded
                 </button>
               </form>
               {nextHref ? (
                 <form action={markRespondedAndNext}>
-                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                     Mark responded and next
                   </button>
                 </form>
               ) : null}
               <form action={markQualified}>
-                <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                   Mark qualified
                 </button>
               </form>
               {nextHref ? (
                 <form action={markQualifiedAndNext}>
-                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                     Mark qualified and next
                   </button>
                 </form>
               ) : null}
               <form action={markDisqualified}>
-                <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                   Mark disqualified
                 </button>
               </form>
               {nextHref ? (
                 <form action={markDisqualifiedAndNext}>
-                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                     Mark disqualified and next
                   </button>
                 </form>
               ) : null}
               <form action={archiveProspect}>
-                <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                   Archive prospect
                 </button>
               </form>
               {nextHref ? (
                 <form action={archiveProspectAndNext}>
-                  <button className="w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
+                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50">
                     Archive and next
                   </button>
                 </form>

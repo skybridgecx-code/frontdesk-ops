@@ -20,7 +20,7 @@ export function Badge({
   className?: string;
 }) {
   const classes = [
-    'inline-flex items-center rounded-full border px-2.5 py-1 text-xs font-medium',
+    'inline-flex max-w-full items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-sm font-medium leading-5 sm:text-xs',
     variantClasses[variant],
     className
   ]

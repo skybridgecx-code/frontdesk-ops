@@ -86,11 +86,11 @@ export default async function DashboardLayout({
   const showPastDueBanner = !isBillingPage && !isWelcomePage && normalizedBillingStatus === 'past_due';
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
+    <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
       <div className="mx-auto flex min-h-screen w-full max-w-[1700px]">
         <SidebarNav subscriptionStatus={billingStatus.status} />
 
-        <div className="flex min-w-0 flex-1 flex-col">
+        <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
           <div className="h-14 lg:hidden" />
 
           {showPastDueBanner ? (

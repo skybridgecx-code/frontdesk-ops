@@ -17,7 +17,7 @@ export function EmptyState({
   actionHref
 }: EmptyStateProps) {
   return (
-    <div className="rounded-lg border border-dashed border-gray-300 bg-white p-10 text-center shadow-sm">
+    <div className="rounded-lg border border-dashed border-gray-300 bg-white p-6 text-center shadow-sm sm:p-10">
       <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-gray-100 text-gray-500">
         {icon ?? (
           <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7" aria-hidden="true">
@@ -30,7 +30,7 @@ export function EmptyState({
       {actionLabel && actionHref ? (
         <Link
           href={actionHref}
-          className="mt-5 inline-flex items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+          className="mt-5 inline-flex min-h-11 w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 sm:w-auto"
         >
           {actionLabel}
         </Link>

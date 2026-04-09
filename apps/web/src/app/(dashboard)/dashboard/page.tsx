@@ -134,31 +134,31 @@ export default async function DashboardOverviewPage() {
 
   return (
     <div className="space-y-6">
-      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:flex-row sm:items-end sm:justify-between">
+      <section className="flex flex-col gap-3 rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:flex-row sm:items-end sm:justify-between sm:p-6">
         <div>
           <p className="text-sm font-medium text-indigo-600">SkybridgeCX operations</p>
-          <h1 className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">Dashboard overview</h1>
+          <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Dashboard overview</h1>
           <p className="mt-2 text-sm text-gray-600">
             Monitor live call intake, lead throughput, and operator workload from one view.
           </p>
         </div>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row sm:flex-wrap">
           <Link
             href="/calls"
-            className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 sm:w-auto"
           >
             View All Calls
           </Link>
           <Link
             href="/prospects"
-            className="rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto"
           >
             View Prospects
           </Link>
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid grid-cols-2 gap-4 xl:grid-cols-4">
         <StatCard
           label="Total Calls Today"
           value={String(callsToday.length)}
@@ -226,17 +226,17 @@ export default async function DashboardOverviewPage() {
           ) : (
             <ul className="divide-y divide-gray-200">
               {recentCalls.map((call) => (
-                <li key={call.twilioCallSid} className="flex flex-col gap-2 py-3 sm:flex-row sm:items-center sm:justify-between">
+                <li key={call.twilioCallSid} className="flex flex-col gap-2 rounded-md py-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
-                    <Link href={`/calls/${call.twilioCallSid}`} className="font-medium text-gray-900 hover:text-indigo-600">
+                    <Link href={`/calls/${call.twilioCallSid}`} className="inline-flex min-h-11 items-center font-medium text-gray-900 hover:text-indigo-600">
                       {call.leadName ?? call.fromE164 ?? call.twilioCallSid}
                     </Link>
-                    <div className="mt-1 text-xs text-gray-500">{formatTime(call.startedAt)}</div>
+                    <div className="mt-1 text-sm text-gray-500">{formatTime(call.startedAt)}</div>
                   </div>
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <StatusBadge value={call.urgency ?? 'unknown'} type="urgency" fallback="Unknown" />
                     <StatusBadge value={call.triageStatus} type="triage" />
-                    <span className="text-xs text-gray-500">{formatDuration(call.durationSeconds)}</span>
+                    <span className="text-sm text-gray-500">{formatDuration(call.durationSeconds)}</span>
                   </div>
                 </li>
               ))}
@@ -248,13 +248,13 @@ export default async function DashboardOverviewPage() {
           <div className="space-y-3">
             <Link
               href="/calls"
-              className="block rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
+              className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
             >
               View All Calls
             </Link>
             <Link
               href="/prospects"
-              className="block rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
+              className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
             >
               View Prospects
             </Link>

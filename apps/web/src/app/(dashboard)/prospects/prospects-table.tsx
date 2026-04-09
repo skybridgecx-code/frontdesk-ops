@@ -100,7 +100,7 @@ export function ProspectsTable({
                 <td className="px-4 py-3" onClick={(event) => event.stopPropagation()}>
                   <Link
                     href={`/prospects/${prospect.prospectSid}?returnTo=${encodeURIComponent(returnTo)}`}
-                    className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 transition hover:bg-indigo-50"
+                    className="inline-flex min-h-11 items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:text-xs"
                   >
                     Open
                   </Link>
@@ -122,19 +122,19 @@ export function ProspectsTable({
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{displayName(prospect)}</p>
-                <p className="mt-1 text-xs text-gray-500">{prospect.contactName ?? 'No contact name'}</p>
+                <p className="text-base font-semibold text-gray-900">{displayName(prospect)}</p>
+                <p className="mt-1 text-sm text-gray-500">{prospect.contactName ?? 'No contact name'}</p>
               </div>
               <StatusBadge value={prospect.status} type="prospect" />
             </div>
 
-            <div className="mt-3 grid gap-1 text-xs text-gray-600">
+            <div className="mt-3 grid gap-1 text-sm text-gray-600">
               <p>Phone: {prospect.contactPhone ?? '—'}</p>
               <p>Email: {prospect.contactEmail ?? '—'}</p>
               <p>Updated: {formatDate(prospect.updatedAt)}</p>
             </div>
 
-            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-gray-200 px-2.5 py-1 text-xs text-gray-600">
+            <div className="mt-3 inline-flex items-center gap-2 rounded-full border border-gray-200 px-2.5 py-1 text-sm text-gray-600 sm:text-xs">
               <span className={`h-2.5 w-2.5 rounded-full ${priorityDot(prospect.priority)}`} />
               <span>
                 Priority:{' '}

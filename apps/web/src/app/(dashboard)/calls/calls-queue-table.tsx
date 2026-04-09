@@ -50,7 +50,7 @@ function hasRecordingAvailable(call: CallRow) {
 function RecordingIndicator() {
   return (
     <span
-      className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
+      className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-sm sm:text-[11px] font-medium text-indigo-700"
       title="Recording available"
       aria-label="Recording available"
     >
@@ -129,19 +129,19 @@ export function CallsQueueTable({
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/calls/${call.twilioCallSid}?returnTo=${encodeURIComponent(returnTo)}`}
-                      className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-indigo-50"
+                      className="inline-flex min-h-11 items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-indigo-50 sm:text-xs"
                     >
                       Open
                     </Link>
                     <form action={markContactedAction}>
                       <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                      <button className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-indigo-50">
+                      <button className="inline-flex min-h-11 items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-indigo-50 sm:text-xs">
                         Contacted
                       </button>
                     </form>
                     <form action={archiveAction}>
                       <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                      <button className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-medium text-gray-700 hover:bg-indigo-50">
+                      <button className="inline-flex min-h-11 items-center rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-indigo-50 sm:text-xs">
                         Archive
                       </button>
                     </form>
@@ -162,13 +162,13 @@ export function CallsQueueTable({
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-gray-900">{callDisplayName(call)}</p>
-                <p className="mt-1 text-xs text-gray-500">{call.leadPhone ?? call.fromE164 ?? '—'}</p>
+                <p className="text-base font-semibold text-gray-900">{callDisplayName(call)}</p>
+                <p className="mt-1 text-sm text-gray-500">{call.leadPhone ?? call.fromE164 ?? '—'}</p>
               </div>
               <StatusBadge value={call.urgency ?? 'unknown'} type="urgency" fallback="Unknown" />
             </div>
             <p className="mt-3 text-sm text-gray-600">{call.leadIntent ?? 'No intent extracted'}</p>
-            <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
+            <div className="mt-3 flex flex-wrap items-center gap-2 text-sm text-gray-500">
               <StatusBadge value={call.triageStatus} type="triage" />
               <span>{formatDuration(call.durationSeconds)}</span>
               {hasRecordingAvailable(call) ? <RecordingIndicator /> : null}
@@ -177,13 +177,13 @@ export function CallsQueueTable({
             <div className="mt-4 flex items-center gap-2" onClick={(event) => event.stopPropagation()}>
               <form action={markContactedAction} className="flex-1">
                 <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                <button className="w-full rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50">
                   Mark contacted
                 </button>
               </form>
               <form action={archiveAction} className="flex-1">
                 <input type="hidden" name="callSid" value={call.twilioCallSid} />
-                <button className="w-full rounded-md border border-gray-200 px-3 py-2 text-xs font-medium text-gray-700 hover:bg-indigo-50">
+                <button className="min-h-11 w-full rounded-md border border-gray-200 px-3 py-2 text-sm font-medium text-gray-700 hover:bg-indigo-50">
                   Archive
                 </button>
               </form>

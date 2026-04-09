@@ -32,14 +32,14 @@ export function RecordingPlayer({ recordingUrl, recordingDuration, recordingStat
   const isProcessing = recordingStatus === 'in-progress' || recordingStatus === 'completed';
 
   return (
-    <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+      <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="text-lg font-semibold text-gray-900">Call Recording</h2>
         {formattedDuration ? <span className="text-sm text-gray-500">{formattedDuration}</span> : null}
       </div>
 
       {recordingUrl ? (
-        <audio className="w-full" controls preload="none">
+        <audio className="w-full min-w-0" controls preload="none">
           <source src={recordingUrl} type="audio/mpeg" />
           Your browser does not support audio playback.
         </audio>

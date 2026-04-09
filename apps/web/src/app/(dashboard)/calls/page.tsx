@@ -177,18 +177,18 @@ export default async function CallsPage({
 
   return (
     <div className="space-y-6">
-      <section className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm">
+      <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
             <p className="text-sm font-medium text-indigo-600">SkybridgeCX queue</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight text-gray-900">Calls</h1>
+            <h1 className="mt-1 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Calls</h1>
             <p className="mt-2 text-sm text-gray-600">
               Review inbound conversations, prioritize urgent needs, and update outreach triage in one place.
             </p>
           </div>
           <Link
             href="/dashboard"
-            className="inline-flex items-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+            className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto"
           >
             Back to Dashboard
           </Link>
@@ -218,24 +218,25 @@ export default async function CallsPage({
             placeholder="Search by caller name or phone"
             aria-label="Search calls"
           />
-          <div className="flex items-center gap-2">
+          <div className="grid gap-2 sm:flex sm:items-center">
             <input type="hidden" name="filter" value={filter} />
             <button
               type="submit"
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
+              className="min-h-11 rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition hover:bg-indigo-500"
             >
               Search
             </button>
             <Link
               href={buildCallsHref(filter, '')}
-              className="rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
+              className="inline-flex min-h-11 items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
             >
               Clear
             </Link>
           </div>
         </form>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="-mx-1 mt-4 overflow-x-auto px-1">
+          <div className="flex w-max items-center gap-2">
           {filterOptions.map((option) => {
             const active = option === filter;
             const label =
@@ -251,7 +252,7 @@ export default async function CallsPage({
               <Link
                 key={option}
                 href={buildCallsHref(option, search)}
-                className={`rounded-full px-3 py-1.5 text-xs font-medium transition ${
+                className={`inline-flex min-h-11 items-center rounded-full px-3 py-1.5 text-sm font-medium transition sm:text-xs ${
                   active
                     ? 'bg-indigo-600 text-white'
                     : 'border border-gray-200 bg-white text-gray-600 hover:bg-indigo-50 hover:text-indigo-700'
@@ -261,6 +262,7 @@ export default async function CallsPage({
               </Link>
             );
           })}
+        </div>
         </div>
       </Card>
 

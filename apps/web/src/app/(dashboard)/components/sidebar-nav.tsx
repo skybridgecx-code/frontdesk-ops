@@ -111,7 +111,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed left-4 top-4 z-40 inline-flex items-center justify-center rounded-md border border-gray-200 bg-white p-2 text-gray-700 shadow-sm lg:hidden"
+        className="fixed left-4 top-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-700 shadow-sm lg:hidden"
         aria-label="Open menu"
       >
         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -126,7 +126,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-gray-200 bg-white p-5 transition-transform lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[85vw] max-w-[18rem] flex-col border-r border-gray-200 bg-white p-4 transition-transform sm:p-5 lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:max-w-none lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
@@ -142,7 +142,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="rounded-md p-1.5 text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 lg:hidden"
             aria-label="Close menu"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -160,7 +160,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setIsOpen(false)}
-                className={`group flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
+                className={`group flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
                   active
                     ? 'bg-indigo-50 text-indigo-700'
                     : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700'
@@ -174,7 +174,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
         </nav>
 
         <div className="mt-auto space-y-4 border-t border-gray-200 pt-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-1.5 text-xs font-medium text-gray-600">
+          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 sm:text-xs">
             <span className={`h-2 w-2 rounded-full ${subscriptionUi.dot}`} aria-hidden="true" />
             <span>{subscriptionUi.label}</span>
           </div>

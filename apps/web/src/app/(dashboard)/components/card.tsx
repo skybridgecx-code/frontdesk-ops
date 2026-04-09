@@ -9,14 +9,14 @@ type CardProps = {
 };
 
 export function Card({ title, subtitle, footer, className, children }: CardProps) {
-  const classes = ['rounded-lg border border-gray-200 bg-white p-6 shadow-sm', className]
+  const classes = ['rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6', className]
     .filter(Boolean)
     .join(' ');
 
   return (
     <section className={classes}>
       {title || subtitle ? (
-        <header className="mb-5">
+        <header className="mb-4 sm:mb-5">
           {title ? <h2 className="text-lg font-semibold text-gray-900">{title}</h2> : null}
           {subtitle ? <p className="mt-1 text-sm text-gray-600">{subtitle}</p> : null}
         </header>
