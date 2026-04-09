@@ -433,6 +433,8 @@ model Call {
   @@index([twilioCallSid])
   @@index([twilioStreamSid])
   @@index([status])
+  @@index([createdAt])
+  @@index([createdAt, status])
   @@index([triageStatus])
   @@index([reviewStatus])
   @@index([fromE164])

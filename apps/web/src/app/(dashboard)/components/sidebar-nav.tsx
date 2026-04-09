@@ -21,7 +21,9 @@ const navItems: NavItem[] = [
     label: 'Dashboard',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
-        <path d="M4 13h6V4H4v9Zm0 7h6v-5H4v5Zm10 0h6V11h-6v9Zm0-11h6V4h-6v5Z" fill="currentColor" />
+        <path d="M4 18h16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="M7 15.5V11m5 4.5V7m5 8.5v-3" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+        <path d="m6 9 4-3 4 2 4-4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
       </svg>
     )
   },
