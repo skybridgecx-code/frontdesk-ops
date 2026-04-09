@@ -391,6 +391,8 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 export const ModelName = {
   Tenant: 'Tenant',
+  Subscription: 'Subscription',
+  TenantUser: 'TenantUser',
   User: 'User',
   Membership: 'Membership',
   Business: 'Business',
@@ -419,7 +421,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "tenant" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile" | "businessHours" | "serviceArea" | "call" | "callEvent" | "prospect" | "prospectAttempt" | "prospectImportBatch"
+    modelProps: "tenant" | "subscription" | "tenantUser" | "user" | "membership" | "business" | "location" | "phoneNumber" | "agentProfile" | "businessHours" | "serviceArea" | "call" | "callEvent" | "prospect" | "prospectAttempt" | "prospectImportBatch"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -494,6 +496,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.TenantCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.TenantCountAggregateOutputType> | number
+        }
+      }
+    }
+    Subscription: {
+      payload: Prisma.$SubscriptionPayload<ExtArgs>
+      fields: Prisma.SubscriptionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SubscriptionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SubscriptionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findFirst: {
+          args: Prisma.SubscriptionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SubscriptionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        findMany: {
+          args: Prisma.SubscriptionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        create: {
+          args: Prisma.SubscriptionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        createMany: {
+          args: Prisma.SubscriptionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SubscriptionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        delete: {
+          args: Prisma.SubscriptionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        update: {
+          args: Prisma.SubscriptionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SubscriptionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SubscriptionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SubscriptionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SubscriptionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SubscriptionPayload>
+        }
+        aggregate: {
+          args: Prisma.SubscriptionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSubscription>
+        }
+        groupBy: {
+          args: Prisma.SubscriptionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SubscriptionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SubscriptionCountAggregateOutputType> | number
+        }
+      }
+    }
+    TenantUser: {
+      payload: Prisma.$TenantUserPayload<ExtArgs>
+      fields: Prisma.TenantUserFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.TenantUserFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.TenantUserFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        findFirst: {
+          args: Prisma.TenantUserFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.TenantUserFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        findMany: {
+          args: Prisma.TenantUserFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>[]
+        }
+        create: {
+          args: Prisma.TenantUserCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        createMany: {
+          args: Prisma.TenantUserCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.TenantUserCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>[]
+        }
+        delete: {
+          args: Prisma.TenantUserDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        update: {
+          args: Prisma.TenantUserUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        deleteMany: {
+          args: Prisma.TenantUserDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.TenantUserUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.TenantUserUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>[]
+        }
+        upsert: {
+          args: Prisma.TenantUserUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$TenantUserPayload>
+        }
+        aggregate: {
+          args: Prisma.TenantUserAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateTenantUser>
+        }
+        groupBy: {
+          args: Prisma.TenantUserGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TenantUserGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.TenantUserCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.TenantUserCountAggregateOutputType> | number
         }
       }
     }
@@ -1502,11 +1652,41 @@ export const TenantScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  status: 'status',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const TenantUserScalarFieldEnum = {
+  id: 'id',
+  clerkUserId: 'clerkUserId',
+  tenantId: 'tenantId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantUserScalarFieldEnum = (typeof TenantUserScalarFieldEnum)[keyof typeof TenantUserScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -1541,6 +1721,7 @@ export const BusinessScalarFieldEnum = {
   vertical: 'vertical',
   websiteUrl: 'websiteUrl',
   timezone: 'timezone',
+  isDefault: 'isDefault',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1663,6 +1844,10 @@ export const CallScalarFieldEnum = {
   answeredAt: 'answeredAt',
   endedAt: 'endedAt',
   durationSeconds: 'durationSeconds',
+  recordingUrl: 'recordingUrl',
+  recordingSid: 'recordingSid',
+  recordingDuration: 'recordingDuration',
+  recordingStatus: 'recordingStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -1828,6 +2013,13 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
+ * Reference to a field of type 'Boolean'
+ */
+export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
+    
+
+
+/**
  * Reference to a field of type 'MembershipRole'
  */
 export type EnumMembershipRoleFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'MembershipRole'>
@@ -1852,13 +2044,6 @@ export type EnumBusinessVerticalFieldRefInput<$PrismaModel> = FieldRefInputType<
  * Reference to a field of type 'BusinessVertical[]'
  */
 export type ListEnumBusinessVerticalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BusinessVertical[]'>
-    
-
-
-/**
- * Reference to a field of type 'Boolean'
- */
-export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -2187,6 +2372,8 @@ export interface PrismaClientOptions {
 }
 export type GlobalOmitConfig = {
   tenant?: Prisma.TenantOmit
+  subscription?: Prisma.SubscriptionOmit
+  tenantUser?: Prisma.TenantUserOmit
   user?: Prisma.UserOmit
   membership?: Prisma.MembershipOmit
   business?: Prisma.BusinessOmit

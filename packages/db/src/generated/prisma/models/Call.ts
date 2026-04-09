@@ -28,10 +28,12 @@ export type AggregateCall = {
 
 export type CallAvgAggregateOutputType = {
   durationSeconds: number | null
+  recordingDuration: number | null
 }
 
 export type CallSumAggregateOutputType = {
   durationSeconds: number | null
+  recordingDuration: number | null
 }
 
 export type CallMinAggregateOutputType = {
@@ -65,6 +67,10 @@ export type CallMinAggregateOutputType = {
   answeredAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
+  recordingUrl: string | null
+  recordingSid: string | null
+  recordingDuration: number | null
+  recordingStatus: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -100,6 +106,10 @@ export type CallMaxAggregateOutputType = {
   answeredAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
+  recordingUrl: string | null
+  recordingSid: string | null
+  recordingDuration: number | null
+  recordingStatus: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -135,6 +145,10 @@ export type CallCountAggregateOutputType = {
   answeredAt: number
   endedAt: number
   durationSeconds: number
+  recordingUrl: number
+  recordingSid: number
+  recordingDuration: number
+  recordingStatus: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -143,10 +157,12 @@ export type CallCountAggregateOutputType = {
 
 export type CallAvgAggregateInputType = {
   durationSeconds?: true
+  recordingDuration?: true
 }
 
 export type CallSumAggregateInputType = {
   durationSeconds?: true
+  recordingDuration?: true
 }
 
 export type CallMinAggregateInputType = {
@@ -180,6 +196,10 @@ export type CallMinAggregateInputType = {
   answeredAt?: true
   endedAt?: true
   durationSeconds?: true
+  recordingUrl?: true
+  recordingSid?: true
+  recordingDuration?: true
+  recordingStatus?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -215,6 +235,10 @@ export type CallMaxAggregateInputType = {
   answeredAt?: true
   endedAt?: true
   durationSeconds?: true
+  recordingUrl?: true
+  recordingSid?: true
+  recordingDuration?: true
+  recordingStatus?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -250,6 +274,10 @@ export type CallCountAggregateInputType = {
   answeredAt?: true
   endedAt?: true
   durationSeconds?: true
+  recordingUrl?: true
+  recordingSid?: true
+  recordingDuration?: true
+  recordingStatus?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -372,6 +400,10 @@ export type CallGroupByOutputType = {
   answeredAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
+  recordingUrl: string | null
+  recordingSid: string | null
+  recordingDuration: number | null
+  recordingStatus: string | null
   createdAt: Date
   updatedAt: Date
   _count: CallCountAggregateOutputType | null
@@ -430,6 +462,10 @@ export type CallWhereInput = {
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingSid?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingDuration?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingStatus?: Prisma.StringNullableFilter<"Call"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -470,6 +506,10 @@ export type CallOrderByWithRelationInput = {
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingSid?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -513,6 +553,10 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingSid?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingDuration?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingStatus?: Prisma.StringNullableFilter<"Call"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -553,6 +597,10 @@ export type CallOrderByWithAggregationInput = {
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingSid?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordingStatus?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CallCountOrderByAggregateInput
@@ -596,6 +644,10 @@ export type CallScalarWhereWithAggregatesInput = {
   answeredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableWithAggregatesFilter<"Call"> | number | null
+  recordingUrl?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  recordingSid?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  recordingDuration?: Prisma.IntNullableWithAggregatesFilter<"Call"> | number | null
+  recordingStatus?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
 }
@@ -627,6 +679,10 @@ export type CallCreateInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutCallsInput
@@ -667,6 +723,10 @@ export type CallUncheckedCreateInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.CallEventUncheckedCreateNestedManyWithoutCallInput
@@ -699,6 +759,10 @@ export type CallUpdateInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCallsNestedInput
@@ -739,6 +803,10 @@ export type CallUncheckedUpdateInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.CallEventUncheckedUpdateManyWithoutCallNestedInput
@@ -775,6 +843,10 @@ export type CallCreateManyInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -806,6 +878,10 @@ export type CallUpdateManyMutationInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -841,6 +917,10 @@ export type CallUncheckedUpdateManyInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -886,12 +966,17 @@ export type CallCountOrderByAggregateInput = {
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
+  recordingSid?: Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrder
+  recordingStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type CallAvgOrderByAggregateInput = {
   durationSeconds?: Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrder
 }
 
 export type CallMaxOrderByAggregateInput = {
@@ -925,6 +1010,10 @@ export type CallMaxOrderByAggregateInput = {
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
+  recordingSid?: Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrder
+  recordingStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -960,12 +1049,17 @@ export type CallMinOrderByAggregateInput = {
   answeredAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
+  recordingUrl?: Prisma.SortOrder
+  recordingSid?: Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrder
+  recordingStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type CallSumOrderByAggregateInput = {
   durationSeconds?: Prisma.SortOrder
+  recordingDuration?: Prisma.SortOrder
 }
 
 export type CallScalarRelationFilter = {
@@ -1214,6 +1308,10 @@ export type CallCreateWithoutTenantInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   business: Prisma.BusinessCreateNestedOneWithoutCallsInput
@@ -1252,6 +1350,10 @@ export type CallUncheckedCreateWithoutTenantInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.CallEventUncheckedCreateNestedManyWithoutCallInput
@@ -1317,6 +1419,10 @@ export type CallScalarWhereInput = {
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingSid?: Prisma.StringNullableFilter<"Call"> | string | null
+  recordingDuration?: Prisma.IntNullableFilter<"Call"> | number | null
+  recordingStatus?: Prisma.StringNullableFilter<"Call"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
 }
@@ -1348,6 +1454,10 @@ export type CallCreateWithoutBusinessInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutCallsInput
@@ -1386,6 +1496,10 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.CallEventUncheckedCreateNestedManyWithoutCallInput
@@ -1444,6 +1558,10 @@ export type CallCreateWithoutPhoneNumberInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutCallsInput
@@ -1482,6 +1600,10 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.CallEventUncheckedCreateNestedManyWithoutCallInput
@@ -1540,6 +1662,10 @@ export type CallCreateWithoutAgentProfileInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutCallsInput
@@ -1578,6 +1704,10 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   events?: Prisma.CallEventUncheckedCreateNestedManyWithoutCallInput
@@ -1636,6 +1766,10 @@ export type CallCreateWithoutEventsInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutCallsInput
@@ -1675,6 +1809,10 @@ export type CallUncheckedCreateWithoutEventsInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1722,6 +1860,10 @@ export type CallUpdateWithoutEventsInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCallsNestedInput
@@ -1761,6 +1903,10 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1795,6 +1941,10 @@ export type CallCreateManyTenantInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1826,6 +1976,10 @@ export type CallUpdateWithoutTenantInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   business?: Prisma.BusinessUpdateOneRequiredWithoutCallsNestedInput
@@ -1864,6 +2018,10 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.CallEventUncheckedUpdateManyWithoutCallNestedInput
@@ -1899,6 +2057,10 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1933,6 +2095,10 @@ export type CallCreateManyBusinessInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1964,6 +2130,10 @@ export type CallUpdateWithoutBusinessInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCallsNestedInput
@@ -2002,6 +2172,10 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.CallEventUncheckedUpdateManyWithoutCallNestedInput
@@ -2037,6 +2211,10 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2071,6 +2249,10 @@ export type CallCreateManyPhoneNumberInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2102,6 +2284,10 @@ export type CallUpdateWithoutPhoneNumberInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCallsNestedInput
@@ -2140,6 +2326,10 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.CallEventUncheckedUpdateManyWithoutCallNestedInput
@@ -2175,6 +2365,10 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2209,6 +2403,10 @@ export type CallCreateManyAgentProfileInput = {
   answeredAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
+  recordingUrl?: string | null
+  recordingSid?: string | null
+  recordingDuration?: number | null
+  recordingStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -2240,6 +2438,10 @@ export type CallUpdateWithoutAgentProfileInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutCallsNestedInput
@@ -2278,6 +2480,10 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   events?: Prisma.CallEventUncheckedUpdateManyWithoutCallNestedInput
@@ -2313,6 +2519,10 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  recordingDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordingStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -2379,6 +2589,10 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   answeredAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
+  recordingUrl?: boolean
+  recordingSid?: boolean
+  recordingDuration?: boolean
+  recordingStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2420,6 +2634,10 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   answeredAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
+  recordingUrl?: boolean
+  recordingSid?: boolean
+  recordingDuration?: boolean
+  recordingStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2459,6 +2677,10 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   answeredAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
+  recordingUrl?: boolean
+  recordingSid?: boolean
+  recordingDuration?: boolean
+  recordingStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -2498,11 +2720,15 @@ export type CallSelectScalar = {
   answeredAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
+  recordingUrl?: boolean
+  recordingSid?: boolean
+  recordingDuration?: boolean
+  recordingStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "operatorNotes" | "triageStatus" | "reviewStatus" | "contactedAt" | "archivedAt" | "reviewedAt" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "operatorNotes" | "triageStatus" | "reviewStatus" | "contactedAt" | "archivedAt" | "reviewedAt" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "recordingUrl" | "recordingSid" | "recordingDuration" | "recordingStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -2564,6 +2790,10 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     answeredAt: Date | null
     endedAt: Date | null
     durationSeconds: number | null
+    recordingUrl: string | null
+    recordingSid: string | null
+    recordingDuration: number | null
+    recordingStatus: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["call"]>
@@ -3024,6 +3254,10 @@ export interface CallFieldRefs {
   readonly answeredAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly durationSeconds: Prisma.FieldRef<"Call", 'Int'>
+  readonly recordingUrl: Prisma.FieldRef<"Call", 'String'>
+  readonly recordingSid: Prisma.FieldRef<"Call", 'String'>
+  readonly recordingDuration: Prisma.FieldRef<"Call", 'Int'>
+  readonly recordingStatus: Prisma.FieldRef<"Call", 'String'>
   readonly createdAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Call", 'DateTime'>
 }

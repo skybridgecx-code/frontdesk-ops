@@ -525,10 +525,6 @@ export type LocationUncheckedUpdateManyWithoutBusinessNestedInput = {
   deleteMany?: Prisma.LocationScalarWhereInput | Prisma.LocationScalarWhereInput[]
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type LocationCreateNestedOneWithoutPhoneNumbersInput = {
   create?: Prisma.XOR<Prisma.LocationCreateWithoutPhoneNumbersInput, Prisma.LocationUncheckedCreateWithoutPhoneNumbersInput>
   connectOrCreate?: Prisma.LocationCreateOrConnectWithoutPhoneNumbersInput

@@ -25,6 +25,8 @@ type CallRow = {
   urgency: string | null;
   startedAt: string;
   durationSeconds: number | null;
+  recordingUrl: string | null;
+  recordingStatus: string | null;
 };
 
 type CallsResponse = {

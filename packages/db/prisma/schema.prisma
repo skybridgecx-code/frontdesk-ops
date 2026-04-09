@@ -373,6 +373,10 @@ model Call {
   answeredAt        DateTime?
   endedAt           DateTime?
   durationSeconds   Int?
+  recordingUrl      String?
+  recordingSid      String?
+  recordingDuration Int?
+  recordingStatus   String?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 

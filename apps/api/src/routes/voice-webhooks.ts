@@ -47,6 +47,7 @@ function twimlConnectStream(input: {
   phoneNumberId: string;
   agentProfileId: string | null;
   internalSecret: string | null;
+  recordingStatusCallbackUrl: string;
 }) {
   const base = input.streamBaseUrl.replace(/\/$/, '');
   const params = new URLSearchParams({
@@ -59,7 +60,7 @@ function twimlConnectStream(input: {
   }
   const url = `${base}?${params.toString()}`;
 
-  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect><Stream url="${escapeXml(url)}" /></Connect></Response>`;
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect record="record-from-answer-dual" recordingStatusCallback="${escapeXml(input.recordingStatusCallbackUrl)}" recordingStatusCallbackMethod="POST" recordingStatusCallbackEvent="completed absent"><Stream url="${escapeXml(url)}" /></Connect></Response>`;
 }
 
 /**
@@ -308,6 +309,8 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
         process.env.FRONTDESK_REALTIME_WS_BASE_URL ?? 'ws://127.0.0.1:4001/ws/media-stream';
 
       const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET ?? null;
+      const apiPublicBaseUrl = process.env.FRONTDESK_API_PUBLIC_URL ?? 'http://localhost:4000';
+      const recordingStatusCallbackUrl = `${apiPublicBaseUrl.replace(/\/$/, '')}/v1/twilio/voice/recording-status`;
 
       return reply.send(
         twimlConnectStream({
@@ -315,7 +318,8 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
           callSid: twilioCallSid,
           phoneNumberId: call.phoneNumberId,
           agentProfileId: call.agentProfileId ?? null,
-          internalSecret
+          internalSecret,
+          recordingStatusCallbackUrl
         })
       );
     }

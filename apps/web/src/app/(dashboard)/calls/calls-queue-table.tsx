@@ -18,6 +18,8 @@ type CallRow = {
   urgency: string | null;
   startedAt: string;
   durationSeconds: number | null;
+  recordingUrl: string | null;
+  recordingStatus: string | null;
 };
 
 function formatDuration(seconds: number | null) {
@@ -39,6 +41,25 @@ function formatDateTime(value: string) {
 
 function callDisplayName(call: CallRow) {
   return call.leadName ?? call.fromE164 ?? call.twilioCallSid;
+}
+
+function hasRecordingAvailable(call: CallRow) {
+  return Boolean(call.recordingUrl);
+}
+
+function RecordingIndicator() {
+  return (
+    <span
+      className="inline-flex items-center gap-1 rounded-full border border-indigo-100 bg-indigo-50 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
+      title="Recording available"
+      aria-label="Recording available"
+    >
+      <svg viewBox="0 0 20 20" className="h-3 w-3" fill="currentColor" aria-hidden="true">
+        <path d="M10 12a3 3 0 0 0 3-3V5a3 3 0 1 0-6 0v4a3 3 0 0 0 3 3Zm5-3a1 1 0 1 0-2 0 3 3 0 0 1-6 0 1 1 0 1 0-2 0 5 5 0 0 0 4 4.9V16H7a1 1 0 1 0 0 2h6a1 1 0 1 0 0-2h-2v-2.1A5 5 0 0 0 15 9Z" />
+      </svg>
+      Rec
+    </span>
+  );
 }
 
 export function CallsQueueTable({
@@ -94,7 +115,12 @@ export function CallsQueueTable({
                 <td className="px-4 py-3">
                   <StatusBadge value={call.urgency ?? 'unknown'} type="urgency" fallback="Unknown" />
                 </td>
-                <td className="px-4 py-3 text-gray-600">{formatDuration(call.durationSeconds)}</td>
+                <td className="px-4 py-3 text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <span>{formatDuration(call.durationSeconds)}</span>
+                    {hasRecordingAvailable(call) ? <RecordingIndicator /> : null}
+                  </div>
+                </td>
                 <td className="px-4 py-3 text-gray-600">{formatDateTime(call.startedAt)}</td>
                 <td className="px-4 py-3">
                   <StatusBadge value={call.triageStatus} type="triage" />
@@ -145,6 +171,7 @@ export function CallsQueueTable({
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-gray-500">
               <StatusBadge value={call.triageStatus} type="triage" />
               <span>{formatDuration(call.durationSeconds)}</span>
+              {hasRecordingAvailable(call) ? <RecordingIndicator /> : null}
               <span>{formatDateTime(call.startedAt)}</span>
             </div>
             <div className="mt-4 flex items-center gap-2" onClick={(event) => event.stopPropagation()}>

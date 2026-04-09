@@ -50,6 +50,8 @@ export const AnyNull = runtime.objectEnumValues.instances.AnyNull
 
 export const ModelName = {
   Tenant: 'Tenant',
+  Subscription: 'Subscription',
+  TenantUser: 'TenantUser',
   User: 'User',
   Membership: 'Membership',
   Business: 'Business',
@@ -85,11 +87,41 @@ export const TenantScalarFieldEnum = {
   id: 'id',
   name: 'name',
   slug: 'slug',
+  status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type TenantScalarFieldEnum = (typeof TenantScalarFieldEnum)[keyof typeof TenantScalarFieldEnum]
+
+
+export const SubscriptionScalarFieldEnum = {
+  id: 'id',
+  tenantId: 'tenantId',
+  stripeCustomerId: 'stripeCustomerId',
+  stripeSubscriptionId: 'stripeSubscriptionId',
+  stripePriceId: 'stripePriceId',
+  status: 'status',
+  currentPeriodStart: 'currentPeriodStart',
+  currentPeriodEnd: 'currentPeriodEnd',
+  cancelAtPeriodEnd: 'cancelAtPeriodEnd',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type SubscriptionScalarFieldEnum = (typeof SubscriptionScalarFieldEnum)[keyof typeof SubscriptionScalarFieldEnum]
+
+
+export const TenantUserScalarFieldEnum = {
+  id: 'id',
+  clerkUserId: 'clerkUserId',
+  tenantId: 'tenantId',
+  role: 'role',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type TenantUserScalarFieldEnum = (typeof TenantUserScalarFieldEnum)[keyof typeof TenantUserScalarFieldEnum]
 
 
 export const UserScalarFieldEnum = {
@@ -124,6 +156,7 @@ export const BusinessScalarFieldEnum = {
   vertical: 'vertical',
   websiteUrl: 'websiteUrl',
   timezone: 'timezone',
+  isDefault: 'isDefault',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -246,6 +279,10 @@ export const CallScalarFieldEnum = {
   answeredAt: 'answeredAt',
   endedAt: 'endedAt',
   durationSeconds: 'durationSeconds',
+  recordingUrl: 'recordingUrl',
+  recordingSid: 'recordingSid',
+  recordingDuration: 'recordingDuration',
+  recordingStatus: 'recordingStatus',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

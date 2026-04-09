@@ -6,6 +6,7 @@ import { Breadcrumb } from '../../components/breadcrumb';
 import { Card } from '../../components/card';
 import { StatusBadge } from '../../components/status-badge';
 import { DetailReviewShortcuts } from './detail-review-shortcuts';
+import { RecordingPlayer } from '../../components/recording-player';
 
 export const dynamic = 'force-dynamic';
 
@@ -32,6 +33,10 @@ type CallDetail = {
   startedAt: string;
   endedAt: string | null;
   durationSeconds: number | null;
+  recordingUrl: string | null;
+  recordingSid: string | null;
+  recordingDuration: number | null;
+  recordingStatus: string | null;
   routeKind: string | null;
   phoneNumber: {
     e164: string;
@@ -389,6 +394,12 @@ export default async function CallDetailPage({
               </div>
             </dl>
           </Card>
+
+          <RecordingPlayer
+            recordingUrl={call.recordingUrl}
+            recordingDuration={call.recordingDuration}
+            recordingStatus={call.recordingStatus}
+          />
 
           <Card title="Review actions" subtitle="Update status, save quickly, and continue queue review.">
             <div className="space-y-4">

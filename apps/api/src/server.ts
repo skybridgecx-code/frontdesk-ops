@@ -25,6 +25,7 @@ import { resolveTenant } from './lib/tenant-resolver.js';
 import { requireActiveSubscription } from './lib/subscription-guard.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
+import { registerVoiceRecordingWebhookRoutes } from './routes/voice-recording-webhooks.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
 import { registerProspectImportRoutes } from './routes/prospect-import.js';
 import { registerProspectReadRoutes } from './routes/prospect-read.js';
@@ -154,6 +155,7 @@ export async function buildServer() {
   await registerCallBackfillRoutes(app);
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
+  await registerVoiceRecordingWebhookRoutes(app);
   await registerStripeWebhookRoutes(app);
   await registerClerkWebhookRoutes(app);
   await registerBillingRoutes(app);

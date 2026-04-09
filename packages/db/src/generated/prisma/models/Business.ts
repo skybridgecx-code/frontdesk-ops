@@ -33,6 +33,7 @@ export type BusinessMinAggregateOutputType = {
   vertical: $Enums.BusinessVertical | null
   websiteUrl: string | null
   timezone: string | null
+  isDefault: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -46,6 +47,7 @@ export type BusinessMaxAggregateOutputType = {
   vertical: $Enums.BusinessVertical | null
   websiteUrl: string | null
   timezone: string | null
+  isDefault: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -59,6 +61,7 @@ export type BusinessCountAggregateOutputType = {
   vertical: number
   websiteUrl: number
   timezone: number
+  isDefault: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -74,6 +77,7 @@ export type BusinessMinAggregateInputType = {
   vertical?: true
   websiteUrl?: true
   timezone?: true
+  isDefault?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -87,6 +91,7 @@ export type BusinessMaxAggregateInputType = {
   vertical?: true
   websiteUrl?: true
   timezone?: true
+  isDefault?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -100,6 +105,7 @@ export type BusinessCountAggregateInputType = {
   vertical?: true
   websiteUrl?: true
   timezone?: true
+  isDefault?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -186,6 +192,7 @@ export type BusinessGroupByOutputType = {
   vertical: $Enums.BusinessVertical
   websiteUrl: string | null
   timezone: string
+  isDefault: boolean
   createdAt: Date
   updatedAt: Date
   _count: BusinessCountAggregateOutputType | null
@@ -220,6 +227,7 @@ export type BusinessWhereInput = {
   vertical?: Prisma.EnumBusinessVerticalFilter<"Business"> | $Enums.BusinessVertical
   websiteUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   timezone?: Prisma.StringFilter<"Business"> | string
+  isDefault?: Prisma.BoolFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -242,6 +250,7 @@ export type BusinessOrderByWithRelationInput = {
   vertical?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   tenant?: Prisma.TenantOrderByWithRelationInput
@@ -268,6 +277,7 @@ export type BusinessWhereUniqueInput = Prisma.AtLeast<{
   vertical?: Prisma.EnumBusinessVerticalFilter<"Business"> | $Enums.BusinessVertical
   websiteUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   timezone?: Prisma.StringFilter<"Business"> | string
+  isDefault?: Prisma.BoolFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   tenant?: Prisma.XOR<Prisma.TenantScalarRelationFilter, Prisma.TenantWhereInput>
@@ -290,6 +300,7 @@ export type BusinessOrderByWithAggregationInput = {
   vertical?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.BusinessCountOrderByAggregateInput
@@ -309,6 +320,7 @@ export type BusinessScalarWhereWithAggregatesInput = {
   vertical?: Prisma.EnumBusinessVerticalWithAggregatesFilter<"Business"> | $Enums.BusinessVertical
   websiteUrl?: Prisma.StringNullableWithAggregatesFilter<"Business"> | string | null
   timezone?: Prisma.StringWithAggregatesFilter<"Business"> | string
+  isDefault?: Prisma.BoolWithAggregatesFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Business"> | Date | string
 }
@@ -321,6 +333,7 @@ export type BusinessCreateInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -343,6 +356,7 @@ export type BusinessUncheckedCreateInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -363,6 +377,7 @@ export type BusinessUpdateInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -385,6 +400,7 @@ export type BusinessUncheckedUpdateInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -406,6 +422,7 @@ export type BusinessCreateManyInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -418,6 +435,7 @@ export type BusinessUpdateManyMutationInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -431,6 +449,7 @@ export type BusinessUncheckedUpdateManyInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -459,6 +478,7 @@ export type BusinessCountOrderByAggregateInput = {
   vertical?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -472,6 +492,7 @@ export type BusinessMaxOrderByAggregateInput = {
   vertical?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -485,6 +506,7 @@ export type BusinessMinOrderByAggregateInput = {
   vertical?: Prisma.SortOrder
   websiteUrl?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -660,6 +682,7 @@ export type BusinessCreateWithoutTenantInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationCreateNestedManyWithoutBusinessInput
@@ -680,6 +703,7 @@ export type BusinessUncheckedCreateWithoutTenantInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -730,6 +754,7 @@ export type BusinessScalarWhereInput = {
   vertical?: Prisma.EnumBusinessVerticalFilter<"Business"> | $Enums.BusinessVertical
   websiteUrl?: Prisma.StringNullableFilter<"Business"> | string | null
   timezone?: Prisma.StringFilter<"Business"> | string
+  isDefault?: Prisma.BoolFilter<"Business"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Business"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Business"> | Date | string
 }
@@ -742,6 +767,7 @@ export type BusinessCreateWithoutLocationsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -763,6 +789,7 @@ export type BusinessUncheckedCreateWithoutLocationsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutBusinessInput
@@ -798,6 +825,7 @@ export type BusinessUpdateWithoutLocationsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -819,6 +847,7 @@ export type BusinessUncheckedUpdateWithoutLocationsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutBusinessNestedInput
@@ -838,6 +867,7 @@ export type BusinessCreateWithoutPhoneNumbersInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -859,6 +889,7 @@ export type BusinessUncheckedCreateWithoutPhoneNumbersInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -894,6 +925,7 @@ export type BusinessUpdateWithoutPhoneNumbersInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -915,6 +947,7 @@ export type BusinessUncheckedUpdateWithoutPhoneNumbersInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -934,6 +967,7 @@ export type BusinessCreateWithoutAgentProfilesInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -955,6 +989,7 @@ export type BusinessUncheckedCreateWithoutAgentProfilesInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -990,6 +1025,7 @@ export type BusinessUpdateWithoutAgentProfilesInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1011,6 +1047,7 @@ export type BusinessUncheckedUpdateWithoutAgentProfilesInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1030,6 +1067,7 @@ export type BusinessCreateWithoutBusinessHoursInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -1051,6 +1089,7 @@ export type BusinessUncheckedCreateWithoutBusinessHoursInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -1086,6 +1125,7 @@ export type BusinessUpdateWithoutBusinessHoursInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1107,6 +1147,7 @@ export type BusinessUncheckedUpdateWithoutBusinessHoursInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1126,6 +1167,7 @@ export type BusinessCreateWithoutServiceAreasInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -1147,6 +1189,7 @@ export type BusinessUncheckedCreateWithoutServiceAreasInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -1182,6 +1225,7 @@ export type BusinessUpdateWithoutServiceAreasInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1203,6 +1247,7 @@ export type BusinessUncheckedUpdateWithoutServiceAreasInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1222,6 +1267,7 @@ export type BusinessCreateWithoutCallsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -1243,6 +1289,7 @@ export type BusinessUncheckedCreateWithoutCallsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -1278,6 +1325,7 @@ export type BusinessUpdateWithoutCallsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1299,6 +1347,7 @@ export type BusinessUncheckedUpdateWithoutCallsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1318,6 +1367,7 @@ export type BusinessCreateWithoutProspectsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -1339,6 +1389,7 @@ export type BusinessUncheckedCreateWithoutProspectsInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -1374,6 +1425,7 @@ export type BusinessUpdateWithoutProspectsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1395,6 +1447,7 @@ export type BusinessUncheckedUpdateWithoutProspectsInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1414,6 +1467,7 @@ export type BusinessCreateWithoutProspectImportBatchesInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   tenant: Prisma.TenantCreateNestedOneWithoutBusinessesInput
@@ -1435,6 +1489,7 @@ export type BusinessUncheckedCreateWithoutProspectImportBatchesInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   locations?: Prisma.LocationUncheckedCreateNestedManyWithoutBusinessInput
@@ -1470,6 +1525,7 @@ export type BusinessUpdateWithoutProspectImportBatchesInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tenant?: Prisma.TenantUpdateOneRequiredWithoutBusinessesNestedInput
@@ -1491,6 +1547,7 @@ export type BusinessUncheckedUpdateWithoutProspectImportBatchesInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1510,6 +1567,7 @@ export type BusinessCreateManyTenantInput = {
   vertical?: $Enums.BusinessVertical
   websiteUrl?: string | null
   timezone?: string
+  isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1522,6 +1580,7 @@ export type BusinessUpdateWithoutTenantInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUpdateManyWithoutBusinessNestedInput
@@ -1542,6 +1601,7 @@ export type BusinessUncheckedUpdateWithoutTenantInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   locations?: Prisma.LocationUncheckedUpdateManyWithoutBusinessNestedInput
@@ -1562,6 +1622,7 @@ export type BusinessUncheckedUpdateManyWithoutTenantInput = {
   vertical?: Prisma.EnumBusinessVerticalFieldUpdateOperationsInput | $Enums.BusinessVertical
   websiteUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.StringFieldUpdateOperationsInput | string
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1669,6 +1730,7 @@ export type BusinessSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   vertical?: boolean
   websiteUrl?: boolean
   timezone?: boolean
+  isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1692,6 +1754,7 @@ export type BusinessSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   vertical?: boolean
   websiteUrl?: boolean
   timezone?: boolean
+  isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1706,6 +1769,7 @@ export type BusinessSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   vertical?: boolean
   websiteUrl?: boolean
   timezone?: boolean
+  isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
@@ -1720,11 +1784,12 @@ export type BusinessSelectScalar = {
   vertical?: boolean
   websiteUrl?: boolean
   timezone?: boolean
+  isDefault?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "legalName" | "slug" | "vertical" | "websiteUrl" | "timezone" | "createdAt" | "updatedAt", ExtArgs["result"]["business"]>
+export type BusinessOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "name" | "legalName" | "slug" | "vertical" | "websiteUrl" | "timezone" | "isDefault" | "createdAt" | "updatedAt", ExtArgs["result"]["business"]>
 export type BusinessInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   locations?: boolean | Prisma.Business$locationsArgs<ExtArgs>
@@ -1766,6 +1831,7 @@ export type $BusinessPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     vertical: $Enums.BusinessVertical
     websiteUrl: string | null
     timezone: string
+    isDefault: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["business"]>
@@ -2208,6 +2274,7 @@ export interface BusinessFieldRefs {
   readonly vertical: Prisma.FieldRef<"Business", 'BusinessVertical'>
   readonly websiteUrl: Prisma.FieldRef<"Business", 'String'>
   readonly timezone: Prisma.FieldRef<"Business", 'String'>
+  readonly isDefault: Prisma.FieldRef<"Business", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Business", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Business", 'DateTime'>
 }
