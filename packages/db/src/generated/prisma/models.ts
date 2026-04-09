@@ -10,6 +10,8 @@
  */
 export type * from './models/Tenant'
 export type * from './models/Subscription'
+export type * from './models/WebhookEndpoint'
+export type * from './models/WebhookDelivery'
 export type * from './models/TenantUser'
 export type * from './models/User'
 export type * from './models/Membership'

@@ -16,6 +16,7 @@ import { extractCallData } from '@frontdesk/integrations/call-extraction';
 import { sendCallCompletedNotification } from '@frontdesk/notifications';
 import type { FastifyBaseLogger } from 'fastify';
 import type { EventPersistence } from './event-persistence.js';
+import { dispatchWebhook } from './webhook-dispatcher.js';
 
 export class TranscriptManager {
   private readonly log: FastifyBaseLogger;
@@ -142,6 +143,103 @@ export class TranscriptManager {
 
     // --- Send notification email ---
     await this.sendLeadNotification(context.callId, extracted);
+
+    // Webhook delivery is fire-and-forget and must never block call processing.
+    void this.dispatchCallCompletedWebhook(context.callId, extracted).catch((error: unknown) => {
+      this.log.error({
+        msg: 'call.completed webhook dispatch failed',
+        callSid: this.queryCallSid,
+        error: String(error)
+      });
+    });
+  }
+
+  private async dispatchCallCompletedWebhook(
+    callId: string,
+    extracted: {
+      leadName: string | null;
+      leadPhone: string | null;
+      leadIntent: string | null;
+      urgency: string | null;
+      serviceAddress: string | null;
+      summary: string | null;
+    }
+  ): Promise<void> {
+    try {
+      const call = await prisma.call.findUnique({
+        where: { id: callId },
+        select: {
+          tenantId: true,
+          twilioCallSid: true,
+          fromE164: true,
+          toE164: true,
+          routeKind: true,
+          status: true,
+          startedAt: true,
+          answeredAt: true,
+          endedAt: true,
+          durationSeconds: true,
+          leadName: true,
+          leadPhone: true,
+          leadIntent: true,
+          urgency: true,
+          serviceAddress: true,
+          summary: true,
+          business: {
+            select: {
+              id: true,
+              name: true
+            }
+          },
+          phoneNumber: {
+            select: {
+              id: true,
+              e164: true,
+              label: true
+            }
+          }
+        }
+      });
+
+      if (!call) {
+        return;
+      }
+
+      await dispatchWebhook(call.tenantId, 'call.completed', {
+        callSid: call.twilioCallSid,
+        status: call.status,
+        routeKind: call.routeKind,
+        fromE164: call.fromE164,
+        toE164: call.toE164,
+        startedAt: call.startedAt.toISOString(),
+        answeredAt: call.answeredAt?.toISOString() ?? null,
+        endedAt: call.endedAt?.toISOString() ?? null,
+        durationSeconds: call.durationSeconds,
+        business: {
+          id: call.business.id,
+          name: call.business.name
+        },
+        phoneNumber: {
+          id: call.phoneNumber.id,
+          e164: call.phoneNumber.e164,
+          label: call.phoneNumber.label
+        },
+        lead: {
+          name: extracted.leadName ?? call.leadName,
+          phone: extracted.leadPhone ?? call.leadPhone,
+          intent: extracted.leadIntent ?? call.leadIntent,
+          urgency: extracted.urgency ?? call.urgency,
+          address: extracted.serviceAddress ?? call.serviceAddress,
+          summary: extracted.summary ?? call.summary
+        }
+      });
+    } catch (error: unknown) {
+      this.log.error({
+        msg: 'call.completed webhook dispatch failed',
+        callSid: this.queryCallSid,
+        error: String(error)
+      });
+    }
   }
 
   /**

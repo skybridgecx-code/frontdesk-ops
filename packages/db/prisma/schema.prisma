@@ -138,6 +138,7 @@ model Tenant {
   prospects     Prospect[]
   prospectImportBatches ProspectImportBatch[]
   subscription  Subscription?
+  webhookEndpoints WebhookEndpoint[]
   tenantUsers   TenantUser[]
 
   @@index([slug])
@@ -162,6 +163,41 @@ model Subscription {
 
   @@index([tenantId])
   @@index([stripeCustomerId])
+}
+
+model WebhookEndpoint {
+  id          String           @id @default(uuid())
+  tenantId    String
+  url         String
+  secret      String
+  events      String[]
+  isActive    Boolean          @default(true)
+  description String?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+
+  tenant      Tenant           @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  deliveries  WebhookDelivery[]
+
+  @@index([tenantId])
+}
+
+model WebhookDelivery {
+  id                String          @id @default(uuid())
+  webhookEndpointId String
+  eventType         String
+  payload           String
+  responseStatus    Int?
+  responseBody      String?
+  deliveredAt       DateTime?
+  failedAt          DateTime?
+  attempts          Int             @default(0)
+  createdAt         DateTime        @default(now())
+
+  webhookEndpoint   WebhookEndpoint @relation(fields: [webhookEndpointId], references: [id], onDelete: Cascade)
+
+  @@index([webhookEndpointId])
+  @@index([createdAt])
 }
 
 model TenantUser {

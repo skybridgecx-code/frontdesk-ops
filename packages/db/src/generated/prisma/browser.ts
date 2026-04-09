@@ -28,6 +28,16 @@ export type Tenant = Prisma.TenantModel
  */
 export type Subscription = Prisma.SubscriptionModel
 /**
+ * Model WebhookEndpoint
+ * 
+ */
+export type WebhookEndpoint = Prisma.WebhookEndpointModel
+/**
+ * Model WebhookDelivery
+ * 
+ */
+export type WebhookDelivery = Prisma.WebhookDeliveryModel
+/**
  * Model TenantUser
  * 
  */

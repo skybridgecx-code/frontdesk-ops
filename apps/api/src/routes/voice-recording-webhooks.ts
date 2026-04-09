@@ -1,6 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
+import { dispatchWebhook } from '../lib/webhook-dispatcher.js';
 
 function parseRecordingDuration(value: string | undefined) {
   if (!value || !/^\d+$/.test(value)) {
@@ -36,7 +37,19 @@ export async function registerVoiceRecordingWebhookRoutes(app: FastifyInstance) 
 
     const existingCall = await prisma.call.findUnique({
       where: { twilioCallSid },
-      select: { id: true }
+      select: {
+        id: true,
+        tenantId: true,
+        twilioCallSid: true,
+        fromE164: true,
+        toE164: true,
+        leadName: true,
+        leadPhone: true,
+        leadIntent: true,
+        urgency: true,
+        serviceAddress: true,
+        summary: true
+      }
     });
 
     if (!existingCall) {
@@ -66,6 +79,30 @@ export async function registerVoiceRecordingWebhookRoutes(app: FastifyInstance) 
         recordingSid,
         recordingDuration
       });
+
+      if (recordingUrl) {
+        void dispatchWebhook(existingCall.tenantId, 'call.recording.ready', {
+          callSid: existingCall.twilioCallSid,
+          recordingSid,
+          recordingUrl,
+          recordingDuration,
+          recordingStatus,
+          fromE164: existingCall.fromE164,
+          toE164: existingCall.toE164,
+          leadName: existingCall.leadName,
+          leadPhone: existingCall.leadPhone,
+          leadIntent: existingCall.leadIntent,
+          urgency: existingCall.urgency,
+          serviceAddress: existingCall.serviceAddress,
+          summary: existingCall.summary
+        }).catch((error: unknown) => {
+          app.log.error({
+            msg: 'Failed to dispatch recording-ready webhook',
+            twilioCallSid,
+            error
+          });
+        });
+      }
     } else if (recordingStatus === 'absent' || recordingStatus === 'failed') {
       app.log.warn({
         msg: 'Call recording unavailable',

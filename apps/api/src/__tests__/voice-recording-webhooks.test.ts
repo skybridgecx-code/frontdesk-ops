@@ -6,11 +6,13 @@ import { registerVoiceRecordingWebhookRoutes } from '../routes/voice-recording-w
 const {
   callFindUniqueMock,
   callUpdateMock,
+  dispatchWebhookMock,
   requireTwilioSignatureMock,
   verifyTokenMock
 } = vi.hoisted(() => ({
   callFindUniqueMock: vi.fn(),
   callUpdateMock: vi.fn(),
+  dispatchWebhookMock: vi.fn(),
   requireTwilioSignatureMock: vi.fn(),
   verifyTokenMock: vi.fn()
 }));
@@ -18,6 +20,12 @@ const {
 vi.mock('../lib/twilio-validation.js', () => {
   return {
     requireTwilioSignature: requireTwilioSignatureMock
+  };
+});
+
+vi.mock('../lib/webhook-dispatcher.js', () => {
+  return {
+    dispatchWebhook: dispatchWebhookMock
   };
 });
 
@@ -61,6 +69,22 @@ async function createApp(options?: { withClerkHook?: boolean }) {
   return app;
 }
 
+function buildExistingCall(id: string) {
+  return {
+    id,
+    tenantId: 'tenant_1',
+    twilioCallSid: 'CA123',
+    fromE164: '+17035550199',
+    toE164: '+17035550100',
+    leadName: 'Taylor',
+    leadPhone: '+17035550199',
+    leadIntent: 'AC repair',
+    urgency: 'high',
+    serviceAddress: '123 Main St',
+    summary: 'No cooling overnight.'
+  };
+}
+
 describe('voice recording webhook route', () => {
   const originalEnv = { ...process.env };
 
@@ -70,10 +94,12 @@ describe('voice recording webhook route', () => {
 
     callFindUniqueMock.mockReset();
     callUpdateMock.mockReset();
+    dispatchWebhookMock.mockReset();
     requireTwilioSignatureMock.mockReset();
     verifyTokenMock.mockReset();
 
     requireTwilioSignatureMock.mockReturnValue({ valid: true });
+    dispatchWebhookMock.mockResolvedValue([]);
   });
 
   afterEach(() => {
@@ -81,7 +107,7 @@ describe('voice recording webhook route', () => {
   });
 
   it('completed recording updates call with all recording fields', async () => {
-    callFindUniqueMock.mockResolvedValue({ id: 'call_1' });
+    callFindUniqueMock.mockResolvedValue(buildExistingCall('call_1'));
     callUpdateMock.mockResolvedValue({ id: 'call_1' });
 
     const app = await createApp();
@@ -101,7 +127,19 @@ describe('voice recording webhook route', () => {
     expect(response.statusCode).toBe(200);
     expect(callFindUniqueMock).toHaveBeenCalledWith({
       where: { twilioCallSid: 'CA123' },
-      select: { id: true }
+      select: {
+        id: true,
+        tenantId: true,
+        twilioCallSid: true,
+        fromE164: true,
+        toE164: true,
+        leadName: true,
+        leadPhone: true,
+        leadIntent: true,
+        urgency: true,
+        serviceAddress: true,
+        summary: true
+      }
     });
     expect(callUpdateMock).toHaveBeenCalledWith({
       where: { id: 'call_1' },
@@ -117,7 +155,7 @@ describe('voice recording webhook route', () => {
   });
 
   it('absent recording updates status to absent', async () => {
-    callFindUniqueMock.mockResolvedValue({ id: 'call_2' });
+    callFindUniqueMock.mockResolvedValue(buildExistingCall('call_2'));
     callUpdateMock.mockResolvedValue({ id: 'call_2' });
 
     const app = await createApp();
@@ -147,7 +185,7 @@ describe('voice recording webhook route', () => {
   });
 
   it('failed recording updates status to failed', async () => {
-    callFindUniqueMock.mockResolvedValue({ id: 'call_3' });
+    callFindUniqueMock.mockResolvedValue(buildExistingCall('call_3'));
     callUpdateMock.mockResolvedValue({ id: 'call_3' });
 
     const app = await createApp();

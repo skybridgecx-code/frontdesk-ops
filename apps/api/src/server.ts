@@ -37,6 +37,7 @@ import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
 import { registerClerkWebhookRoutes } from './routes/clerk-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
 import { registerOnboardingRoutes } from './routes/onboarding.js';
+import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 
 function getPathname(url: string) {
   return url.split('?')[0] ?? url;
@@ -167,6 +168,7 @@ export async function buildServer() {
   await registerProspectAttemptWriteRoutes(app);
   await registerProspectAttemptReadRoutes(app);
   await registerProspectSummaryRoutes(app);
+  await registerWebhookEndpointRoutes(app);
 
   return app;
 }

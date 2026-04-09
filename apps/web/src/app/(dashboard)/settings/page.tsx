@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getCurrentTenant } from '@/lib/tenant';
@@ -111,8 +112,27 @@ export default async function SettingsPage() {
       <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Settings</h1>
         <p className="mt-2 text-sm text-gray-600 sm:text-base">
-          Control missed-call follow-up SMS behavior for each business number.
+          Configure missed-call follow-up SMS and outbound webhook integrations.
         </p>
+      </section>
+
+      <section className="grid gap-3 sm:grid-cols-2">
+        <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900">Missed Call Text-Back</h2>
+          <p className="mt-1 text-sm text-gray-600">Manage SMS recovery for unanswered calls and quick hangups.</p>
+          <p className="mt-3 text-sm font-medium text-gray-700">Configured below on this page.</p>
+        </article>
+
+        <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+          <h2 className="text-base font-semibold text-gray-900">Webhooks</h2>
+          <p className="mt-1 text-sm text-gray-600">Push leads into CRM and automation tools using signed webhooks.</p>
+          <Link
+            href="/settings/webhooks"
+            className="mt-3 inline-flex min-h-11 items-center rounded-md border border-gray-200 px-4 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          >
+            Manage Webhooks
+          </Link>
+        </article>
       </section>
 
       <MissedCallTextBackSettings businesses={settingsBusinesses} />

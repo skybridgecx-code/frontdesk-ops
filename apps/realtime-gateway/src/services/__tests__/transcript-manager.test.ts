@@ -13,6 +13,10 @@ vi.mock('@frontdesk/integrations/call-extraction', () => ({
   extractCallData: vi.fn()
 }));
 
+vi.mock('../webhook-dispatcher.js', () => ({
+  dispatchWebhook: vi.fn().mockResolvedValue(undefined)
+}));
+
 import { prisma } from '@frontdesk/db';
 import { extractCallData } from '@frontdesk/integrations/call-extraction';
 import { TranscriptManager } from '../transcript-manager.js';

@@ -1299,18 +1299,6 @@ export type EnumCallReviewStatusFieldUpdateOperationsInput = {
   set?: $Enums.CallReviewStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type CallCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.CallCreateWithoutEventsInput, Prisma.CallUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.CallCreateOrConnectWithoutEventsInput

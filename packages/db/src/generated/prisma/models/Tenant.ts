@@ -198,6 +198,7 @@ export type TenantWhereInput = {
   prospects?: Prisma.ProspectListRelationFilter
   prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
   tenantUsers?: Prisma.TenantUserListRelationFilter
 }
 
@@ -216,6 +217,7 @@ export type TenantOrderByWithRelationInput = {
   prospects?: Prisma.ProspectOrderByRelationAggregateInput
   prospectImportBatches?: Prisma.ProspectImportBatchOrderByRelationAggregateInput
   subscription?: Prisma.SubscriptionOrderByWithRelationInput
+  webhookEndpoints?: Prisma.WebhookEndpointOrderByRelationAggregateInput
   tenantUsers?: Prisma.TenantUserOrderByRelationAggregateInput
 }
 
@@ -237,6 +239,7 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   prospects?: Prisma.ProspectListRelationFilter
   prospectImportBatches?: Prisma.ProspectImportBatchListRelationFilter
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
+  webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
   tenantUsers?: Prisma.TenantUserListRelationFilter
 }, "id" | "slug">
 
@@ -279,6 +282,7 @@ export type TenantCreateInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -297,6 +301,7 @@ export type TenantUncheckedCreateInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -315,6 +320,7 @@ export type TenantUpdateInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -333,6 +339,7 @@ export type TenantUncheckedUpdateInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -415,6 +422,20 @@ export type TenantUpdateOneRequiredWithoutSubscriptionNestedInput = {
   upsert?: Prisma.TenantUpsertWithoutSubscriptionInput
   connect?: Prisma.TenantWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutSubscriptionInput, Prisma.TenantUpdateWithoutSubscriptionInput>, Prisma.TenantUncheckedUpdateWithoutSubscriptionInput>
+}
+
+export type TenantCreateNestedOneWithoutWebhookEndpointsInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhookEndpointsInput
+  connect?: Prisma.TenantWhereUniqueInput
+}
+
+export type TenantUpdateOneRequiredWithoutWebhookEndpointsNestedInput = {
+  create?: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  connectOrCreate?: Prisma.TenantCreateOrConnectWithoutWebhookEndpointsInput
+  upsert?: Prisma.TenantUpsertWithoutWebhookEndpointsInput
+  connect?: Prisma.TenantWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TenantUpdateToOneWithWhereWithoutWebhookEndpointsInput, Prisma.TenantUpdateWithoutWebhookEndpointsInput>, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
 }
 
 export type TenantCreateNestedOneWithoutTenantUsersInput = {
@@ -543,6 +564,7 @@ export type TenantCreateWithoutSubscriptionInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -560,6 +582,7 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -593,6 +616,7 @@ export type TenantUpdateWithoutSubscriptionInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -610,6 +634,95 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
+}
+
+export type TenantUncheckedCreateWithoutWebhookEndpointsInput = {
+  id?: string
+  name: string
+  slug: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
+  businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedCreateNestedManyWithoutTenantInput
+  agentProfiles?: Prisma.AgentProfileUncheckedCreateNestedManyWithoutTenantInput
+  calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
+  prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
+  subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
+}
+
+export type TenantCreateOrConnectWithoutWebhookEndpointsInput = {
+  where: Prisma.TenantWhereUniqueInput
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+}
+
+export type TenantUpsertWithoutWebhookEndpointsInput = {
+  update: Prisma.XOR<Prisma.TenantUpdateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
+  create: Prisma.XOR<Prisma.TenantCreateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedCreateWithoutWebhookEndpointsInput>
+  where?: Prisma.TenantWhereInput
+}
+
+export type TenantUpdateToOneWithWhereWithoutWebhookEndpointsInput = {
+  where?: Prisma.TenantWhereInput
+  data: Prisma.XOR<Prisma.TenantUpdateWithoutWebhookEndpointsInput, Prisma.TenantUncheckedUpdateWithoutWebhookEndpointsInput>
+}
+
+export type TenantUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
+}
+
+export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  slug?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
+  businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
+  phoneNumbers?: Prisma.PhoneNumberUncheckedUpdateManyWithoutTenantNestedInput
+  agentProfiles?: Prisma.AgentProfileUncheckedUpdateManyWithoutTenantNestedInput
+  calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
+  prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
+  prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
+  subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -628,6 +741,7 @@ export type TenantCreateWithoutTenantUsersInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
 }
 
 export type TenantUncheckedCreateWithoutTenantUsersInput = {
@@ -645,6 +759,7 @@ export type TenantUncheckedCreateWithoutTenantUsersInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
 }
 
 export type TenantCreateOrConnectWithoutTenantUsersInput = {
@@ -678,6 +793,7 @@ export type TenantUpdateWithoutTenantUsersInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantUncheckedUpdateWithoutTenantUsersInput = {
@@ -695,6 +811,7 @@ export type TenantUncheckedUpdateWithoutTenantUsersInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
 }
 
 export type TenantCreateWithoutMembershipsInput = {
@@ -711,6 +828,7 @@ export type TenantCreateWithoutMembershipsInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -728,6 +846,7 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -761,6 +880,7 @@ export type TenantUpdateWithoutMembershipsInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -778,6 +898,7 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -795,6 +916,7 @@ export type TenantCreateWithoutBusinessesInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -812,6 +934,7 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -845,6 +968,7 @@ export type TenantUpdateWithoutBusinessesInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -862,6 +986,7 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -879,6 +1004,7 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -896,6 +1022,7 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -929,6 +1056,7 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -946,6 +1074,7 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -963,6 +1092,7 @@ export type TenantCreateWithoutAgentProfilesInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -980,6 +1110,7 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1013,6 +1144,7 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -1030,6 +1162,7 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1047,6 +1180,7 @@ export type TenantCreateWithoutCallsInput = {
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -1064,6 +1198,7 @@ export type TenantUncheckedCreateWithoutCallsInput = {
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1097,6 +1232,7 @@ export type TenantUpdateWithoutCallsInput = {
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -1114,6 +1250,7 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1131,6 +1268,7 @@ export type TenantCreateWithoutProspectsInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -1148,6 +1286,7 @@ export type TenantUncheckedCreateWithoutProspectsInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1181,6 +1320,7 @@ export type TenantUpdateWithoutProspectsInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -1198,6 +1338,7 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospectImportBatches?: Prisma.ProspectImportBatchUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1215,6 +1356,7 @@ export type TenantCreateWithoutProspectImportBatchesInput = {
   calls?: Prisma.CallCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserCreateNestedManyWithoutTenantInput
 }
 
@@ -1232,6 +1374,7 @@ export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   calls?: Prisma.CallUncheckedCreateNestedManyWithoutTenantInput
   prospects?: Prisma.ProspectUncheckedCreateNestedManyWithoutTenantInput
   subscription?: Prisma.SubscriptionUncheckedCreateNestedOneWithoutTenantInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedCreateNestedManyWithoutTenantInput
   tenantUsers?: Prisma.TenantUserUncheckedCreateNestedManyWithoutTenantInput
 }
 
@@ -1265,6 +1408,7 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
   calls?: Prisma.CallUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUpdateManyWithoutTenantNestedInput
 }
 
@@ -1282,6 +1426,7 @@ export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   calls?: Prisma.CallUncheckedUpdateManyWithoutTenantNestedInput
   prospects?: Prisma.ProspectUncheckedUpdateManyWithoutTenantNestedInput
   subscription?: Prisma.SubscriptionUncheckedUpdateOneWithoutTenantNestedInput
+  webhookEndpoints?: Prisma.WebhookEndpointUncheckedUpdateManyWithoutTenantNestedInput
   tenantUsers?: Prisma.TenantUserUncheckedUpdateManyWithoutTenantNestedInput
 }
 
@@ -1298,6 +1443,7 @@ export type TenantCountOutputType = {
   calls: number
   prospects: number
   prospectImportBatches: number
+  webhookEndpoints: number
   tenantUsers: number
 }
 
@@ -1309,6 +1455,7 @@ export type TenantCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions
   calls?: boolean | TenantCountOutputTypeCountCallsArgs
   prospects?: boolean | TenantCountOutputTypeCountProspectsArgs
   prospectImportBatches?: boolean | TenantCountOutputTypeCountProspectImportBatchesArgs
+  webhookEndpoints?: boolean | TenantCountOutputTypeCountWebhookEndpointsArgs
   tenantUsers?: boolean | TenantCountOutputTypeCountTenantUsersArgs
 }
 
@@ -1374,6 +1521,13 @@ export type TenantCountOutputTypeCountProspectImportBatchesArgs<ExtArgs extends 
 /**
  * TenantCountOutputType without action
  */
+export type TenantCountOutputTypeCountWebhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WebhookEndpointWhereInput
+}
+
+/**
+ * TenantCountOutputType without action
+ */
 export type TenantCountOutputTypeCountTenantUsersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.TenantUserWhereInput
 }
@@ -1394,6 +1548,7 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
   prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Tenant$webhookEndpointsArgs<ExtArgs>
   tenantUsers?: boolean | Prisma.Tenant$tenantUsersArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["tenant"]>
@@ -1435,6 +1590,7 @@ export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   prospects?: boolean | Prisma.Tenant$prospectsArgs<ExtArgs>
   prospectImportBatches?: boolean | Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>
   subscription?: boolean | Prisma.Tenant$subscriptionArgs<ExtArgs>
+  webhookEndpoints?: boolean | Prisma.Tenant$webhookEndpointsArgs<ExtArgs>
   tenantUsers?: boolean | Prisma.Tenant$tenantUsersArgs<ExtArgs>
   _count?: boolean | Prisma.TenantCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1452,6 +1608,7 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     prospects: Prisma.$ProspectPayload<ExtArgs>[]
     prospectImportBatches: Prisma.$ProspectImportBatchPayload<ExtArgs>[]
     subscription: Prisma.$SubscriptionPayload<ExtArgs> | null
+    webhookEndpoints: Prisma.$WebhookEndpointPayload<ExtArgs>[]
     tenantUsers: Prisma.$TenantUserPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1863,6 +2020,7 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
   prospects<T extends Prisma.Tenant$prospectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   prospectImportBatches<T extends Prisma.Tenant$prospectImportBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$prospectImportBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProspectImportBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   subscription<T extends Prisma.Tenant$subscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$subscriptionArgs<ExtArgs>>): Prisma.Prisma__SubscriptionClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  webhookEndpoints<T extends Prisma.Tenant$webhookEndpointsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$webhookEndpointsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WebhookEndpointPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tenantUsers<T extends Prisma.Tenant$tenantUsersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Tenant$tenantUsersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TenantUserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -2471,6 +2629,30 @@ export type Tenant$subscriptionArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   include?: Prisma.SubscriptionInclude<ExtArgs> | null
   where?: Prisma.SubscriptionWhereInput
+}
+
+/**
+ * Tenant.webhookEndpoints
+ */
+export type Tenant$webhookEndpointsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WebhookEndpoint
+   */
+  select?: Prisma.WebhookEndpointSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WebhookEndpoint
+   */
+  omit?: Prisma.WebhookEndpointOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WebhookEndpointInclude<ExtArgs> | null
+  where?: Prisma.WebhookEndpointWhereInput
+  orderBy?: Prisma.WebhookEndpointOrderByWithRelationInput | Prisma.WebhookEndpointOrderByWithRelationInput[]
+  cursor?: Prisma.WebhookEndpointWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WebhookEndpointScalarFieldEnum | Prisma.WebhookEndpointScalarFieldEnum[]
 }
 
 /**
