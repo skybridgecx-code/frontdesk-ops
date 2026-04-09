@@ -16,3 +16,4 @@ apps/worker/dist
 packages/*/dist
 .vercel
 packages/db/src/generated/prisma/*.node
+.env*.local
