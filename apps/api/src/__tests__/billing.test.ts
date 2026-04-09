@@ -38,6 +38,23 @@ async function createApp() {
   return app;
 }
 
+function buildSubscriptionRow() {
+  return {
+    id: 'sub_local_1',
+    tenantId: 'tenant_1',
+    stripeCustomerId: 'cus_123',
+    stripeSubscriptionId: 'sub_123',
+    stripePriceId: 'price_pro_123',
+    planKey: 'pro',
+    status: 'active',
+    currentPeriodStart: new Date('2026-04-01T00:00:00.000Z'),
+    currentPeriodEnd: new Date('2026-05-01T00:00:00.000Z'),
+    cancelAtPeriodEnd: false,
+    createdAt: new Date('2026-04-01T00:00:00.000Z'),
+    updatedAt: new Date('2026-04-01T00:00:00.000Z')
+  };
+}
+
 describe('billing routes', () => {
   const originalEnv = { ...process.env };
   let originalQueryRaw: typeof prisma.$queryRaw;
@@ -45,7 +62,9 @@ describe('billing routes', () => {
   beforeEach(() => {
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = 'sk_test_123';
-    process.env.STRIPE_PRICE_ID = 'price_123';
+    process.env.STRIPE_PRICE_ID_STARTER = 'price_starter_123';
+    process.env.STRIPE_PRICE_ID_PRO = 'price_pro_123';
+    process.env.STRIPE_PRICE_ID_ENTERPRISE = 'price_enterprise_123';
     process.env.FRONTDESK_WEB_URL = 'http://localhost:3000';
 
     checkoutSessionCreateMock.mockReset();
@@ -67,7 +86,7 @@ describe('billing routes', () => {
     });
   });
 
-  it('create-checkout-session returns Stripe URL', async () => {
+  it('create-checkout-session returns Stripe URL for selected plan', async () => {
     queryRawMock.mockResolvedValue([]);
     checkoutSessionCreateMock.mockResolvedValue({
       url: 'https://checkout.stripe.test/session_1'
@@ -78,7 +97,8 @@ describe('billing routes', () => {
       method: 'POST',
       url: '/v1/billing/create-checkout-session',
       payload: {
-        tenantId: 'tenant_1'
+        tenantId: 'tenant_1',
+        planKey: 'starter'
       }
     });
 
@@ -87,26 +107,26 @@ describe('billing routes', () => {
       url: 'https://checkout.stripe.test/session_1'
     });
 
-    expect(checkoutSessionCreateMock).toHaveBeenCalledTimes(1);
+    expect(checkoutSessionCreateMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        line_items: [
+          {
+            price: 'price_starter_123',
+            quantity: 1
+          }
+        ],
+        metadata: {
+          tenantId: 'tenant_1',
+          planKey: 'starter'
+        }
+      })
+    );
+
     await app.close();
   });
 
   it('create-portal-session returns Stripe URL', async () => {
-    queryRawMock.mockResolvedValue([
-      {
-        id: 'sub_local_1',
-        tenantId: 'tenant_1',
-        stripeCustomerId: 'cus_123',
-        stripeSubscriptionId: 'sub_123',
-        stripePriceId: 'price_123',
-        status: 'active',
-        currentPeriodStart: new Date('2026-04-01T00:00:00.000Z'),
-        currentPeriodEnd: new Date('2026-05-01T00:00:00.000Z'),
-        cancelAtPeriodEnd: false,
-        createdAt: new Date('2026-04-01T00:00:00.000Z'),
-        updatedAt: new Date('2026-04-01T00:00:00.000Z')
-      }
-    ]);
+    queryRawMock.mockResolvedValue([buildSubscriptionRow()]);
 
     portalSessionCreateMock.mockResolvedValue({
       url: 'https://billing.stripe.test/session_1'
@@ -134,22 +154,12 @@ describe('billing routes', () => {
     await app.close();
   });
 
-  it('billing status returns subscription data', async () => {
-    queryRawMock.mockResolvedValue([
-      {
-        id: 'sub_local_1',
-        tenantId: 'tenant_1',
-        stripeCustomerId: 'cus_123',
-        stripeSubscriptionId: 'sub_123',
-        stripePriceId: 'price_123',
-        status: 'active',
-        currentPeriodStart: new Date('2026-04-01T00:00:00.000Z'),
-        currentPeriodEnd: new Date('2026-05-01T00:00:00.000Z'),
-        cancelAtPeriodEnd: false,
-        createdAt: new Date('2026-04-01T00:00:00.000Z'),
-        updatedAt: new Date('2026-04-01T00:00:00.000Z')
-      }
-    ]);
+  it('billing status returns subscription, plan, and usage data', async () => {
+    queryRawMock
+      .mockResolvedValueOnce([buildSubscriptionRow()])
+      .mockResolvedValueOnce([{ count: 342 }])
+      .mockResolvedValueOnce([{ count: 2 }])
+      .mockResolvedValueOnce([{ count: 1 }]);
 
     const app = await createApp();
     const response = await app.inject({
@@ -158,14 +168,60 @@ describe('billing routes', () => {
     });
 
     expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual(
+      expect.objectContaining({
+        status: 'active',
+        stripeCustomerId: 'cus_123',
+        stripeSubscriptionId: 'sub_123',
+        stripePriceId: 'price_pro_123',
+        planKey: 'pro',
+        planName: 'Pro',
+        monthlyPrice: 499,
+        planLimits: {
+          callsPerMonth: -1,
+          maxPhoneNumbers: 3,
+          maxBusinesses: 1
+        },
+        callsThisPeriod: 342,
+        activePhoneNumbers: 2,
+        activeBusinesses: 1
+      })
+    );
+
+    const payload = response.json() as {
+      plans: Array<{ key: string }>;
+    };
+
+    expect(payload.plans).toHaveLength(3);
+
+    await app.close();
+  });
+
+  it('billing usage returns current period usage snapshot', async () => {
+    queryRawMock
+      .mockResolvedValueOnce([buildSubscriptionRow()])
+      .mockResolvedValueOnce([{ count: 90 }])
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([{ count: 1 }]);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/billing/usage/tenant_1'
+    });
+
+    expect(response.statusCode).toBe(200);
     expect(response.json()).toEqual({
-      status: 'active',
-      stripeCustomerId: 'cus_123',
-      stripeSubscriptionId: 'sub_123',
-      stripePriceId: 'price_123',
-      cancelAtPeriodEnd: false,
-      currentPeriodStart: '2026-04-01T00:00:00.000Z',
-      currentPeriodEnd: '2026-05-01T00:00:00.000Z'
+      planKey: 'pro',
+      planName: 'Pro',
+      callsThisPeriod: 90,
+      callsLimit: -1,
+      activePhoneNumbers: 1,
+      phoneNumberLimit: 3,
+      activeBusinesses: 1,
+      businessLimit: 1,
+      periodStart: '2026-04-01T00:00:00.000Z',
+      periodEnd: '2026-05-01T00:00:00.000Z'
     });
 
     await app.close();
@@ -181,9 +237,11 @@ describe('billing routes', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({
-      status: 'none'
-    });
+    expect(response.json()).toEqual(
+      expect.objectContaining({
+        status: 'none'
+      })
+    );
 
     await app.close();
   });

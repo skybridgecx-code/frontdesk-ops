@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { z } from 'zod';
 import { BusinessVertical, prisma } from '@frontdesk/db';
 import { businessIdParams } from '../lib/params.js';
+import { enforceUsageLimits } from '../lib/usage-limiter.js';
 
 const updateBusinessBodySchema = z.object({
   name: z.string().min(1).max(120).optional(),
@@ -65,7 +66,10 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
     };
   });
 
-  app.post('/v1/businesses/:businessId/locations', async (request, reply) => {
+  app.post(
+    '/v1/businesses/:businessId/locations',
+    { preHandler: enforceUsageLimits('businesses') },
+    async (request, reply) => {
     const { businessId } = businessIdParams.parse(request.params);
     const parsed = createLocationBodySchema.safeParse(request.body);
 
@@ -123,5 +127,6 @@ export async function registerBusinessWriteRoutes(app: FastifyInstance) {
       ok: true,
       location
     };
-  });
+    }
+  );
 }

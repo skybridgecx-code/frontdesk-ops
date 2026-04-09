@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify';
 import { PhoneNumberProvider, prisma } from '@frontdesk/db';
 import { z } from 'zod';
 import { getTwilioClient } from '../lib/twilio-client.js';
+import { enforceUsageLimits } from '../lib/usage-limiter.js';
 
 const searchNumbersQuerySchema = z
   .object({
@@ -102,7 +103,10 @@ export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
     }
   });
 
-  app.post('/v1/provisioning/purchase-number', async (request, reply) => {
+  app.post(
+    '/v1/provisioning/purchase-number',
+    { preHandler: enforceUsageLimits('phone_numbers') },
+    async (request, reply) => {
     const parsed = purchaseNumberBodySchema.safeParse(request.body);
 
     if (!parsed.success) {
@@ -191,7 +195,8 @@ export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
         error: getErrorMessage(error)
       });
     }
-  });
+    }
+  );
 
   app.post('/v1/provisioning/release-number', async (request, reply) => {
     const parsed = releaseNumberBodySchema.safeParse(request.body);

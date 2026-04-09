@@ -39,6 +39,19 @@ type ProspectSummaryResponse = {
   };
 };
 
+type BillingUsageResponse = {
+  planKey: 'starter' | 'pro' | 'enterprise';
+  planName: string;
+  callsThisPeriod: number;
+  callsLimit: number;
+  activePhoneNumbers: number;
+  phoneNumberLimit: number;
+  activeBusinesses: number;
+  businessLimit: number;
+  periodStart: string;
+  periodEnd: string;
+};
+
 async function getCalls() {
   const response = await fetch(`${getApiBaseUrl()}/v1/calls?limit=50&page=1`, {
     cache: 'no-store',
@@ -76,6 +89,19 @@ async function getProspectSummary(businessId: string) {
   }
 
   return (await response.json()) as ProspectSummaryResponse;
+}
+
+async function getBillingUsage(tenantId: string) {
+  const response = await fetch(`${getApiBaseUrl()}/v1/billing/usage/${tenantId}`, {
+    cache: 'no-store',
+    headers: await getInternalApiHeaders()
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  return (await response.json()) as BillingUsageResponse;
 }
 
 function isToday(value: string) {
@@ -118,7 +144,12 @@ function AvgDuration({ seconds }: { seconds: number }) {
 }
 
 export default async function DashboardOverviewPage() {
-  const [tenant, callsData, callSummary] = await Promise.all([getCurrentTenant(), getCalls(), getCallSummary()]);
+  const tenant = await getCurrentTenant();
+  const [callsData, callSummary, billingUsage] = await Promise.all([
+    getCalls(),
+    getCallSummary(),
+    tenant ? getBillingUsage(tenant.id) : Promise.resolve(null)
+  ]);
   const businessId = tenant?.businesses[0]?.id ?? null;
   const prospectsSummary = businessId ? await getProspectSummary(businessId) : null;
   const calls = callsData?.calls ?? [];
@@ -131,6 +162,13 @@ export default async function DashboardOverviewPage() {
         )
       : 0;
   const recentCalls = calls.slice(0, 5);
+  const callsUsagePercent =
+    billingUsage && billingUsage.callsLimit > 0
+      ? Math.min(100, Math.round((billingUsage.callsThisPeriod / billingUsage.callsLimit) * 100))
+      : 0;
+  const isApproachingCallLimit = billingUsage && billingUsage.callsLimit > 0
+    ? billingUsage.callsThisPeriod / billingUsage.callsLimit >= 0.8
+    : false;
 
   return (
     <div className="space-y-6">
@@ -244,28 +282,56 @@ export default async function DashboardOverviewPage() {
           )}
         </Card>
 
-        <Card title="Quick actions" subtitle="Jump directly into daily operations">
-          <div className="space-y-3">
-            <Link
-              href="/calls"
-              className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
-            >
-              View All Calls
-            </Link>
-            <Link
-              href="/prospects"
-              className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
-            >
-              View Prospects
-            </Link>
-            <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
-              Average call duration today:{' '}
-              <span className="font-medium text-gray-900">
-                <AvgDuration seconds={averageDurationSeconds} />
-              </span>
+        <div className="space-y-6">
+          <Card title="Quick actions" subtitle="Jump directly into daily operations">
+            <div className="space-y-3">
+              <Link
+                href="/calls"
+                className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
+              >
+                View All Calls
+              </Link>
+              <Link
+                href="/prospects"
+                className="block min-h-11 rounded-md border border-gray-200 px-4 py-3 text-sm font-medium text-gray-700 transition hover:border-indigo-200 hover:bg-indigo-50"
+              >
+                View Prospects
+              </Link>
+              <div className="rounded-md border border-gray-200 bg-gray-50 px-4 py-3 text-sm text-gray-600">
+                Average call duration today:{' '}
+                <span className="font-medium text-gray-900">
+                  <AvgDuration seconds={averageDurationSeconds} />
+                </span>
+              </div>
             </div>
-          </div>
-        </Card>
+          </Card>
+
+          {billingUsage ? (
+            <Card title="Plan usage" subtitle={`${billingUsage.planName} plan`}>
+              <p className="text-sm font-medium text-gray-900">
+                {billingUsage.callsLimit < 0
+                  ? `${billingUsage.callsThisPeriod} calls this period · Unlimited`
+                  : `${billingUsage.callsThisPeriod} / ${billingUsage.callsLimit} calls this period`}
+              </p>
+
+              {billingUsage.callsLimit > 0 ? (
+                <div className="mt-3">
+                  <div className="h-2 rounded-full bg-gray-100">
+                    <div
+                      className={`h-2 rounded-full ${isApproachingCallLimit ? 'bg-amber-500' : 'bg-indigo-600'}`}
+                      style={{ width: `${callsUsagePercent}%` }}
+                    />
+                  </div>
+                  {isApproachingCallLimit ? (
+                    <p className="mt-2 text-sm text-amber-700">Approaching monthly call limit.</p>
+                  ) : null}
+                </div>
+              ) : (
+                <p className="mt-2 text-sm text-gray-600">Unlimited call volume on current plan.</p>
+              )}
+            </Card>
+          ) : null}
+        </div>
       </section>
     </div>
   );

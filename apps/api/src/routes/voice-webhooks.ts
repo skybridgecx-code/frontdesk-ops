@@ -18,6 +18,7 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
+import { enforceUsageLimits } from '../lib/usage-limiter.js';
 
 /** Escapes XML special characters for safe embedding in TwiML responses. */
 function escapeXml(value: string) {
@@ -178,6 +179,8 @@ function resolveRoute(input: {
 }
 
 export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
+  const enforceCallUsageLimits = enforceUsageLimits('calls');
+
   app.post('/v1/twilio/voice/inbound', async (request, reply) => {
     const body = (request.body ?? {}) as Record<string, string | undefined>;
 
@@ -199,6 +202,11 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       return reply.status(400).send(
         twimlSayAndHangup('We could not process your call because required call data was missing.')
       );
+    }
+
+    await enforceCallUsageLimits.call(app, request, reply, () => {});
+    if (reply.sent) {
+      return reply;
     }
 
     const phoneNumber = await prisma.phoneNumber.findUnique({

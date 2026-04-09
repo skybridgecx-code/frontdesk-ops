@@ -72,7 +72,10 @@ describe('stripe webhook routes', () => {
     process.env = { ...originalEnv };
     process.env.STRIPE_SECRET_KEY = 'sk_test_123';
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test_123';
-    process.env.STRIPE_PRICE_ID = 'price_123';
+    process.env.STRIPE_PRICE_ID = 'price_starter_123';
+    process.env.STRIPE_PRICE_ID_STARTER = 'price_starter_123';
+    process.env.STRIPE_PRICE_ID_PRO = 'price_pro_123';
+    process.env.STRIPE_PRICE_ID_ENTERPRISE = 'price_enterprise_123';
 
     constructEventMock.mockReset();
     subscriptionsRetrieveMock.mockReset();
@@ -122,7 +125,7 @@ describe('stripe webhook routes', () => {
             current_period_start: 1_712_000_000,
             current_period_end: 1_714_592_000,
             price: {
-              id: 'price_123'
+              id: 'price_starter_123'
             }
           }
         ]
@@ -146,6 +149,7 @@ describe('stripe webhook routes', () => {
     expect(call).toContain('tenant_1');
     expect(call).toContain('cus_1');
     expect(call).toContain('sub_1');
+    expect(call).toContain('starter');
 
     await app.close();
   });
@@ -170,7 +174,7 @@ describe('stripe webhook routes', () => {
                 current_period_start: 1_712_000_000,
                 current_period_end: 1_714_592_000,
                 price: {
-                  id: 'price_123'
+                  id: 'price_pro_123'
                 }
               }
             ]
@@ -196,6 +200,7 @@ describe('stripe webhook routes', () => {
     const call = executeRawMock.mock.calls[0] ?? [];
     expect(call).toContain('past_due');
     expect(call).toContain('sub_1');
+    expect(call).toContain('pro');
 
     await app.close();
   });
@@ -220,7 +225,7 @@ describe('stripe webhook routes', () => {
                 current_period_start: 1_712_000_000,
                 current_period_end: 1_714_592_000,
                 price: {
-                  id: 'price_123'
+                  id: 'price_starter_123'
                 }
               }
             ]

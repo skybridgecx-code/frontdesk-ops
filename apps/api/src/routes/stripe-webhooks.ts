@@ -5,6 +5,7 @@ import {
   upsertSubscriptionByTenant,
   updateSubscriptionByStripeSubscriptionId
 } from '../lib/subscription-store.js';
+import { getPlanByPriceId } from '../lib/plans.js';
 
 function getStripeClient() {
   const secretKey = process.env.STRIPE_SECRET_KEY;
@@ -91,7 +92,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
       handler: async (request, reply) => {
         const stripe = getStripeClient();
         const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
-        const defaultPriceId = process.env.STRIPE_PRICE_ID ?? '';
+        const defaultPriceId = process.env.STRIPE_PRICE_ID_STARTER ?? process.env.STRIPE_PRICE_ID ?? '';
 
         if (!stripe || !webhookSecret) {
           return reply.status(500).send({
@@ -145,6 +146,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
               stripeCustomerId,
               stripeSubscriptionId,
               stripePriceId: getPriceId(subscription, defaultPriceId),
+              planKey: getPlanByPriceId(getPriceId(subscription, defaultPriceId))?.key ?? null,
               status: toSubscriptionStatus(subscription.status),
               currentPeriodStart: toDateFromUnix(periodBounds.currentPeriodStart, new Date()),
               currentPeriodEnd: toDateFromUnix(
@@ -164,6 +166,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
               stripeSubscriptionId: subscription.id,
               stripeCustomerId,
               stripePriceId: getPriceId(subscription, defaultPriceId),
+              planKey: getPlanByPriceId(getPriceId(subscription, defaultPriceId))?.key ?? null,
               status: toSubscriptionStatus(subscription.status),
               currentPeriodStart: toDateFromUnix(periodBounds.currentPeriodStart, new Date()),
               currentPeriodEnd: toDateFromUnix(
@@ -181,6 +184,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
                   stripeCustomerId,
                   stripeSubscriptionId: subscription.id,
                   stripePriceId: getPriceId(subscription, defaultPriceId),
+                  planKey: getPlanByPriceId(getPriceId(subscription, defaultPriceId))?.key ?? null,
                   status: toSubscriptionStatus(subscription.status),
                   currentPeriodStart: toDateFromUnix(periodBounds.currentPeriodStart, new Date()),
                   currentPeriodEnd: toDateFromUnix(
@@ -209,6 +213,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
                 stripeCustomerId,
                 stripeSubscriptionId: subscription.id,
                 stripePriceId: getPriceId(subscription, defaultPriceId),
+                planKey: getPlanByPriceId(getPriceId(subscription, defaultPriceId))?.key ?? null,
                 status: 'canceled',
                 currentPeriodStart: toDateFromUnix(periodBounds.currentPeriodStart, new Date()),
                 currentPeriodEnd: toDateFromUnix(

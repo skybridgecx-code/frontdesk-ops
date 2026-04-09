@@ -150,6 +150,7 @@ model Subscription {
   stripeCustomerId     String
   stripeSubscriptionId String   @unique
   stripePriceId        String
+  planKey              String?
   status               String
   currentPeriodStart   DateTime
   currentPeriodEnd     DateTime

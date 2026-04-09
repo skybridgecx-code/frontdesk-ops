@@ -1,5 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import { prisma } from '@frontdesk/db';
+import type { PlanKey } from './plans.js';
 
 export type SubscriptionRecord = {
   id: string;
@@ -7,6 +8,7 @@ export type SubscriptionRecord = {
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   stripePriceId: string;
+  planKey: PlanKey | null;
   status: string;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
@@ -21,6 +23,7 @@ type SubscriptionRow = {
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   stripePriceId: string;
+  planKey: string | null;
   status: string;
   currentPeriodStart: Date | string;
   currentPeriodEnd: Date | string;
@@ -34,6 +37,7 @@ export type UpsertSubscriptionInput = {
   stripeCustomerId: string;
   stripeSubscriptionId: string;
   stripePriceId: string;
+  planKey: PlanKey | null;
   status: string;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
@@ -44,6 +48,7 @@ export type UpdateSubscriptionByStripeIdInput = {
   stripeSubscriptionId: string;
   stripeCustomerId: string;
   stripePriceId: string;
+  planKey: PlanKey | null;
   status: string;
   currentPeriodStart: Date;
   currentPeriodEnd: Date;
@@ -54,6 +59,14 @@ function toDate(value: Date | string) {
   return value instanceof Date ? value : new Date(value);
 }
 
+function toPlanKey(value: string | null): PlanKey | null {
+  if (value === 'starter' || value === 'pro' || value === 'enterprise') {
+    return value;
+  }
+
+  return null;
+}
+
 function toRecord(row: SubscriptionRow): SubscriptionRecord {
   return {
     id: row.id,
@@ -61,6 +74,7 @@ function toRecord(row: SubscriptionRow): SubscriptionRecord {
     stripeCustomerId: row.stripeCustomerId,
     stripeSubscriptionId: row.stripeSubscriptionId,
     stripePriceId: row.stripePriceId,
+    planKey: toPlanKey(row.planKey),
     status: row.status,
     currentPeriodStart: toDate(row.currentPeriodStart),
     currentPeriodEnd: toDate(row.currentPeriodEnd),
@@ -78,6 +92,7 @@ export async function getSubscriptionByTenantId(tenantId: string): Promise<Subsc
       "stripeCustomerId",
       "stripeSubscriptionId",
       "stripePriceId",
+      "planKey",
       "status",
       "currentPeriodStart",
       "currentPeriodEnd",
@@ -101,6 +116,7 @@ export async function upsertSubscriptionByTenant(input: UpsertSubscriptionInput)
       "stripeCustomerId",
       "stripeSubscriptionId",
       "stripePriceId",
+      "planKey",
       "status",
       "currentPeriodStart",
       "currentPeriodEnd",
@@ -113,6 +129,7 @@ export async function upsertSubscriptionByTenant(input: UpsertSubscriptionInput)
       ${input.stripeCustomerId},
       ${input.stripeSubscriptionId},
       ${input.stripePriceId},
+      ${input.planKey},
       ${input.status},
       ${input.currentPeriodStart},
       ${input.currentPeriodEnd},
@@ -124,6 +141,7 @@ export async function upsertSubscriptionByTenant(input: UpsertSubscriptionInput)
       "stripeCustomerId" = EXCLUDED."stripeCustomerId",
       "stripeSubscriptionId" = EXCLUDED."stripeSubscriptionId",
       "stripePriceId" = EXCLUDED."stripePriceId",
+      "planKey" = EXCLUDED."planKey",
       "status" = EXCLUDED."status",
       "currentPeriodStart" = EXCLUDED."currentPeriodStart",
       "currentPeriodEnd" = EXCLUDED."currentPeriodEnd",
@@ -140,6 +158,7 @@ export async function updateSubscriptionByStripeSubscriptionId(
     SET
       "stripeCustomerId" = ${input.stripeCustomerId},
       "stripePriceId" = ${input.stripePriceId},
+      "planKey" = ${input.planKey},
       "status" = ${input.status},
       "currentPeriodStart" = ${input.currentPeriodStart},
       "currentPeriodEnd" = ${input.currentPeriodEnd},
