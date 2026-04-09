@@ -37,6 +37,8 @@ type CallDetail = {
   recordingSid: string | null;
   recordingDuration: number | null;
   recordingStatus: string | null;
+  textBackSent: boolean;
+  textBackSentAt: string | null;
   routeKind: string | null;
   phoneNumber: {
     e164: string;
@@ -375,6 +377,21 @@ export default async function CallDetailPage({
               <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                 <dt className="text-gray-500">Route kind</dt>
                 <dd className="text-right text-gray-900">{call.routeKind ?? '—'}</dd>
+              </div>
+              <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-start sm:justify-between sm:gap-3">
+                <dt className="text-gray-500">Missed-call text-back</dt>
+                <dd className="text-right text-gray-900">
+                  {call.textBackSent ? (
+                    <span className="inline-flex items-center gap-2">
+                      <span className="rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+                        Text-back sent
+                      </span>
+                      <span className="text-gray-600">{formatDateTime(call.textBackSentAt)}</span>
+                    </span>
+                  ) : (
+                    'Not sent'
+                  )}
+                </dd>
               </div>
               <div className="flex flex-col gap-1 text-sm sm:flex-row sm:items-start sm:justify-between sm:gap-3">
                 <dt className="text-gray-500">Inbound number</dt>

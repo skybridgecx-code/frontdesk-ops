@@ -101,6 +101,7 @@ export const SubscriptionScalarFieldEnum = {
   stripeCustomerId: 'stripeCustomerId',
   stripeSubscriptionId: 'stripeSubscriptionId',
   stripePriceId: 'stripePriceId',
+  planKey: 'planKey',
   status: 'status',
   currentPeriodStart: 'currentPeriodStart',
   currentPeriodEnd: 'currentPeriodEnd',
@@ -212,6 +213,7 @@ export const AgentProfileScalarFieldEnum = {
   language: 'language',
   voiceName: 'voiceName',
   systemPrompt: 'systemPrompt',
+  missedCallTextBackMessage: 'missedCallTextBackMessage',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -283,6 +285,8 @@ export const CallScalarFieldEnum = {
   recordingSid: 'recordingSid',
   recordingDuration: 'recordingDuration',
   recordingStatus: 'recordingStatus',
+  textBackSent: 'textBackSent',
+  textBackSentAt: 'textBackSentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const

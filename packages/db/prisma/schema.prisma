@@ -295,6 +295,7 @@ model AgentProfile {
   language                  String        @default("en")
   voiceName                 String?
   systemPrompt              String?
+  missedCallTextBackMessage String?
   isActive                  Boolean       @default(true)
   createdAt                 DateTime      @default(now())
   updatedAt                 DateTime      @updatedAt
@@ -378,6 +379,8 @@ model Call {
   recordingSid      String?
   recordingDuration Int?
   recordingStatus   String?
+  textBackSent      Boolean        @default(false)
+  textBackSentAt    DateTime?
   createdAt         DateTime       @default(now())
   updatedAt         DateTime       @updatedAt
 

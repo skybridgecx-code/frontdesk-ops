@@ -9,6 +9,7 @@ const createAgentProfileBodySchema = z.object({
   language: z.string().min(2).max(16).default('en'),
   voiceName: z.string().min(1).max(80).nullable().optional(),
   systemPrompt: z.string().min(1).nullable().optional(),
+  missedCallTextBackMessage: z.string().min(1).max(640).nullable().optional(),
   isActive: z.boolean().optional()
 });
 
@@ -18,6 +19,7 @@ const updateAgentProfileBodySchema = z.object({
   language: z.string().min(2).max(16).optional(),
   voiceName: z.string().min(1).max(80).nullable().optional(),
   systemPrompt: z.string().min(1).nullable().optional(),
+  missedCallTextBackMessage: z.string().min(1).max(640).nullable().optional(),
   isActive: z.boolean().optional()
 });
 
@@ -51,6 +53,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: parsed.data.language,
         voiceName: parsed.data.voiceName ?? null,
         systemPrompt: parsed.data.systemPrompt ?? null,
+        missedCallTextBackMessage: parsed.data.missedCallTextBackMessage ?? null,
         isActive: parsed.data.isActive ?? true
       },
       select: {
@@ -62,6 +65,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: true,
         voiceName: true,
         systemPrompt: true,
+        missedCallTextBackMessage: true,
         isActive: true,
         createdAt: true
       }
@@ -105,6 +109,7 @@ export async function registerAgentProfileWriteRoutes(app: FastifyInstance) {
         language: true,
         voiceName: true,
         systemPrompt: true,
+        missedCallTextBackMessage: true,
         isActive: true,
         updatedAt: true
       }

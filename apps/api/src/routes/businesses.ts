@@ -78,6 +78,7 @@ export async function registerBusinessRoutes(app: FastifyInstance) {
             channel: true,
             language: true,
             voiceName: true,
+            missedCallTextBackMessage: true,
             isActive: true
           }
         },

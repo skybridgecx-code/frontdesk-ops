@@ -30,6 +30,7 @@ export type SubscriptionMinAggregateOutputType = {
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
   stripePriceId: string | null
+  planKey: string | null
   status: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
@@ -44,6 +45,7 @@ export type SubscriptionMaxAggregateOutputType = {
   stripeCustomerId: string | null
   stripeSubscriptionId: string | null
   stripePriceId: string | null
+  planKey: string | null
   status: string | null
   currentPeriodStart: Date | null
   currentPeriodEnd: Date | null
@@ -58,6 +60,7 @@ export type SubscriptionCountAggregateOutputType = {
   stripeCustomerId: number
   stripeSubscriptionId: number
   stripePriceId: number
+  planKey: number
   status: number
   currentPeriodStart: number
   currentPeriodEnd: number
@@ -74,6 +77,7 @@ export type SubscriptionMinAggregateInputType = {
   stripeCustomerId?: true
   stripeSubscriptionId?: true
   stripePriceId?: true
+  planKey?: true
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
@@ -88,6 +92,7 @@ export type SubscriptionMaxAggregateInputType = {
   stripeCustomerId?: true
   stripeSubscriptionId?: true
   stripePriceId?: true
+  planKey?: true
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
@@ -102,6 +107,7 @@ export type SubscriptionCountAggregateInputType = {
   stripeCustomerId?: true
   stripeSubscriptionId?: true
   stripePriceId?: true
+  planKey?: true
   status?: true
   currentPeriodStart?: true
   currentPeriodEnd?: true
@@ -189,6 +195,7 @@ export type SubscriptionGroupByOutputType = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey: string | null
   status: string
   currentPeriodStart: Date
   currentPeriodEnd: Date
@@ -224,6 +231,7 @@ export type SubscriptionWhereInput = {
   stripeCustomerId?: Prisma.StringFilter<"Subscription"> | string
   stripeSubscriptionId?: Prisma.StringFilter<"Subscription"> | string
   stripePriceId?: Prisma.StringFilter<"Subscription"> | string
+  planKey?: Prisma.StringNullableFilter<"Subscription"> | string | null
   status?: Prisma.StringFilter<"Subscription"> | string
   currentPeriodStart?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   currentPeriodEnd?: Prisma.DateTimeFilter<"Subscription"> | Date | string
@@ -239,6 +247,7 @@ export type SubscriptionOrderByWithRelationInput = {
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
   stripePriceId?: Prisma.SortOrder
+  planKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
@@ -257,6 +266,7 @@ export type SubscriptionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.SubscriptionWhereInput | Prisma.SubscriptionWhereInput[]
   stripeCustomerId?: Prisma.StringFilter<"Subscription"> | string
   stripePriceId?: Prisma.StringFilter<"Subscription"> | string
+  planKey?: Prisma.StringNullableFilter<"Subscription"> | string | null
   status?: Prisma.StringFilter<"Subscription"> | string
   currentPeriodStart?: Prisma.DateTimeFilter<"Subscription"> | Date | string
   currentPeriodEnd?: Prisma.DateTimeFilter<"Subscription"> | Date | string
@@ -272,6 +282,7 @@ export type SubscriptionOrderByWithAggregationInput = {
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
   stripePriceId?: Prisma.SortOrder
+  planKey?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
@@ -292,6 +303,7 @@ export type SubscriptionScalarWhereWithAggregatesInput = {
   stripeCustomerId?: Prisma.StringWithAggregatesFilter<"Subscription"> | string
   stripeSubscriptionId?: Prisma.StringWithAggregatesFilter<"Subscription"> | string
   stripePriceId?: Prisma.StringWithAggregatesFilter<"Subscription"> | string
+  planKey?: Prisma.StringNullableWithAggregatesFilter<"Subscription"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"Subscription"> | string
   currentPeriodStart?: Prisma.DateTimeWithAggregatesFilter<"Subscription"> | Date | string
   currentPeriodEnd?: Prisma.DateTimeWithAggregatesFilter<"Subscription"> | Date | string
@@ -305,6 +317,7 @@ export type SubscriptionCreateInput = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey?: string | null
   status: string
   currentPeriodStart: Date | string
   currentPeriodEnd: Date | string
@@ -320,6 +333,7 @@ export type SubscriptionUncheckedCreateInput = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey?: string | null
   status: string
   currentPeriodStart: Date | string
   currentPeriodEnd: Date | string
@@ -333,6 +347,7 @@ export type SubscriptionUpdateInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -348,6 +363,7 @@ export type SubscriptionUncheckedUpdateInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -362,6 +378,7 @@ export type SubscriptionCreateManyInput = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey?: string | null
   status: string
   currentPeriodStart: Date | string
   currentPeriodEnd: Date | string
@@ -375,6 +392,7 @@ export type SubscriptionUpdateManyMutationInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -389,6 +407,7 @@ export type SubscriptionUncheckedUpdateManyInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -408,6 +427,7 @@ export type SubscriptionCountOrderByAggregateInput = {
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
   stripePriceId?: Prisma.SortOrder
+  planKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
@@ -422,6 +442,7 @@ export type SubscriptionMaxOrderByAggregateInput = {
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
   stripePriceId?: Prisma.SortOrder
+  planKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
@@ -436,6 +457,7 @@ export type SubscriptionMinOrderByAggregateInput = {
   stripeCustomerId?: Prisma.SortOrder
   stripeSubscriptionId?: Prisma.SortOrder
   stripePriceId?: Prisma.SortOrder
+  planKey?: Prisma.SortOrder
   status?: Prisma.SortOrder
   currentPeriodStart?: Prisma.SortOrder
   currentPeriodEnd?: Prisma.SortOrder
@@ -476,6 +498,10 @@ export type SubscriptionUncheckedUpdateOneWithoutTenantNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SubscriptionUpdateToOneWithWhereWithoutTenantInput, Prisma.SubscriptionUpdateWithoutTenantInput>, Prisma.SubscriptionUncheckedUpdateWithoutTenantInput>
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
@@ -485,6 +511,7 @@ export type SubscriptionCreateWithoutTenantInput = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey?: string | null
   status: string
   currentPeriodStart: Date | string
   currentPeriodEnd: Date | string
@@ -498,6 +525,7 @@ export type SubscriptionUncheckedCreateWithoutTenantInput = {
   stripeCustomerId: string
   stripeSubscriptionId: string
   stripePriceId: string
+  planKey?: string | null
   status: string
   currentPeriodStart: Date | string
   currentPeriodEnd: Date | string
@@ -527,6 +555,7 @@ export type SubscriptionUpdateWithoutTenantInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -540,6 +569,7 @@ export type SubscriptionUncheckedUpdateWithoutTenantInput = {
   stripeCustomerId?: Prisma.StringFieldUpdateOperationsInput | string
   stripeSubscriptionId?: Prisma.StringFieldUpdateOperationsInput | string
   stripePriceId?: Prisma.StringFieldUpdateOperationsInput | string
+  planKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -556,6 +586,7 @@ export type SubscriptionSelect<ExtArgs extends runtime.Types.Extensions.Internal
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
   stripePriceId?: boolean
+  planKey?: boolean
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
@@ -571,6 +602,7 @@ export type SubscriptionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
   stripePriceId?: boolean
+  planKey?: boolean
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
@@ -586,6 +618,7 @@ export type SubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
   stripePriceId?: boolean
+  planKey?: boolean
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
@@ -601,6 +634,7 @@ export type SubscriptionSelectScalar = {
   stripeCustomerId?: boolean
   stripeSubscriptionId?: boolean
   stripePriceId?: boolean
+  planKey?: boolean
   status?: boolean
   currentPeriodStart?: boolean
   currentPeriodEnd?: boolean
@@ -609,7 +643,7 @@ export type SubscriptionSelectScalar = {
   updatedAt?: boolean
 }
 
-export type SubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
+export type SubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "stripeCustomerId" | "stripeSubscriptionId" | "stripePriceId" | "planKey" | "status" | "currentPeriodStart" | "currentPeriodEnd" | "cancelAtPeriodEnd" | "createdAt" | "updatedAt", ExtArgs["result"]["subscription"]>
 export type SubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
 }
@@ -631,6 +665,7 @@ export type $SubscriptionPayload<ExtArgs extends runtime.Types.Extensions.Intern
     stripeCustomerId: string
     stripeSubscriptionId: string
     stripePriceId: string
+    planKey: string | null
     status: string
     currentPeriodStart: Date
     currentPeriodEnd: Date
@@ -1066,6 +1101,7 @@ export interface SubscriptionFieldRefs {
   readonly stripeCustomerId: Prisma.FieldRef<"Subscription", 'String'>
   readonly stripeSubscriptionId: Prisma.FieldRef<"Subscription", 'String'>
   readonly stripePriceId: Prisma.FieldRef<"Subscription", 'String'>
+  readonly planKey: Prisma.FieldRef<"Subscription", 'String'>
   readonly status: Prisma.FieldRef<"Subscription", 'String'>
   readonly currentPeriodStart: Prisma.FieldRef<"Subscription", 'DateTime'>
   readonly currentPeriodEnd: Prisma.FieldRef<"Subscription", 'DateTime'>

@@ -32,6 +32,8 @@ const callListSelect = {
   recordingSid: true,
   recordingDuration: true,
   recordingStatus: true,
+  textBackSent: true,
+  textBackSentAt: true,
   phoneNumber: {
     select: {
       e164: true,
@@ -223,6 +225,8 @@ export async function registerCallRoutes(app: FastifyInstance) {
         recordingSid: true,
         recordingDuration: true,
         recordingStatus: true,
+        textBackSent: true,
+        textBackSentAt: true,
         phoneNumber: {
           select: {
             id: true,

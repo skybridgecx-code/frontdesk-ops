@@ -33,6 +33,7 @@ export type AgentProfileMinAggregateOutputType = {
   language: string | null
   voiceName: string | null
   systemPrompt: string | null
+  missedCallTextBackMessage: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -47,6 +48,7 @@ export type AgentProfileMaxAggregateOutputType = {
   language: string | null
   voiceName: string | null
   systemPrompt: string | null
+  missedCallTextBackMessage: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -61,6 +63,7 @@ export type AgentProfileCountAggregateOutputType = {
   language: number
   voiceName: number
   systemPrompt: number
+  missedCallTextBackMessage: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -77,6 +80,7 @@ export type AgentProfileMinAggregateInputType = {
   language?: true
   voiceName?: true
   systemPrompt?: true
+  missedCallTextBackMessage?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -91,6 +95,7 @@ export type AgentProfileMaxAggregateInputType = {
   language?: true
   voiceName?: true
   systemPrompt?: true
+  missedCallTextBackMessage?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -105,6 +110,7 @@ export type AgentProfileCountAggregateInputType = {
   language?: true
   voiceName?: true
   systemPrompt?: true
+  missedCallTextBackMessage?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -192,6 +198,7 @@ export type AgentProfileGroupByOutputType = {
   language: string
   voiceName: string | null
   systemPrompt: string | null
+  missedCallTextBackMessage: string | null
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -227,6 +234,7 @@ export type AgentProfileWhereInput = {
   language?: Prisma.StringFilter<"AgentProfile"> | string
   voiceName?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   systemPrompt?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
+  missedCallTextBackMessage?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   isActive?: Prisma.BoolFilter<"AgentProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
@@ -246,6 +254,7 @@ export type AgentProfileOrderByWithRelationInput = {
   language?: Prisma.SortOrder
   voiceName?: Prisma.SortOrderInput | Prisma.SortOrder
   systemPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  missedCallTextBackMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -268,6 +277,7 @@ export type AgentProfileWhereUniqueInput = Prisma.AtLeast<{
   language?: Prisma.StringFilter<"AgentProfile"> | string
   voiceName?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   systemPrompt?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
+  missedCallTextBackMessage?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   isActive?: Prisma.BoolFilter<"AgentProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
@@ -287,6 +297,7 @@ export type AgentProfileOrderByWithAggregationInput = {
   language?: Prisma.SortOrder
   voiceName?: Prisma.SortOrderInput | Prisma.SortOrder
   systemPrompt?: Prisma.SortOrderInput | Prisma.SortOrder
+  missedCallTextBackMessage?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -307,6 +318,7 @@ export type AgentProfileScalarWhereWithAggregatesInput = {
   language?: Prisma.StringWithAggregatesFilter<"AgentProfile"> | string
   voiceName?: Prisma.StringNullableWithAggregatesFilter<"AgentProfile"> | string | null
   systemPrompt?: Prisma.StringNullableWithAggregatesFilter<"AgentProfile"> | string | null
+  missedCallTextBackMessage?: Prisma.StringNullableWithAggregatesFilter<"AgentProfile"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"AgentProfile"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AgentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AgentProfile"> | Date | string
@@ -319,6 +331,7 @@ export type AgentProfileCreateInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -338,6 +351,7 @@ export type AgentProfileUncheckedCreateInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -353,6 +367,7 @@ export type AgentProfileUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -372,6 +387,7 @@ export type AgentProfileUncheckedUpdateInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -389,6 +405,7 @@ export type AgentProfileCreateManyInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -401,6 +418,7 @@ export type AgentProfileUpdateManyMutationInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,6 +433,7 @@ export type AgentProfileUncheckedUpdateManyInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -444,6 +463,7 @@ export type AgentProfileCountOrderByAggregateInput = {
   language?: Prisma.SortOrder
   voiceName?: Prisma.SortOrder
   systemPrompt?: Prisma.SortOrder
+  missedCallTextBackMessage?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -458,6 +478,7 @@ export type AgentProfileMaxOrderByAggregateInput = {
   language?: Prisma.SortOrder
   voiceName?: Prisma.SortOrder
   systemPrompt?: Prisma.SortOrder
+  missedCallTextBackMessage?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -472,6 +493,7 @@ export type AgentProfileMinOrderByAggregateInput = {
   language?: Prisma.SortOrder
   voiceName?: Prisma.SortOrder
   systemPrompt?: Prisma.SortOrder
+  missedCallTextBackMessage?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -620,6 +642,7 @@ export type AgentProfileCreateWithoutTenantInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -637,6 +660,7 @@ export type AgentProfileUncheckedCreateWithoutTenantInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -683,6 +707,7 @@ export type AgentProfileScalarWhereInput = {
   language?: Prisma.StringFilter<"AgentProfile"> | string
   voiceName?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   systemPrompt?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
+  missedCallTextBackMessage?: Prisma.StringNullableFilter<"AgentProfile"> | string | null
   isActive?: Prisma.BoolFilter<"AgentProfile"> | boolean
   createdAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AgentProfile"> | Date | string
@@ -695,6 +720,7 @@ export type AgentProfileCreateWithoutBusinessInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -712,6 +738,7 @@ export type AgentProfileUncheckedCreateWithoutBusinessInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -753,6 +780,7 @@ export type AgentProfileCreateWithoutPrimaryForPhoneNumbersInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -771,6 +799,7 @@ export type AgentProfileUncheckedCreateWithoutPrimaryForPhoneNumbersInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -790,6 +819,7 @@ export type AgentProfileCreateWithoutAfterHoursForPhoneNumbersInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -808,6 +838,7 @@ export type AgentProfileUncheckedCreateWithoutAfterHoursForPhoneNumbersInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -838,6 +869,7 @@ export type AgentProfileUpdateWithoutPrimaryForPhoneNumbersInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -856,6 +888,7 @@ export type AgentProfileUncheckedUpdateWithoutPrimaryForPhoneNumbersInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -881,6 +914,7 @@ export type AgentProfileUpdateWithoutAfterHoursForPhoneNumbersInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -899,6 +933,7 @@ export type AgentProfileUncheckedUpdateWithoutAfterHoursForPhoneNumbersInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -913,6 +948,7 @@ export type AgentProfileCreateWithoutCallsInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -931,6 +967,7 @@ export type AgentProfileUncheckedCreateWithoutCallsInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -961,6 +998,7 @@ export type AgentProfileUpdateWithoutCallsInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -979,6 +1017,7 @@ export type AgentProfileUncheckedUpdateWithoutCallsInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -994,6 +1033,7 @@ export type AgentProfileCreateManyTenantInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1006,6 +1046,7 @@ export type AgentProfileUpdateWithoutTenantInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1023,6 +1064,7 @@ export type AgentProfileUncheckedUpdateWithoutTenantInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1039,6 +1081,7 @@ export type AgentProfileUncheckedUpdateManyWithoutTenantInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1052,6 +1095,7 @@ export type AgentProfileCreateManyBusinessInput = {
   language?: string
   voiceName?: string | null
   systemPrompt?: string | null
+  missedCallTextBackMessage?: string | null
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -1064,6 +1108,7 @@ export type AgentProfileUpdateWithoutBusinessInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1081,6 +1126,7 @@ export type AgentProfileUncheckedUpdateWithoutBusinessInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1097,6 +1143,7 @@ export type AgentProfileUncheckedUpdateManyWithoutBusinessInput = {
   language?: Prisma.StringFieldUpdateOperationsInput | string
   voiceName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   systemPrompt?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  missedCallTextBackMessage?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1160,6 +1207,7 @@ export type AgentProfileSelect<ExtArgs extends runtime.Types.Extensions.Internal
   language?: boolean
   voiceName?: boolean
   systemPrompt?: boolean
+  missedCallTextBackMessage?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1180,6 +1228,7 @@ export type AgentProfileSelectCreateManyAndReturn<ExtArgs extends runtime.Types.
   language?: boolean
   voiceName?: boolean
   systemPrompt?: boolean
+  missedCallTextBackMessage?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1196,6 +1245,7 @@ export type AgentProfileSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.
   language?: boolean
   voiceName?: boolean
   systemPrompt?: boolean
+  missedCallTextBackMessage?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -1212,12 +1262,13 @@ export type AgentProfileSelectScalar = {
   language?: boolean
   voiceName?: boolean
   systemPrompt?: boolean
+  missedCallTextBackMessage?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type AgentProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "name" | "channel" | "language" | "voiceName" | "systemPrompt" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["agentProfile"]>
+export type AgentProfileOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "name" | "channel" | "language" | "voiceName" | "systemPrompt" | "missedCallTextBackMessage" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["agentProfile"]>
 export type AgentProfileInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -1253,6 +1304,7 @@ export type $AgentProfilePayload<ExtArgs extends runtime.Types.Extensions.Intern
     language: string
     voiceName: string | null
     systemPrompt: string | null
+    missedCallTextBackMessage: string | null
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -1692,6 +1744,7 @@ export interface AgentProfileFieldRefs {
   readonly language: Prisma.FieldRef<"AgentProfile", 'String'>
   readonly voiceName: Prisma.FieldRef<"AgentProfile", 'String'>
   readonly systemPrompt: Prisma.FieldRef<"AgentProfile", 'String'>
+  readonly missedCallTextBackMessage: Prisma.FieldRef<"AgentProfile", 'String'>
   readonly isActive: Prisma.FieldRef<"AgentProfile", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"AgentProfile", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AgentProfile", 'DateTime'>

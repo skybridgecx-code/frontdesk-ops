@@ -17,6 +17,7 @@
 import type { FastifyInstance } from 'fastify';
 import { CallStatus, prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
+import { handleMissedCall } from '../lib/missed-call-handler.js';
 
 /** Maps Twilio status strings to our CallStatus enum values. */
 function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof typeof CallStatus] {
@@ -134,6 +135,16 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
             error.message.includes('unique constraint'));
         if (!isUniqueViolation || attempt === 2) throw error;
       }
+    }
+
+    if (isTerminalStatus(mappedStatus)) {
+      void handleMissedCall(twilioCallSid).catch((error: unknown) => {
+        app.log.error({
+          msg: 'Failed to process missed-call text-back',
+          twilioCallSid,
+          error
+        });
+      });
     }
 
     return {
