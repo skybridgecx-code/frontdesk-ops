@@ -10,6 +10,9 @@ import { PeakHoursChart } from '../components/analytics/peak-hours-chart';
 import { RecentActivity } from '../components/analytics/recent-activity';
 import { WebhookHealth } from '../components/analytics/webhook-health';
 import { PeriodSelector } from '../components/analytics/period-selector';
+import { StatusBadge } from '@/components/calls/status-badge';
+import { StatusDot } from '@/components/calls/status-dot';
+import { formatPhoneNumber, normalizeCallStatus, timeAgo } from '@/lib/call-utils';
 import type {
   AnalyticsPeriod,
   CallVolumeData,
@@ -33,6 +36,27 @@ type SearchParams = {
 
 type ApiEnvelope = {
   ok: boolean;
+};
+
+type RecentCall = {
+  id?: string;
+  callSid?: string | null;
+  twilioCallSid?: string;
+  status?: string;
+  callStatus?: string;
+  callerName?: string | null;
+  leadName?: string | null;
+  callerPhone?: string | null;
+  fromE164?: string | null;
+  callReason?: string | null;
+  leadIntent?: string | null;
+  createdAt?: string;
+  startedAt?: string;
+};
+
+type RecentCallsResponse = {
+  ok: boolean;
+  calls: RecentCall[];
 };
 
 function normalizePeriod(value: string | undefined): AnalyticsPeriod {
@@ -81,6 +105,45 @@ async function fetchAnalytics<T>(path: string): Promise<T | null> {
   }
 
   return payload;
+}
+
+async function fetchRecentCalls() {
+  const response = await fetch(`${getApiBaseUrl()}/v1/calls?page=1&limit=5`, {
+    cache: 'no-store',
+    headers: await getInternalApiHeaders()
+  });
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const payload = (await response.json()) as RecentCallsResponse;
+  if (!payload.ok) {
+    return null;
+  }
+
+  return payload.calls;
+}
+
+function getRecentCallId(call: RecentCall) {
+  return call.callSid ?? call.twilioCallSid ?? call.id ?? '';
+}
+
+function getRecentCallName(call: RecentCall) {
+  const callerName = call.callerName ?? call.leadName;
+  if (callerName) {
+    return callerName;
+  }
+
+  return formatPhoneNumber(call.callerPhone ?? call.fromE164 ?? null);
+}
+
+function getRecentCallReason(call: RecentCall) {
+  return call.callReason ?? call.leadIntent ?? 'No reason captured';
+}
+
+function getRecentCallDate(call: RecentCall) {
+  return call.createdAt ?? call.startedAt ?? new Date().toISOString();
 }
 
 function emptyOverview(period: AnalyticsPeriod): OverviewData {
@@ -191,14 +254,15 @@ export default async function AnalyticsDashboardPage({
 
   const query = `?period=${period}`;
 
-  const [overview, callVolume, intents, urgency, peakHours, recentActivity, webhookHealth] = await Promise.all([
+  const [overview, callVolume, intents, urgency, peakHours, recentActivity, webhookHealth, recentCalls] = await Promise.all([
     fetchAnalytics<OverviewData>(`/v1/analytics/overview${query}`),
     fetchAnalytics<CallVolumeData>(`/v1/analytics/call-volume${query}`),
     fetchAnalytics<IntentData>(`/v1/analytics/intents${query}`),
     fetchAnalytics<UrgencyData>(`/v1/analytics/urgency${query}`),
     fetchAnalytics<PeakHoursData>(`/v1/analytics/peak-hours${query}`),
     fetchAnalytics<RecentActivityData>(`/v1/analytics/recent-activity${query}`),
-    fetchAnalytics<WebhookHealthData>(`/v1/analytics/webhook-health${query}`)
+    fetchAnalytics<WebhookHealthData>(`/v1/analytics/webhook-health${query}`),
+    fetchRecentCalls()
   ]);
 
   const safeOverview = overview ?? emptyOverview(period);
@@ -208,6 +272,7 @@ export default async function AnalyticsDashboardPage({
   const safePeakHours = peakHours ?? emptyPeakHours(period);
   const safeRecentActivity = recentActivity ?? emptyRecent(period);
   const safeWebhookHealth = webhookHealth ?? emptyWebhookHealth(period);
+  const safeRecentCalls = recentCalls ?? [];
 
   const now = new Date();
   const name = user?.firstName ?? user?.username ?? 'Operator';
@@ -271,6 +336,49 @@ export default async function AnalyticsDashboardPage({
           <WebhookHealth health={safeWebhookHealth} />
         </>
       )}
+
+      <div className="mt-8 rounded-xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-lg font-semibold text-gray-900">Recent Calls</h2>
+          <Link href="/calls" className="text-sm text-blue-600 hover:text-blue-800">
+            View all →
+          </Link>
+        </div>
+
+        {safeRecentCalls.length > 0 ? (
+          <div>
+            {safeRecentCalls.map((call) => {
+              const status = normalizeCallStatus(call.callStatus ?? call.status);
+              const detailId = getRecentCallId(call);
+              const rowDate = getRecentCallDate(call);
+
+              return (
+                <Link
+                  key={`${detailId}-${rowDate}`}
+                  href={detailId ? `/calls/${detailId}` : '/calls'}
+                  className="flex items-center justify-between py-3 border-b last:border-0 hover:bg-gray-50"
+                >
+                  <div className="flex items-center gap-3">
+                    <StatusDot status={status} />
+                    <div>
+                      <p className="font-medium text-gray-900 text-sm">{getRecentCallName(call)}</p>
+                      <p className="text-xs text-gray-500">{getRecentCallReason(call)}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">{timeAgo(rowDate)}</p>
+                    <StatusBadge status={status} size="sm" />
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        ) : (
+          <p className="text-gray-400 text-sm py-8 text-center">
+            No calls yet. They&apos;ll show up here once your AI receptionist takes its first call.
+          </p>
+        )}
+      </div>
     </div>
   );
 }
