@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
-import { validateRequest } from 'twilio';
+import twilio from 'twilio';
+const { validateRequest } = twilio;
 
 function getHeaderValue(value: string | string[] | undefined) {
   if (typeof value === 'string') {
