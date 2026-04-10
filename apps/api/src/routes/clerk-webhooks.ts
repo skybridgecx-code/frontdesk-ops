@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { FastifyBaseLogger, FastifyInstance, FastifyRequest } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { Webhook } from 'svix';
+import { sendWelcomeEmail } from '../lib/email-sender.js';
 
 /**
  * Required Clerk environment variables:
@@ -358,6 +359,14 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
       )
     `;
   });
+
+  if (user.email) {
+    try {
+      await sendWelcomeEmail(user.email, tenantName, null);
+    } catch (error) {
+      logger.error({ err: error, clerkUserId: user.id }, 'Failed to send welcome email.');
+    }
+  }
 
   logger.info(
     {

@@ -1,5 +1,6 @@
 import type { FastifyInstance, FastifyReply } from 'fastify';
 import { CallDirection, CallStatus, prisma } from '@frontdesk/db';
+import { sendMissedCallEmail, sendVoicemailEmail } from '../lib/email-sender.js';
 import { handleMissedCall } from '../lib/missed-call-handler.js';
 import { validateTwilioRequest } from '../lib/twilio-auth.js';
 import {
@@ -88,10 +89,33 @@ async function findCallBySid(callSid: string) {
       id: true,
       tenantId: true,
       callerName: true,
+      callerPhone: true,
+      callReason: true,
+      voicemailDuration: true,
+      createdAt: true,
       callStatus: true,
       twilioCallSid: true
     }
   });
+}
+
+async function findTenantForNotifications(tenantId: string) {
+  return prisma.tenant.findUnique({
+    where: {
+      id: tenantId
+    },
+    select: {
+      email: true,
+      name: true,
+      businessName: true,
+      notifyEmail: true,
+      notifyEmailVoicemail: true
+    }
+  });
+}
+
+function toCallTime(createdAt: Date | null | undefined) {
+  return createdAt instanceof Date ? createdAt.toISOString() : new Date().toISOString();
 }
 
 async function findTenantAndPhoneByNumber(to: string) {
@@ -300,6 +324,24 @@ export default async function twilioVoice(app: FastifyInstance) {
       }
     });
 
+    try {
+      const tenant = await findTenantForNotifications(call.tenantId);
+
+      if (tenant?.notifyEmailVoicemail && tenant.email) {
+        await sendVoicemailEmail(tenant.email, {
+          businessName: tenant.businessName ?? tenant.name ?? 'Your Business',
+          callerPhone: call.callerPhone || 'Unknown',
+          callerName: call.callerName ?? null,
+          callReason: call.callReason ?? null,
+          voicemailDuration: recordingDuration ?? call.voicemailDuration ?? null,
+          callTime: toCallTime(call.createdAt),
+          callId: call.id
+        });
+      }
+    } catch (error) {
+      request.log.error({ err: error, callId: call.id }, 'Failed to send voicemail email notification.');
+    }
+
     return sendTwiml(reply, buildVoicemailCompleteTwiml());
   });
 
@@ -333,6 +375,22 @@ export default async function twilioVoice(app: FastifyInstance) {
 
     if (mapped.callStatus === 'missed') {
       await handleMissedCall(call.twilioCallSid || callSid);
+
+      try {
+        const tenant = await findTenantForNotifications(call.tenantId);
+
+        if (tenant?.notifyEmail && tenant.email) {
+          await sendMissedCallEmail(tenant.email, {
+            businessName: tenant.businessName ?? tenant.name ?? 'Your Business',
+            callerPhone: call.callerPhone || 'Unknown',
+            callerName: call.callerName ?? null,
+            callTime: toCallTime(call.createdAt),
+            callId: call.id
+          });
+        }
+      } catch (error) {
+        request.log.error({ err: error, callId: call.id }, 'Failed to send missed-call email notification.');
+      }
     }
 
     return reply.status(200).send({ received: true });

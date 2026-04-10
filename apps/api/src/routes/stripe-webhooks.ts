@@ -7,7 +7,8 @@ import {
   upsertSubscriptionByTenant,
   updateSubscriptionByStripeSubscriptionId
 } from '../lib/subscription-store.js';
-import { getPlanByPriceId, PLAN_KEYS, type PlanKey } from '../lib/plans.js';
+import { sendPaymentConfirmationEmail, sendPaymentFailedEmail } from '../lib/email-sender.js';
+import { getPlanByKey, getPlanByPriceId, PLAN_KEYS, type PlanKey } from '../lib/plans.js';
 
 type RequestWithRawBody = FastifyRequest & {
   rawBody?: Buffer;
@@ -87,7 +88,8 @@ async function rawBodyHook(
   }
 
   const rawBodyBuffer = Buffer.concat(chunks);
-  (request as any).rawBody = rawBodyBuffer;
+  const requestWithRawBody = request as RequestWithRawBody;
+  requestWithRawBody.rawBody = rawBodyBuffer;
   return Readable.from(rawBodyBuffer);
 }
 
@@ -357,6 +359,35 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
           }
 
           await updateTenantFromCheckoutSession(session);
+
+          if (tenantId) {
+            const planKey = toPlanKey(session.metadata?.planKey ?? null);
+
+            if (planKey) {
+              try {
+                const tenant = await prisma.tenant.findUnique({
+                  where: {
+                    id: tenantId
+                  },
+                  select: {
+                    email: true,
+                    name: true
+                  }
+                });
+                const plan = getPlanByKey(planKey);
+
+                if (tenant?.email) {
+                  await sendPaymentConfirmationEmail(tenant.email, {
+                    name: tenant.name,
+                    planName: plan.name,
+                    amount: plan.monthlyPrice.toString()
+                  });
+                }
+              } catch (error) {
+                request.log.error({ err: error, tenantId }, 'Failed to send payment confirmation email.');
+              }
+            }
+          }
         } else if (event.type === 'customer.subscription.updated') {
           const subscription = event.data.object as Stripe.Subscription;
           const stripeCustomerId = getCustomerId(subscription.customer);
@@ -434,6 +465,34 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
 
           if (stripeSubscriptionId) {
             await markTenantSubscriptionPastDue(stripeSubscriptionId);
+
+            try {
+              const tenant = await prisma.tenant.findUnique({
+                where: {
+                  stripeSubscriptionId
+                },
+                select: {
+                  email: true,
+                  name: true,
+                  plan: true
+                }
+              });
+
+              if (tenant?.email) {
+                const planKey = toPlanKey(tenant.plan);
+                const planName = planKey ? getPlanByKey(planKey).name : tenant.plan;
+
+                await sendPaymentFailedEmail(tenant.email, {
+                  name: tenant.name,
+                  planName
+                });
+              }
+            } catch (error) {
+              request.log.error(
+                { err: error, stripeSubscriptionId },
+                'Failed to send payment failed email notification.'
+              );
+            }
           }
         }
 
