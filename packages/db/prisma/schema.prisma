@@ -134,6 +134,12 @@ model Tenant {
   businessAddress String?
   businessPhone String?
   timezone      String?        @default("America/New_York")
+  webhookUrl    String?
+  webhookSecret String?
+  webhookEnabled Boolean       @default(false)
+  notifyEmail   Boolean        @default(true)
+  notifySmsMissedCall Boolean  @default(true)
+  notifyEmailVoicemail Boolean @default(true)
   email         String?
   clerkUserId   String?        @unique
   slug          String         @unique

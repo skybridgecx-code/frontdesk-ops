@@ -46,6 +46,12 @@ export type TenantMinAggregateOutputType = {
   businessAddress: string | null
   businessPhone: string | null
   timezone: string | null
+  webhookUrl: string | null
+  webhookSecret: string | null
+  webhookEnabled: boolean | null
+  notifyEmail: boolean | null
+  notifySmsMissedCall: boolean | null
+  notifyEmailVoicemail: boolean | null
   email: string | null
   clerkUserId: string | null
   slug: string | null
@@ -70,6 +76,12 @@ export type TenantMaxAggregateOutputType = {
   businessAddress: string | null
   businessPhone: string | null
   timezone: string | null
+  webhookUrl: string | null
+  webhookSecret: string | null
+  webhookEnabled: boolean | null
+  notifyEmail: boolean | null
+  notifySmsMissedCall: boolean | null
+  notifyEmailVoicemail: boolean | null
   email: string | null
   clerkUserId: string | null
   slug: string | null
@@ -94,6 +106,12 @@ export type TenantCountAggregateOutputType = {
   businessAddress: number
   businessPhone: number
   timezone: number
+  webhookUrl: number
+  webhookSecret: number
+  webhookEnabled: number
+  notifyEmail: number
+  notifySmsMissedCall: number
+  notifyEmailVoicemail: number
   email: number
   clerkUserId: number
   slug: number
@@ -128,6 +146,12 @@ export type TenantMinAggregateInputType = {
   businessAddress?: true
   businessPhone?: true
   timezone?: true
+  webhookUrl?: true
+  webhookSecret?: true
+  webhookEnabled?: true
+  notifyEmail?: true
+  notifySmsMissedCall?: true
+  notifyEmailVoicemail?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -152,6 +176,12 @@ export type TenantMaxAggregateInputType = {
   businessAddress?: true
   businessPhone?: true
   timezone?: true
+  webhookUrl?: true
+  webhookSecret?: true
+  webhookEnabled?: true
+  notifyEmail?: true
+  notifySmsMissedCall?: true
+  notifyEmailVoicemail?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -176,6 +206,12 @@ export type TenantCountAggregateInputType = {
   businessAddress?: true
   businessPhone?: true
   timezone?: true
+  webhookUrl?: true
+  webhookSecret?: true
+  webhookEnabled?: true
+  notifyEmail?: true
+  notifySmsMissedCall?: true
+  notifyEmailVoicemail?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -287,6 +323,12 @@ export type TenantGroupByOutputType = {
   businessAddress: string | null
   businessPhone: string | null
   timezone: string | null
+  webhookUrl: string | null
+  webhookSecret: string | null
+  webhookEnabled: boolean
+  notifyEmail: boolean
+  notifySmsMissedCall: boolean
+  notifyEmailVoicemail: boolean
   email: string | null
   clerkUserId: string | null
   slug: string
@@ -334,6 +376,12 @@ export type TenantWhereInput = {
   businessAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
   businessPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   timezone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookSecret?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookEnabled?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifyEmail?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifySmsMissedCall?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifyEmailVoicemail?: Prisma.BoolFilter<"Tenant"> | boolean
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   clerkUserId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   slug?: Prisma.StringFilter<"Tenant"> | string
@@ -368,6 +416,12 @@ export type TenantOrderByWithRelationInput = {
   businessAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   businessPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookEnabled?: Prisma.SortOrder
+  notifyEmail?: Prisma.SortOrder
+  notifySmsMissedCall?: Prisma.SortOrder
+  notifyEmailVoicemail?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -409,6 +463,12 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   businessAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
   businessPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   timezone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookUrl?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookSecret?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  webhookEnabled?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifyEmail?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifySmsMissedCall?: Prisma.BoolFilter<"Tenant"> | boolean
+  notifyEmailVoicemail?: Prisma.BoolFilter<"Tenant"> | boolean
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   status?: Prisma.StringFilter<"Tenant"> | string
   plan?: Prisma.StringFilter<"Tenant"> | string
@@ -439,6 +499,12 @@ export type TenantOrderByWithAggregationInput = {
   businessAddress?: Prisma.SortOrderInput | Prisma.SortOrder
   businessPhone?: Prisma.SortOrderInput | Prisma.SortOrder
   timezone?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookSecret?: Prisma.SortOrderInput | Prisma.SortOrder
+  webhookEnabled?: Prisma.SortOrder
+  notifyEmail?: Prisma.SortOrder
+  notifySmsMissedCall?: Prisma.SortOrder
+  notifyEmailVoicemail?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -471,6 +537,12 @@ export type TenantScalarWhereWithAggregatesInput = {
   businessAddress?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   businessPhone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   timezone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  webhookUrl?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  webhookSecret?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  webhookEnabled?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
+  notifyEmail?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
+  notifySmsMissedCall?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
+  notifyEmailVoicemail?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
   email?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   clerkUserId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   slug?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
@@ -495,6 +567,12 @@ export type TenantCreateInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -529,6 +607,12 @@ export type TenantUncheckedCreateInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -563,6 +647,12 @@ export type TenantUpdateInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -597,6 +687,12 @@ export type TenantUncheckedUpdateInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -631,6 +727,12 @@ export type TenantCreateManyInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -655,6 +757,12 @@ export type TenantUpdateManyMutationInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -679,6 +787,12 @@ export type TenantUncheckedUpdateManyInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -703,6 +817,12 @@ export type TenantCountOrderByAggregateInput = {
   businessAddress?: Prisma.SortOrder
   businessPhone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  webhookUrl?: Prisma.SortOrder
+  webhookSecret?: Prisma.SortOrder
+  webhookEnabled?: Prisma.SortOrder
+  notifyEmail?: Prisma.SortOrder
+  notifySmsMissedCall?: Prisma.SortOrder
+  notifyEmailVoicemail?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -731,6 +851,12 @@ export type TenantMaxOrderByAggregateInput = {
   businessAddress?: Prisma.SortOrder
   businessPhone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  webhookUrl?: Prisma.SortOrder
+  webhookSecret?: Prisma.SortOrder
+  webhookEnabled?: Prisma.SortOrder
+  notifyEmail?: Prisma.SortOrder
+  notifySmsMissedCall?: Prisma.SortOrder
+  notifyEmailVoicemail?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -755,6 +881,12 @@ export type TenantMinOrderByAggregateInput = {
   businessAddress?: Prisma.SortOrder
   businessPhone?: Prisma.SortOrder
   timezone?: Prisma.SortOrder
+  webhookUrl?: Prisma.SortOrder
+  webhookSecret?: Prisma.SortOrder
+  webhookEnabled?: Prisma.SortOrder
+  notifyEmail?: Prisma.SortOrder
+  notifySmsMissedCall?: Prisma.SortOrder
+  notifyEmailVoicemail?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -952,6 +1084,12 @@ export type TenantCreateWithoutSubscriptionInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -985,6 +1123,12 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1034,6 +1178,12 @@ export type TenantUpdateWithoutSubscriptionInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1067,6 +1217,12 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1100,6 +1256,12 @@ export type TenantCreateWithoutWebhookEndpointsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1133,6 +1295,12 @@ export type TenantUncheckedCreateWithoutWebhookEndpointsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1182,6 +1350,12 @@ export type TenantUpdateWithoutWebhookEndpointsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1215,6 +1389,12 @@ export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1248,6 +1428,12 @@ export type TenantCreateWithoutTenantUsersInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1281,6 +1467,12 @@ export type TenantUncheckedCreateWithoutTenantUsersInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1330,6 +1522,12 @@ export type TenantUpdateWithoutTenantUsersInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1363,6 +1561,12 @@ export type TenantUncheckedUpdateWithoutTenantUsersInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1396,6 +1600,12 @@ export type TenantCreateWithoutMembershipsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1429,6 +1639,12 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1478,6 +1694,12 @@ export type TenantUpdateWithoutMembershipsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1511,6 +1733,12 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1544,6 +1772,12 @@ export type TenantCreateWithoutBusinessesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1577,6 +1811,12 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1626,6 +1866,12 @@ export type TenantUpdateWithoutBusinessesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1659,6 +1905,12 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1692,6 +1944,12 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1725,6 +1983,12 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1774,6 +2038,12 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1807,6 +2077,12 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1840,6 +2116,12 @@ export type TenantCreateWithoutAgentProfilesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1873,6 +2155,12 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1922,6 +2210,12 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1955,6 +2249,12 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1988,6 +2288,12 @@ export type TenantCreateWithoutCallsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2021,6 +2327,12 @@ export type TenantUncheckedCreateWithoutCallsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2070,6 +2382,12 @@ export type TenantUpdateWithoutCallsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2103,6 +2421,12 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2136,6 +2460,12 @@ export type TenantCreateWithoutProspectsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2169,6 +2499,12 @@ export type TenantUncheckedCreateWithoutProspectsInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2218,6 +2554,12 @@ export type TenantUpdateWithoutProspectsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2251,6 +2593,12 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2284,6 +2632,12 @@ export type TenantCreateWithoutProspectImportBatchesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2317,6 +2671,12 @@ export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   businessAddress?: string | null
   businessPhone?: string | null
   timezone?: string | null
+  webhookUrl?: string | null
+  webhookSecret?: string | null
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -2366,6 +2726,12 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2399,6 +2765,12 @@ export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookSecret?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  webhookEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmail?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifySmsMissedCall?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  notifyEmailVoicemail?: Prisma.BoolFieldUpdateOperationsInput | boolean
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2535,6 +2907,12 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   businessAddress?: boolean
   businessPhone?: boolean
   timezone?: boolean
+  webhookUrl?: boolean
+  webhookSecret?: boolean
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2570,6 +2948,12 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   businessAddress?: boolean
   businessPhone?: boolean
   timezone?: boolean
+  webhookUrl?: boolean
+  webhookSecret?: boolean
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2594,6 +2978,12 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   businessAddress?: boolean
   businessPhone?: boolean
   timezone?: boolean
+  webhookUrl?: boolean
+  webhookSecret?: boolean
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2618,6 +3008,12 @@ export type TenantSelectScalar = {
   businessAddress?: boolean
   businessPhone?: boolean
   timezone?: boolean
+  webhookUrl?: boolean
+  webhookSecret?: boolean
+  webhookEnabled?: boolean
+  notifyEmail?: boolean
+  notifySmsMissedCall?: boolean
+  notifyEmailVoicemail?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2630,7 +3026,7 @@ export type TenantSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "businessName" | "greeting" | "twilioPhoneNumber" | "onboardingStep" | "onboardingComplete" | "industry" | "businessAddress" | "businessPhone" | "timezone" | "email" | "clerkUserId" | "slug" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "plan" | "subscriptionStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "businessName" | "greeting" | "twilioPhoneNumber" | "onboardingStep" | "onboardingComplete" | "industry" | "businessAddress" | "businessPhone" | "timezone" | "webhookUrl" | "webhookSecret" | "webhookEnabled" | "notifyEmail" | "notifySmsMissedCall" | "notifyEmailVoicemail" | "email" | "clerkUserId" | "slug" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "plan" | "subscriptionStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
@@ -2673,6 +3069,12 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     businessAddress: string | null
     businessPhone: string | null
     timezone: string | null
+    webhookUrl: string | null
+    webhookSecret: string | null
+    webhookEnabled: boolean
+    notifyEmail: boolean
+    notifySmsMissedCall: boolean
+    notifyEmailVoicemail: boolean
     email: string | null
     clerkUserId: string | null
     slug: string
@@ -3127,6 +3529,12 @@ export interface TenantFieldRefs {
   readonly businessAddress: Prisma.FieldRef<"Tenant", 'String'>
   readonly businessPhone: Prisma.FieldRef<"Tenant", 'String'>
   readonly timezone: Prisma.FieldRef<"Tenant", 'String'>
+  readonly webhookUrl: Prisma.FieldRef<"Tenant", 'String'>
+  readonly webhookSecret: Prisma.FieldRef<"Tenant", 'String'>
+  readonly webhookEnabled: Prisma.FieldRef<"Tenant", 'Boolean'>
+  readonly notifyEmail: Prisma.FieldRef<"Tenant", 'Boolean'>
+  readonly notifySmsMissedCall: Prisma.FieldRef<"Tenant", 'Boolean'>
+  readonly notifyEmailVoicemail: Prisma.FieldRef<"Tenant", 'Boolean'>
   readonly email: Prisma.FieldRef<"Tenant", 'String'>
   readonly clerkUserId: Prisma.FieldRef<"Tenant", 'String'>
   readonly slug: Prisma.FieldRef<"Tenant", 'String'>

@@ -38,6 +38,7 @@ import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
 import { registerClerkWebhookRoutes } from './routes/clerk-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
 import onboarding from './routes/onboarding.js';
+import settings from './routes/settings.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
 import { runEnvCheck } from './lib/env-check.js';
@@ -167,6 +168,7 @@ export async function buildServer() {
   await registerClerkWebhookRoutes(app);
   await registerBillingRoutes(app);
   await app.register(onboarding);
+  await app.register(settings);
   await registerAgentProfileWriteRoutes(app);
   await registerProspectImportRoutes(app);
   await registerProspectReadRoutes(app);
