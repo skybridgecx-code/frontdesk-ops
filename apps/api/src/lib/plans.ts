@@ -1,11 +1,11 @@
 /**
- * Stripe price configuration:
+ * Stripe price configuration defaults for production checkout.
+ *
+ * Optional overrides:
  * STRIPE_PRICE_ID_STARTER=price_...
  * STRIPE_PRICE_ID_PRO=price_...
  * STRIPE_PRICE_ID_ENTERPRISE=price_...
- *
- * Legacy fallback:
- * STRIPE_PRICE_ID=price_... (mapped to Starter)
+ * STRIPE_PRICE_ID=price_... (legacy Starter override)
  */
 
 export const PLAN_KEYS = ['starter', 'pro', 'enterprise'] as const;
@@ -84,16 +84,26 @@ const PLAN_TEMPLATES: Record<PlanKey, PlanTemplate> = {
   }
 };
 
+const DEFAULT_STRIPE_PRICE_IDS: Record<PlanKey, string> = {
+  starter: 'price_1TKXE9GRmFZwSOkBgZXtYPoT',
+  pro: 'price_1TKXF4GRmFZwSOkBlL8LPl7J',
+  enterprise: 'price_1TKXFrGRmFZwSOkBfM5eOUMM'
+};
+
 function toPriceId(key: PlanKey) {
   if (key === 'starter') {
-    return process.env.STRIPE_PRICE_ID_STARTER ?? process.env.STRIPE_PRICE_ID ?? null;
+    return (
+      process.env.STRIPE_PRICE_ID_STARTER ??
+      process.env.STRIPE_PRICE_ID ??
+      DEFAULT_STRIPE_PRICE_IDS.starter
+    );
   }
 
   if (key === 'pro') {
-    return process.env.STRIPE_PRICE_ID_PRO ?? null;
+    return process.env.STRIPE_PRICE_ID_PRO ?? DEFAULT_STRIPE_PRICE_IDS.pro;
   }
 
-  return process.env.STRIPE_PRICE_ID_ENTERPRISE ?? null;
+  return process.env.STRIPE_PRICE_ID_ENTERPRISE ?? DEFAULT_STRIPE_PRICE_IDS.enterprise;
 }
 
 function toPlan(key: PlanKey): Plan {
