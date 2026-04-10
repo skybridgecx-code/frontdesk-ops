@@ -5,6 +5,7 @@ import { getCurrentTenant } from '@/lib/tenant';
 import { Card } from '../components/card';
 import { EmptyState } from '../components/empty-state';
 import { StatusBadge } from '../components/status-badge';
+import { ManageSubscriptionButton } from './manage-subscription-button';
 
 export const metadata: Metadata = {
   title: 'Billing | SkybridgeCX'
@@ -205,11 +206,6 @@ export default async function BillingPage({
 
   const subscriptionStatus = billingStatus.status === 'none' ? null : billingStatus;
   const hasSubscription = subscriptionStatus !== null;
-  const isActiveSubscription = subscriptionStatus
-    ? subscriptionStatus.status === 'active' ||
-      subscriptionStatus.status === 'trialing' ||
-      subscriptionStatus.status === 'past_due'
-    : false;
   const currentPlanKey = subscriptionStatus?.planKey ?? null;
 
   const upgradePlans = hasSubscription
@@ -225,23 +221,22 @@ export default async function BillingPage({
   const callUsageRatio = subscriptionStatus && callLimit > 0 ? subscriptionStatus.callsThisPeriod / callLimit : 0;
   const isApproachingCallLimit = subscriptionStatus && callLimit > 0 && callUsageRatio >= 0.8;
 
+  const showCheckoutSuccessBanner = resolvedSearchParams.checkout === 'success';
+  const showCheckoutCanceledBanner =
+    resolvedSearchParams.checkout === 'canceled' || resolvedSearchParams.checkout === 'cancel';
   const noticeMessage =
-    resolvedSearchParams.checkout === 'success'
-      ? 'Subscription checkout completed.'
-      : resolvedSearchParams.checkout === 'cancel'
-        ? 'Checkout canceled. You can subscribe any time.'
-        : resolvedSearchParams.notice === 'checkout-error'
-          ? 'Could not create Stripe checkout session.'
-          : resolvedSearchParams.notice === 'portal-error'
-            ? 'Could not open Stripe billing portal.'
-            : resolvedSearchParams.notice === 'subscription-required'
-              ? 'Active subscription required to access dashboard pages.'
-              : null;
+    resolvedSearchParams.notice === 'checkout-error'
+      ? 'Could not create Stripe checkout session.'
+      : resolvedSearchParams.notice === 'portal-error'
+        ? 'Could not open Stripe billing portal.'
+        : resolvedSearchParams.notice === 'subscription-required'
+          ? 'Active subscription required to access dashboard pages.'
+          : null;
 
   async function createCheckoutSession(planKey: PlanKey) {
     'use server';
 
-    const response = await fetch(`${getApiBaseUrl()}/v1/billing/create-checkout-session`, {
+    const response = await fetch(`${getApiBaseUrl()}/v1/billing/checkout`, {
       method: 'POST',
       cache: 'no-store',
       headers: {
@@ -266,34 +261,6 @@ export default async function BillingPage({
     redirect(data.url);
   }
 
-  async function createPortalSession() {
-    'use server';
-
-    const response = await fetch(`${getApiBaseUrl()}/v1/billing/create-portal-session`, {
-      method: 'POST',
-      cache: 'no-store',
-      headers: {
-        ...(await getInternalApiHeaders()),
-        'content-type': 'application/json'
-      },
-      body: JSON.stringify({ tenantId })
-    });
-
-    if (!response.ok) {
-      redirect('/billing?notice=portal-error');
-    }
-
-    const data = (await response.json()) as {
-      url?: string;
-    };
-
-    if (!data.url) {
-      redirect('/billing?notice=portal-error');
-    }
-
-    redirect(data.url);
-  }
-
   return (
     <div className="space-y-6">
       <Card title="Billing" subtitle={`Manage your SkybridgeCX subscription for ${tenant.name}.`}>
@@ -303,8 +270,54 @@ export default async function BillingPage({
         </p>
       </Card>
 
+      {showCheckoutSuccessBanner ? (
+        <div className="rounded-lg bg-green-50 border border-green-200 p-4 mb-6">
+          <p className="text-green-800 font-medium">
+            ✅ Subscription activated! Your plan is now active.
+          </p>
+        </div>
+      ) : null}
+
+      {showCheckoutCanceledBanner ? (
+        <div className="rounded-lg bg-yellow-50 border border-yellow-200 p-4 mb-6">
+          <p className="text-yellow-800 font-medium">
+            Checkout was canceled. You can try again anytime.
+          </p>
+        </div>
+      ) : null}
+
       {noticeMessage ? (
         <div className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-3 text-sm text-sky-900">{noticeMessage}</div>
+      ) : null}
+
+      {subscriptionStatus?.status === 'active' ? (
+        <div className="rounded-lg bg-blue-50 border border-blue-200 p-4 mb-6">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-blue-800 font-medium">
+                Current Plan: <span className="font-bold capitalize">{subscriptionStatus.planKey}</span>
+              </p>
+              <p className="text-blue-600 text-sm">Your subscription is active.</p>
+            </div>
+            <ManageSubscriptionButton tenantId={tenantId} />
+          </div>
+        </div>
+      ) : null}
+
+      {subscriptionStatus?.status === 'past_due' ? (
+        <div className="rounded-lg bg-red-50 border border-red-200 p-4 mb-6">
+          <p className="text-red-800 font-medium">
+            ⚠️ Payment failed. Please update your payment method.
+          </p>
+        </div>
+      ) : null}
+
+      {subscriptionStatus?.status === 'canceled' ? (
+        <div className="rounded-lg bg-gray-50 border border-gray-200 p-4 mb-6">
+          <p className="text-gray-800 font-medium">
+            Your subscription has been canceled. Choose a plan below to resubscribe.
+          </p>
+        </div>
       ) : null}
 
       {subscriptionStatus ? (
@@ -331,12 +344,6 @@ export default async function BillingPage({
                     </button>
                   </form>
                 ) : null}
-
-                <form action={createPortalSession}>
-                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto">
-                    Manage Subscription
-                  </button>
-                </form>
               </div>
             </div>
 
@@ -406,8 +413,7 @@ export default async function BillingPage({
         </Card>
       ) : null}
 
-      {hasSubscription && isActiveSubscription ? null : (
-        <Card title="Choose a plan" subtitle="Monthly pricing for SkybridgeCX AI front desk operations.">
+      <Card title="Choose a plan" subtitle="Monthly pricing for SkybridgeCX AI front desk operations.">
           <div className="grid gap-4 lg:grid-cols-3">
             {plans.map((plan) => {
               const isPro = plan.key === 'pro';
@@ -418,11 +424,19 @@ export default async function BillingPage({
               return (
                 <article
                   key={plan.key}
-                  className={`relative flex h-full flex-col rounded-lg border p-4 ${isPro ? 'border-indigo-600 shadow-sm' : 'border-gray-200'}`}
+                  className={`relative flex h-full flex-col rounded-lg border p-4 ${
+                    isPro ? 'border-indigo-600 shadow-sm' : 'border-gray-200'
+                  } ${isCurrent ? 'ring-2 ring-blue-500' : ''}`}
                 >
                   {isPro ? (
                     <span className="absolute right-3 top-3 rounded-full bg-indigo-600 px-2.5 py-1 text-xs font-semibold text-white">
                       Most Popular
+                    </span>
+                  ) : null}
+
+                  {isCurrent ? (
+                    <span className="mb-2 inline-block w-fit rounded-full bg-blue-100 px-2 py-0.5 text-xs font-semibold text-blue-800">
+                      Current Plan
                     </span>
                   ) : null}
 
@@ -444,14 +458,23 @@ export default async function BillingPage({
                   </ul>
 
                   <div className="mt-5 flex flex-1 flex-col justify-end gap-2">
-                    <form action={createCheckoutSession.bind(null, plan.key)}>
+                    {isCurrent ? (
                       <button
-                        disabled={isCurrent || !canCheckout}
-                        className="min-h-11 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-300"
+                        disabled
+                        className="w-full rounded-lg bg-gray-300 py-2 text-sm text-gray-500 cursor-not-allowed"
                       >
-                        {isCurrent ? 'Current Plan' : 'Choose Plan'}
+                        Current Plan
                       </button>
-                    </form>
+                    ) : (
+                      <form action={createCheckoutSession.bind(null, plan.key)}>
+                        <button
+                          disabled={!canCheckout}
+                          className="min-h-11 w-full rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-gray-300 disabled:text-gray-500"
+                        >
+                          Choose Plan
+                        </button>
+                      </form>
+                    )}
 
                     {isEnterprise ? (
                       <a
@@ -466,8 +489,7 @@ export default async function BillingPage({
               );
             })}
           </div>
-        </Card>
-      )}
+      </Card>
     </div>
   );
 }
