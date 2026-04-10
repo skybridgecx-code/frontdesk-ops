@@ -20,7 +20,7 @@ function nextWithPathHeader(request: NextRequest) {
   });
 }
 
-const clerkProxy = clerkMiddleware(async (auth, request) => {
+const clerkMiddlewareHandler = clerkMiddleware(async (auth, request) => {
   if (!isPublicRoute(request)) {
     await auth.protect();
   }
@@ -55,9 +55,9 @@ function shouldProtectWithBasicAuth(pathname: string) {
   );
 }
 
-export async function proxy(request: NextRequest, event: import('next/server').NextFetchEvent) {
+export async function middleware(request: NextRequest, event: import('next/server').NextFetchEvent) {
   if (process.env.CLERK_SECRET_KEY) {
-    return clerkProxy(request, event);
+    return clerkMiddlewareHandler(request, event);
   }
 
   const pathname = new URL(request.url).pathname;
@@ -101,5 +101,5 @@ export async function proxy(request: NextRequest, event: import('next/server').N
 }
 
 export const config = {
-  matcher: ['/((?!_next|.*\.\..*).*)', '/(api|trpc)(.*)']
+  matcher: ['/((?!_next|.*\\..*).*)', '/(api|trpc)(.*)']
 };

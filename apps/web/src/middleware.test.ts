@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { afterEach, test } from 'node:test';
 import type { NextRequest } from 'next/server';
 
-import { config, proxy } from './proxy';
+import { config, middleware } from './middleware';
 
 const ORIGINAL_ENV = {
   FRONTDESK_REQUIRE_BASIC_AUTH: process.env.FRONTDESK_REQUIRE_BASIC_AUTH,
@@ -37,50 +37,50 @@ function setAuthEnv() {
   delete process.env.CLERK_SECRET_KEY;
 }
 
-test('proxy matcher covers all app routes for Clerk mode', () => {
+test('middleware matcher covers all app routes for Clerk mode', () => {
   assert.deepEqual(config.matcher, ['/((?!_next|.*\..*).*)', '/(api|trpc)(.*)']);
 });
 
-test('proxy allows access when basic auth is disabled', async () => {
+test('middleware allows access when basic auth is disabled', async () => {
   process.env.FRONTDESK_REQUIRE_BASIC_AUTH = 'false';
-  const response = await proxy(makeRequest('/prospects'));
+  const response = await middleware(makeRequest('/prospects'));
 
   assert.equal(response.headers.get('x-middleware-next'), '1');
 });
 
-test('proxy does not require basic auth on unprotected routes in fallback mode', async () => {
+test('middleware does not require basic auth on unprotected routes in fallback mode', async () => {
   setAuthEnv();
 
-  const response = await proxy(makeRequest('/'));
+  const response = await middleware(makeRequest('/'));
 
   assert.equal(response.headers.get('x-middleware-next'), '1');
 });
 
-test('proxy blocks unauthenticated operator requests when basic auth is enabled', async () => {
+test('middleware blocks unauthenticated operator requests when basic auth is enabled', async () => {
   setAuthEnv();
 
-  const response = await proxy(makeRequest('/prospects'));
+  const response = await middleware(makeRequest('/prospects'));
 
   assert.equal(response.status, 401);
   assert.equal(response.headers.get('www-authenticate'), 'Basic realm="SkybridgeCX"');
 });
 
-test('proxy allows authenticated operator requests when credentials match', async () => {
+test('middleware allows authenticated operator requests when credentials match', async () => {
   setAuthEnv();
 
   const auth = Buffer.from('operator:s3cret').toString('base64');
-  const response = await proxy(makeRequest('/calls', `Basic ${auth}`));
+  const response = await middleware(makeRequest('/calls', `Basic ${auth}`));
 
   assert.equal(response.headers.get('x-middleware-next'), '1');
 });
 
-test('proxy returns a server error when auth is required but credentials are missing', async () => {
+test('middleware returns a server error when auth is required but credentials are missing', async () => {
   process.env.FRONTDESK_REQUIRE_BASIC_AUTH = 'true';
   delete process.env.FRONTDESK_BASIC_AUTH_USER;
   delete process.env.FRONTDESK_BASIC_AUTH_PASS;
   delete process.env.CLERK_SECRET_KEY;
 
-  const response = await proxy(makeRequest('/calls'));
+  const response = await middleware(makeRequest('/calls'));
 
   assert.equal(response.status, 500);
 });
