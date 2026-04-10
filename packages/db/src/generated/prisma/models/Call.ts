@@ -27,11 +27,13 @@ export type AggregateCall = {
 }
 
 export type CallAvgAggregateOutputType = {
+  voicemailDuration: number | null
   durationSeconds: number | null
   recordingDuration: number | null
 }
 
 export type CallSumAggregateOutputType = {
+  voicemailDuration: number | null
   durationSeconds: number | null
   recordingDuration: number | null
 }
@@ -42,13 +44,21 @@ export type CallMinAggregateOutputType = {
   businessId: string | null
   phoneNumberId: string | null
   agentProfileId: string | null
+  callSid: string | null
   twilioCallSid: string | null
   twilioStreamSid: string | null
   direction: $Enums.CallDirection | null
   status: $Enums.CallStatus | null
+  callStatus: string | null
+  twimlFlowStep: string | null
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerName: string | null
+  callerPhone: string | null
+  callReason: string | null
+  voicemailUrl: string | null
+  voicemailDuration: number | null
   callerTranscript: string | null
   assistantTranscript: string | null
   leadName: string | null
@@ -65,6 +75,7 @@ export type CallMinAggregateOutputType = {
   reviewedAt: Date | null
   startedAt: Date | null
   answeredAt: Date | null
+  completedAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
   recordingUrl: string | null
@@ -83,13 +94,21 @@ export type CallMaxAggregateOutputType = {
   businessId: string | null
   phoneNumberId: string | null
   agentProfileId: string | null
+  callSid: string | null
   twilioCallSid: string | null
   twilioStreamSid: string | null
   direction: $Enums.CallDirection | null
   status: $Enums.CallStatus | null
+  callStatus: string | null
+  twimlFlowStep: string | null
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerName: string | null
+  callerPhone: string | null
+  callReason: string | null
+  voicemailUrl: string | null
+  voicemailDuration: number | null
   callerTranscript: string | null
   assistantTranscript: string | null
   leadName: string | null
@@ -106,6 +125,7 @@ export type CallMaxAggregateOutputType = {
   reviewedAt: Date | null
   startedAt: Date | null
   answeredAt: Date | null
+  completedAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
   recordingUrl: string | null
@@ -124,13 +144,21 @@ export type CallCountAggregateOutputType = {
   businessId: number
   phoneNumberId: number
   agentProfileId: number
+  callSid: number
   twilioCallSid: number
   twilioStreamSid: number
   direction: number
   status: number
+  callStatus: number
+  twimlFlowStep: number
   routeKind: number
   fromE164: number
   toE164: number
+  callerName: number
+  callerPhone: number
+  callReason: number
+  voicemailUrl: number
+  voicemailDuration: number
   callerTranscript: number
   assistantTranscript: number
   leadName: number
@@ -147,6 +175,7 @@ export type CallCountAggregateOutputType = {
   reviewedAt: number
   startedAt: number
   answeredAt: number
+  completedAt: number
   endedAt: number
   durationSeconds: number
   recordingUrl: number
@@ -162,11 +191,13 @@ export type CallCountAggregateOutputType = {
 
 
 export type CallAvgAggregateInputType = {
+  voicemailDuration?: true
   durationSeconds?: true
   recordingDuration?: true
 }
 
 export type CallSumAggregateInputType = {
+  voicemailDuration?: true
   durationSeconds?: true
   recordingDuration?: true
 }
@@ -177,13 +208,21 @@ export type CallMinAggregateInputType = {
   businessId?: true
   phoneNumberId?: true
   agentProfileId?: true
+  callSid?: true
   twilioCallSid?: true
   twilioStreamSid?: true
   direction?: true
   status?: true
+  callStatus?: true
+  twimlFlowStep?: true
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerName?: true
+  callerPhone?: true
+  callReason?: true
+  voicemailUrl?: true
+  voicemailDuration?: true
   callerTranscript?: true
   assistantTranscript?: true
   leadName?: true
@@ -200,6 +239,7 @@ export type CallMinAggregateInputType = {
   reviewedAt?: true
   startedAt?: true
   answeredAt?: true
+  completedAt?: true
   endedAt?: true
   durationSeconds?: true
   recordingUrl?: true
@@ -218,13 +258,21 @@ export type CallMaxAggregateInputType = {
   businessId?: true
   phoneNumberId?: true
   agentProfileId?: true
+  callSid?: true
   twilioCallSid?: true
   twilioStreamSid?: true
   direction?: true
   status?: true
+  callStatus?: true
+  twimlFlowStep?: true
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerName?: true
+  callerPhone?: true
+  callReason?: true
+  voicemailUrl?: true
+  voicemailDuration?: true
   callerTranscript?: true
   assistantTranscript?: true
   leadName?: true
@@ -241,6 +289,7 @@ export type CallMaxAggregateInputType = {
   reviewedAt?: true
   startedAt?: true
   answeredAt?: true
+  completedAt?: true
   endedAt?: true
   durationSeconds?: true
   recordingUrl?: true
@@ -259,13 +308,21 @@ export type CallCountAggregateInputType = {
   businessId?: true
   phoneNumberId?: true
   agentProfileId?: true
+  callSid?: true
   twilioCallSid?: true
   twilioStreamSid?: true
   direction?: true
   status?: true
+  callStatus?: true
+  twimlFlowStep?: true
   routeKind?: true
   fromE164?: true
   toE164?: true
+  callerName?: true
+  callerPhone?: true
+  callReason?: true
+  voicemailUrl?: true
+  voicemailDuration?: true
   callerTranscript?: true
   assistantTranscript?: true
   leadName?: true
@@ -282,6 +339,7 @@ export type CallCountAggregateInputType = {
   reviewedAt?: true
   startedAt?: true
   answeredAt?: true
+  completedAt?: true
   endedAt?: true
   durationSeconds?: true
   recordingUrl?: true
@@ -387,13 +445,21 @@ export type CallGroupByOutputType = {
   businessId: string
   phoneNumberId: string
   agentProfileId: string | null
+  callSid: string | null
   twilioCallSid: string
   twilioStreamSid: string | null
   direction: $Enums.CallDirection
   status: $Enums.CallStatus
+  callStatus: string
+  twimlFlowStep: string | null
   routeKind: $Enums.CallRouteKind | null
   fromE164: string | null
   toE164: string | null
+  callerName: string | null
+  callerPhone: string | null
+  callReason: string | null
+  voicemailUrl: string | null
+  voicemailDuration: number | null
   callerTranscript: string | null
   assistantTranscript: string | null
   leadName: string | null
@@ -410,6 +476,7 @@ export type CallGroupByOutputType = {
   reviewedAt: Date | null
   startedAt: Date
   answeredAt: Date | null
+  completedAt: Date | null
   endedAt: Date | null
   durationSeconds: number | null
   recordingUrl: string | null
@@ -451,13 +518,21 @@ export type CallWhereInput = {
   businessId?: Prisma.StringFilter<"Call"> | string
   phoneNumberId?: Prisma.StringFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableFilter<"Call"> | string | null
+  callSid?: Prisma.StringNullableFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringFilter<"Call"> | string
   twilioStreamSid?: Prisma.StringNullableFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFilter<"Call"> | $Enums.CallStatus
+  callStatus?: Prisma.StringFilter<"Call"> | string
+  twimlFlowStep?: Prisma.StringNullableFilter<"Call"> | string | null
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerName?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  callReason?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailDuration?: Prisma.IntNullableFilter<"Call"> | number | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   leadName?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -474,6 +549,7 @@ export type CallWhereInput = {
   reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
   recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -497,13 +573,21 @@ export type CallOrderByWithRelationInput = {
   businessId?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  callSid?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
   twilioStreamSid?: Prisma.SortOrderInput | Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  callStatus?: Prisma.SortOrder
+  twimlFlowStep?: Prisma.SortOrderInput | Prisma.SortOrder
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
   fromE164?: Prisma.SortOrderInput | Prisma.SortOrder
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  callReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  voicemailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  voicemailDuration?: Prisma.SortOrderInput | Prisma.SortOrder
   callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   leadName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -520,6 +604,7 @@ export type CallOrderByWithRelationInput = {
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -539,6 +624,7 @@ export type CallOrderByWithRelationInput = {
 
 export type CallWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  callSid?: string
   twilioCallSid?: string
   twilioStreamSid?: string
   AND?: Prisma.CallWhereInput | Prisma.CallWhereInput[]
@@ -550,9 +636,16 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   agentProfileId?: Prisma.StringNullableFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFilter<"Call"> | $Enums.CallStatus
+  callStatus?: Prisma.StringFilter<"Call"> | string
+  twimlFlowStep?: Prisma.StringNullableFilter<"Call"> | string | null
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerName?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  callReason?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailDuration?: Prisma.IntNullableFilter<"Call"> | number | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   leadName?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -569,6 +662,7 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
   recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -584,7 +678,7 @@ export type CallWhereUniqueInput = Prisma.AtLeast<{
   phoneNumber?: Prisma.XOR<Prisma.PhoneNumberScalarRelationFilter, Prisma.PhoneNumberWhereInput>
   agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
   events?: Prisma.CallEventListRelationFilter
-}, "id" | "twilioCallSid" | "twilioStreamSid">
+}, "id" | "callSid" | "twilioCallSid" | "twilioStreamSid">
 
 export type CallOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -592,13 +686,21 @@ export type CallOrderByWithAggregationInput = {
   businessId?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
+  callSid?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
   twilioStreamSid?: Prisma.SortOrderInput | Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  callStatus?: Prisma.SortOrder
+  twimlFlowStep?: Prisma.SortOrderInput | Prisma.SortOrder
   routeKind?: Prisma.SortOrderInput | Prisma.SortOrder
   fromE164?: Prisma.SortOrderInput | Prisma.SortOrder
   toE164?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  callerPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  callReason?: Prisma.SortOrderInput | Prisma.SortOrder
+  voicemailUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  voicemailDuration?: Prisma.SortOrderInput | Prisma.SortOrder
   callerTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrderInput | Prisma.SortOrder
   leadName?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -615,6 +717,7 @@ export type CallOrderByWithAggregationInput = {
   reviewedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  completedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   endedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   durationSeconds?: Prisma.SortOrderInput | Prisma.SortOrder
   recordingUrl?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -641,13 +744,21 @@ export type CallScalarWhereWithAggregatesInput = {
   businessId?: Prisma.StringWithAggregatesFilter<"Call"> | string
   phoneNumberId?: Prisma.StringWithAggregatesFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  callSid?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringWithAggregatesFilter<"Call"> | string
   twilioStreamSid?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionWithAggregatesFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusWithAggregatesFilter<"Call"> | $Enums.CallStatus
+  callStatus?: Prisma.StringWithAggregatesFilter<"Call"> | string
+  twimlFlowStep?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   routeKind?: Prisma.EnumCallRouteKindNullableWithAggregatesFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  callerName?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  callerPhone?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  callReason?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  voicemailUrl?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
+  voicemailDuration?: Prisma.IntNullableWithAggregatesFilter<"Call"> | number | null
   callerTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
   leadName?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
@@ -664,6 +775,7 @@ export type CallScalarWhereWithAggregatesInput = {
   reviewedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeWithAggregatesFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableWithAggregatesFilter<"Call"> | number | null
   recordingUrl?: Prisma.StringNullableWithAggregatesFilter<"Call"> | string | null
@@ -678,13 +790,21 @@ export type CallScalarWhereWithAggregatesInput = {
 
 export type CallCreateInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -701,6 +821,7 @@ export type CallCreateInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -724,13 +845,21 @@ export type CallUncheckedCreateInput = {
   businessId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -747,6 +876,7 @@ export type CallUncheckedCreateInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -762,13 +892,21 @@ export type CallUncheckedCreateInput = {
 
 export type CallUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -785,6 +923,7 @@ export type CallUpdateInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -808,13 +947,21 @@ export type CallUncheckedUpdateInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -831,6 +978,7 @@ export type CallUncheckedUpdateInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -850,13 +998,21 @@ export type CallCreateManyInput = {
   businessId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -873,6 +1029,7 @@ export type CallCreateManyInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -887,13 +1044,21 @@ export type CallCreateManyInput = {
 
 export type CallUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -910,6 +1075,7 @@ export type CallUpdateManyMutationInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -928,13 +1094,21 @@ export type CallUncheckedUpdateManyInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -951,6 +1125,7 @@ export type CallUncheckedUpdateManyInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -979,13 +1154,21 @@ export type CallCountOrderByAggregateInput = {
   businessId?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
+  callSid?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
   twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  callStatus?: Prisma.SortOrder
+  twimlFlowStep?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerName?: Prisma.SortOrder
+  callerPhone?: Prisma.SortOrder
+  callReason?: Prisma.SortOrder
+  voicemailUrl?: Prisma.SortOrder
+  voicemailDuration?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
   leadName?: Prisma.SortOrder
@@ -1002,6 +1185,7 @@ export type CallCountOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
   recordingUrl?: Prisma.SortOrder
@@ -1015,6 +1199,7 @@ export type CallCountOrderByAggregateInput = {
 }
 
 export type CallAvgOrderByAggregateInput = {
+  voicemailDuration?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
   recordingDuration?: Prisma.SortOrder
 }
@@ -1025,13 +1210,21 @@ export type CallMaxOrderByAggregateInput = {
   businessId?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
+  callSid?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
   twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  callStatus?: Prisma.SortOrder
+  twimlFlowStep?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerName?: Prisma.SortOrder
+  callerPhone?: Prisma.SortOrder
+  callReason?: Prisma.SortOrder
+  voicemailUrl?: Prisma.SortOrder
+  voicemailDuration?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
   leadName?: Prisma.SortOrder
@@ -1048,6 +1241,7 @@ export type CallMaxOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
   recordingUrl?: Prisma.SortOrder
@@ -1066,13 +1260,21 @@ export type CallMinOrderByAggregateInput = {
   businessId?: Prisma.SortOrder
   phoneNumberId?: Prisma.SortOrder
   agentProfileId?: Prisma.SortOrder
+  callSid?: Prisma.SortOrder
   twilioCallSid?: Prisma.SortOrder
   twilioStreamSid?: Prisma.SortOrder
   direction?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  callStatus?: Prisma.SortOrder
+  twimlFlowStep?: Prisma.SortOrder
   routeKind?: Prisma.SortOrder
   fromE164?: Prisma.SortOrder
   toE164?: Prisma.SortOrder
+  callerName?: Prisma.SortOrder
+  callerPhone?: Prisma.SortOrder
+  callReason?: Prisma.SortOrder
+  voicemailUrl?: Prisma.SortOrder
+  voicemailDuration?: Prisma.SortOrder
   callerTranscript?: Prisma.SortOrder
   assistantTranscript?: Prisma.SortOrder
   leadName?: Prisma.SortOrder
@@ -1089,6 +1291,7 @@ export type CallMinOrderByAggregateInput = {
   reviewedAt?: Prisma.SortOrder
   startedAt?: Prisma.SortOrder
   answeredAt?: Prisma.SortOrder
+  completedAt?: Prisma.SortOrder
   endedAt?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
   recordingUrl?: Prisma.SortOrder
@@ -1102,6 +1305,7 @@ export type CallMinOrderByAggregateInput = {
 }
 
 export type CallSumOrderByAggregateInput = {
+  voicemailDuration?: Prisma.SortOrder
   durationSeconds?: Prisma.SortOrder
   recordingDuration?: Prisma.SortOrder
 }
@@ -1315,13 +1519,21 @@ export type CallUpdateOneRequiredWithoutEventsNestedInput = {
 
 export type CallCreateWithoutTenantInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1338,6 +1550,7 @@ export type CallCreateWithoutTenantInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1359,13 +1572,21 @@ export type CallUncheckedCreateWithoutTenantInput = {
   businessId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1382,6 +1603,7 @@ export type CallUncheckedCreateWithoutTenantInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1430,13 +1652,21 @@ export type CallScalarWhereInput = {
   businessId?: Prisma.StringFilter<"Call"> | string
   phoneNumberId?: Prisma.StringFilter<"Call"> | string
   agentProfileId?: Prisma.StringNullableFilter<"Call"> | string | null
+  callSid?: Prisma.StringNullableFilter<"Call"> | string | null
   twilioCallSid?: Prisma.StringFilter<"Call"> | string
   twilioStreamSid?: Prisma.StringNullableFilter<"Call"> | string | null
   direction?: Prisma.EnumCallDirectionFilter<"Call"> | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFilter<"Call"> | $Enums.CallStatus
+  callStatus?: Prisma.StringFilter<"Call"> | string
+  twimlFlowStep?: Prisma.StringNullableFilter<"Call"> | string | null
   routeKind?: Prisma.EnumCallRouteKindNullableFilter<"Call"> | $Enums.CallRouteKind | null
   fromE164?: Prisma.StringNullableFilter<"Call"> | string | null
   toE164?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerName?: Prisma.StringNullableFilter<"Call"> | string | null
+  callerPhone?: Prisma.StringNullableFilter<"Call"> | string | null
+  callReason?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailUrl?: Prisma.StringNullableFilter<"Call"> | string | null
+  voicemailDuration?: Prisma.IntNullableFilter<"Call"> | number | null
   callerTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   assistantTranscript?: Prisma.StringNullableFilter<"Call"> | string | null
   leadName?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -1453,6 +1683,7 @@ export type CallScalarWhereInput = {
   reviewedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   startedAt?: Prisma.DateTimeFilter<"Call"> | Date | string
   answeredAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
+  completedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   endedAt?: Prisma.DateTimeNullableFilter<"Call"> | Date | string | null
   durationSeconds?: Prisma.IntNullableFilter<"Call"> | number | null
   recordingUrl?: Prisma.StringNullableFilter<"Call"> | string | null
@@ -1467,13 +1698,21 @@ export type CallScalarWhereInput = {
 
 export type CallCreateWithoutBusinessInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1490,6 +1729,7 @@ export type CallCreateWithoutBusinessInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1511,13 +1751,21 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   tenantId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1534,6 +1782,7 @@ export type CallUncheckedCreateWithoutBusinessInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1575,13 +1824,21 @@ export type CallUpdateManyWithWhereWithoutBusinessInput = {
 
 export type CallCreateWithoutPhoneNumberInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1598,6 +1855,7 @@ export type CallCreateWithoutPhoneNumberInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1619,13 +1877,21 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   tenantId: string
   businessId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1642,6 +1908,7 @@ export type CallUncheckedCreateWithoutPhoneNumberInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1683,13 +1950,21 @@ export type CallUpdateManyWithWhereWithoutPhoneNumberInput = {
 
 export type CallCreateWithoutAgentProfileInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1706,6 +1981,7 @@ export type CallCreateWithoutAgentProfileInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1727,13 +2003,21 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   tenantId: string
   businessId: string
   phoneNumberId: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1750,6 +2034,7 @@ export type CallUncheckedCreateWithoutAgentProfileInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1791,13 +2076,21 @@ export type CallUpdateManyWithWhereWithoutAgentProfileInput = {
 
 export type CallCreateWithoutEventsInput = {
   id?: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1814,6 +2107,7 @@ export type CallCreateWithoutEventsInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1836,13 +2130,21 @@ export type CallUncheckedCreateWithoutEventsInput = {
   businessId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1859,6 +2161,7 @@ export type CallUncheckedCreateWithoutEventsInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -1889,13 +2192,21 @@ export type CallUpdateToOneWithWhereWithoutEventsInput = {
 
 export type CallUpdateWithoutEventsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1912,6 +2223,7 @@ export type CallUpdateWithoutEventsInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1934,13 +2246,21 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1957,6 +2277,7 @@ export type CallUncheckedUpdateWithoutEventsInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1974,13 +2295,21 @@ export type CallCreateManyTenantInput = {
   businessId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -1997,6 +2326,7 @@ export type CallCreateManyTenantInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -2011,13 +2341,21 @@ export type CallCreateManyTenantInput = {
 
 export type CallUpdateWithoutTenantInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2034,6 +2372,7 @@ export type CallUpdateWithoutTenantInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2055,13 +2394,21 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2078,6 +2425,7 @@ export type CallUncheckedUpdateWithoutTenantInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2096,13 +2444,21 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2119,6 +2475,7 @@ export type CallUncheckedUpdateManyWithoutTenantInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2136,13 +2493,21 @@ export type CallCreateManyBusinessInput = {
   tenantId: string
   phoneNumberId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -2159,6 +2524,7 @@ export type CallCreateManyBusinessInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -2173,13 +2539,21 @@ export type CallCreateManyBusinessInput = {
 
 export type CallUpdateWithoutBusinessInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2196,6 +2570,7 @@ export type CallUpdateWithoutBusinessInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2217,13 +2592,21 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2240,6 +2623,7 @@ export type CallUncheckedUpdateWithoutBusinessInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2258,13 +2642,21 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2281,6 +2673,7 @@ export type CallUncheckedUpdateManyWithoutBusinessInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2298,13 +2691,21 @@ export type CallCreateManyPhoneNumberInput = {
   tenantId: string
   businessId: string
   agentProfileId?: string | null
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -2321,6 +2722,7 @@ export type CallCreateManyPhoneNumberInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -2335,13 +2737,21 @@ export type CallCreateManyPhoneNumberInput = {
 
 export type CallUpdateWithoutPhoneNumberInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2358,6 +2768,7 @@ export type CallUpdateWithoutPhoneNumberInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2379,13 +2790,21 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2402,6 +2821,7 @@ export type CallUncheckedUpdateWithoutPhoneNumberInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2420,13 +2840,21 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   agentProfileId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2443,6 +2871,7 @@ export type CallUncheckedUpdateManyWithoutPhoneNumberInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2460,13 +2889,21 @@ export type CallCreateManyAgentProfileInput = {
   tenantId: string
   businessId: string
   phoneNumberId: string
+  callSid?: string | null
   twilioCallSid: string
   twilioStreamSid?: string | null
   direction?: $Enums.CallDirection
   status?: $Enums.CallStatus
+  callStatus?: string
+  twimlFlowStep?: string | null
   routeKind?: $Enums.CallRouteKind | null
   fromE164?: string | null
   toE164?: string | null
+  callerName?: string | null
+  callerPhone?: string | null
+  callReason?: string | null
+  voicemailUrl?: string | null
+  voicemailDuration?: number | null
   callerTranscript?: string | null
   assistantTranscript?: string | null
   leadName?: string | null
@@ -2483,6 +2920,7 @@ export type CallCreateManyAgentProfileInput = {
   reviewedAt?: Date | string | null
   startedAt?: Date | string
   answeredAt?: Date | string | null
+  completedAt?: Date | string | null
   endedAt?: Date | string | null
   durationSeconds?: number | null
   recordingUrl?: string | null
@@ -2497,13 +2935,21 @@ export type CallCreateManyAgentProfileInput = {
 
 export type CallUpdateWithoutAgentProfileInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2520,6 +2966,7 @@ export type CallUpdateWithoutAgentProfileInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2541,13 +2988,21 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2564,6 +3019,7 @@ export type CallUncheckedUpdateWithoutAgentProfileInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2582,13 +3038,21 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   tenantId?: Prisma.StringFieldUpdateOperationsInput | string
   businessId?: Prisma.StringFieldUpdateOperationsInput | string
   phoneNumberId?: Prisma.StringFieldUpdateOperationsInput | string
+  callSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioCallSid?: Prisma.StringFieldUpdateOperationsInput | string
   twilioStreamSid?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   direction?: Prisma.EnumCallDirectionFieldUpdateOperationsInput | $Enums.CallDirection
   status?: Prisma.EnumCallStatusFieldUpdateOperationsInput | $Enums.CallStatus
+  callStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  twimlFlowStep?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   routeKind?: Prisma.NullableEnumCallRouteKindFieldUpdateOperationsInput | $Enums.CallRouteKind | null
   fromE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   toE164?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callerPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  callReason?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voicemailDuration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   callerTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assistantTranscript?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2605,6 +3069,7 @@ export type CallUncheckedUpdateManyWithoutAgentProfileInput = {
   reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   startedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   answeredAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  completedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   endedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   durationSeconds?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   recordingUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2654,13 +3119,21 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   businessId?: boolean
   phoneNumberId?: boolean
   agentProfileId?: boolean
+  callSid?: boolean
   twilioCallSid?: boolean
   twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
+  callStatus?: boolean
+  twimlFlowStep?: boolean
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerName?: boolean
+  callerPhone?: boolean
+  callReason?: boolean
+  voicemailUrl?: boolean
+  voicemailDuration?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
   leadName?: boolean
@@ -2677,6 +3150,7 @@ export type CallSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
+  completedAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
   recordingUrl?: boolean
@@ -2701,13 +3175,21 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   businessId?: boolean
   phoneNumberId?: boolean
   agentProfileId?: boolean
+  callSid?: boolean
   twilioCallSid?: boolean
   twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
+  callStatus?: boolean
+  twimlFlowStep?: boolean
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerName?: boolean
+  callerPhone?: boolean
+  callReason?: boolean
+  voicemailUrl?: boolean
+  voicemailDuration?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
   leadName?: boolean
@@ -2724,6 +3206,7 @@ export type CallSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
+  completedAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
   recordingUrl?: boolean
@@ -2746,13 +3229,21 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   businessId?: boolean
   phoneNumberId?: boolean
   agentProfileId?: boolean
+  callSid?: boolean
   twilioCallSid?: boolean
   twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
+  callStatus?: boolean
+  twimlFlowStep?: boolean
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerName?: boolean
+  callerPhone?: boolean
+  callReason?: boolean
+  voicemailUrl?: boolean
+  voicemailDuration?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
   leadName?: boolean
@@ -2769,6 +3260,7 @@ export type CallSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensio
   reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
+  completedAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
   recordingUrl?: boolean
@@ -2791,13 +3283,21 @@ export type CallSelectScalar = {
   businessId?: boolean
   phoneNumberId?: boolean
   agentProfileId?: boolean
+  callSid?: boolean
   twilioCallSid?: boolean
   twilioStreamSid?: boolean
   direction?: boolean
   status?: boolean
+  callStatus?: boolean
+  twimlFlowStep?: boolean
   routeKind?: boolean
   fromE164?: boolean
   toE164?: boolean
+  callerName?: boolean
+  callerPhone?: boolean
+  callReason?: boolean
+  voicemailUrl?: boolean
+  voicemailDuration?: boolean
   callerTranscript?: boolean
   assistantTranscript?: boolean
   leadName?: boolean
@@ -2814,6 +3314,7 @@ export type CallSelectScalar = {
   reviewedAt?: boolean
   startedAt?: boolean
   answeredAt?: boolean
+  completedAt?: boolean
   endedAt?: boolean
   durationSeconds?: boolean
   recordingUrl?: boolean
@@ -2826,7 +3327,7 @@ export type CallSelectScalar = {
   updatedAt?: boolean
 }
 
-export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "routeKind" | "fromE164" | "toE164" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "operatorNotes" | "triageStatus" | "reviewStatus" | "contactedAt" | "archivedAt" | "reviewedAt" | "startedAt" | "answeredAt" | "endedAt" | "durationSeconds" | "recordingUrl" | "recordingSid" | "recordingDuration" | "recordingStatus" | "textBackSent" | "textBackSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
+export type CallOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tenantId" | "businessId" | "phoneNumberId" | "agentProfileId" | "callSid" | "twilioCallSid" | "twilioStreamSid" | "direction" | "status" | "callStatus" | "twimlFlowStep" | "routeKind" | "fromE164" | "toE164" | "callerName" | "callerPhone" | "callReason" | "voicemailUrl" | "voicemailDuration" | "callerTranscript" | "assistantTranscript" | "leadName" | "leadPhone" | "leadIntent" | "urgency" | "serviceAddress" | "summary" | "operatorNotes" | "triageStatus" | "reviewStatus" | "contactedAt" | "archivedAt" | "reviewedAt" | "startedAt" | "answeredAt" | "completedAt" | "endedAt" | "durationSeconds" | "recordingUrl" | "recordingSid" | "recordingDuration" | "recordingStatus" | "textBackSent" | "textBackSentAt" | "createdAt" | "updatedAt", ExtArgs["result"]["call"]>
 export type CallInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   tenant?: boolean | Prisma.TenantDefaultArgs<ExtArgs>
   business?: boolean | Prisma.BusinessDefaultArgs<ExtArgs>
@@ -2863,13 +3364,21 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     businessId: string
     phoneNumberId: string
     agentProfileId: string | null
+    callSid: string | null
     twilioCallSid: string
     twilioStreamSid: string | null
     direction: $Enums.CallDirection
     status: $Enums.CallStatus
+    callStatus: string
+    twimlFlowStep: string | null
     routeKind: $Enums.CallRouteKind | null
     fromE164: string | null
     toE164: string | null
+    callerName: string | null
+    callerPhone: string | null
+    callReason: string | null
+    voicemailUrl: string | null
+    voicemailDuration: number | null
     callerTranscript: string | null
     assistantTranscript: string | null
     leadName: string | null
@@ -2886,6 +3395,7 @@ export type $CallPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     reviewedAt: Date | null
     startedAt: Date
     answeredAt: Date | null
+    completedAt: Date | null
     endedAt: Date | null
     durationSeconds: number | null
     recordingUrl: string | null
@@ -3329,13 +3839,21 @@ export interface CallFieldRefs {
   readonly businessId: Prisma.FieldRef<"Call", 'String'>
   readonly phoneNumberId: Prisma.FieldRef<"Call", 'String'>
   readonly agentProfileId: Prisma.FieldRef<"Call", 'String'>
+  readonly callSid: Prisma.FieldRef<"Call", 'String'>
   readonly twilioCallSid: Prisma.FieldRef<"Call", 'String'>
   readonly twilioStreamSid: Prisma.FieldRef<"Call", 'String'>
   readonly direction: Prisma.FieldRef<"Call", 'CallDirection'>
   readonly status: Prisma.FieldRef<"Call", 'CallStatus'>
+  readonly callStatus: Prisma.FieldRef<"Call", 'String'>
+  readonly twimlFlowStep: Prisma.FieldRef<"Call", 'String'>
   readonly routeKind: Prisma.FieldRef<"Call", 'CallRouteKind'>
   readonly fromE164: Prisma.FieldRef<"Call", 'String'>
   readonly toE164: Prisma.FieldRef<"Call", 'String'>
+  readonly callerName: Prisma.FieldRef<"Call", 'String'>
+  readonly callerPhone: Prisma.FieldRef<"Call", 'String'>
+  readonly callReason: Prisma.FieldRef<"Call", 'String'>
+  readonly voicemailUrl: Prisma.FieldRef<"Call", 'String'>
+  readonly voicemailDuration: Prisma.FieldRef<"Call", 'Int'>
   readonly callerTranscript: Prisma.FieldRef<"Call", 'String'>
   readonly assistantTranscript: Prisma.FieldRef<"Call", 'String'>
   readonly leadName: Prisma.FieldRef<"Call", 'String'>
@@ -3352,6 +3870,7 @@ export interface CallFieldRefs {
   readonly reviewedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly startedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly answeredAt: Prisma.FieldRef<"Call", 'DateTime'>
+  readonly completedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly endedAt: Prisma.FieldRef<"Call", 'DateTime'>
   readonly durationSeconds: Prisma.FieldRef<"Call", 'Int'>
   readonly recordingUrl: Prisma.FieldRef<"Call", 'String'>

@@ -125,6 +125,9 @@ enum ProspectAttemptOutcome {
 model Tenant {
   id            String         @id @default(cuid())
   name          String
+  businessName  String?
+  greeting      String?
+  twilioPhoneNumber String?    @unique
   email         String?
   clerkUserId   String?        @unique
   slug          String         @unique
@@ -399,13 +402,21 @@ model Call {
   businessId        String
   phoneNumberId     String
   agentProfileId    String?
+  callSid           String?        @unique
   twilioCallSid     String         @unique
   twilioStreamSid   String?        @unique
   direction         CallDirection  @default(INBOUND)
   status            CallStatus     @default(RINGING)
+  callStatus        String         @default("pending")
+  twimlFlowStep     String?
   routeKind         CallRouteKind?
   fromE164          String?
   toE164            String?
+  callerName        String?
+  callerPhone       String?
+  callReason        String?
+  voicemailUrl      String?
+  voicemailDuration Int?
   callerTranscript    String?
   assistantTranscript String?
   leadName           String?
@@ -422,6 +433,7 @@ model Call {
   reviewedAt         DateTime?
   startedAt          DateTime       @default(now())
   answeredAt        DateTime?
+  completedAt       DateTime?
   endedAt           DateTime?
   durationSeconds   Int?
   recordingUrl      String?
