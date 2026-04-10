@@ -125,8 +125,14 @@ enum ProspectAttemptOutcome {
 model Tenant {
   id            String         @id @default(cuid())
   name          String
+  email         String?
+  clerkUserId   String?        @unique
   slug          String         @unique
   status        String         @default("active")
+  stripeCustomerId String?     @unique
+  stripeSubscriptionId String? @unique
+  plan          String         @default("free")
+  subscriptionStatus String    @default("none")
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
 
@@ -163,6 +169,13 @@ model Subscription {
 
   @@index([tenantId])
   @@index([stripeCustomerId])
+}
+
+model ProcessedWebhookEvent {
+  id        String   @id @default(cuid())
+  eventId   String   @unique
+  type      String
+  createdAt DateTime @default(now())
 }
 
 model WebhookEndpoint {

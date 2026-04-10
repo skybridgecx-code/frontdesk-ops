@@ -18,6 +18,12 @@ type CountRow = {
   count: number | bigint | string;
 };
 
+type TenantBillingAccount = {
+  id: string;
+  email: string | null;
+  stripeCustomerId: string | null;
+};
+
 const createCheckoutBodySchema = z
   .object({
     tenantId: z.string().min(1),
@@ -48,6 +54,18 @@ function getStripeClient() {
 
 function getWebBaseUrl() {
   return (process.env.FRONTDESK_WEB_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+}
+
+function getDashboardSuccessUrl() {
+  return 'https://skybridgecx.co/dashboard?checkout=success';
+}
+
+function getBillingCancelUrl() {
+  return 'https://skybridgecx.co/billing?checkout=canceled';
+}
+
+function getBillingReturnUrl() {
+  return 'https://skybridgecx.co/billing';
 }
 
 function formatBillingStatus(status: string) {
@@ -84,6 +102,66 @@ function toCount(value: CountRow['count']) {
 
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function toTenantBillingAccount(
+  tenant: {
+    id: string;
+    email: string | null;
+    stripeCustomerId: string | null;
+  } | null
+): TenantBillingAccount | null {
+  if (!tenant) {
+    return null;
+  }
+
+  return {
+    id: tenant.id,
+    email: tenant.email,
+    stripeCustomerId: tenant.stripeCustomerId
+  };
+}
+
+async function findTenantBillingAccount(tenantId: string): Promise<TenantBillingAccount | null> {
+  const tenant = await prisma.tenant.findUnique({
+    where: {
+      id: tenantId
+    },
+    select: {
+      id: true,
+      email: true,
+      stripeCustomerId: true
+    }
+  });
+
+  return toTenantBillingAccount(tenant);
+}
+
+async function resolveStripeCustomerId(input: {
+  stripe: Stripe;
+  tenant: TenantBillingAccount;
+}) {
+  if (input.tenant.stripeCustomerId) {
+    return input.tenant.stripeCustomerId;
+  }
+
+  const customer = await input.stripe.customers.create({
+    ...(input.tenant.email ? { email: input.tenant.email } : {}),
+    metadata: {
+      tenantId: input.tenant.id
+    }
+  });
+
+  await prisma.tenant.update({
+    where: {
+      id: input.tenant.id
+    },
+    data: {
+      stripeCustomerId: customer.id
+    }
+  });
+
+  return customer.id;
 }
 
 function resolveSubscriptionPlan(subscription: SubscriptionRecord): Plan {
@@ -154,6 +232,131 @@ async function getUsageSnapshot(input: {
 }
 
 export async function registerBillingRoutes(app: FastifyInstance) {
+  app.post('/v1/billing/checkout', async (request, reply) => {
+    const parsed = createCheckoutBodySchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        error: 'Invalid plan key'
+      });
+    }
+
+    if (!enforceTenantMatch(request, reply, parsed.data.tenantId)) {
+      return reply;
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return reply.status(503).send({
+        error: 'Billing not configured'
+      });
+    }
+
+    const stripe = getStripeClient();
+    if (!stripe) {
+      return reply.status(503).send({
+        error: 'Billing not configured'
+      });
+    }
+
+    const selectedPlan = getPlanByKey(parsed.data.planKey);
+    const stripePriceId = selectedPlan.stripePriceId;
+
+    if (!selectedPlan || !stripePriceId) {
+      return reply.status(400).send({
+        error: 'Invalid plan key'
+      });
+    }
+
+    const tenant = await findTenantBillingAccount(parsed.data.tenantId);
+    if (!tenant) {
+      return reply.status(404).send({
+        error: 'Tenant not found'
+      });
+    }
+
+    const stripeCustomerId = await resolveStripeCustomerId({
+      stripe,
+      tenant
+    });
+
+    const session = await stripe.checkout.sessions.create({
+      mode: 'subscription',
+      customer: stripeCustomerId,
+      line_items: [
+        {
+          price: stripePriceId,
+          quantity: 1
+        }
+      ],
+      metadata: {
+        tenantId: tenant.id,
+        planKey: selectedPlan.key
+      },
+      subscription_data: {
+        metadata: {
+          tenantId: tenant.id,
+          planKey: selectedPlan.key
+        }
+      },
+      success_url: getDashboardSuccessUrl(),
+      cancel_url: getBillingCancelUrl()
+    });
+
+    if (!session.url) {
+      return reply.status(500).send({
+        error: 'Stripe checkout URL is unavailable'
+      });
+    }
+
+    return {
+      url: session.url
+    };
+  });
+
+  app.post('/v1/billing/portal', async (request, reply) => {
+    const parsed = tenantBodySchema.safeParse(request.body);
+
+    if (!parsed.success) {
+      return reply.status(400).send({
+        ok: false,
+        error: parsed.error.flatten()
+      });
+    }
+
+    if (!enforceTenantMatch(request, reply, parsed.data.tenantId)) {
+      return reply;
+    }
+
+    if (!process.env.STRIPE_SECRET_KEY) {
+      return reply.status(503).send({
+        error: 'Billing not configured'
+      });
+    }
+
+    const stripe = getStripeClient();
+    if (!stripe) {
+      return reply.status(503).send({
+        error: 'Billing not configured'
+      });
+    }
+
+    const tenant = await findTenantBillingAccount(parsed.data.tenantId);
+    if (!tenant || !tenant.stripeCustomerId) {
+      return reply.status(400).send({
+        error: 'No billing account found'
+      });
+    }
+
+    const session = await stripe.billingPortal.sessions.create({
+      customer: tenant.stripeCustomerId,
+      return_url: getBillingReturnUrl()
+    });
+
+    return {
+      url: session.url
+    };
+  });
+
   app.post('/v1/billing/create-checkout-session', async (request, reply) => {
     const parsed = createCheckoutBodySchema.safeParse(request.body);
 

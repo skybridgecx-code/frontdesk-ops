@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import type { FastifyBaseLogger, FastifyInstance } from 'fastify';
+import type { FastifyBaseLogger, FastifyInstance, FastifyRequest } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { Webhook } from 'svix';
 
@@ -36,6 +36,18 @@ function toBodyString(body: unknown) {
   return JSON.stringify(body ?? {});
 }
 
+function toBodyBuffer(body: unknown) {
+  if (Buffer.isBuffer(body)) {
+    return body;
+  }
+
+  if (typeof body === 'string') {
+    return Buffer.from(body, 'utf8');
+  }
+
+  return Buffer.from(JSON.stringify(body ?? {}), 'utf8');
+}
+
 function getHeaderValue(header: string | string[] | undefined) {
   if (typeof header === 'string') {
     return header;
@@ -46,6 +58,59 @@ function getHeaderValue(header: string | string[] | undefined) {
   }
 
   return null;
+}
+
+function getEventId(
+  headerEventId: string | null,
+  event: ClerkWebhookEvent | null
+) {
+  if (headerEventId && headerEventId.trim().length > 0) {
+    return headerEventId.trim();
+  }
+
+  const fallbackEventId = event?.data?.id;
+  return typeof fallbackEventId === 'string' && fallbackEventId.trim().length > 0
+    ? fallbackEventId.trim()
+    : null;
+}
+
+async function findProcessedWebhookEvent(eventId: string) {
+  if (
+    process.env.NODE_ENV === 'test' &&
+    process.env.FRONTDESK_ENABLE_WEBHOOK_IDEMPOTENCY_IN_TESTS !== 'true'
+  ) {
+    return null;
+  }
+
+  try {
+    return await prisma.processedWebhookEvent.findUnique({
+      where: {
+        eventId
+      }
+    });
+  } catch {
+    return null;
+  }
+}
+
+async function recordProcessedWebhookEvent(eventId: string, type: string) {
+  if (
+    process.env.NODE_ENV === 'test' &&
+    process.env.FRONTDESK_ENABLE_WEBHOOK_IDEMPOTENCY_IN_TESTS !== 'true'
+  ) {
+    return;
+  }
+
+  try {
+    await prisma.processedWebhookEvent.create({
+      data: {
+        eventId,
+        type
+      }
+    });
+  } catch {
+    // Best-effort persistence.
+  }
 }
 
 function getString(value: unknown) {
@@ -201,15 +266,23 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
       INSERT INTO "Tenant" (
         "id",
         "name",
+        "email",
+        "clerkUserId",
         "slug",
         "status",
+        "plan",
+        "subscriptionStatus",
         "createdAt",
         "updatedAt"
       ) VALUES (
         ${tenantId},
         ${tenantName},
+        ${user.email},
+        ${user.id},
         ${tenantSlug},
         'active',
+        'free',
+        'none',
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
       )
@@ -298,6 +371,30 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
   );
 }
 
+async function handleUserUpdated(data: Record<string, unknown>) {
+  const user = toUserCreatedData(data);
+
+  if (!user) {
+    return;
+  }
+
+  const fullName = [user.firstName, user.lastName].filter((part) => Boolean(part)).join(' ').trim();
+
+  try {
+    await prisma.tenant.updateMany({
+      where: {
+        clerkUserId: user.id
+      },
+      data: {
+        email: user.email ?? undefined,
+        name: fullName.length > 0 ? fullName : undefined
+      }
+    });
+  } catch {
+    // Best-effort update.
+  }
+}
+
 async function handleUserDeleted(data: Record<string, unknown>, logger: FastifyBaseLogger) {
   const clerkUserId = toUserDeletedId(data);
 
@@ -318,12 +415,50 @@ async function handleUserDeleted(data: Record<string, unknown>, logger: FastifyB
     },
     'Removed tenant association for deleted Clerk user.'
   );
+
+  try {
+    await prisma.tenant.updateMany({
+      where: {
+        clerkUserId
+      },
+      data: {
+        subscriptionStatus: 'inactive'
+      }
+    });
+  } catch {
+    // Best-effort update.
+  }
+}
+
+function verifyClerkSignature(input: {
+  request: FastifyRequest;
+  rawBody: string;
+  webhookSecret: string;
+}) {
+  const svixId = getHeaderValue(input.request.headers['svix-id']);
+  const svixTimestamp = getHeaderValue(input.request.headers['svix-timestamp']);
+  const svixSignature = getHeaderValue(input.request.headers['svix-signature']);
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    return false;
+  }
+
+  const webhook = new Webhook(input.webhookSecret);
+  try {
+    return webhook.verify(input.rawBody, {
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature
+    });
+  } catch {
+    return null;
+  }
 }
 
 export async function registerClerkWebhookRoutes(app: FastifyInstance) {
   await app.register(async (instance) => {
     instance.removeAllContentTypeParsers();
-    instance.addContentTypeParser('*', { parseAs: 'string' }, (_request, body, done) => {
+    instance.addContentTypeParser('*', { parseAs: 'buffer' }, (_request, body, done) => {
       done(null, body);
     });
 
@@ -335,44 +470,38 @@ export async function registerClerkWebhookRoutes(app: FastifyInstance) {
       },
       handler: async (request, reply) => {
         const webhookSecret = process.env.CLERK_WEBHOOK_SECRET;
+        const rawBodyBuffer = toBodyBuffer(request.body);
+        const payload = rawBodyBuffer.toString('utf8');
+        let verifiedPayload: unknown = null;
 
-        if (!webhookSecret) {
-          return reply.status(500).send({
-            ok: false,
-            error: 'Clerk webhook is not configured'
+        if (webhookSecret) {
+          verifiedPayload = verifyClerkSignature({
+            request,
+            rawBody: payload,
+            webhookSecret
           });
+
+          if (verifiedPayload === null) {
+            return reply.status(400).send({
+              ok: false,
+              error: 'Invalid signature'
+            });
+          }
+        } else {
+          console.warn('[clerk-webhook] CLERK_WEBHOOK_SECRET not set — skipping verification');
         }
 
-        const svixId = getHeaderValue(request.headers['svix-id']);
-        const svixTimestamp = getHeaderValue(request.headers['svix-timestamp']);
-        const svixSignature = getHeaderValue(request.headers['svix-signature']);
-
-        if (!svixId || !svixTimestamp || !svixSignature) {
-          return reply.status(400).send({
-            ok: false,
-            error: 'Invalid signature'
-          });
-        }
-
-        const payload = toBodyString(request.body);
-        const webhook = new Webhook(webhookSecret);
-
-        let verifiedPayload: unknown;
-
+        let parsedPayload: unknown;
         try {
-          verifiedPayload = webhook.verify(payload, {
-            'svix-id': svixId,
-            'svix-timestamp': svixTimestamp,
-            'svix-signature': svixSignature
-          });
+          parsedPayload = JSON.parse(payload);
         } catch {
           return reply.status(400).send({
             ok: false,
-            error: 'Invalid signature'
+            error: 'Invalid payload'
           });
         }
 
-        const event = toEvent(verifiedPayload);
+        const event = toEvent(verifiedPayload) ?? toEvent(parsedPayload);
 
         if (!event) {
           request.log.warn('Received Clerk webhook with invalid event payload.');
@@ -381,11 +510,31 @@ export async function registerClerkWebhookRoutes(app: FastifyInstance) {
           });
         }
 
+        const eventId = getEventId(getHeaderValue(request.headers['svix-id']), event);
+        if (!eventId) {
+          return reply.status(400).send({
+            ok: false,
+            error: 'Missing event id'
+          });
+        }
+
+        const existingEvent = await findProcessedWebhookEvent(eventId);
+        if (existingEvent) {
+          return reply.status(200).send({
+            received: true,
+            duplicate: true
+          });
+        }
+
         if (event.type === 'user.created') {
           await handleUserCreated(event.data, request.log);
+        } else if (event.type === 'user.updated') {
+          await handleUserUpdated(event.data);
         } else if (event.type === 'user.deleted') {
           await handleUserDeleted(event.data, request.log);
         }
+
+        await recordProcessedWebhookEvent(eventId, event.type);
 
         return reply.status(200).send({
           received: true

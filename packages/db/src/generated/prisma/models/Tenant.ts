@@ -27,8 +27,14 @@ export type AggregateTenant = {
 export type TenantMinAggregateOutputType = {
   id: string | null
   name: string | null
+  email: string | null
+  clerkUserId: string | null
   slug: string | null
   status: string | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  plan: string | null
+  subscriptionStatus: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -36,8 +42,14 @@ export type TenantMinAggregateOutputType = {
 export type TenantMaxAggregateOutputType = {
   id: string | null
   name: string | null
+  email: string | null
+  clerkUserId: string | null
   slug: string | null
   status: string | null
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  plan: string | null
+  subscriptionStatus: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -45,8 +57,14 @@ export type TenantMaxAggregateOutputType = {
 export type TenantCountAggregateOutputType = {
   id: number
   name: number
+  email: number
+  clerkUserId: number
   slug: number
   status: number
+  stripeCustomerId: number
+  stripeSubscriptionId: number
+  plan: number
+  subscriptionStatus: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -56,8 +74,14 @@ export type TenantCountAggregateOutputType = {
 export type TenantMinAggregateInputType = {
   id?: true
   name?: true
+  email?: true
+  clerkUserId?: true
   slug?: true
   status?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  plan?: true
+  subscriptionStatus?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -65,8 +89,14 @@ export type TenantMinAggregateInputType = {
 export type TenantMaxAggregateInputType = {
   id?: true
   name?: true
+  email?: true
+  clerkUserId?: true
   slug?: true
   status?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  plan?: true
+  subscriptionStatus?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -74,8 +104,14 @@ export type TenantMaxAggregateInputType = {
 export type TenantCountAggregateInputType = {
   id?: true
   name?: true
+  email?: true
+  clerkUserId?: true
   slug?: true
   status?: true
+  stripeCustomerId?: true
+  stripeSubscriptionId?: true
+  plan?: true
+  subscriptionStatus?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -156,8 +192,14 @@ export type TenantGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type TenantGroupByOutputType = {
   id: string
   name: string
+  email: string | null
+  clerkUserId: string | null
   slug: string
   status: string
+  stripeCustomerId: string | null
+  stripeSubscriptionId: string | null
+  plan: string
+  subscriptionStatus: string
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
@@ -186,8 +228,14 @@ export type TenantWhereInput = {
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   id?: Prisma.StringFilter<"Tenant"> | string
   name?: Prisma.StringFilter<"Tenant"> | string
+  email?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  clerkUserId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   slug?: Prisma.StringFilter<"Tenant"> | string
   status?: Prisma.StringFilter<"Tenant"> | string
+  stripeCustomerId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  plan?: Prisma.StringFilter<"Tenant"> | string
+  subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -205,8 +253,14 @@ export type TenantWhereInput = {
 export type TenantOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   memberships?: Prisma.MembershipOrderByRelationAggregateInput
@@ -223,12 +277,18 @@ export type TenantOrderByWithRelationInput = {
 
 export type TenantWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  clerkUserId?: string
   slug?: string
+  stripeCustomerId?: string
+  stripeSubscriptionId?: string
   AND?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   OR?: Prisma.TenantWhereInput[]
   NOT?: Prisma.TenantWhereInput | Prisma.TenantWhereInput[]
   name?: Prisma.StringFilter<"Tenant"> | string
+  email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   status?: Prisma.StringFilter<"Tenant"> | string
+  plan?: Prisma.StringFilter<"Tenant"> | string
+  subscriptionStatus?: Prisma.StringFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Tenant"> | Date | string
   memberships?: Prisma.MembershipListRelationFilter
@@ -241,13 +301,19 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   subscription?: Prisma.XOR<Prisma.SubscriptionNullableScalarRelationFilter, Prisma.SubscriptionWhereInput> | null
   webhookEndpoints?: Prisma.WebhookEndpointListRelationFilter
   tenantUsers?: Prisma.TenantUserListRelationFilter
-}, "id" | "slug">
+}, "id" | "clerkUserId" | "slug" | "stripeCustomerId" | "stripeSubscriptionId">
 
 export type TenantOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
+  clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrderInput | Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
@@ -261,8 +327,14 @@ export type TenantScalarWhereWithAggregatesInput = {
   NOT?: Prisma.TenantScalarWhereWithAggregatesInput | Prisma.TenantScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   name?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  email?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  clerkUserId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   slug?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   status?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  stripeCustomerId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  stripeSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  plan?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
+  subscriptionStatus?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Tenant"> | Date | string
 }
@@ -270,8 +342,14 @@ export type TenantScalarWhereWithAggregatesInput = {
 export type TenantCreateInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -289,8 +367,14 @@ export type TenantCreateInput = {
 export type TenantUncheckedCreateInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -308,8 +392,14 @@ export type TenantUncheckedCreateInput = {
 export type TenantUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -327,8 +417,14 @@ export type TenantUpdateInput = {
 export type TenantUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -346,8 +442,14 @@ export type TenantUncheckedUpdateInput = {
 export type TenantCreateManyInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -355,8 +457,14 @@ export type TenantCreateManyInput = {
 export type TenantUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -364,8 +472,14 @@ export type TenantUpdateManyMutationInput = {
 export type TenantUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -373,8 +487,14 @@ export type TenantUncheckedUpdateManyInput = {
 export type TenantCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -382,8 +502,14 @@ export type TenantCountOrderByAggregateInput = {
 export type TenantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -391,8 +517,14 @@ export type TenantMaxOrderByAggregateInput = {
 export type TenantMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  email?: Prisma.SortOrder
+  clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
   status?: Prisma.SortOrder
+  stripeCustomerId?: Prisma.SortOrder
+  stripeSubscriptionId?: Prisma.SortOrder
+  plan?: Prisma.SortOrder
+  subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -404,6 +536,10 @@ export type TenantScalarRelationFilter = {
 
 export type StringFieldUpdateOperationsInput = {
   set?: string
+}
+
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -553,8 +689,14 @@ export type TenantUpdateOneRequiredWithoutProspectImportBatchesNestedInput = {
 export type TenantCreateWithoutSubscriptionInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -571,8 +713,14 @@ export type TenantCreateWithoutSubscriptionInput = {
 export type TenantUncheckedCreateWithoutSubscriptionInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -605,8 +753,14 @@ export type TenantUpdateToOneWithWhereWithoutSubscriptionInput = {
 export type TenantUpdateWithoutSubscriptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -623,8 +777,14 @@ export type TenantUpdateWithoutSubscriptionInput = {
 export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -641,8 +801,14 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
 export type TenantCreateWithoutWebhookEndpointsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -659,8 +825,14 @@ export type TenantCreateWithoutWebhookEndpointsInput = {
 export type TenantUncheckedCreateWithoutWebhookEndpointsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -693,8 +865,14 @@ export type TenantUpdateToOneWithWhereWithoutWebhookEndpointsInput = {
 export type TenantUpdateWithoutWebhookEndpointsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -711,8 +889,14 @@ export type TenantUpdateWithoutWebhookEndpointsInput = {
 export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -729,8 +913,14 @@ export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
 export type TenantCreateWithoutTenantUsersInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -747,8 +937,14 @@ export type TenantCreateWithoutTenantUsersInput = {
 export type TenantUncheckedCreateWithoutTenantUsersInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -781,8 +977,14 @@ export type TenantUpdateToOneWithWhereWithoutTenantUsersInput = {
 export type TenantUpdateWithoutTenantUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -799,8 +1001,14 @@ export type TenantUpdateWithoutTenantUsersInput = {
 export type TenantUncheckedUpdateWithoutTenantUsersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -817,8 +1025,14 @@ export type TenantUncheckedUpdateWithoutTenantUsersInput = {
 export type TenantCreateWithoutMembershipsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   businesses?: Prisma.BusinessCreateNestedManyWithoutTenantInput
@@ -835,8 +1049,14 @@ export type TenantCreateWithoutMembershipsInput = {
 export type TenantUncheckedCreateWithoutMembershipsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   businesses?: Prisma.BusinessUncheckedCreateNestedManyWithoutTenantInput
@@ -869,8 +1089,14 @@ export type TenantUpdateToOneWithWhereWithoutMembershipsInput = {
 export type TenantUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businesses?: Prisma.BusinessUpdateManyWithoutTenantNestedInput
@@ -887,8 +1113,14 @@ export type TenantUpdateWithoutMembershipsInput = {
 export type TenantUncheckedUpdateWithoutMembershipsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   businesses?: Prisma.BusinessUncheckedUpdateManyWithoutTenantNestedInput
@@ -905,8 +1137,14 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
 export type TenantCreateWithoutBusinessesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -923,8 +1161,14 @@ export type TenantCreateWithoutBusinessesInput = {
 export type TenantUncheckedCreateWithoutBusinessesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -957,8 +1201,14 @@ export type TenantUpdateToOneWithWhereWithoutBusinessesInput = {
 export type TenantUpdateWithoutBusinessesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -975,8 +1225,14 @@ export type TenantUpdateWithoutBusinessesInput = {
 export type TenantUncheckedUpdateWithoutBusinessesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -993,8 +1249,14 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
 export type TenantCreateWithoutPhoneNumbersInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -1011,8 +1273,14 @@ export type TenantCreateWithoutPhoneNumbersInput = {
 export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -1045,8 +1313,14 @@ export type TenantUpdateToOneWithWhereWithoutPhoneNumbersInput = {
 export type TenantUpdateWithoutPhoneNumbersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -1063,8 +1337,14 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
 export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -1081,8 +1361,14 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
 export type TenantCreateWithoutAgentProfilesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -1099,8 +1385,14 @@ export type TenantCreateWithoutAgentProfilesInput = {
 export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -1133,8 +1425,14 @@ export type TenantUpdateToOneWithWhereWithoutAgentProfilesInput = {
 export type TenantUpdateWithoutAgentProfilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -1151,8 +1449,14 @@ export type TenantUpdateWithoutAgentProfilesInput = {
 export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -1169,8 +1473,14 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
 export type TenantCreateWithoutCallsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -1187,8 +1497,14 @@ export type TenantCreateWithoutCallsInput = {
 export type TenantUncheckedCreateWithoutCallsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -1221,8 +1537,14 @@ export type TenantUpdateToOneWithWhereWithoutCallsInput = {
 export type TenantUpdateWithoutCallsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -1239,8 +1561,14 @@ export type TenantUpdateWithoutCallsInput = {
 export type TenantUncheckedUpdateWithoutCallsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -1257,8 +1585,14 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
 export type TenantCreateWithoutProspectsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -1275,8 +1609,14 @@ export type TenantCreateWithoutProspectsInput = {
 export type TenantUncheckedCreateWithoutProspectsInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -1309,8 +1649,14 @@ export type TenantUpdateToOneWithWhereWithoutProspectsInput = {
 export type TenantUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -1327,8 +1673,14 @@ export type TenantUpdateWithoutProspectsInput = {
 export type TenantUncheckedUpdateWithoutProspectsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -1345,8 +1697,14 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
 export type TenantCreateWithoutProspectImportBatchesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipCreateNestedManyWithoutTenantInput
@@ -1363,8 +1721,14 @@ export type TenantCreateWithoutProspectImportBatchesInput = {
 export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   id?: string
   name: string
+  email?: string | null
+  clerkUserId?: string | null
   slug: string
   status?: string
+  stripeCustomerId?: string | null
+  stripeSubscriptionId?: string | null
+  plan?: string
+  subscriptionStatus?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   memberships?: Prisma.MembershipUncheckedCreateNestedManyWithoutTenantInput
@@ -1397,8 +1761,14 @@ export type TenantUpdateToOneWithWhereWithoutProspectImportBatchesInput = {
 export type TenantUpdateWithoutProspectImportBatchesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUpdateManyWithoutTenantNestedInput
@@ -1415,8 +1785,14 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
 export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
+  stripeCustomerId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  stripeSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  plan?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionStatus?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   memberships?: Prisma.MembershipUncheckedUpdateManyWithoutTenantNestedInput
@@ -1536,8 +1912,14 @@ export type TenantCountOutputTypeCountTenantUsersArgs<ExtArgs extends runtime.Ty
 export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  email?: boolean
+  clerkUserId?: boolean
   slug?: boolean
   status?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  plan?: boolean
+  subscriptionStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
@@ -1556,8 +1938,14 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  email?: boolean
+  clerkUserId?: boolean
   slug?: boolean
   status?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  plan?: boolean
+  subscriptionStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1565,8 +1953,14 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
+  email?: boolean
+  clerkUserId?: boolean
   slug?: boolean
   status?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  plan?: boolean
+  subscriptionStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["tenant"]>
@@ -1574,13 +1968,19 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
 export type TenantSelectScalar = {
   id?: boolean
   name?: boolean
+  email?: boolean
+  clerkUserId?: boolean
   slug?: boolean
   status?: boolean
+  stripeCustomerId?: boolean
+  stripeSubscriptionId?: boolean
+  plan?: boolean
+  subscriptionStatus?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "slug" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "clerkUserId" | "slug" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "plan" | "subscriptionStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
@@ -1614,8 +2014,14 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
+    email: string | null
+    clerkUserId: string | null
     slug: string
     status: string
+    stripeCustomerId: string | null
+    stripeSubscriptionId: string | null
+    plan: string
+    subscriptionStatus: string
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["tenant"]>
@@ -2053,8 +2459,14 @@ export interface Prisma__TenantClient<T, Null = never, ExtArgs extends runtime.T
 export interface TenantFieldRefs {
   readonly id: Prisma.FieldRef<"Tenant", 'String'>
   readonly name: Prisma.FieldRef<"Tenant", 'String'>
+  readonly email: Prisma.FieldRef<"Tenant", 'String'>
+  readonly clerkUserId: Prisma.FieldRef<"Tenant", 'String'>
   readonly slug: Prisma.FieldRef<"Tenant", 'String'>
   readonly status: Prisma.FieldRef<"Tenant", 'String'>
+  readonly stripeCustomerId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly stripeSubscriptionId: Prisma.FieldRef<"Tenant", 'String'>
+  readonly plan: Prisma.FieldRef<"Tenant", 'String'>
+  readonly subscriptionStatus: Prisma.FieldRef<"Tenant", 'String'>
   readonly createdAt: Prisma.FieldRef<"Tenant", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Tenant", 'DateTime'>
 }

@@ -28,6 +28,11 @@ export type Tenant = Prisma.TenantModel
  */
 export type Subscription = Prisma.SubscriptionModel
 /**
+ * Model ProcessedWebhookEvent
+ * 
+ */
+export type ProcessedWebhookEvent = Prisma.ProcessedWebhookEventModel
+/**
  * Model WebhookEndpoint
  * 
  */

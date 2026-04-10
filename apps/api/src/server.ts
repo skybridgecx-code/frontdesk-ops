@@ -39,6 +39,7 @@ import { registerBillingRoutes } from './routes/billing.js';
 import { registerOnboardingRoutes } from './routes/onboarding.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
+import { runEnvCheck } from './lib/env-check.js';
 
 function getPathname(url: string) {
   return url.split('?')[0] ?? url;
@@ -68,6 +69,8 @@ function shouldSkipSubscriptionGuard(url: string) {
 }
 
 export async function buildServer() {
+  runEnvCheck();
+
   const app = Fastify({
     logger: true,
     bodyLimit: 1_048_576
