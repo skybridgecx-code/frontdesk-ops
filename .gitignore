@@ -8,6 +8,9 @@ coverage
 .env
 .env.*
 !.env.example
+.env.local
+apps/web/.env.local
+apps/api/.env.local
 .DS_Store
 *.log
 apps/api/dist
