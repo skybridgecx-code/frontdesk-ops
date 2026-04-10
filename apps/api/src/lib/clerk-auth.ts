@@ -47,6 +47,7 @@ export function shouldSkipDashboardAuth(url: string) {
   return (
     pathname === '/health' ||
     pathname === '/v1/ping' ||
+    pathname.startsWith('/v1/admin/') ||
     pathname.startsWith('/v1/twilio/') ||
     pathname.startsWith('/v1/stripe/') ||
     pathname.startsWith('/v1/clerk/')

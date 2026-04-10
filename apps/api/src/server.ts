@@ -39,6 +39,7 @@ import { registerClerkWebhookRoutes } from './routes/clerk-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
 import onboarding from './routes/onboarding.js';
 import settings from './routes/settings.js';
+import admin from './routes/admin.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
 import { runEnvCheck } from './lib/env-check.js';
@@ -53,6 +54,7 @@ function shouldSkipTenantResolver(url: string) {
   return (
     pathname === '/health' ||
     pathname === '/v1/ping' ||
+    pathname.startsWith('/v1/admin/') ||
     pathname.startsWith('/v1/twilio/') ||
     pathname.startsWith('/v1/stripe/') ||
     pathname.startsWith('/v1/clerk/')
@@ -169,6 +171,7 @@ export async function buildServer() {
   await registerBillingRoutes(app);
   await app.register(onboarding);
   await app.register(settings);
+  await app.register(admin);
   await registerAgentProfileWriteRoutes(app);
   await registerProspectImportRoutes(app);
   await registerProspectReadRoutes(app);
