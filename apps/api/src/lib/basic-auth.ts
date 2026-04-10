@@ -31,12 +31,11 @@ export function shouldSkipBasicAuth(url: string) {
 }
 
 export function enforceBasicAuth(request: FastifyRequest, reply: FastifyReply) {
-  const required = process.env.FRONTDESK_REQUIRE_BASIC_AUTH === 'true';
-  const expectedUser = process.env.FRONTDESK_BASIC_AUTH_USER;
-  const expectedPass = process.env.FRONTDESK_BASIC_AUTH_PASS;
+  const expectedUser = process.env.BASIC_AUTH_USERNAME;
+  const expectedPass = process.env.BASIC_AUTH_PASSWORD;
   const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET;
 
-  if (!required) return true;
+  if (!expectedUser || !expectedPass) return true;
 
   const internalHeader = request.headers['x-frontdesk-internal-secret'];
   if (
@@ -45,14 +44,6 @@ export function enforceBasicAuth(request: FastifyRequest, reply: FastifyReply) {
     safeEqual(internalHeader, internalSecret)
   ) {
     return true;
-  }
-
-  if (!expectedUser || !expectedPass) {
-    reply.code(500).send({
-      ok: false,
-      error: 'Basic auth is enabled but credentials are not configured'
-    });
-    return false;
   }
 
   const auth = request.headers.authorization;

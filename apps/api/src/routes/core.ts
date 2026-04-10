@@ -5,7 +5,7 @@ export async function registerCoreRoutes(app: FastifyInstance) {
   app.get('/health', async () => {
     return {
       ok: true,
-      service: 'api'
+      timestamp: new Date().toISOString()
     };
   });
 

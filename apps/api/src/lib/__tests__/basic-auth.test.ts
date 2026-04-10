@@ -51,9 +51,8 @@ describe('enforceBasicAuth', () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
-    process.env.FRONTDESK_REQUIRE_BASIC_AUTH = 'true';
-    process.env.FRONTDESK_BASIC_AUTH_USER = 'admin';
-    process.env.FRONTDESK_BASIC_AUTH_PASS = 'secret123';
+    process.env.BASIC_AUTH_USERNAME = 'admin';
+    process.env.BASIC_AUTH_PASSWORD = 'secret123';
     delete process.env.FRONTDESK_INTERNAL_API_SECRET;
   });
 
@@ -61,8 +60,9 @@ describe('enforceBasicAuth', () => {
     process.env = { ...originalEnv };
   });
 
-  it('returns true when auth is not required', () => {
-    process.env.FRONTDESK_REQUIRE_BASIC_AUTH = 'false';
+  it('returns true when basic auth credentials are not configured', () => {
+    delete process.env.BASIC_AUTH_USERNAME;
+    delete process.env.BASIC_AUTH_PASSWORD;
     const reply = makeFastifyReply();
     expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(true);
   });
@@ -127,16 +127,14 @@ describe('enforceBasicAuth', () => {
     expect(reply.statusCode).toBe(401);
   });
 
-  it('returns 500 when auth is required but credentials are not configured', () => {
-    delete process.env.FRONTDESK_BASIC_AUTH_USER;
-    delete process.env.FRONTDESK_BASIC_AUTH_PASS;
+  it('returns true when one credential is missing', () => {
+    delete process.env.BASIC_AUTH_PASSWORD;
     const reply = makeFastifyReply();
-    expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(false);
-    expect(reply.statusCode).toBe(500);
+    expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(true);
   });
 
   it('handles colons in password', () => {
-    process.env.FRONTDESK_BASIC_AUTH_PASS = 'pass:with:colons';
+    process.env.BASIC_AUTH_PASSWORD = 'pass:with:colons';
     const reply = makeFastifyReply();
     const request = makeFastifyRequest({
       authorization: `Basic ${encode('admin', 'pass:with:colons')}`

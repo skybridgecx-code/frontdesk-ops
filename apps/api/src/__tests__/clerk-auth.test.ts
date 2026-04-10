@@ -62,9 +62,8 @@ describe('clerk auth integration hook', () => {
   beforeEach(() => {
     verifyTokenMock.mockReset();
     process.env = { ...originalEnv };
-    process.env.FRONTDESK_REQUIRE_BASIC_AUTH = 'true';
-    process.env.FRONTDESK_BASIC_AUTH_USER = 'operator';
-    process.env.FRONTDESK_BASIC_AUTH_PASS = 'secret';
+    process.env.BASIC_AUTH_USERNAME = 'operator';
+    process.env.BASIC_AUTH_PASSWORD = 'secret';
     delete process.env.FRONTDESK_INTERNAL_API_SECRET;
   });
 
