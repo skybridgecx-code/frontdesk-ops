@@ -85,7 +85,15 @@ export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
 
       return {
         ok: true,
-        numbers: availableNumbers.map((item) => ({
+        numbers: availableNumbers.map((item: {
+          phoneNumber: string;
+          friendlyName: string;
+          locality?: string;
+          region?: string;
+          postalCode?: string;
+          isoCountry?: string;
+          capabilities?: unknown;
+        }) => ({
           phoneNumber: item.phoneNumber,
           friendlyName: item.friendlyName ?? item.phoneNumber,
           locality: item.locality ?? null,
