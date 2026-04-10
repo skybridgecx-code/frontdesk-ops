@@ -1,7 +1,7 @@
 import { auth } from '@clerk/nextjs/server';
 
 export function getApiBaseUrl() {
-  return process.env.FRONTDESK_API_BASE_URL ?? 'http://127.0.0.1:4000';
+  return process.env.FRONTDESK_API_BASE_URL ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://127.0.0.1:4000';
 }
 
 type ClerkTokenGetter = () => Promise<string | null>;
