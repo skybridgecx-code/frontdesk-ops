@@ -128,6 +128,12 @@ model Tenant {
   businessName  String?
   greeting      String?
   twilioPhoneNumber String?    @unique
+  onboardingStep Int           @default(0)
+  onboardingComplete Boolean   @default(false)
+  industry      String?
+  businessAddress String?
+  businessPhone String?
+  timezone      String?        @default("America/New_York")
   email         String?
   clerkUserId   String?        @unique
   slug          String         @unique

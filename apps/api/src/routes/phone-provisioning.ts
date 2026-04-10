@@ -33,6 +33,12 @@ const releaseNumberBodySchema = z
   })
   .strict();
 
+type ProvisionPhoneNumberInput = {
+  tenantId: string;
+  businessId: string;
+  phoneNumber: string;
+};
+
 function getApiPublicBaseUrl() {
   return (process.env.FRONTDESK_API_PUBLIC_URL ?? 'http://localhost:4000').replace(/\/$/, '');
 }
@@ -60,6 +66,65 @@ function normalizeCapabilities(capabilities: unknown) {
   };
 
   return result;
+}
+
+export async function findAvailableLocalNumber(input: { areaCode?: string }) {
+  const client = getTwilioClient();
+  const options = {
+    voiceEnabled: true,
+    smsEnabled: true,
+    limit: 1,
+    ...(input.areaCode ? { areaCode: Number(input.areaCode) } : {})
+  };
+
+  const numbers = await client.availablePhoneNumbers('US').local.list(options);
+  return numbers[0] ?? null;
+}
+
+export async function provisionPhoneNumberForTenant(input: ProvisionPhoneNumberInput) {
+  const client = getTwilioClient();
+  const baseUrl = getApiPublicBaseUrl();
+
+  const purchasedNumber = await client.incomingPhoneNumbers.create({
+    phoneNumber: input.phoneNumber,
+    voiceUrl: `${baseUrl}/v1/twilio/voice/inbound`,
+    voiceMethod: 'POST',
+    statusCallback: `${baseUrl}/v1/twilio/voice/status`,
+    statusCallbackMethod: 'POST'
+  });
+
+  const phoneNumber = await prisma.phoneNumber.create({
+    data: {
+      tenantId: input.tenantId,
+      businessId: input.businessId,
+      provider: PhoneNumberProvider.TWILIO,
+      externalSid: purchasedNumber.sid,
+      e164: purchasedNumber.phoneNumber,
+      label: purchasedNumber.friendlyName ?? purchasedNumber.phoneNumber,
+      isActive: true
+    },
+    select: {
+      id: true,
+      tenantId: true,
+      businessId: true,
+      provider: true,
+      externalSid: true,
+      e164: true,
+      label: true,
+      isActive: true,
+      routingMode: true,
+      primaryAgentProfileId: true,
+      afterHoursAgentProfileId: true,
+      enableMissedCallTextBack: true,
+      createdAt: true,
+      updatedAt: true
+    }
+  });
+
+  return {
+    phoneNumber,
+    purchasedNumber
+  };
 }
 
 export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
@@ -150,50 +215,17 @@ export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
     }
 
     try {
-      const client = getTwilioClient();
-      const baseUrl = getApiPublicBaseUrl();
-
-      const purchasedNumber = await client.incomingPhoneNumbers.create({
-        phoneNumber: parsed.data.phoneNumber,
-        voiceUrl: `${baseUrl}/v1/twilio/voice/inbound`,
-        voiceMethod: 'POST',
-        statusCallback: `${baseUrl}/v1/twilio/voice/status`,
-        statusCallbackMethod: 'POST'
-      });
-
-      const phoneNumber = await prisma.phoneNumber.create({
-        data: {
-          tenantId,
-          businessId: business.id,
-          provider: PhoneNumberProvider.TWILIO,
-          externalSid: purchasedNumber.sid,
-          e164: purchasedNumber.phoneNumber,
-          label: purchasedNumber.friendlyName ?? purchasedNumber.phoneNumber,
-          isActive: true
-        },
-        select: {
-          id: true,
-          tenantId: true,
-          businessId: true,
-          provider: true,
-          externalSid: true,
-          e164: true,
-          label: true,
-          isActive: true,
-          routingMode: true,
-          primaryAgentProfileId: true,
-          afterHoursAgentProfileId: true,
-          enableMissedCallTextBack: true,
-          createdAt: true,
-          updatedAt: true
-        }
+      const result = await provisionPhoneNumberForTenant({
+        tenantId,
+        businessId: business.id,
+        phoneNumber: parsed.data.phoneNumber
       });
 
       return {
         ok: true,
         phoneNumber: {
-          ...phoneNumber,
-          capabilities: normalizeCapabilities(purchasedNumber.capabilities)
+          ...result.phoneNumber,
+          capabilities: normalizeCapabilities(result.purchasedNumber.capabilities)
         }
       };
     } catch (error) {

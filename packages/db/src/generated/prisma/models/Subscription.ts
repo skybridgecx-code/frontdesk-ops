@@ -498,10 +498,6 @@ export type SubscriptionUncheckedUpdateOneWithoutTenantNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.SubscriptionUpdateToOneWithWhereWithoutTenantInput, Prisma.SubscriptionUpdateWithoutTenantInput>, Prisma.SubscriptionUncheckedUpdateWithoutTenantInput>
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
 export type SubscriptionCreateWithoutTenantInput = {
   id?: string
   stripeCustomerId: string

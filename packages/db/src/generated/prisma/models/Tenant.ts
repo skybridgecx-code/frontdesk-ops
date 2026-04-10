@@ -20,8 +20,18 @@ export type TenantModel = runtime.Types.Result.DefaultSelection<Prisma.$TenantPa
 
 export type AggregateTenant = {
   _count: TenantCountAggregateOutputType | null
+  _avg: TenantAvgAggregateOutputType | null
+  _sum: TenantSumAggregateOutputType | null
   _min: TenantMinAggregateOutputType | null
   _max: TenantMaxAggregateOutputType | null
+}
+
+export type TenantAvgAggregateOutputType = {
+  onboardingStep: number | null
+}
+
+export type TenantSumAggregateOutputType = {
+  onboardingStep: number | null
 }
 
 export type TenantMinAggregateOutputType = {
@@ -30,6 +40,12 @@ export type TenantMinAggregateOutputType = {
   businessName: string | null
   greeting: string | null
   twilioPhoneNumber: string | null
+  onboardingStep: number | null
+  onboardingComplete: boolean | null
+  industry: string | null
+  businessAddress: string | null
+  businessPhone: string | null
+  timezone: string | null
   email: string | null
   clerkUserId: string | null
   slug: string | null
@@ -48,6 +64,12 @@ export type TenantMaxAggregateOutputType = {
   businessName: string | null
   greeting: string | null
   twilioPhoneNumber: string | null
+  onboardingStep: number | null
+  onboardingComplete: boolean | null
+  industry: string | null
+  businessAddress: string | null
+  businessPhone: string | null
+  timezone: string | null
   email: string | null
   clerkUserId: string | null
   slug: string | null
@@ -66,6 +88,12 @@ export type TenantCountAggregateOutputType = {
   businessName: number
   greeting: number
   twilioPhoneNumber: number
+  onboardingStep: number
+  onboardingComplete: number
+  industry: number
+  businessAddress: number
+  businessPhone: number
+  timezone: number
   email: number
   clerkUserId: number
   slug: number
@@ -80,12 +108,26 @@ export type TenantCountAggregateOutputType = {
 }
 
 
+export type TenantAvgAggregateInputType = {
+  onboardingStep?: true
+}
+
+export type TenantSumAggregateInputType = {
+  onboardingStep?: true
+}
+
 export type TenantMinAggregateInputType = {
   id?: true
   name?: true
   businessName?: true
   greeting?: true
   twilioPhoneNumber?: true
+  onboardingStep?: true
+  onboardingComplete?: true
+  industry?: true
+  businessAddress?: true
+  businessPhone?: true
+  timezone?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -104,6 +146,12 @@ export type TenantMaxAggregateInputType = {
   businessName?: true
   greeting?: true
   twilioPhoneNumber?: true
+  onboardingStep?: true
+  onboardingComplete?: true
+  industry?: true
+  businessAddress?: true
+  businessPhone?: true
+  timezone?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -122,6 +170,12 @@ export type TenantCountAggregateInputType = {
   businessName?: true
   greeting?: true
   twilioPhoneNumber?: true
+  onboardingStep?: true
+  onboardingComplete?: true
+  industry?: true
+  businessAddress?: true
+  businessPhone?: true
+  timezone?: true
   email?: true
   clerkUserId?: true
   slug?: true
@@ -173,6 +227,18 @@ export type TenantAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TenantAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TenantSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TenantMinAggregateInputType
@@ -203,6 +269,8 @@ export type TenantGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: TenantCountAggregateInputType | true
+  _avg?: TenantAvgAggregateInputType
+  _sum?: TenantSumAggregateInputType
   _min?: TenantMinAggregateInputType
   _max?: TenantMaxAggregateInputType
 }
@@ -213,6 +281,12 @@ export type TenantGroupByOutputType = {
   businessName: string | null
   greeting: string | null
   twilioPhoneNumber: string | null
+  onboardingStep: number
+  onboardingComplete: boolean
+  industry: string | null
+  businessAddress: string | null
+  businessPhone: string | null
+  timezone: string | null
   email: string | null
   clerkUserId: string | null
   slug: string
@@ -224,6 +298,8 @@ export type TenantGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   _count: TenantCountAggregateOutputType | null
+  _avg: TenantAvgAggregateOutputType | null
+  _sum: TenantSumAggregateOutputType | null
   _min: TenantMinAggregateOutputType | null
   _max: TenantMaxAggregateOutputType | null
 }
@@ -252,6 +328,12 @@ export type TenantWhereInput = {
   businessName?: Prisma.StringNullableFilter<"Tenant"> | string | null
   greeting?: Prisma.StringNullableFilter<"Tenant"> | string | null
   twilioPhoneNumber?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  onboardingStep?: Prisma.IntFilter<"Tenant"> | number
+  onboardingComplete?: Prisma.BoolFilter<"Tenant"> | boolean
+  industry?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  timezone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   clerkUserId?: Prisma.StringNullableFilter<"Tenant"> | string | null
   slug?: Prisma.StringFilter<"Tenant"> | string
@@ -280,6 +362,12 @@ export type TenantOrderByWithRelationInput = {
   businessName?: Prisma.SortOrderInput | Prisma.SortOrder
   greeting?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioPhoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboardingStep?: Prisma.SortOrder
+  onboardingComplete?: Prisma.SortOrder
+  industry?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -315,6 +403,12 @@ export type TenantWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Tenant"> | string
   businessName?: Prisma.StringNullableFilter<"Tenant"> | string | null
   greeting?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  onboardingStep?: Prisma.IntFilter<"Tenant"> | number
+  onboardingComplete?: Prisma.BoolFilter<"Tenant"> | boolean
+  industry?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessAddress?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  businessPhone?: Prisma.StringNullableFilter<"Tenant"> | string | null
+  timezone?: Prisma.StringNullableFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableFilter<"Tenant"> | string | null
   status?: Prisma.StringFilter<"Tenant"> | string
   plan?: Prisma.StringFilter<"Tenant"> | string
@@ -339,6 +433,12 @@ export type TenantOrderByWithAggregationInput = {
   businessName?: Prisma.SortOrderInput | Prisma.SortOrder
   greeting?: Prisma.SortOrderInput | Prisma.SortOrder
   twilioPhoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  onboardingStep?: Prisma.SortOrder
+  onboardingComplete?: Prisma.SortOrder
+  industry?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessAddress?: Prisma.SortOrderInput | Prisma.SortOrder
+  businessPhone?: Prisma.SortOrderInput | Prisma.SortOrder
+  timezone?: Prisma.SortOrderInput | Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
   clerkUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -350,8 +450,10 @@ export type TenantOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.TenantCountOrderByAggregateInput
+  _avg?: Prisma.TenantAvgOrderByAggregateInput
   _max?: Prisma.TenantMaxOrderByAggregateInput
   _min?: Prisma.TenantMinOrderByAggregateInput
+  _sum?: Prisma.TenantSumOrderByAggregateInput
 }
 
 export type TenantScalarWhereWithAggregatesInput = {
@@ -363,6 +465,12 @@ export type TenantScalarWhereWithAggregatesInput = {
   businessName?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   greeting?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   twilioPhoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  onboardingStep?: Prisma.IntWithAggregatesFilter<"Tenant"> | number
+  onboardingComplete?: Prisma.BoolWithAggregatesFilter<"Tenant"> | boolean
+  industry?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  businessAddress?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  businessPhone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
+  timezone?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   email?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   clerkUserId?: Prisma.StringNullableWithAggregatesFilter<"Tenant"> | string | null
   slug?: Prisma.StringWithAggregatesFilter<"Tenant"> | string
@@ -381,6 +489,12 @@ export type TenantCreateInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -409,6 +523,12 @@ export type TenantUncheckedCreateInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -437,6 +557,12 @@ export type TenantUpdateInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -465,6 +591,12 @@ export type TenantUncheckedUpdateInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -493,6 +625,12 @@ export type TenantCreateManyInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -511,6 +649,12 @@ export type TenantUpdateManyMutationInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -529,6 +673,12 @@ export type TenantUncheckedUpdateManyInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -547,6 +697,12 @@ export type TenantCountOrderByAggregateInput = {
   businessName?: Prisma.SortOrder
   greeting?: Prisma.SortOrder
   twilioPhoneNumber?: Prisma.SortOrder
+  onboardingStep?: Prisma.SortOrder
+  onboardingComplete?: Prisma.SortOrder
+  industry?: Prisma.SortOrder
+  businessAddress?: Prisma.SortOrder
+  businessPhone?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -559,12 +715,22 @@ export type TenantCountOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type TenantAvgOrderByAggregateInput = {
+  onboardingStep?: Prisma.SortOrder
+}
+
 export type TenantMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   businessName?: Prisma.SortOrder
   greeting?: Prisma.SortOrder
   twilioPhoneNumber?: Prisma.SortOrder
+  onboardingStep?: Prisma.SortOrder
+  onboardingComplete?: Prisma.SortOrder
+  industry?: Prisma.SortOrder
+  businessAddress?: Prisma.SortOrder
+  businessPhone?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -583,6 +749,12 @@ export type TenantMinOrderByAggregateInput = {
   businessName?: Prisma.SortOrder
   greeting?: Prisma.SortOrder
   twilioPhoneNumber?: Prisma.SortOrder
+  onboardingStep?: Prisma.SortOrder
+  onboardingComplete?: Prisma.SortOrder
+  industry?: Prisma.SortOrder
+  businessAddress?: Prisma.SortOrder
+  businessPhone?: Prisma.SortOrder
+  timezone?: Prisma.SortOrder
   email?: Prisma.SortOrder
   clerkUserId?: Prisma.SortOrder
   slug?: Prisma.SortOrder
@@ -593,6 +765,10 @@ export type TenantMinOrderByAggregateInput = {
   subscriptionStatus?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+}
+
+export type TenantSumOrderByAggregateInput = {
+  onboardingStep?: Prisma.SortOrder
 }
 
 export type TenantScalarRelationFilter = {
@@ -606,6 +782,18 @@ export type StringFieldUpdateOperationsInput = {
 
 export type NullableStringFieldUpdateOperationsInput = {
   set?: string | null
+}
+
+export type IntFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
+export type BoolFieldUpdateOperationsInput = {
+  set?: boolean
 }
 
 export type DateTimeFieldUpdateOperationsInput = {
@@ -758,6 +946,12 @@ export type TenantCreateWithoutSubscriptionInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -785,6 +979,12 @@ export type TenantUncheckedCreateWithoutSubscriptionInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -828,6 +1028,12 @@ export type TenantUpdateWithoutSubscriptionInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -855,6 +1061,12 @@ export type TenantUncheckedUpdateWithoutSubscriptionInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -882,6 +1094,12 @@ export type TenantCreateWithoutWebhookEndpointsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -909,6 +1127,12 @@ export type TenantUncheckedCreateWithoutWebhookEndpointsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -952,6 +1176,12 @@ export type TenantUpdateWithoutWebhookEndpointsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -979,6 +1209,12 @@ export type TenantUncheckedUpdateWithoutWebhookEndpointsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1006,6 +1242,12 @@ export type TenantCreateWithoutTenantUsersInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1033,6 +1275,12 @@ export type TenantUncheckedCreateWithoutTenantUsersInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1076,6 +1324,12 @@ export type TenantUpdateWithoutTenantUsersInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1103,6 +1357,12 @@ export type TenantUncheckedUpdateWithoutTenantUsersInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1130,6 +1390,12 @@ export type TenantCreateWithoutMembershipsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1157,6 +1423,12 @@ export type TenantUncheckedCreateWithoutMembershipsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1200,6 +1472,12 @@ export type TenantUpdateWithoutMembershipsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1227,6 +1505,12 @@ export type TenantUncheckedUpdateWithoutMembershipsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1254,6 +1538,12 @@ export type TenantCreateWithoutBusinessesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1281,6 +1571,12 @@ export type TenantUncheckedCreateWithoutBusinessesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1324,6 +1620,12 @@ export type TenantUpdateWithoutBusinessesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1351,6 +1653,12 @@ export type TenantUncheckedUpdateWithoutBusinessesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1378,6 +1686,12 @@ export type TenantCreateWithoutPhoneNumbersInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1405,6 +1719,12 @@ export type TenantUncheckedCreateWithoutPhoneNumbersInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1448,6 +1768,12 @@ export type TenantUpdateWithoutPhoneNumbersInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1475,6 +1801,12 @@ export type TenantUncheckedUpdateWithoutPhoneNumbersInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1502,6 +1834,12 @@ export type TenantCreateWithoutAgentProfilesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1529,6 +1867,12 @@ export type TenantUncheckedCreateWithoutAgentProfilesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1572,6 +1916,12 @@ export type TenantUpdateWithoutAgentProfilesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1599,6 +1949,12 @@ export type TenantUncheckedUpdateWithoutAgentProfilesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1626,6 +1982,12 @@ export type TenantCreateWithoutCallsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1653,6 +2015,12 @@ export type TenantUncheckedCreateWithoutCallsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1696,6 +2064,12 @@ export type TenantUpdateWithoutCallsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1723,6 +2097,12 @@ export type TenantUncheckedUpdateWithoutCallsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1750,6 +2130,12 @@ export type TenantCreateWithoutProspectsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1777,6 +2163,12 @@ export type TenantUncheckedCreateWithoutProspectsInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1820,6 +2212,12 @@ export type TenantUpdateWithoutProspectsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1847,6 +2245,12 @@ export type TenantUncheckedUpdateWithoutProspectsInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1874,6 +2278,12 @@ export type TenantCreateWithoutProspectImportBatchesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1901,6 +2311,12 @@ export type TenantUncheckedCreateWithoutProspectImportBatchesInput = {
   businessName?: string | null
   greeting?: string | null
   twilioPhoneNumber?: string | null
+  onboardingStep?: number
+  onboardingComplete?: boolean
+  industry?: string | null
+  businessAddress?: string | null
+  businessPhone?: string | null
+  timezone?: string | null
   email?: string | null
   clerkUserId?: string | null
   slug: string
@@ -1944,6 +2360,12 @@ export type TenantUpdateWithoutProspectImportBatchesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1971,6 +2393,12 @@ export type TenantUncheckedUpdateWithoutProspectImportBatchesInput = {
   businessName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   greeting?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   twilioPhoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardingStep?: Prisma.IntFieldUpdateOperationsInput | number
+  onboardingComplete?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  industry?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  businessPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  timezone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   clerkUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   slug?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2101,6 +2529,12 @@ export type TenantSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   businessName?: boolean
   greeting?: boolean
   twilioPhoneNumber?: boolean
+  onboardingStep?: boolean
+  onboardingComplete?: boolean
+  industry?: boolean
+  businessAddress?: boolean
+  businessPhone?: boolean
+  timezone?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2130,6 +2564,12 @@ export type TenantSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   businessName?: boolean
   greeting?: boolean
   twilioPhoneNumber?: boolean
+  onboardingStep?: boolean
+  onboardingComplete?: boolean
+  industry?: boolean
+  businessAddress?: boolean
+  businessPhone?: boolean
+  timezone?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2148,6 +2588,12 @@ export type TenantSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   businessName?: boolean
   greeting?: boolean
   twilioPhoneNumber?: boolean
+  onboardingStep?: boolean
+  onboardingComplete?: boolean
+  industry?: boolean
+  businessAddress?: boolean
+  businessPhone?: boolean
+  timezone?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2166,6 +2612,12 @@ export type TenantSelectScalar = {
   businessName?: boolean
   greeting?: boolean
   twilioPhoneNumber?: boolean
+  onboardingStep?: boolean
+  onboardingComplete?: boolean
+  industry?: boolean
+  businessAddress?: boolean
+  businessPhone?: boolean
+  timezone?: boolean
   email?: boolean
   clerkUserId?: boolean
   slug?: boolean
@@ -2178,7 +2630,7 @@ export type TenantSelectScalar = {
   updatedAt?: boolean
 }
 
-export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "businessName" | "greeting" | "twilioPhoneNumber" | "email" | "clerkUserId" | "slug" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "plan" | "subscriptionStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
+export type TenantOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "businessName" | "greeting" | "twilioPhoneNumber" | "onboardingStep" | "onboardingComplete" | "industry" | "businessAddress" | "businessPhone" | "timezone" | "email" | "clerkUserId" | "slug" | "status" | "stripeCustomerId" | "stripeSubscriptionId" | "plan" | "subscriptionStatus" | "createdAt" | "updatedAt", ExtArgs["result"]["tenant"]>
 export type TenantInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   memberships?: boolean | Prisma.Tenant$membershipsArgs<ExtArgs>
   businesses?: boolean | Prisma.Tenant$businessesArgs<ExtArgs>
@@ -2215,6 +2667,12 @@ export type $TenantPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     businessName: string | null
     greeting: string | null
     twilioPhoneNumber: string | null
+    onboardingStep: number
+    onboardingComplete: boolean
+    industry: string | null
+    businessAddress: string | null
+    businessPhone: string | null
+    timezone: string | null
     email: string | null
     clerkUserId: string | null
     slug: string
@@ -2663,6 +3121,12 @@ export interface TenantFieldRefs {
   readonly businessName: Prisma.FieldRef<"Tenant", 'String'>
   readonly greeting: Prisma.FieldRef<"Tenant", 'String'>
   readonly twilioPhoneNumber: Prisma.FieldRef<"Tenant", 'String'>
+  readonly onboardingStep: Prisma.FieldRef<"Tenant", 'Int'>
+  readonly onboardingComplete: Prisma.FieldRef<"Tenant", 'Boolean'>
+  readonly industry: Prisma.FieldRef<"Tenant", 'String'>
+  readonly businessAddress: Prisma.FieldRef<"Tenant", 'String'>
+  readonly businessPhone: Prisma.FieldRef<"Tenant", 'String'>
+  readonly timezone: Prisma.FieldRef<"Tenant", 'String'>
   readonly email: Prisma.FieldRef<"Tenant", 'String'>
   readonly clerkUserId: Prisma.FieldRef<"Tenant", 'String'>
   readonly slug: Prisma.FieldRef<"Tenant", 'String'>

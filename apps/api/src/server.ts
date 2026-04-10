@@ -37,7 +37,7 @@ import { registerProspectSummaryRoutes } from './routes/prospect-summary.js';
 import { registerStripeWebhookRoutes } from './routes/stripe-webhooks.js';
 import { registerClerkWebhookRoutes } from './routes/clerk-webhooks.js';
 import { registerBillingRoutes } from './routes/billing.js';
-import { registerOnboardingRoutes } from './routes/onboarding.js';
+import onboarding from './routes/onboarding.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
 import { runEnvCheck } from './lib/env-check.js';
@@ -166,7 +166,7 @@ export async function buildServer() {
   await registerStripeWebhookRoutes(app);
   await registerClerkWebhookRoutes(app);
   await registerBillingRoutes(app);
-  await registerOnboardingRoutes(app);
+  await app.register(onboarding);
   await registerAgentProfileWriteRoutes(app);
   await registerProspectImportRoutes(app);
   await registerProspectReadRoutes(app);
