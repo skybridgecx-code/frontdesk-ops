@@ -55,7 +55,7 @@ function shouldProtectWithBasicAuth(pathname: string) {
   );
 }
 
-export async function middleware(request: NextRequest, event: import('next/server').NextFetchEvent) {
+export async function proxy(request: NextRequest, event: import('next/server').NextFetchEvent) {
   if (process.env.CLERK_SECRET_KEY) {
     return clerkMiddlewareHandler(request, event);
   }
