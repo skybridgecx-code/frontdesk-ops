@@ -72,7 +72,7 @@ export default async function DashboardLayout({
     normalizedBillingStatus === 'past_due';
 
   const shouldRedirectToWelcome = onboardingStatus
-    ? !onboardingStatus.isOnboardingComplete && !onboardingStatus.hasPhoneNumbers && !isBillingPage && !isWelcomePage
+    ? onboardingStatus.isOnboardingComplete === false && !isBillingPage && !isWelcomePage
     : false;
 
   if (shouldRedirectToWelcome) {
