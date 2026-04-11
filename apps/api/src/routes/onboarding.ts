@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { z } from 'zod';
@@ -66,6 +67,21 @@ type OnboardingTenant = {
   subscriptionStatus: string;
 };
 
+const ONBOARDING_TENANT_SELECT = {
+  id: true,
+  onboardingStep: true,
+  onboardingComplete: true,
+  businessName: true,
+  industry: true,
+  businessAddress: true,
+  businessPhone: true,
+  timezone: true,
+  greeting: true,
+  twilioPhoneNumber: true,
+  plan: true,
+  subscriptionStatus: true
+} as const;
+
 function toCount(value: CountRow['count']) {
   if (typeof value === 'number') {
     return value;
@@ -90,6 +106,50 @@ function normalizeOptionalString(value: string | undefined) {
   return trimmed && trimmed.length > 0 ? trimmed : null;
 }
 
+function createTenantSlugFromClerkUserId(clerkUserId: string) {
+  const normalized = clerkUserId
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 40);
+
+  const suffix = randomUUID().replace(/-/g, '').slice(0, 8);
+  const base = normalized.length > 0 ? normalized : 'tenant';
+  return `${base}-${suffix}`;
+}
+
+async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTenant> {
+  const tenant = await prisma.tenant.upsert({
+    where: {
+      clerkUserId
+    },
+    update: {},
+    create: {
+      name: 'New User',
+      slug: createTenantSlugFromClerkUserId(clerkUserId),
+      clerkUserId
+    },
+    select: ONBOARDING_TENANT_SELECT
+  });
+
+  await prisma.tenantUser.upsert({
+    where: {
+      clerkUserId
+    },
+    update: {
+      tenantId: tenant.id,
+      role: 'owner'
+    },
+    create: {
+      clerkUserId,
+      tenantId: tenant.id,
+      role: 'owner'
+    }
+  });
+
+  return tenant;
+}
+
 async function getOnboardingTenant(
   request: FastifyRequest,
   reply: FastifyReply
@@ -101,33 +161,33 @@ async function getOnboardingTenant(
     return null;
   }
 
-  const tenant = await prisma.tenant.findUnique({
+  const tenantUser = await prisma.tenantUser.findUnique({
     where: {
       clerkUserId
     },
     select: {
-      id: true,
-      onboardingStep: true,
-      onboardingComplete: true,
-      businessName: true,
-      industry: true,
-      businessAddress: true,
-      businessPhone: true,
-      timezone: true,
-      greeting: true,
-      twilioPhoneNumber: true,
-      plan: true,
-      subscriptionStatus: true
+      tenantId: true
     }
   });
 
-  if (!tenant) {
-    reply.status(404).send({
-      error: 'Tenant not found'
+  if (tenantUser?.tenantId) {
+    const tenant = await prisma.tenant.findUnique({
+      where: {
+        id: tenantUser.tenantId
+      },
+      select: ONBOARDING_TENANT_SELECT
     });
-    return null;
+
+    if (tenant) {
+      request.tenantId = tenant.id;
+      request.tenantRole = 'owner';
+      return tenant;
+    }
   }
 
+  const tenant = await ensureOnboardingTenant(clerkUserId);
+  request.tenantId = tenant.id;
+  request.tenantRole = 'owner';
   return tenant;
 }
 
