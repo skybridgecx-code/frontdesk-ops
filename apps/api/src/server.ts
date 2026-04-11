@@ -82,15 +82,31 @@ export async function buildServer() {
     bodyLimit: 1_048_576
   });
 
-  const allowedOrigins = [
-    process.env.FRONTDESK_WEB_URL ?? 'https://frontdesk-ops-web.vercel.app'
-  ];
+  const allowedOrigins = new Set<string>([
+    'https://skybridgecx.co',
+    'https://www.skybridgecx.co',
+    'https://frontdesk-ops-web.vercel.app'
+  ]);
+
+  const configuredWebOrigin = process.env.FRONTDESK_WEB_URL?.trim();
+  if (configuredWebOrigin) {
+    allowedOrigins.add(configuredWebOrigin.replace(/\/$/, ''));
+  }
+
   if (process.env.NODE_ENV === 'development') {
-    allowedOrigins.push('http://localhost:3000');
+    allowedOrigins.add('http://localhost:3000');
+    allowedOrigins.add('http://127.0.0.1:3000');
   }
 
   await app.register(cors, {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, allowedOrigins.has(origin.replace(/\/$/, '')));
+    },
     credentials: true
   });
 

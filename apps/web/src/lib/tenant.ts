@@ -13,11 +13,12 @@ export type TenantContext = {
 };
 
 export type OnboardingStatus = {
-  tenantId: string;
-  tenantName: string;
+  tenantId?: string;
+  tenantName?: string;
   hasSubscription: boolean;
   hasBusinesses: boolean;
   hasPhoneNumbers: boolean;
+  onboardingComplete: boolean;
   isOnboardingComplete: boolean;
 };
 
@@ -50,7 +51,35 @@ const fetchOnboardingStatus = cache(async (): Promise<OnboardingStatus | null> =
     return null;
   }
 
-  return (await response.json()) as OnboardingStatus;
+  const payload = (await response.json()) as {
+    tenantId?: unknown;
+    tenantName?: unknown;
+    hasSubscription?: unknown;
+    hasBusinesses?: unknown;
+    hasPhoneNumbers?: unknown;
+    onboardingComplete?: unknown;
+    isOnboardingComplete?: unknown;
+    steps?: {
+      businessInfo?: { complete?: unknown };
+      phoneNumber?: { complete?: unknown };
+      billing?: { complete?: unknown };
+    };
+  };
+
+  const hasSubscription = payload.hasSubscription === true || payload.steps?.billing?.complete === true;
+  const hasBusinesses = payload.hasBusinesses === true || payload.steps?.businessInfo?.complete === true;
+  const hasPhoneNumbers = payload.hasPhoneNumbers === true || payload.steps?.phoneNumber?.complete === true;
+  const onboardingComplete = payload.onboardingComplete === true || payload.isOnboardingComplete === true;
+
+  return {
+    tenantId: typeof payload.tenantId === 'string' ? payload.tenantId : undefined,
+    tenantName: typeof payload.tenantName === 'string' ? payload.tenantName : undefined,
+    hasSubscription,
+    hasBusinesses,
+    hasPhoneNumbers,
+    onboardingComplete,
+    isOnboardingComplete: onboardingComplete
+  };
 });
 
 export async function getCurrentTenant() {

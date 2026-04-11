@@ -54,6 +54,7 @@ const phoneNumberBodySchema = z
 
 type OnboardingTenant = {
   id: string;
+  name: string;
   onboardingStep: number;
   onboardingComplete: boolean;
   businessName: string | null;
@@ -69,6 +70,7 @@ type OnboardingTenant = {
 
 const ONBOARDING_TENANT_SELECT = {
   id: true,
+  name: true,
   onboardingStep: true,
   onboardingComplete: true,
   businessName: true,
@@ -118,6 +120,29 @@ function createTenantSlugFromClerkUserId(clerkUserId: string) {
   return `${base}-${suffix}`;
 }
 
+async function ensureDefaultBusinessForTenant(tenant: Pick<OnboardingTenant, 'id' | 'name' | 'businessName' | 'timezone'>) {
+  await prisma.business.upsert({
+    where: {
+      tenantId_slug: {
+        tenantId: tenant.id,
+        slug: 'main'
+      }
+    },
+    update: {
+      isDefault: true,
+      timezone: tenant.timezone ?? 'America/New_York'
+    },
+    create: {
+      tenantId: tenant.id,
+      name: tenant.businessName ?? tenant.name,
+      slug: 'main',
+      vertical: 'OTHER',
+      timezone: tenant.timezone ?? 'America/New_York',
+      isDefault: true
+    }
+  });
+}
+
 async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTenant> {
   const tenant = await prisma.tenant.upsert({
     where: {
@@ -146,6 +171,8 @@ async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTe
       role: 'owner'
     }
   });
+
+  await ensureDefaultBusinessForTenant(tenant);
 
   return tenant;
 }
@@ -179,6 +206,7 @@ async function getOnboardingTenant(
     });
 
     if (tenant) {
+      await ensureDefaultBusinessForTenant(tenant);
       request.tenantId = tenant.id;
       request.tenantRole = 'owner';
       return tenant;
