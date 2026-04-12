@@ -199,6 +199,7 @@ export async function buildServer() {
   await registerProspectAttemptReadRoutes(app);
   await registerProspectSummaryRoutes(app);
   await registerWebhookEndpointRoutes(app);
+  await registerPhoneProvisioningRoutes(app);
   await registerAnalyticsRoutes(app);
 
   return app;
