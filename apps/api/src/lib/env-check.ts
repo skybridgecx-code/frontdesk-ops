@@ -24,6 +24,16 @@ function warnMissingEnv(key: string, message: string) {
 }
 
 export function runEnvCheck() {
+  console.info(
+    '[env-check] TWILIO_ACCOUNT_SID present=%s TWILIO_AUTH_TOKEN present=%s',
+    Boolean(process.env.TWILIO_ACCOUNT_SID),
+    Boolean(process.env.TWILIO_AUTH_TOKEN)
+  );
+  console.info(
+    '[env-check] TWILIO_ACCOUNT_SID present=%s TWILIO_AUTH_TOKEN present=%s',
+    Boolean(process.env.TWILIO_ACCOUNT_SID),
+    Boolean(process.env.TWILIO_AUTH_TOKEN)
+  );
   for (const requirement of REQUIRED_ENV_VARS) {
     if (!hasValue(process.env[requirement.key])) {
       warnMissingEnv(requirement.key, requirement.message);
