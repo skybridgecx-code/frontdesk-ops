@@ -42,6 +42,7 @@ import settings from './routes/settings.js';
 import admin from './routes/admin.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
+import { registerPhoneProvisioningRoutes } from './routes/phone-provisioning.js';
 import { runEnvCheck } from './lib/env-check.js';
 
 function getPathname(url: string) {
