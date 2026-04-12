@@ -137,13 +137,15 @@ export function CompletionStep({ businessName, phoneNumber }: CompletionStepProp
       <div className="mb-4 text-6xl">🎉</div>
       <h2 className="text-2xl font-bold text-gray-900">You are all set</h2>
       <p className="mx-auto mt-2 max-w-md text-gray-500">
-        Your AI receptionist for <strong>{formattedBusinessName}</strong> is ready to take calls.
         {formattedPhone ? (
           <>
-            {' '}
-            Customers can reach you at <strong>{formattedPhone}</strong>.
+            Your AI receptionist for <strong>{formattedBusinessName}</strong> is ready to take calls. Customers can reach you at <strong>{formattedPhone}</strong>.
           </>
-        ) : null}
+        ) : (
+          <>
+            Your setup is not complete yet. Add a phone number before your AI receptionist can take calls.
+          </>
+        )}
       </p>
 
       {isFinalizing ? (
