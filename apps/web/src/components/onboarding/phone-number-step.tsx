@@ -73,7 +73,7 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
     }, 800);
 
     try {
-      const response = await fetch(getApiBaseUrl() + '/v1/onboarding/phone-number', {
+      const response = await fetch(getApiBaseUrl() + '/v1/provisioning/purchase-number', {
         method: 'POST',
         headers: {
           ...(await getClientInternalApiHeaders(() => getToken())),
