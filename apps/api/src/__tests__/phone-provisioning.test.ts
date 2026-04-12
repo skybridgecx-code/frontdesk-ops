@@ -339,6 +339,71 @@ describe('phone provisioning routes', () => {
     await app.close();
   });
 
+  it('purchase-number falls back to FRONTDESK_API_BASE_URL when FRONTDESK_API_PUBLIC_URL is missing', async () => {
+    delete process.env.FRONTDESK_API_PUBLIC_URL;
+    process.env.FRONTDESK_API_BASE_URL = 'https://frontdesk-ops.onrender.com/';
+
+    const { client, createMock } = createTwilioClient({
+      purchasedNumber: {
+        sid: 'PN124',
+        phoneNumber: '+17035550124',
+        friendlyName: '(703) 555-0124',
+        capabilities: {
+          voice: true,
+          sms: true,
+          mms: true,
+          fax: false
+        }
+      }
+    });
+
+    getTwilioClientMock.mockReturnValue(client);
+
+    businessFindFirstMock.mockResolvedValue({
+      id: 'biz_1',
+      tenantId: 'tenant_1'
+    } as never);
+
+    phoneNumberCreateMock.mockResolvedValue({
+      id: 'pn_2',
+      tenantId: 'tenant_1',
+      businessId: 'biz_1',
+      locationId: null,
+      provider: PhoneNumberProvider.TWILIO,
+      externalSid: 'PN124',
+      e164: '+17035550124',
+      label: '(703) 555-0124',
+      isActive: true,
+      routingMode: PhoneRoutingMode.AI_ALWAYS,
+      primaryAgentProfileId: null,
+      afterHoursAgentProfileId: null,
+      enableMissedCallTextBack: true,
+      createdAt: new Date('2026-04-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-04-01T00:00:00.000Z')
+    } as never);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/provisioning/purchase-number',
+      payload: {
+        phoneNumber: '+17035550124',
+        businessId: 'biz_1'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(createMock).toHaveBeenCalledWith({
+      phoneNumber: '+17035550124',
+      voiceUrl: 'https://frontdesk-ops.onrender.com/v1/twilio/voice/inbound',
+      voiceMethod: 'POST',
+      statusCallback: 'https://frontdesk-ops.onrender.com/v1/twilio/voice/status',
+      statusCallbackMethod: 'POST'
+    });
+
+    await app.close();
+  });
+
   it('purchase-number validates businessId belongs to tenant', async () => {
     const { client, createMock } = createTwilioClient({});
     getTwilioClientMock.mockReturnValue(client);

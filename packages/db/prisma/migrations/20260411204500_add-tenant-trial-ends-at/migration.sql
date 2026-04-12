@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "Tenant"
+ADD COLUMN IF NOT EXISTS "trialEndsAt" TIMESTAMP(3);

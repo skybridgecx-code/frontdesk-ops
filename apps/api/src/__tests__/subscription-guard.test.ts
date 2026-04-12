@@ -35,6 +35,14 @@ function buildSubscriptionRow(status: string) {
   };
 }
 
+function buildTenantTrialRow(input: { trialEndsAt: Date | string | null; createdAt?: Date | string }) {
+  return {
+    subscriptionStatus: 'trialing',
+    trialEndsAt: input.trialEndsAt,
+    createdAt: input.createdAt ?? new Date('2026-04-01T00:00:00.000Z')
+  };
+}
+
 async function createApp() {
   const app = fastify({ logger: false });
 
@@ -148,7 +156,49 @@ describe('subscription guard middleware', () => {
   });
 
   it('blocks when subscription does not exist', async () => {
-    queryRawMock.mockResolvedValue([]);
+    queryRawMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
+
+    const app = await createApp();
+    const response = await app.inject({ method: 'GET', url: '/v1/private' });
+
+    expect(response.statusCode).toBe(403);
+    expect(response.json()).toEqual({
+      error: 'Active subscription required.',
+      redirectTo: '/billing'
+    });
+
+    await app.close();
+  });
+
+  it('allows tenant-level active trials when subscription row does not exist', async () => {
+    queryRawMock
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        buildTenantTrialRow({
+          trialEndsAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+        })
+      ]);
+
+    const app = await createApp();
+    const response = await app.inject({ method: 'GET', url: '/v1/private' });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      subscriptionWarning: null
+    });
+
+    await app.close();
+  });
+
+  it('blocks tenant-level expired trials when subscription row does not exist', async () => {
+    queryRawMock
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        buildTenantTrialRow({
+          trialEndsAt: new Date(Date.now() - 60 * 1000)
+        })
+      ]);
 
     const app = await createApp();
     const response = await app.inject({ method: 'GET', url: '/v1/private' });

@@ -4,6 +4,7 @@ import Stripe from 'stripe';
 import { z } from 'zod';
 import { getAllPlans, getPlanByKey, getPlanByPriceId, PLAN_KEYS, type Plan } from '../lib/plans.js';
 import { getSubscriptionByTenantId, type SubscriptionRecord } from '../lib/subscription-store.js';
+import { getTenantTrialState } from '../lib/tenant-trial.js';
 
 /**
  * Required Stripe environment variables:
@@ -23,6 +24,9 @@ type TenantBillingAccount = {
   email: string | null;
   stripeCustomerId: string | null;
 };
+
+const TRIAL_LENGTH_DAYS = 14;
+const TRIAL_LENGTH_MS = TRIAL_LENGTH_DAYS * 24 * 60 * 60 * 1000;
 
 const createCheckoutBodySchema = z
   .object({
@@ -212,13 +216,14 @@ async function countBusinesses(tenantId: string) {
 
 async function getUsageSnapshot(input: {
   tenantId: string;
-  subscription: SubscriptionRecord;
+  periodStart: Date;
+  periodEnd: Date;
 }) {
   const [callsThisPeriod, activePhoneNumbers, activeBusinesses] = await Promise.all([
     countCallsForPeriod({
       tenantId: input.tenantId,
-      start: input.subscription.currentPeriodStart,
-      end: input.subscription.currentPeriodEnd
+      start: input.periodStart,
+      end: input.periodEnd
     }),
     countActivePhoneNumbers(input.tenantId),
     countBusinesses(input.tenantId)
@@ -476,8 +481,52 @@ export async function registerBillingRoutes(app: FastifyInstance) {
     const subscription = await getSubscriptionByTenantId(parsed.data.tenantId);
 
     if (!subscription) {
+      const tenantTrial = await getTenantTrialState(parsed.data.tenantId);
+
+      if (tenantTrial?.isTrialActive && tenantTrial.trialEndsAt) {
+        const trialPlan = getPlanByKey('starter');
+        const trialPeriodStart =
+          tenantTrial.trialStartedAt ??
+          new Date(tenantTrial.trialEndsAt.getTime() - TRIAL_LENGTH_MS);
+
+        const trialUsage = await getUsageSnapshot({
+          tenantId: parsed.data.tenantId,
+          periodStart: trialPeriodStart,
+          periodEnd: tenantTrial.trialEndsAt
+        });
+
+        return {
+          status: 'trialing',
+          stripeCustomerId: null,
+          stripeSubscriptionId: null,
+          stripePriceId: null,
+          cancelAtPeriodEnd: false,
+          currentPeriodStart: trialPeriodStart.toISOString(),
+          currentPeriodEnd: tenantTrial.trialEndsAt.toISOString(),
+          planKey: trialPlan.key,
+          planName: trialPlan.name,
+          planLimits: {
+            callsPerMonth: trialPlan.callsPerMonth,
+            maxPhoneNumbers: trialPlan.maxPhoneNumbers,
+            maxBusinesses: trialPlan.maxBusinesses
+          },
+          monthlyPrice: trialPlan.monthlyPrice,
+          callsThisPeriod: trialUsage.callsThisPeriod,
+          activePhoneNumbers: trialUsage.activePhoneNumbers,
+          activeBusinesses: trialUsage.activeBusinesses,
+          trialEndsAt: tenantTrial.trialEndsAt.toISOString(),
+          trialDaysRemaining: tenantTrial.trialDaysRemaining,
+          plans: getAllPlans()
+        };
+      }
+
       return {
         status: 'none',
+        trialExpired: tenantTrial?.isTrialExpired ?? false,
+        trialEndedAt:
+          tenantTrial?.isTrialExpired && tenantTrial.trialEndsAt
+            ? tenantTrial.trialEndsAt.toISOString()
+            : null,
         plans: getAllPlans()
       };
     }
@@ -485,7 +534,8 @@ export async function registerBillingRoutes(app: FastifyInstance) {
     const plan = resolveSubscriptionPlan(subscription);
     const usage = await getUsageSnapshot({
       tenantId: parsed.data.tenantId,
-      subscription
+      periodStart: subscription.currentPeriodStart,
+      periodEnd: subscription.currentPeriodEnd
     });
 
     return {
@@ -537,7 +587,8 @@ export async function registerBillingRoutes(app: FastifyInstance) {
     const plan = resolveSubscriptionPlan(subscription);
     const usage = await getUsageSnapshot({
       tenantId: parsed.data.tenantId,
-      subscription
+      periodStart: subscription.currentPeriodStart,
+      periodEnd: subscription.currentPeriodEnd
     });
 
     return {

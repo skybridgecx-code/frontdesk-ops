@@ -123,6 +123,16 @@ describe('clerk webhook hardening routes', () => {
 
     expect(response.statusCode).toBe(200);
     expect(transactionMock).toHaveBeenCalledTimes(1);
+    expect(executeRawMock).toHaveBeenCalledTimes(4);
+
+    const tenantInsertArgs = executeRawMock.mock.calls[0] ?? [];
+    const tenantInsertQuery = tenantInsertArgs[0];
+    const tenantInsertSql = Array.isArray(tenantInsertQuery)
+      ? tenantInsertQuery.join('')
+      : String(tenantInsertQuery ?? '');
+
+    expect(tenantInsertSql).toContain('"trialEndsAt"');
+    expect(tenantInsertSql).toContain("'trialing'");
 
     await app.close();
   });

@@ -4,14 +4,22 @@ import onboarding from '../onboarding.js';
 
 const {
   tenantFindUniqueMock,
+  tenantUpsertMock,
   tenantUpdateMock,
+  tenantUserFindUniqueMock,
+  tenantUserUpsertMock,
   businessFindFirstMock,
+  businessUpsertMock,
   findAvailableLocalNumberMock,
   provisionPhoneNumberForTenantMock
 } = vi.hoisted(() => ({
   tenantFindUniqueMock: vi.fn(),
+  tenantUpsertMock: vi.fn(),
   tenantUpdateMock: vi.fn(),
+  tenantUserFindUniqueMock: vi.fn(),
+  tenantUserUpsertMock: vi.fn(),
   businessFindFirstMock: vi.fn(),
+  businessUpsertMock: vi.fn(),
   findAvailableLocalNumberMock: vi.fn(),
   provisionPhoneNumberForTenantMock: vi.fn()
 }));
@@ -31,10 +39,16 @@ vi.mock('@frontdesk/db', async (importOriginal) => {
     prisma: {
       tenant: {
         findUnique: tenantFindUniqueMock,
+        upsert: tenantUpsertMock,
         update: tenantUpdateMock
       },
+      tenantUser: {
+        findUnique: tenantUserFindUniqueMock,
+        upsert: tenantUserUpsertMock
+      },
       business: {
-        findFirst: businessFindFirstMock
+        findFirst: businessFindFirstMock,
+        upsert: businessUpsertMock
       }
     }
   };
@@ -101,13 +115,22 @@ describe('onboarding wizard routes', () => {
     process.env.TWILIO_AUTH_TOKEN = 'auth123';
 
     tenantFindUniqueMock.mockReset();
+    tenantUpsertMock.mockReset();
     tenantUpdateMock.mockReset();
+    tenantUserFindUniqueMock.mockReset();
+    tenantUserUpsertMock.mockReset();
     businessFindFirstMock.mockReset();
+    businessUpsertMock.mockReset();
     findAvailableLocalNumberMock.mockReset();
     provisionPhoneNumberForTenantMock.mockReset();
 
+    tenantFindUniqueMock.mockResolvedValue(createTenant());
+    tenantUpsertMock.mockResolvedValue(createTenant());
     tenantUpdateMock.mockResolvedValue({});
+    tenantUserFindUniqueMock.mockResolvedValue({ tenantId: 'tenant_1' });
+    tenantUserUpsertMock.mockResolvedValue({});
     businessFindFirstMock.mockResolvedValue({ id: 'biz_1' });
+    businessUpsertMock.mockResolvedValue({});
     findAvailableLocalNumberMock.mockResolvedValue({ phoneNumber: '+12125551234' });
     provisionPhoneNumberForTenantMock.mockResolvedValue({
       phoneNumber: {

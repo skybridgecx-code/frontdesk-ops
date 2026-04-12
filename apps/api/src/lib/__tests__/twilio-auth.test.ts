@@ -8,7 +8,9 @@ const { validateRequestMock } = vi.hoisted(() => ({
 
 vi.mock('twilio', () => {
   return {
-    validateRequest: validateRequestMock
+    default: {
+      validateRequest: validateRequestMock
+    }
   };
 });
 
@@ -80,7 +82,7 @@ describe('validateTwilioRequest', () => {
     expect(validateRequestMock).toHaveBeenCalledWith(
       'twilio_auth_token',
       'sig_invalid',
-      'https://frontdesk-ops.onrender.com/v1/twilio/voice/incoming',
+      'http://localhost:4000/v1/twilio/voice/incoming',
       {
         CallSid: 'CA123',
         From: '+15551234567',

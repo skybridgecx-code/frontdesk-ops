@@ -55,6 +55,14 @@ function buildSubscriptionRow() {
   };
 }
 
+function buildTenantTrialRow(input: { trialEndsAt: Date | string | null; createdAt?: Date | string }) {
+  return {
+    subscriptionStatus: 'trialing',
+    trialEndsAt: input.trialEndsAt,
+    createdAt: input.createdAt ?? new Date('2026-04-01T00:00:00.000Z')
+  };
+}
+
 describe('billing routes', () => {
   const originalEnv = { ...process.env };
   let originalQueryRaw: typeof prisma.$queryRaw;
@@ -228,7 +236,7 @@ describe('billing routes', () => {
   });
 
   it('billing status returns none when no subscription exists', async () => {
-    queryRawMock.mockResolvedValue([]);
+    queryRawMock.mockResolvedValueOnce([]).mockResolvedValueOnce([]);
 
     const app = await createApp();
     const response = await app.inject({
@@ -242,6 +250,49 @@ describe('billing routes', () => {
         status: 'none'
       })
     );
+
+    await app.close();
+  });
+
+  it('billing status returns trialing when tenant has an active free trial', async () => {
+    queryRawMock
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([
+        buildTenantTrialRow({
+          trialEndsAt: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000)
+        })
+      ])
+      .mockResolvedValueOnce([{ count: 42 }])
+      .mockResolvedValueOnce([{ count: 1 }])
+      .mockResolvedValueOnce([{ count: 1 }]);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/billing/status/tenant_1'
+    });
+
+    expect(response.statusCode).toBe(200);
+
+    const payload = response.json() as {
+      status: string;
+      planKey: string;
+      stripeSubscriptionId: string | null;
+      trialEndsAt?: string;
+      trialDaysRemaining?: number;
+      callsThisPeriod: number;
+      activePhoneNumbers: number;
+      activeBusinesses: number;
+    };
+
+    expect(payload.status).toBe('trialing');
+    expect(payload.planKey).toBe('starter');
+    expect(payload.stripeSubscriptionId).toBeNull();
+    expect(payload.trialEndsAt).toBeDefined();
+    expect(payload.trialDaysRemaining).toBeGreaterThan(0);
+    expect(payload.callsThisPeriod).toBe(42);
+    expect(payload.activePhoneNumbers).toBe(1);
+    expect(payload.activeBusinesses).toBe(1);
 
     await app.close();
   });

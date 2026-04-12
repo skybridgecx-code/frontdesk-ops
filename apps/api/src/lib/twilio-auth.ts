@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import twilio from 'twilio';
+
 const { validateRequest } = twilio;
 
 function getHeaderValue(value: string | string[] | undefined) {
@@ -33,6 +34,15 @@ function normalizeParams(body: unknown): Record<string, string> {
   }, {});
 }
 
+function getPublicBaseUrl() {
+  const configured = process.env.FRONTDESK_API_PUBLIC_URL?.trim();
+  if (!configured) {
+    return 'http://localhost:4000';
+  }
+
+  return configured.replace(/\/+$/, '');
+}
+
 export async function validateTwilioRequest(
   request: FastifyRequest,
   reply: FastifyReply
@@ -44,7 +54,8 @@ export async function validateTwilioRequest(
   }
 
   const signature = getHeaderValue(request.headers['x-twilio-signature']);
-  const url = `https://frontdesk-ops.onrender.com${request.url}`;
+  const pathname = request.url.split('?')[0] ?? request.url;
+  const url = `${getPublicBaseUrl()}${pathname}`;
   const params = normalizeParams(request.body);
 
   const isValid = validateRequest(authToken, signature, url, params);

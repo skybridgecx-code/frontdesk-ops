@@ -38,13 +38,15 @@ type SubscriptionStatus =
 type BillingStatusResponse =
   | {
       status: 'none';
+      trialExpired?: boolean;
+      trialEndedAt?: string | null;
       plans: BillingPlan[];
     }
   | {
       status: SubscriptionStatus;
-      stripeCustomerId: string;
-      stripeSubscriptionId: string;
-      stripePriceId: string;
+      stripeCustomerId: string | null;
+      stripeSubscriptionId: string | null;
+      stripePriceId: string | null;
       cancelAtPeriodEnd: boolean;
       currentPeriodStart: string;
       currentPeriodEnd: string;
@@ -59,6 +61,8 @@ type BillingStatusResponse =
       callsThisPeriod: number;
       activePhoneNumbers: number;
       activeBusinesses: number;
+      trialEndsAt?: string;
+      trialDaysRemaining?: number;
       plans: BillingPlan[];
     };
 
@@ -204,7 +208,13 @@ export default async function BillingPage({
   const plans = billingStatus.plans.length > 0 ? billingStatus.plans : FALLBACK_PLANS;
 
   const subscriptionStatus = billingStatus.status === 'none' ? null : billingStatus;
-  const hasSubscription = subscriptionStatus !== null;
+  const isTrialWithoutStripe =
+    subscriptionStatus?.status === 'trialing' && !subscriptionStatus.stripeSubscriptionId;
+  const hasSubscription = subscriptionStatus !== null && !isTrialWithoutStripe;
+  const canManageSubscription =
+    subscriptionStatus !== null &&
+    Boolean(subscriptionStatus.stripeCustomerId) &&
+    Boolean(subscriptionStatus.stripeSubscriptionId);
   const isActiveSubscription = subscriptionStatus
     ? subscriptionStatus.status === 'active' ||
       subscriptionStatus.status === 'trialing' ||
@@ -234,9 +244,17 @@ export default async function BillingPage({
           ? 'Could not create Stripe checkout session.'
           : resolvedSearchParams.notice === 'portal-error'
             ? 'Could not open Stripe billing portal.'
+            : resolvedSearchParams.notice === 'trial-expired'
+              ? billingStatus.status === 'none' && billingStatus.trialEndedAt
+                ? `Your 14-day free trial ended on ${formatDate(billingStatus.trialEndedAt)}. Choose a paid plan to continue.`
+                : 'Your 14-day free trial has ended. Choose a paid plan to continue.'
             : resolvedSearchParams.notice === 'subscription-required'
               ? 'Active subscription required to access dashboard pages.'
-              : null;
+              : billingStatus.status === 'none' && billingStatus.trialExpired
+                ? billingStatus.trialEndedAt
+                  ? `Your 14-day free trial ended on ${formatDate(billingStatus.trialEndedAt)}. Choose a paid plan to continue.`
+                  : 'Your 14-day free trial has ended. Choose a paid plan to continue.'
+                : null;
 
   async function createCheckoutSession(planKey: PlanKey) {
     'use server';
@@ -308,7 +326,14 @@ export default async function BillingPage({
       ) : null}
 
       {subscriptionStatus ? (
-        <Card title="Current plan" subtitle="Subscription status and usage for this billing cycle.">
+        <Card
+          title="Current plan"
+          subtitle={
+            subscriptionStatus.status === 'trialing'
+              ? 'Free trial status and usage for your trial period.'
+              : 'Subscription status and usage for this billing cycle.'
+          }
+        >
           <div className="space-y-4">
             <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
               <div className="space-y-3">
@@ -320,6 +345,13 @@ export default async function BillingPage({
                   <p className="text-sm text-gray-600">
                     Period {formatDate(subscriptionStatus.currentPeriodStart)} to {formatDate(subscriptionStatus.currentPeriodEnd)}
                   </p>
+                  {subscriptionStatus.status === 'trialing' && subscriptionStatus.trialEndsAt ? (
+                    <p className="text-sm text-gray-600">
+                      {subscriptionStatus.trialDaysRemaining && subscriptionStatus.trialDaysRemaining > 0
+                        ? `${subscriptionStatus.trialDaysRemaining} day${subscriptionStatus.trialDaysRemaining === 1 ? '' : 's'} left in trial`
+                        : 'Trial active'}
+                    </p>
+                  ) : null}
                 </div>
               </div>
 
@@ -332,11 +364,13 @@ export default async function BillingPage({
                   </form>
                 ) : null}
 
-                <form action={createPortalSession}>
-                  <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto">
-                    Manage Subscription
-                  </button>
-                </form>
+                {canManageSubscription ? (
+                  <form action={createPortalSession}>
+                    <button className="min-h-11 w-full rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50 sm:w-auto">
+                      Manage Subscription
+                    </button>
+                  </form>
+                ) : null}
               </div>
             </div>
 

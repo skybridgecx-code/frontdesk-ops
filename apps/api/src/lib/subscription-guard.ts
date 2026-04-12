@@ -1,5 +1,6 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 import { getSubscriptionByTenantId } from './subscription-store.js';
+import { getTenantTrialState } from './tenant-trial.js';
 
 declare module 'fastify' {
   interface FastifyRequest {
@@ -32,6 +33,14 @@ export async function requireActiveSubscription(request: FastifyRequest, reply: 
   if (status === 'past_due') {
     request.subscriptionWarning = 'past_due';
     return true;
+  }
+
+  if (!subscription) {
+    const trialState = await getTenantTrialState(tenantId);
+
+    if (trialState?.isTrialActive) {
+      return true;
+    }
   }
 
   forbiddenSubscriptionRequired(reply);

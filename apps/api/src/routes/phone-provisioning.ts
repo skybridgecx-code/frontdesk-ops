@@ -40,7 +40,13 @@ type ProvisionPhoneNumberInput = {
 };
 
 function getApiPublicBaseUrl() {
-  return (process.env.FRONTDESK_API_PUBLIC_URL ?? 'http://localhost:4000').replace(/\/$/, '');
+  const configuredBaseUrl =
+    process.env.FRONTDESK_API_PUBLIC_URL?.trim() ||
+    process.env.FRONTDESK_API_BASE_URL?.trim() ||
+    process.env.RENDER_EXTERNAL_URL?.trim() ||
+    'http://localhost:4000';
+
+  return configuredBaseUrl.replace(/\/+$/, '');
 }
 
 function getErrorMessage(error: unknown) {

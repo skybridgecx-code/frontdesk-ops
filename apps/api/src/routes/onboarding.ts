@@ -13,6 +13,11 @@ type CountRow = {
   count: number | bigint | string;
 };
 
+type TwilioLikeError = {
+  status?: unknown;
+  message?: unknown;
+};
+
 const INDUSTRY_VALUES = [
   'plumbing',
   'hvac',
@@ -84,6 +89,12 @@ const ONBOARDING_TENANT_SELECT = {
   subscriptionStatus: true
 } as const;
 
+const TRIAL_LENGTH_DAYS = 14;
+
+function getTrialEndsAt() {
+  return new Date(Date.now() + TRIAL_LENGTH_DAYS * 24 * 60 * 60 * 1000);
+}
+
 function toCount(value: CountRow['count']) {
   if (typeof value === 'number') {
     return value;
@@ -106,6 +117,54 @@ function unauthorized(reply: FastifyReply) {
 function normalizeOptionalString(value: string | undefined) {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeTwilioError(error: unknown) {
+  if (!error || typeof error !== 'object') {
+    return {
+      status: null,
+      message: ''
+    };
+  }
+
+  const value = error as TwilioLikeError;
+  const status = typeof value.status === 'number' ? value.status : null;
+  const message = typeof value.message === 'string' ? value.message.trim() : '';
+
+  return {
+    status,
+    message
+  };
+}
+
+function getOnboardingProvisioningError(error: unknown) {
+  const normalized = normalizeTwilioError(error);
+
+  if (normalized.status === 400 || normalized.status === 404) {
+    return {
+      statusCode: 503,
+      error: 'Could not provision a phone number right now. Try another area code or leave the field blank.'
+    };
+  }
+
+  if (normalized.status === 401 || normalized.status === 403) {
+    return {
+      statusCode: 503,
+      error: 'Phone service is not fully configured. Please contact support.'
+    };
+  }
+
+  if (normalized.message.length > 0) {
+    return {
+      statusCode: 503,
+      error: normalized.message
+    };
+  }
+
+  return {
+    statusCode: 503,
+    error: 'Unable to provision a phone number right now. Please try again in a minute.'
+  };
 }
 
 function createTenantSlugFromClerkUserId(clerkUserId: string) {
@@ -144,6 +203,8 @@ async function ensureDefaultBusinessForTenant(tenant: Pick<OnboardingTenant, 'id
 }
 
 async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTenant> {
+  const trialEndsAt = getTrialEndsAt();
+
   const tenant = await prisma.tenant.upsert({
     where: {
       clerkUserId
@@ -152,10 +213,18 @@ async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTe
     create: {
       name: 'New User',
       slug: createTenantSlugFromClerkUserId(clerkUserId),
-      clerkUserId
+      clerkUserId,
+      subscriptionStatus: 'trialing'
     },
     select: ONBOARDING_TENANT_SELECT
   });
+
+  await prisma.$executeRaw`
+    UPDATE "Tenant"
+    SET "trialEndsAt" = COALESCE("trialEndsAt", ${trialEndsAt})
+    WHERE "id" = ${tenant.id}
+      AND "subscriptionStatus" = 'trialing'
+  `;
 
   await prisma.tenantUser.upsert({
     where: {
@@ -472,9 +541,20 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    const availableNumber = await findAvailableLocalNumber({
-      areaCode: parsed.data.areaCode
-    });
+    let availableNumber: Awaited<ReturnType<typeof findAvailableLocalNumber>>;
+    try {
+      availableNumber = await findAvailableLocalNumber({
+        areaCode: parsed.data.areaCode
+      });
+    } catch (error) {
+      request.log.error(
+        { err: error, tenantId: tenant.id, areaCode: parsed.data.areaCode ?? null },
+        'Failed to search available onboarding phone numbers.'
+      );
+      return reply.status(503).send({
+        error: 'Unable to search available phone numbers right now. Please try again in a minute.'
+      });
+    }
 
     if (!availableNumber?.phoneNumber) {
       return reply.status(503).send({
@@ -482,11 +562,29 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
       });
     }
 
-    const provisioned = await provisionPhoneNumberForTenant({
-      tenantId: tenant.id,
-      businessId: business.id,
-      phoneNumber: availableNumber.phoneNumber
-    });
+    let provisioned: Awaited<ReturnType<typeof provisionPhoneNumberForTenant>>;
+    try {
+      provisioned = await provisionPhoneNumberForTenant({
+        tenantId: tenant.id,
+        businessId: business.id,
+        phoneNumber: availableNumber.phoneNumber
+      });
+    } catch (error) {
+      request.log.error(
+        {
+          err: error,
+          tenantId: tenant.id,
+          businessId: business.id,
+          phoneNumber: availableNumber.phoneNumber
+        },
+        'Failed to provision onboarding phone number.'
+      );
+
+      const mappedError = getOnboardingProvisioningError(error);
+      return reply.status(mappedError.statusCode).send({
+        error: mappedError.error
+      });
+    }
 
     const updatedTenant = await prisma.tenant.update({
       where: {

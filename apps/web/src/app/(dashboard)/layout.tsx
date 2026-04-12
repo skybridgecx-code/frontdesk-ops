@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 
 type BillingStatusResponse = {
   status: string;
+  trialExpired?: boolean;
+  trialEndedAt?: string | null;
 };
 
 function getRequestPathname(requestHeaders: { get(name: string): string | null }) {
@@ -80,7 +82,8 @@ export default async function DashboardLayout({
   }
 
   if (!isBillingPage && !isWelcomePage && !canAccessDashboard) {
-    redirect('/billing?notice=subscription-required');
+    const notice = billingStatus.trialExpired ? 'trial-expired' : 'subscription-required';
+    redirect(`/billing?notice=${notice}`);
   }
 
   const showPastDueBanner = !isBillingPage && !isWelcomePage && normalizedBillingStatus === 'past_due';

@@ -23,10 +23,21 @@ type ProspectRow = {
   updatedAt: string;
 };
 
-type ProspectsResponse = {
+type ProspectsApiResponse = {
   ok: true;
   prospects: ProspectRow[];
 };
+
+type ProspectsFetchResult =
+  | {
+      ok: true;
+      prospects: ProspectRow[];
+    }
+  | {
+      ok: false;
+      status: number;
+      message: string;
+    };
 
 type ProspectSearchParams = {
   q?: string;
@@ -73,17 +84,60 @@ function buildProspectsHref(status: string, q: string) {
   return query ? `/prospects?${query}` : '/prospects';
 }
 
-async function getProspects(businessId: string) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects?limit=200`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+async function getProspects(businessId: string): Promise<ProspectsFetchResult> {
+  let response: Response;
 
-  if (!response.ok) {
-    throw new Error(`Failed to load prospects: ${response.status}`);
+  try {
+    response = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}/prospects?limit=200`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
+  } catch {
+    return {
+      ok: false,
+      status: 503,
+      message: 'Could not reach the API. Please try again.'
+    };
   }
 
-  return (await response.json()) as ProspectsResponse;
+  if (!response.ok) {
+    if (response.status === 403) {
+      return {
+        ok: false,
+        status: 403,
+        message: 'Active subscription required to access prospects.'
+      };
+    }
+
+    return {
+      ok: false,
+      status: response.status,
+      message: `Failed to load prospects (${response.status}).`
+    };
+  }
+
+  try {
+    const data = (await response.json()) as ProspectsApiResponse;
+
+    if (!Array.isArray(data.prospects)) {
+      return {
+        ok: false,
+        status: 500,
+        message: 'Prospects response was malformed.'
+      };
+    }
+
+    return {
+      ok: true,
+      prospects: data.prospects
+    };
+  } catch {
+    return {
+      ok: false,
+      status: 500,
+      message: 'Could not parse prospects response.'
+    };
+  }
 }
 
 function getPipelineCount(prospects: ProspectRow[], status: (typeof pipelineStatuses)[number]) {
@@ -131,6 +185,29 @@ export default async function ProspectsPage({
   }
 
   const prospectsResponse = await getProspects(activeBusiness.id);
+
+  if (!prospectsResponse.ok) {
+    if (prospectsResponse.status === 403) {
+      return (
+        <EmptyState
+          title="Subscription required"
+          description="Active subscription required to access prospects."
+          actionLabel="Go to billing"
+          actionHref="/billing?notice=subscription-required"
+        />
+      );
+    }
+
+    return (
+      <EmptyState
+        title="Could not load prospects"
+        description={prospectsResponse.message}
+        actionLabel="Try again"
+        actionHref={buildProspectsHref(statusFilter, search)}
+      />
+    );
+  }
+
   const allProspects = prospectsResponse.prospects;
   const filteredProspects = allProspects.filter((prospect) => {
     const normalizedStatus = normalizeText(prospect.status);

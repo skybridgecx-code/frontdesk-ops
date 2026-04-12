@@ -18,6 +18,12 @@ function createTenantSlug(clerkUserId: string) {
   return `${toSlugBase(clerkUserId)}-${suffix}`;
 }
 
+const TRIAL_LENGTH_DAYS = 14;
+
+function getTrialEndsAt() {
+  return new Date(Date.now() + TRIAL_LENGTH_DAYS * 24 * 60 * 60 * 1000);
+}
+
 async function ensureBootstrapTenantForUser(clerkUserId: string) {
   const existingTenantUser = await prisma.tenantUser.findUnique({
     where: {
@@ -40,12 +46,20 @@ async function ensureBootstrapTenantForUser(clerkUserId: string) {
     create: {
       name: 'New User',
       slug: createTenantSlug(clerkUserId),
-      clerkUserId
+      clerkUserId,
+      subscriptionStatus: 'trialing'
     },
     select: {
       id: true
     }
   });
+
+  await prisma.$executeRaw`
+    UPDATE "Tenant"
+    SET "trialEndsAt" = COALESCE("trialEndsAt", ${getTrialEndsAt()})
+    WHERE "id" = ${tenant.id}
+      AND "subscriptionStatus" = 'trialing'
+  `;
 
   await prisma.tenantUser.upsert({
     where: {

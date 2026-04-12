@@ -18,17 +18,25 @@ type PhoneNumberResponse = {
 
 type LoadingStage = 'searching' | 'provisioning' | null;
 
-function parseError(payload: unknown) {
+function parseError(payload: unknown, fallbackText?: string) {
   if (!payload || typeof payload !== 'object') {
-    return 'Unable to provision a phone number right now.';
+    const trimmedFallback = fallbackText?.trim();
+    if (trimmedFallback && trimmedFallback.length > 0 && trimmedFallback.toLowerCase() !== 'bad request') {
+      return trimmedFallback;
+    }
+    return 'Could not provision a phone number right now. Try another area code or leave the field blank.';
   }
 
   const value = payload as { error?: unknown };
   if (typeof value.error === 'string' && value.error.trim().length > 0) {
-    return value.error;
+    const normalized = value.error.trim();
+    if (normalized.toLowerCase() === 'bad request') {
+      return 'Could not provision a phone number right now. Try another area code or leave the field blank.';
+    }
+    return normalized;
   }
 
-  return 'Unable to provision a phone number right now.';
+  return 'Could not provision a phone number right now. Try another area code or leave the field blank.';
 }
 
 export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
@@ -85,9 +93,18 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
         timerId = null;
       }
 
-      const payload = (await response.json()) as PhoneNumberResponse;
+      let payload: PhoneNumberResponse = {};
+      const responseText = await response.text();
+      if (responseText.trim().length > 0) {
+        try {
+          payload = JSON.parse(responseText) as PhoneNumberResponse;
+        } catch {
+          payload = {};
+        }
+      }
+
       if (!response.ok || !payload.success || !payload.phoneNumber) {
-        setErrorMessage(parseError(payload));
+        setErrorMessage(parseError(payload, response.statusText));
         setLoadingStage(null);
         return;
       }

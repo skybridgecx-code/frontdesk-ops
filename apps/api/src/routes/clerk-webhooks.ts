@@ -235,6 +235,12 @@ function createTenantSlug(name: string) {
 const DEFAULT_AGENT_PROMPT =
   'You are the AI front desk for a home-services team focused on HVAC calls. Capture caller name, phone, service need, urgency, and service address. Keep responses concise, professional, and helpful while routing urgent issues quickly.';
 
+const TRIAL_LENGTH_DAYS = 14;
+
+function getTrialEndsAt() {
+  return new Date(Date.now() + TRIAL_LENGTH_DAYS * 24 * 60 * 60 * 1000);
+}
+
 async function handleUserCreated(data: Record<string, unknown>, logger: FastifyBaseLogger) {
   const user = toUserCreatedData(data);
 
@@ -261,6 +267,7 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
   const businessId = randomUUID();
   const businessSlug = `${toSlugBase(tenantName)}-main`;
   const agentProfileId = randomUUID();
+  const trialEndsAt = getTrialEndsAt();
 
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`
@@ -273,6 +280,7 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
         "status",
         "plan",
         "subscriptionStatus",
+        "trialEndsAt",
         "createdAt",
         "updatedAt"
       ) VALUES (
@@ -283,7 +291,8 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
         ${tenantSlug},
         'active',
         'free',
-        'none',
+        'trialing',
+        ${trialEndsAt},
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
       )
