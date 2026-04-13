@@ -163,7 +163,11 @@ describe('billing checkout and portal routes', () => {
 
     expect(checkoutSessionCreateMock).toHaveBeenCalled();
 
-    const call = checkoutSessionCreateMock.mock.calls[0][0];
+    const call = checkoutSessionCreateMock.mock.calls[0]?.[0];
+    expect(call).toBeDefined();
+    if (!call) {
+      throw new Error('checkout session create was not called');
+    }
 
     expect(call.mode).toBe('subscription');
     expect(call.customer).toBe('cus_new_1');
