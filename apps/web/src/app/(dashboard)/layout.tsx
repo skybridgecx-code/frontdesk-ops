@@ -57,7 +57,6 @@ export default async function DashboardLayout({
   const requestHeaders = await headers();
   const pathname = getRequestPathname(requestHeaders);
   const isBillingPage = pathname === '/billing' || pathname.startsWith('/billing/');
-  const isWelcomePage = pathname === '/welcome' || pathname.startsWith('/welcome/');
 
   const [tenant, onboardingStatus] = await Promise.all([getCurrentTenant(), getOnboardingStatus()]);
 
@@ -72,20 +71,20 @@ export default async function DashboardLayout({
     normalizedBillingStatus === 'active' ||
     normalizedBillingStatus === 'past_due';
 
-  const shouldRedirectToWelcome = onboardingStatus
-    ? onboardingStatus.isOnboardingComplete === false && !isBillingPage && !isWelcomePage
+  const shouldRedirectToOnboarding = onboardingStatus
+    ? onboardingStatus.isOnboardingComplete === false && !isBillingPage
     : false;
 
-  if (shouldRedirectToWelcome) {
-    redirect('/welcome');
+  if (shouldRedirectToOnboarding) {
+    redirect('/onboarding');
   }
 
-  if (!isBillingPage && !isWelcomePage && !canAccessDashboard) {
+  if (!isBillingPage && !canAccessDashboard) {
     const notice = billingStatus.trialExpired ? 'trial-expired' : 'subscription-required';
     redirect(`/billing?notice=${notice}`);
   }
 
-  const showPastDueBanner = !isBillingPage && !isWelcomePage && normalizedBillingStatus === 'past_due';
+  const showPastDueBanner = !isBillingPage && normalizedBillingStatus === 'past_due';
 
   return (
     <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">

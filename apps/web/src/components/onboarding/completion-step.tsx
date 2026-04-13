@@ -9,6 +9,7 @@ import { formatPhoneNumber } from '@/lib/call-utils';
 type CompletionStepProps = {
   businessName: string;
   phoneNumber: string | null;
+  postOnboardingHref: string;
 };
 
 type CompletionResponse = {
@@ -47,10 +48,13 @@ function parseError(payload: unknown) {
   return 'Unable to finalize onboarding right now.';
 }
 
-export function CompletionStep({ businessName, phoneNumber }: CompletionStepProps) {
+export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }: CompletionStepProps) {
   const { getToken } = useAuth();
   const [isFinalizing, setIsFinalizing] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const primaryCtaLabel =
+    postOnboardingHref === '/dashboard' ? 'Go to Dashboard →' : 'Continue to Billing →';
 
   const formattedBusinessName = useMemo(() => {
     const normalized = businessName.trim();
@@ -168,18 +172,20 @@ export function CompletionStep({ businessName, phoneNumber }: CompletionStepProp
 
       <div className="mt-8 space-y-3">
         <Link
-          href="/dashboard"
+          href={postOnboardingHref}
           className="inline-block w-full max-w-md rounded-xl bg-blue-600 py-3 text-center font-medium text-white transition hover:bg-blue-700"
         >
-          Go to Dashboard →
+          {primaryCtaLabel}
         </Link>
 
-        <Link
-          href="/billing"
-          className="inline-block w-full max-w-md rounded-xl border bg-white py-3 text-center font-medium text-gray-700 transition hover:bg-gray-50"
-        >
-          Choose a Plan
-        </Link>
+        {postOnboardingHref === '/dashboard' ? (
+          <Link
+            href="/billing"
+            className="inline-block w-full max-w-md rounded-xl border bg-white py-3 text-center font-medium text-gray-700 transition hover:bg-gray-50"
+          >
+            Choose a Plan
+          </Link>
+        ) : null}
       </div>
     </div>
   );
