@@ -6,7 +6,9 @@ const isPublicRoute = createRouteMatcher([
   '/',
   '/api/webhooks(.*)',
   '/sign-in(.*)',
-  '/sign-up(.*)'
+  '/sign-up(.*)',
+  '/privacy(.*)',
+  '/terms(.*)'
 ]);
 
 function nextWithPathHeader(request: NextRequest) {
