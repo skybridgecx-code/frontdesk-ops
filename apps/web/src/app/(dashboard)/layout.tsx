@@ -84,6 +84,14 @@ export default async function DashboardLayout({
     redirect(`/billing?notice=${notice}`);
   }
 
+  if (isBillingPage && !canAccessDashboard) {
+    return (
+      <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
+        <main className="mx-auto w-full max-w-[1700px] px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">{children}</main>
+      </div>
+    );
+  }
+
   const showPastDueBanner = !isBillingPage && normalizedBillingStatus === 'past_due';
 
   return (
