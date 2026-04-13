@@ -214,7 +214,7 @@ async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTe
       name: 'New User',
       slug: createTenantSlugFromClerkUserId(clerkUserId),
       clerkUserId,
-      subscriptionStatus: 'trialing'
+      subscriptionStatus: 'none'
     },
     select: ONBOARDING_TENANT_SELECT
   });

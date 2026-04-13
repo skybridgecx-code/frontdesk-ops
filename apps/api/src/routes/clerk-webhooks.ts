@@ -291,7 +291,7 @@ async function handleUserCreated(data: Record<string, unknown>, logger: FastifyB
         ${tenantSlug},
         'active',
         'free',
-        'trialing',
+        'none',
         ${trialEndsAt},
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP

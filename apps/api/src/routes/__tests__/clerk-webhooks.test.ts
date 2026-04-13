@@ -132,7 +132,7 @@ describe('clerk webhook hardening routes', () => {
       : String(tenantInsertQuery ?? '');
 
     expect(tenantInsertSql).toContain('"trialEndsAt"');
-    expect(tenantInsertSql).toContain("'trialing'");
+    expect(tenantInsertSql).toContain("'none'");
 
     await app.close();
   });

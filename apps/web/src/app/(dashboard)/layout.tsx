@@ -70,7 +70,6 @@ export default async function DashboardLayout({
   const normalizedBillingStatus = billingStatus.status.toLowerCase();
   const canAccessDashboard =
     normalizedBillingStatus === 'active' ||
-    normalizedBillingStatus === 'trialing' ||
     normalizedBillingStatus === 'past_due';
 
   const shouldRedirectToWelcome = onboardingStatus
