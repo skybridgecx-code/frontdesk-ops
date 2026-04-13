@@ -73,19 +73,64 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
     }, 800);
 
     try {
-      const response = await fetch(getApiBaseUrl() + '/v1/provisioning/purchase-number', {
+      const headers = {
+        ...(await getClientInternalApiHeaders(() => getToken()))
+      };
+
+      const bootstrapResponse = await fetch(getApiBaseUrl() + '/v1/bootstrap', {
+        method: 'GET',
+        headers
+      });
+
+      const bootstrapPayload = await bootstrapResponse.json().catch(() => ({}));
+      const businessId =
+        bootstrapPayload?.business?.id ??
+        bootstrapPayload?.defaultBusiness?.id ??
+        bootstrapPayload?.tenant?.defaultBusinessId ??
+        null;
+
+      if (!bootstrapResponse.ok || !businessId) {
+        setErrorMessage('Could not find a default business for this account.');
+        setLoadingStage(null);
+        return;
+      }
+
+      const params = new URLSearchParams({ country: 'US', limit: '1' });
+      if (normalizedAreaCode.length > 0) {
+        params.set('areaCode', normalizedAreaCode);
+      }
+
+      const searchResponse = await fetch(
+        getApiBaseUrl() + '/v1/provisioning/search-numbers?' + params.toString(),
+        {
+          method: 'GET',
+          headers
+        }
+      );
+
+      const searchPayload = await searchResponse.json().catch(() => ({} as Record<string, unknown>));
+      const selectedNumber =
+        Array.isArray((searchPayload as { numbers?: Array<{ phoneNumber?: string }> }).numbers) &&
+        (searchPayload as { numbers?: Array<{ phoneNumber?: string }> }).numbers?.[0]?.phoneNumber
+          ? (searchPayload as { numbers: Array<{ phoneNumber: string }> }).numbers[0].phoneNumber
+          : null;
+
+      if (!searchResponse.ok || !selectedNumber) {
+        setErrorMessage('Could not find an available phone number right now.');
+        setLoadingStage(null);
+        return;
+      }
+
+      const purchaseResponse = await fetch(getApiBaseUrl() + '/v1/provisioning/purchase-number', {
         method: 'POST',
         headers: {
-          ...(await getClientInternalApiHeaders(() => getToken())),
+          ...headers,
           'content-type': 'application/json'
         },
-        body: JSON.stringify(
-          normalizedAreaCode.length > 0
-            ? {
-                areaCode: normalizedAreaCode
-              }
-            : {}
-        )
+        body: JSON.stringify({
+          phoneNumber: selectedNumber,
+          businessId
+        })
       });
 
       if (timerId) {
@@ -93,23 +138,19 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
         timerId = null;
       }
 
-      let payload: PhoneNumberResponse = {};
-      const responseText = await response.text();
-      if (responseText.trim().length > 0) {
-        try {
-          payload = JSON.parse(responseText) as PhoneNumberResponse;
-        } catch {
-          payload = {};
-        }
-      }
+      const purchasePayload = await purchaseResponse.json().catch(() => ({} as Record<string, unknown>));
+      const purchasedNumber =
+        (purchasePayload as { phoneNumber?: { e164?: string; phoneNumber?: string } }).phoneNumber?.e164 ??
+        (purchasePayload as { phoneNumber?: { e164?: string; phoneNumber?: string } }).phoneNumber?.phoneNumber ??
+        null;
 
-      if (!response.ok || !payload.success || !payload.phoneNumber) {
-        setErrorMessage(parseError(payload, response.statusText));
+      if (!purchaseResponse.ok || !purchasedNumber) {
+        setErrorMessage('Could not provision a phone number right now.');
         setLoadingStage(null);
         return;
       }
 
-      setProvisionedPhoneNumber(payload.phoneNumber);
+      setProvisionedPhoneNumber(purchasedNumber);
       setLoadingStage(null);
     } catch {
       if (timerId) {
