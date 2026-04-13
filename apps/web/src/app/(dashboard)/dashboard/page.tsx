@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
 import { currentUser } from '@clerk/nextjs/server';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { KpiCards } from '../components/analytics/kpi-cards';
@@ -58,10 +57,6 @@ type RecentCall = {
 type RecentCallsResponse = {
   ok: boolean;
   calls: RecentCall[];
-};
-
-type OnboardingStatusResponse = {
-  onboardingComplete?: boolean;
 };
 
 function normalizePeriod(value: string | undefined): AnalyticsPeriod {
@@ -128,19 +123,6 @@ async function fetchRecentCalls() {
   }
 
   return payload.calls;
-}
-
-async function fetchOnboardingStatus() {
-  const response = await fetch(getApiBaseUrl() + '/v1/onboarding/status', {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
-
-  if (!response.ok) {
-    return null;
-  }
-
-  return (await response.json()) as OnboardingStatusResponse;
 }
 
 function getRecentCallId(call: RecentCall) {
@@ -269,12 +251,6 @@ export default async function AnalyticsDashboardPage({
   const resolvedSearchParams = await searchParams;
   const period = normalizePeriod(resolvedSearchParams.period);
   const user = await currentUser();
-  const onboardingStatus = await fetchOnboardingStatus();
-
-  if (onboardingStatus?.onboardingComplete === false) {
-    redirect('/welcome');
-  }
-
   const query = `?period=${period}`;
 
   const [overview, callVolume, intents, urgency, peakHours, recentActivity, webhookHealth, recentCalls] = await Promise.all([
