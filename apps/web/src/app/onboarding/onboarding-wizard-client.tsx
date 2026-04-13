@@ -77,7 +77,7 @@ function normalizeStep(step: number) {
 
 function canAccessDashboard(subscriptionStatus: string | null | undefined) {
   const normalized = subscriptionStatus?.toLowerCase();
-  return normalized === 'active' || normalized === 'past_due';
+  return normalized === 'active' || normalized === 'trialing' || normalized === 'past_due';
 }
 
 function getPostOnboardingHref(subscriptionStatus: string | null | undefined) {

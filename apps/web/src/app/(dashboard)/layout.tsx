@@ -12,6 +12,8 @@ export const metadata: Metadata = {
 
 type BillingStatusResponse = {
   status: string;
+  stripeCustomerId?: string | null;
+  stripeSubscriptionId?: string | null;
   trialExpired?: boolean;
   trialEndedAt?: string | null;
 };
@@ -49,6 +51,19 @@ async function getBillingStatus(tenantId: string): Promise<BillingStatusResponse
   return (await response.json()) as BillingStatusResponse;
 }
 
+function canAccessDashboard(billingStatus: BillingStatusResponse) {
+  const normalizedBillingStatus = billingStatus.status.toLowerCase();
+  if (normalizedBillingStatus === 'active' || normalizedBillingStatus === 'past_due') {
+    return true;
+  }
+
+  if (normalizedBillingStatus !== 'trialing') {
+    return false;
+  }
+
+  return Boolean(billingStatus.stripeSubscriptionId || billingStatus.stripeCustomerId);
+}
+
 export default async function DashboardLayout({
   children
 }: {
@@ -67,9 +82,7 @@ export default async function DashboardLayout({
       };
 
   const normalizedBillingStatus = billingStatus.status.toLowerCase();
-  const canAccessDashboard =
-    normalizedBillingStatus === 'active' ||
-    normalizedBillingStatus === 'past_due';
+  const hasDashboardAccess = canAccessDashboard(billingStatus);
 
   const shouldRedirectToOnboarding = onboardingStatus
     ? onboardingStatus.isOnboardingComplete === false && !isBillingPage
@@ -79,12 +92,12 @@ export default async function DashboardLayout({
     redirect('/onboarding');
   }
 
-  if (!isBillingPage && !canAccessDashboard) {
+  if (!isBillingPage && !hasDashboardAccess) {
     const notice = billingStatus.trialExpired ? 'trial-expired' : 'subscription-required';
     redirect(`/billing?notice=${notice}`);
   }
 
-  if (isBillingPage && !canAccessDashboard) {
+  if (isBillingPage && !hasDashboardAccess) {
     return (
       <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
         <main className="mx-auto w-full max-w-[1700px] px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">{children}</main>

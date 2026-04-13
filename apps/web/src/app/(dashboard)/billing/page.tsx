@@ -66,6 +66,8 @@ type BillingStatusResponse =
       plans: BillingPlan[];
     };
 
+type SubscribedBillingStatus = Exclude<BillingStatusResponse, { status: 'none' }>;
+
 const FALLBACK_PLANS: BillingPlan[] = [
   {
     key: 'starter',
@@ -207,18 +209,22 @@ export default async function BillingPage({
   const billingStatus = await getBillingStatus(tenant.id);
   const plans = billingStatus.plans.length > 0 ? billingStatus.plans : FALLBACK_PLANS;
 
-  const subscriptionStatus = billingStatus.status === 'none' ? null : billingStatus;
-  const isTrialWithoutStripe =
-    subscriptionStatus?.status === 'trialing' && !subscriptionStatus.stripeSubscriptionId;
-  const hasSubscription = subscriptionStatus !== null && !isTrialWithoutStripe;
+  const subscriptionStatus: SubscribedBillingStatus | null =
+    billingStatus.status === 'none' ? null : billingStatus;
+  const hasStripeBackedTrialingSubscription =
+    subscriptionStatus?.status === 'trialing' &&
+    Boolean(subscriptionStatus.stripeSubscriptionId || subscriptionStatus.stripeCustomerId);
+  const hasSubscription =
+    subscriptionStatus !== null &&
+    (subscriptionStatus.status !== 'trialing' || hasStripeBackedTrialingSubscription);
   const canManageSubscription =
     subscriptionStatus !== null &&
     Boolean(subscriptionStatus.stripeCustomerId) &&
     Boolean(subscriptionStatus.stripeSubscriptionId);
-  const isActiveSubscription = subscriptionStatus
+  const hasDashboardAccess = subscriptionStatus
     ? subscriptionStatus.status === 'active' ||
-      subscriptionStatus.status === 'trialing' ||
-      subscriptionStatus.status === 'past_due'
+      subscriptionStatus.status === 'past_due' ||
+      hasStripeBackedTrialingSubscription
     : false;
   const currentPlanKey = subscriptionStatus?.planKey ?? null;
 
@@ -242,14 +248,14 @@ export default async function BillingPage({
         ? 'Checkout canceled. You can subscribe any time.'
         : resolvedSearchParams.notice === 'checkout-error'
           ? 'Could not create Stripe checkout session.'
-          : resolvedSearchParams.notice === 'portal-error'
-            ? 'Could not open Stripe billing portal.'
+            : resolvedSearchParams.notice === 'portal-error'
+              ? 'Could not open Stripe billing portal.'
             : resolvedSearchParams.notice === 'trial-expired'
               ? billingStatus.status === 'none' && billingStatus.trialEndedAt
                 ? `Your 14-day free trial ended on ${formatDate(billingStatus.trialEndedAt)}. Choose a paid plan to continue.`
                 : 'Your 14-day free trial has ended. Choose a paid plan to continue.'
             : resolvedSearchParams.notice === 'subscription-required'
-              ? 'Active subscription required to access dashboard pages.'
+              ? 'Active or trial subscription required to access dashboard pages.'
               : billingStatus.status === 'none' && billingStatus.trialExpired
                 ? billingStatus.trialEndedAt
                   ? `Your 14-day free trial ended on ${formatDate(billingStatus.trialEndedAt)}. Choose a paid plan to continue.`
@@ -440,7 +446,7 @@ export default async function BillingPage({
         </Card>
       ) : null}
 
-      {hasSubscription && isActiveSubscription ? null : (
+      {hasSubscription && hasDashboardAccess ? null : (
         <Card title="Choose a plan" subtitle="Monthly pricing for SkybridgeCX AI front desk operations.">
           <div className="grid gap-4 lg:grid-cols-3">
             {plans.map((plan) => {
