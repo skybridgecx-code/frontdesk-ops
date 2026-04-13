@@ -312,7 +312,7 @@ export default function LandingPage() {
               <div className="mt-8 grid grid-cols-1 gap-2 text-sm text-gray-600 sm:grid-cols-3 sm:gap-3">
                 <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                  No credit card required
+                  Card required to start free trial
                 </div>
                 <div className="inline-flex items-center gap-2 rounded-md border border-gray-200 bg-white px-3 py-2">
                   <span className="h-2 w-2 rounded-full bg-emerald-500" />
@@ -421,7 +421,7 @@ export default function LandingPage() {
             </div>
 
             <p className="mt-6 text-center text-sm text-gray-600">
-              All plans include a 14-day free trial. No credit card required.
+              All plans include a 14-day free trial. Card required to start free trial.
             </p>
           </div>
         </section>

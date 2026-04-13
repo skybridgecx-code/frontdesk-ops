@@ -297,7 +297,9 @@ export async function registerBillingRoutes(app: FastifyInstance) {
         tenantId: tenant.id,
         planKey: selectedPlan.key
       },
+      payment_method_collection: 'always',
       subscription_data: {
+        trial_period_days: 14,
         metadata: {
           tenantId: tenant.id,
           planKey: selectedPlan.key
@@ -402,6 +404,14 @@ export async function registerBillingRoutes(app: FastifyInstance) {
       metadata: {
         tenantId: parsed.data.tenantId,
         planKey: selectedPlan.key
+      },
+      payment_method_collection: 'always',
+      subscription_data: {
+        trial_period_days: 14,
+        metadata: {
+          tenantId: parsed.data.tenantId,
+          planKey: selectedPlan.key
+        }
       },
       ...(existingSubscription
         ? {

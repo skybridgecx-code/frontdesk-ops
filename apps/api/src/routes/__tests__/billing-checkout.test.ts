@@ -161,22 +161,34 @@ describe('billing checkout and portal routes', () => {
       }
     });
 
-    expect(checkoutSessionCreateMock).toHaveBeenCalledWith(
-      expect.objectContaining({
-        metadata: {
-          tenantId: 'tenant_1',
-          planKey: 'pro'
-        },
-        subscription_data: {
-          metadata: {
-            tenantId: 'tenant_1',
-            planKey: 'pro'
-          }
-        },
-        success_url: 'https://skybridgecx.co/dashboard?checkout=success',
-        cancel_url: 'https://skybridgecx.co/billing?checkout=canceled'
-      })
-    );
+    expect(checkoutSessionCreateMock).toHaveBeenCalled();
+
+    const call = checkoutSessionCreateMock.mock.calls[0][0];
+
+    expect(call.mode).toBe('subscription');
+    expect(call.customer).toBe('cus_new_1');
+    expect(call.payment_method_collection).toBe('always');
+    expect(call.line_items).toEqual([
+      {
+        price: 'price_1TKXF4GRmFZwSOkBlL8LPl7J',
+        quantity: 1
+      }
+    ]);
+    expect(call.metadata).toEqual({
+      tenantId: 'tenant_1',
+      planKey: 'pro'
+    });
+    expect(call.subscription_data).toMatchObject({
+      trial_period_days: 14,
+      metadata: {
+        tenantId: 'tenant_1',
+        planKey: 'pro'
+      }
+    });
+    expect(call.success_url).toBe('https://skybridgecx.co/dashboard?checkout=success');
+    expect(call.cancel_url).toBe('https://skybridgecx.co/billing?checkout=canceled');
+
+    expect(portalSessionCreateMock).not.toHaveBeenCalled();
 
     await app.close();
   });
