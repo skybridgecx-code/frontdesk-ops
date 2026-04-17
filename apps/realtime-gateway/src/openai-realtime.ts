@@ -1,6 +1,27 @@
 import OpenAI from 'openai';
 import WebSocket from 'ws';
 
+const TURN_DETECTION_THRESHOLD = 0.7;
+const TURN_DETECTION_PREFIX_PADDING_MS = 400;
+const TURN_DETECTION_SILENCE_DURATION_MS = 900;
+
+const VOICE_TURN_TAKING_GUIDANCE = [
+  'Voice behavior rules:',
+  '1) Wait until the caller fully finishes speaking before responding.',
+  '2) Keep every response short: 1-2 sentences unless the caller asks for more detail.',
+  '3) Ask at most one follow-up question at a time, then pause and wait.',
+  '4) Do not interrupt or speak over the caller.',
+  '5) Avoid long monologues.'
+].join('\n');
+
+function buildSessionInstructions(systemPrompt: string) {
+  const trimmedPrompt = systemPrompt.trim();
+  if (trimmedPrompt.length === 0) {
+    return VOICE_TURN_TAKING_GUIDANCE;
+  }
+  return `${trimmedPrompt}\n\n${VOICE_TURN_TAKING_GUIDANCE}`;
+}
+
 export function getOpenAIClient() {
   const apiKey = process.env.OPENAI_API_KEY;
 
@@ -26,16 +47,19 @@ export function buildRealtimeSessionConfig(input: {
     session: {
       type: 'realtime',
       model: getRealtimeModel(),
-      instructions: input.systemPrompt,
+      instructions: buildSessionInstructions(input.systemPrompt),
       audio: {
         input: {
           format: {
             type: 'audio/pcmu'
           },
           turn_detection: {
-            type: 'server_vad'
+            type: 'server_vad',
+            threshold: TURN_DETECTION_THRESHOLD,
+            prefix_padding_ms: TURN_DETECTION_PREFIX_PADDING_MS,
+            silence_duration_ms: TURN_DETECTION_SILENCE_DURATION_MS
           },
-                     transcription: {
+          transcription: {
             model: process.env.OPENAI_TRANSCRIPTION_MODEL ?? 'gpt-4o-mini-transcribe'
           }
         },

@@ -188,6 +188,17 @@ describe('handleStart', () => {
       where: { twilioCallSid: 'CA-CUSTOM' },
       data: { twilioStreamSid: 'MZ-CUSTOM' }
     });
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'twilio.media.start',
+      expect.objectContaining({
+        callSid: 'CA-CUSTOM',
+        phoneNumberId: 'PN-CUSTOM',
+        tenantId: 'TENANT-CUSTOM',
+        businessId: 'BIZ-CUSTOM',
+        agentProfileId: 'AP-CUSTOM',
+        authSource: 'custom'
+      })
+    );
   });
 
   it('rejects invalid custom auth and does not start the session', async () => {
@@ -233,6 +244,10 @@ describe('handleStart', () => {
     expect(events.persistEvent).toHaveBeenCalledWith(
       'twilio.media.start.rejected',
       expect.objectContaining({ reason: 'invalid_custom_auth_signature' })
+    );
+    expect(events.persistEvent).not.toHaveBeenCalledWith(
+      'twilio.media.start',
+      expect.anything()
     );
     expect(mockPrisma.call.updateMany).not.toHaveBeenCalled();
   });
