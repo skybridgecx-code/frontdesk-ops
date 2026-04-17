@@ -4,11 +4,21 @@ import { PhoneRoutingMode, PhoneNumberProvider } from '@frontdesk/db';
 import { requireActiveSubscription } from '../lib/subscription-guard.js';
 import { registerPhoneProvisioningRoutes } from '../routes/phone-provisioning.js';
 
-const { getTwilioClientMock, businessFindFirstMock, phoneNumberCreateMock, phoneNumberFindFirstMock, phoneNumberUpdateMock } = vi.hoisted(() => ({
+const {
+  getTwilioClientMock,
+  businessFindFirstMock,
+  phoneNumberCreateMock,
+  phoneNumberFindFirstMock,
+  phoneNumberFindUniqueMock,
+  phoneNumberUpsertMock,
+  phoneNumberUpdateMock
+} = vi.hoisted(() => ({
   getTwilioClientMock: vi.fn(),
   businessFindFirstMock: vi.fn(),
   phoneNumberCreateMock: vi.fn(),
   phoneNumberFindFirstMock: vi.fn(),
+  phoneNumberFindUniqueMock: vi.fn(),
+  phoneNumberUpsertMock: vi.fn(),
   phoneNumberUpdateMock: vi.fn()
 }));
 
@@ -30,6 +40,8 @@ vi.mock('@frontdesk/db', async (importOriginal) => {
       phoneNumber: {
         create: phoneNumberCreateMock,
         findFirst: phoneNumberFindFirstMock,
+        findUnique: phoneNumberFindUniqueMock,
+        upsert: phoneNumberUpsertMock,
         update: phoneNumberUpdateMock
       }
     }
@@ -76,48 +88,67 @@ type IncomingCreateParams = {
   statusCallbackMethod: string;
 };
 
+type IncomingListOptions = {
+  phoneNumber: string;
+  limit: number;
+};
+
+type IncomingUpdateParams = {
+  voiceUrl: string;
+  voiceMethod: string;
+  statusCallback: string;
+  statusCallbackMethod: string;
+};
+
 type TwilioClientMock = {
   availablePhoneNumbers: (country: string) => {
     local: {
       list: (options: SearchOptions) => Promise<AvailableNumber[]>;
     };
   };
-  incomingPhoneNumbers: ((sid: string) => { remove: () => Promise<boolean> }) & {
+  incomingPhoneNumbers: ((sid: string) => { remove: () => Promise<boolean>; update: (params: IncomingUpdateParams) => Promise<PurchasedNumber> }) & {
     create: (params: IncomingCreateParams) => Promise<PurchasedNumber>;
+    list: (options: IncomingListOptions) => Promise<PurchasedNumber[]>;
   };
 };
 
 function createTwilioClient(input: {
   availableNumbers?: AvailableNumber[];
   purchasedNumber?: PurchasedNumber;
+  attachedNumber?: PurchasedNumber | null;
   removeResult?: boolean;
 }) {
   const listMock = vi.fn<(options: SearchOptions) => Promise<AvailableNumber[]>>();
   const createMock = vi.fn<(params: IncomingCreateParams) => Promise<PurchasedNumber>>();
   const removeMock = vi.fn<() => Promise<boolean>>();
+  const incomingListMock = vi.fn<(options: IncomingListOptions) => Promise<PurchasedNumber[]>>();
+  const incomingUpdateMock = vi.fn<(params: IncomingUpdateParams) => Promise<PurchasedNumber>>();
 
   listMock.mockResolvedValue(input.availableNumbers ?? []);
-  createMock.mockResolvedValue(
-    input.purchasedNumber ?? {
-      sid: 'PN_default',
-      phoneNumber: '+17035550100',
-      friendlyName: '(703) 555-0100',
-      capabilities: {
-        voice: true,
-        sms: true,
-        mms: false,
-        fax: false
-      }
+  const defaultPurchasedNumber = input.purchasedNumber ?? {
+    sid: 'PN_default',
+    phoneNumber: '+17035550100',
+    friendlyName: '(703) 555-0100',
+    capabilities: {
+      voice: true,
+      sms: true,
+      mms: false,
+      fax: false
     }
-  );
+  };
+  createMock.mockResolvedValue(defaultPurchasedNumber);
+  incomingListMock.mockResolvedValue(input.attachedNumber === null ? [] : [input.attachedNumber ?? defaultPurchasedNumber]);
+  incomingUpdateMock.mockResolvedValue(input.attachedNumber ?? defaultPurchasedNumber);
   removeMock.mockResolvedValue(input.removeResult ?? true);
 
   const incomingPhoneNumbers = Object.assign(
     (_sid: string) => ({
-      remove: removeMock
+      remove: removeMock,
+      update: incomingUpdateMock
     }),
     {
-      create: createMock
+      create: createMock,
+      list: incomingListMock
     }
   );
 
@@ -134,6 +165,8 @@ function createTwilioClient(input: {
     client,
     listMock,
     createMock,
+    incomingListMock,
+    incomingUpdateMock,
     removeMock
   };
 }
@@ -174,6 +207,8 @@ describe('phone provisioning routes', () => {
     businessFindFirstMock.mockReset();
     phoneNumberCreateMock.mockReset();
     phoneNumberFindFirstMock.mockReset();
+    phoneNumberFindUniqueMock.mockReset();
+    phoneNumberUpsertMock.mockReset();
     phoneNumberUpdateMock.mockReset();
   });
 
@@ -532,6 +567,171 @@ describe('phone provisioning routes', () => {
 
     expect(response.statusCode).toBe(403);
     expect(removeMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('admin attach-existing-number assigns existing Twilio number and updates webhook URLs', async () => {
+    process.env.FRONTDESK_INTERNAL_API_SECRET = 'internal-secret';
+
+    const { client, incomingListMock, incomingUpdateMock } = createTwilioClient({
+      attachedNumber: {
+        sid: 'PN_EXISTING',
+        phoneNumber: '+12125550100',
+        friendlyName: '(212) 555-0100',
+        capabilities: {
+          voice: true,
+          sms: true,
+          mms: false,
+          fax: false
+        }
+      }
+    });
+
+    getTwilioClientMock.mockReturnValue(client);
+
+    businessFindFirstMock.mockResolvedValue({
+      id: 'biz_attach',
+      tenantId: 'tenant_attach'
+    } as never);
+
+    phoneNumberFindUniqueMock.mockResolvedValue(null);
+
+    phoneNumberUpsertMock.mockResolvedValue({
+      id: 'pn_attach',
+      tenantId: 'tenant_attach',
+      businessId: 'biz_attach',
+      provider: PhoneNumberProvider.TWILIO,
+      externalSid: 'PN_EXISTING',
+      e164: '+12125550100',
+      label: '(212) 555-0100',
+      isActive: true,
+      routingMode: PhoneRoutingMode.AI_ALWAYS,
+      primaryAgentProfileId: null,
+      afterHoursAgentProfileId: null,
+      enableMissedCallTextBack: true,
+      createdAt: new Date('2026-04-01T00:00:00.000Z'),
+      updatedAt: new Date('2026-04-01T00:00:00.000Z')
+    } as never);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/provisioning/attach-existing-number',
+      headers: {
+        authorization: 'Bearer internal-secret'
+      },
+      payload: {
+        tenantId: 'tenant_attach',
+        businessId: 'biz_attach',
+        phoneNumber: '+1 (212) 555-0100'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toMatchObject({
+      ok: true,
+      phoneNumber: {
+        id: 'pn_attach',
+        tenantId: 'tenant_attach',
+        businessId: 'biz_attach',
+        e164: '+12125550100',
+        externalSid: 'PN_EXISTING'
+      }
+    });
+
+    expect(incomingListMock).toHaveBeenCalledWith({
+      phoneNumber: '+12125550100',
+      limit: 1
+    });
+
+    expect(incomingUpdateMock).toHaveBeenCalledWith({
+      voiceUrl: 'https://api.example.com/v1/twilio/voice/inbound',
+      voiceMethod: 'POST',
+      statusCallback: 'https://api.example.com/v1/twilio/voice/status',
+      statusCallbackMethod: 'POST'
+    });
+
+    expect(phoneNumberUpsertMock).toHaveBeenCalledWith({
+      where: {
+        e164: '+12125550100'
+      },
+      update: {
+        tenantId: 'tenant_attach',
+        businessId: 'biz_attach',
+        provider: PhoneNumberProvider.TWILIO,
+        externalSid: 'PN_EXISTING',
+        label: '(212) 555-0100',
+        isActive: true
+      },
+      create: {
+        tenantId: 'tenant_attach',
+        businessId: 'biz_attach',
+        provider: PhoneNumberProvider.TWILIO,
+        externalSid: 'PN_EXISTING',
+        e164: '+12125550100',
+        label: '(212) 555-0100',
+        isActive: true
+      },
+      select: {
+        id: true,
+        tenantId: true,
+        businessId: true,
+        provider: true,
+        externalSid: true,
+        e164: true,
+        label: true,
+        isActive: true,
+        routingMode: true,
+        primaryAgentProfileId: true,
+        afterHoursAgentProfileId: true,
+        enableMissedCallTextBack: true,
+        createdAt: true,
+        updatedAt: true
+      }
+    });
+
+    await app.close();
+  });
+
+  it('admin attach-existing-number blocks overwrite when number belongs to another tenant', async () => {
+    process.env.FRONTDESK_INTERNAL_API_SECRET = 'internal-secret';
+
+    const { client, incomingListMock, incomingUpdateMock } = createTwilioClient({});
+    getTwilioClientMock.mockReturnValue(client);
+
+    businessFindFirstMock.mockResolvedValue({
+      id: 'biz_attach',
+      tenantId: 'tenant_attach'
+    } as never);
+
+    phoneNumberFindUniqueMock.mockResolvedValue({
+      id: 'pn_existing',
+      tenantId: 'tenant_other'
+    } as never);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/admin/provisioning/attach-existing-number',
+      headers: {
+        authorization: 'Bearer internal-secret'
+      },
+      payload: {
+        tenantId: 'tenant_attach',
+        businessId: 'biz_attach',
+        phoneNumber: '+12125550100'
+      }
+    });
+
+    expect(response.statusCode).toBe(409);
+    expect(response.json()).toEqual({
+      ok: false,
+      error: 'Phone number is already assigned to another tenant'
+    });
+    expect(incomingListMock).not.toHaveBeenCalled();
+    expect(incomingUpdateMock).not.toHaveBeenCalled();
+    expect(phoneNumberUpsertMock).not.toHaveBeenCalled();
 
     await app.close();
   });

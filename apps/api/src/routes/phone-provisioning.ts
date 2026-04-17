@@ -3,6 +3,7 @@ import { PhoneNumberProvider, prisma } from '@frontdesk/db';
 import { z } from 'zod';
 import { getTwilioClient } from '../lib/twilio-client.js';
 import { enforceUsageLimits } from '../lib/usage-limiter.js';
+import { requireAdminAuth } from '../lib/admin-auth.js';
 
 const searchNumbersQuerySchema = z
   .object({
@@ -33,6 +34,14 @@ const releaseNumberBodySchema = z
   })
   .strict();
 
+const attachExistingNumberBodySchema = z
+  .object({
+    tenantId: z.string().min(1),
+    businessId: z.string().min(1),
+    phoneNumber: z.string().min(1)
+  })
+  .strict();
+
 type ProvisionPhoneNumberInput = {
   tenantId: string;
   businessId: string;
@@ -55,6 +64,15 @@ function getErrorMessage(error: unknown) {
   }
 
   return 'Unexpected error';
+}
+
+function normalizeE164(value: string) {
+  const normalized = value.trim().replace(/[^\d+]/g, '');
+  if (normalized.length === 0 || !normalized.startsWith('+')) {
+    return null;
+  }
+
+  return /^\+[1-9]\d{1,14}$/.test(normalized) ? normalized : null;
 }
 
 function normalizeCapabilities(capabilities: unknown) {
@@ -241,6 +259,143 @@ export async function registerPhoneProvisioningRoutes(app: FastifyInstance) {
         error: getErrorMessage(error)
       });
     }
+    }
+  );
+
+  app.post(
+    '/v1/admin/provisioning/attach-existing-number',
+    { preHandler: requireAdminAuth },
+    async (request, reply) => {
+      const parsed = attachExistingNumberBodySchema.safeParse(request.body);
+
+      if (!parsed.success) {
+        return reply.status(400).send({
+          ok: false,
+          error: parsed.error.flatten()
+        });
+      }
+
+      const normalizedPhoneNumber = normalizeE164(parsed.data.phoneNumber);
+
+      if (!normalizedPhoneNumber) {
+        return reply.status(400).send({
+          ok: false,
+          error: 'phoneNumber must be a valid E.164 number'
+        });
+      }
+
+      const business = await prisma.business.findFirst({
+        where: {
+          id: parsed.data.businessId,
+          tenantId: parsed.data.tenantId
+        },
+        select: {
+          id: true,
+          tenantId: true
+        }
+      });
+
+      if (!business) {
+        return reply.status(403).send({
+          ok: false,
+          error: 'Business does not belong to tenant'
+        });
+      }
+
+      const existingAssignment = await prisma.phoneNumber.findUnique({
+        where: {
+          e164: normalizedPhoneNumber
+        },
+        select: {
+          id: true,
+          tenantId: true
+        }
+      });
+
+      if (existingAssignment && existingAssignment.tenantId !== parsed.data.tenantId) {
+        return reply.status(409).send({
+          ok: false,
+          error: 'Phone number is already assigned to another tenant'
+        });
+      }
+
+      try {
+        const client = getTwilioClient();
+        const baseUrl = getApiPublicBaseUrl();
+        const twilioNumbers = await client.incomingPhoneNumbers.list({
+          phoneNumber: normalizedPhoneNumber,
+          limit: 1
+        });
+
+        const twilioNumber = twilioNumbers[0];
+
+        if (!twilioNumber?.sid) {
+          return reply.status(404).send({
+            ok: false,
+            error: 'Twilio number not found in configured account'
+          });
+        }
+
+        const updatedTwilioNumber = await client.incomingPhoneNumbers(twilioNumber.sid).update({
+          voiceUrl: `${baseUrl}/v1/twilio/voice/inbound`,
+          voiceMethod: 'POST',
+          statusCallback: `${baseUrl}/v1/twilio/voice/status`,
+          statusCallbackMethod: 'POST'
+        });
+
+        const phoneNumber = await prisma.phoneNumber.upsert({
+          where: {
+            e164: normalizedPhoneNumber
+          },
+          update: {
+            tenantId: parsed.data.tenantId,
+            businessId: business.id,
+            provider: PhoneNumberProvider.TWILIO,
+            externalSid: twilioNumber.sid,
+            label: twilioNumber.friendlyName ?? twilioNumber.phoneNumber ?? normalizedPhoneNumber,
+            isActive: true
+          },
+          create: {
+            tenantId: parsed.data.tenantId,
+            businessId: business.id,
+            provider: PhoneNumberProvider.TWILIO,
+            externalSid: twilioNumber.sid,
+            e164: normalizedPhoneNumber,
+            label: twilioNumber.friendlyName ?? twilioNumber.phoneNumber ?? normalizedPhoneNumber,
+            isActive: true
+          },
+          select: {
+            id: true,
+            tenantId: true,
+            businessId: true,
+            provider: true,
+            externalSid: true,
+            e164: true,
+            label: true,
+            isActive: true,
+            routingMode: true,
+            primaryAgentProfileId: true,
+            afterHoursAgentProfileId: true,
+            enableMissedCallTextBack: true,
+            createdAt: true,
+            updatedAt: true
+          }
+        });
+
+        return {
+          ok: true,
+          phoneNumber: {
+            ...phoneNumber,
+            capabilities: normalizeCapabilities(updatedTwilioNumber.capabilities)
+          }
+        };
+      } catch (error) {
+        request.log.error({ err: error }, 'Failed to attach existing Twilio phone number.');
+        return reply.status(500).send({
+          ok: false,
+          error: getErrorMessage(error)
+        });
+      }
     }
   );
 
