@@ -724,31 +724,37 @@ describe('admin routes', () => {
   });
 
   it('GET /v1/admin/metrics/signups-over-time returns daily signup counts', async () => {
-    queryRawMock.mockResolvedValueOnce([
-      {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-15T12:00:00.000Z'));
+    try {
+      queryRawMock.mockResolvedValueOnce([
+        {
+          date: '2026-04-09',
+          count: 4
+        }
+      ]);
+
+      const app = await createApp();
+
+      const response = await app.inject({
+        method: 'GET',
+        url: '/v1/admin/metrics/signups-over-time?period=7d',
+        headers: authHeader()
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.json().period).toBe('7d');
+      expect(response.json().data).toHaveLength(7);
+
+      const day = response.json().data.find((row: { date: string }) => row.date === '2026-04-09');
+      expect(day).toEqual({
         date: '2026-04-09',
-        count: 4
-      }
-    ]);
+        signups: 4
+      });
 
-    const app = await createApp();
-
-    const response = await app.inject({
-      method: 'GET',
-      url: '/v1/admin/metrics/signups-over-time?period=7d',
-      headers: authHeader()
-    });
-
-    expect(response.statusCode).toBe(200);
-    expect(response.json().period).toBe('7d');
-    expect(response.json().data).toHaveLength(7);
-
-    const day = response.json().data.find((row: { date: string }) => row.date === '2026-04-09');
-    expect(day).toEqual({
-      date: '2026-04-09',
-      signups: 4
-    });
-
-    await app.close();
+      await app.close();
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
