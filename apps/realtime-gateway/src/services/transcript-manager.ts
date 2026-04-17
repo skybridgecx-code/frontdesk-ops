@@ -21,7 +21,7 @@ import { dispatchWebhook } from './webhook-dispatcher.js';
 export class TranscriptManager {
   private readonly log: FastifyBaseLogger;
   private readonly events: EventPersistence;
-  private readonly queryCallSid: string | null;
+  private queryCallSid: string | null;
 
   constructor(
     log: FastifyBaseLogger,
@@ -31,6 +31,10 @@ export class TranscriptManager {
     this.log = log;
     this.events = events;
     this.queryCallSid = queryCallSid;
+  }
+
+  setCallSid(callSid: string | null): void {
+    this.queryCallSid = callSid;
   }
 
   /**

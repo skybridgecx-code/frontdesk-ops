@@ -8,9 +8,12 @@ export type JsonRecord = Record<string, unknown>;
  * Mutable state shared across all handlers for a single WebSocket call session.
  */
 export interface SessionState {
-  readonly queryCallSid: string | null;
-  readonly phoneNumberId: string | null;
-  readonly agentProfileId: string | null;
+  queryCallSid: string | null;
+  phoneNumberId: string | null;
+  tenantId: string | null;
+  businessId: string | null;
+  agentProfileId: string | null;
+  queryAuthVerified: boolean;
 
   /** Twilio stream SID — set on `start` event */
   currentStreamSid: string | null;

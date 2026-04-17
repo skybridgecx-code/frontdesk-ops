@@ -16,24 +16,190 @@
  */
 
 import { prisma } from '@frontdesk/db';
+import { createHmac, timingSafeEqual } from 'node:crypto';
 import type { SessionState, JsonRecord } from '../types.js';
 import type { EventPersistence } from '../services/event-persistence.js';
 import { isRecord, getString, getNumberOrString } from '../lib/ws-utils.js';
 
+type StartAuthSource = 'query' | 'custom' | 'dev';
+
+type StartAuthResult =
+  | { valid: true; source: StartAuthSource }
+  | { valid: false; reason: string };
+
+export interface HandleStartResult {
+  accepted: boolean;
+  authenticated: boolean;
+  authSource: StartAuthSource | null;
+}
+
+function getConfiguredInternalSecret() {
+  const secret = process.env.FRONTDESK_INTERNAL_API_SECRET?.trim();
+  return secret && secret.length > 0 ? secret : null;
+}
+
+function buildStartSignaturePayload(input: {
+  callSid: string;
+  phoneNumberId: string;
+  tenantId: string;
+  businessId: string;
+  agentProfileId: string | null;
+}) {
+  return [
+    input.callSid,
+    input.phoneNumberId,
+    input.tenantId,
+    input.businessId,
+    input.agentProfileId ?? ''
+  ].join('|');
+}
+
+function validateStartAuthentication(input: {
+  queryAuthVerified: boolean;
+  startCallSid: string | null;
+  customCallSid: string | null;
+  customPhoneNumberId: string | null;
+  customTenantId: string | null;
+  customBusinessId: string | null;
+  customAgentProfileId: string | null;
+  customAuthSignature: string | null;
+}): StartAuthResult {
+  if (input.queryAuthVerified) {
+    return { valid: true, source: 'query' };
+  }
+
+  const internalSecret = getConfiguredInternalSecret();
+  if (!internalSecret) {
+    return { valid: true, source: 'dev' };
+  }
+
+  if (
+    !input.customCallSid ||
+    !input.customPhoneNumberId ||
+    !input.customTenantId ||
+    !input.customBusinessId ||
+    !input.customAuthSignature
+  ) {
+    return { valid: false, reason: 'missing_custom_auth_context' };
+  }
+
+  if (input.startCallSid && input.startCallSid !== input.customCallSid) {
+    return { valid: false, reason: 'start_call_sid_mismatch' };
+  }
+
+  const expectedSignature = createHmac('sha256', internalSecret)
+    .update(
+      buildStartSignaturePayload({
+        callSid: input.customCallSid,
+        phoneNumberId: input.customPhoneNumberId,
+        tenantId: input.customTenantId,
+        businessId: input.customBusinessId,
+        agentProfileId: input.customAgentProfileId
+      })
+    )
+    .digest('hex');
+
+  if (
+    input.customAuthSignature.length !== expectedSignature.length ||
+    !timingSafeEqual(Buffer.from(input.customAuthSignature), Buffer.from(expectedSignature))
+  ) {
+    return { valid: false, reason: 'invalid_custom_auth_signature' };
+  }
+
+  return { valid: true, source: 'custom' };
+}
+
 /**
  * Handles the `start` event — stream initialization.
- * Stores `streamSid` on the session state and links it to the Call record.
+ * Authenticates stream context and links the stream SID to the Call record.
  */
 export async function handleStart(
   message: JsonRecord,
   state: SessionState,
   events: EventPersistence,
-  size: number
-): Promise<void> {
+  size: number,
+  options?: {
+    queryAuthVerified?: boolean;
+  }
+): Promise<HandleStartResult> {
   const start = isRecord(message.start) ? message.start : null;
+  const customParameters = start && isRecord(start.customParameters) ? start.customParameters : null;
+
   const streamSid = start ? getString(start, 'streamSid') : null;
-  const messageCallSid =
-    (start ? getString(start, 'callSid') : null) ?? state.queryCallSid ?? null;
+  const startCallSid = start ? getString(start, 'callSid') : null;
+  const customCallSid = customParameters ? getString(customParameters, 'callSid') : null;
+  const customPhoneNumberId = customParameters ? getString(customParameters, 'phoneNumberId') : null;
+  const customTenantId = customParameters ? getString(customParameters, 'tenantId') : null;
+  const customBusinessId = customParameters ? getString(customParameters, 'businessId') : null;
+  const customAgentProfileId = customParameters ? getString(customParameters, 'agentProfileId') : null;
+  const customAuthSignature = customParameters ? getString(customParameters, 'authSignature') : null;
+
+  const messageCallSid = customCallSid ?? startCallSid ?? state.queryCallSid ?? null;
+  const resolvedPhoneNumberId = customPhoneNumberId ?? state.phoneNumberId ?? null;
+  const resolvedTenantId = customTenantId ?? state.tenantId ?? null;
+  const resolvedBusinessId = customBusinessId ?? state.businessId ?? null;
+  const resolvedAgentProfileId = customAgentProfileId ?? state.agentProfileId ?? null;
+
+  const authResult = validateStartAuthentication({
+    queryAuthVerified: options?.queryAuthVerified ?? false,
+    startCallSid,
+    customCallSid,
+    customPhoneNumberId,
+    customTenantId,
+    customBusinessId,
+    customAgentProfileId,
+    customAuthSignature
+  });
+
+  if (!authResult.valid) {
+    if (messageCallSid) {
+      events.setCallSid(messageCallSid);
+    }
+
+    await events.persistEvent('twilio.media.start.rejected', {
+      callSid: messageCallSid,
+      streamSid,
+      reason: authResult.reason,
+      hasCustomParameters: Boolean(customParameters),
+      hasAuthSignature: Boolean(customAuthSignature)
+    });
+
+    state.log.warn({
+      msg: 'media stream start rejected',
+      callSid: messageCallSid,
+      streamSid,
+      reason: authResult.reason
+    });
+
+    state.twilioSocket.close(4401, 'Unauthorized');
+    return { accepted: false, authenticated: false, authSource: null };
+  }
+
+  if (!messageCallSid) {
+    await events.persistEvent('twilio.media.start.rejected', {
+      callSid: messageCallSid,
+      streamSid,
+      reason: 'missing_call_sid'
+    });
+
+    state.log.warn({
+      msg: 'media stream start rejected',
+      callSid: messageCallSid,
+      streamSid,
+      reason: 'missing_call_sid'
+    });
+
+    state.twilioSocket.close(4400, 'Bad Request');
+    return { accepted: false, authenticated: false, authSource: null };
+  }
+
+  state.queryCallSid = messageCallSid;
+  state.phoneNumberId = resolvedPhoneNumberId;
+  state.tenantId = resolvedTenantId;
+  state.businessId = resolvedBusinessId;
+  state.agentProfileId = resolvedAgentProfileId;
+
+  events.setCallSid(messageCallSid);
 
   if (messageCallSid && streamSid) {
     state.currentStreamSid = streamSid;
@@ -47,7 +213,10 @@ export async function handleStart(
     callSid: messageCallSid,
     streamSid,
     phoneNumberId: state.phoneNumberId,
+    tenantId: state.tenantId,
+    businessId: state.businessId,
     agentProfileId: state.agentProfileId,
+    authSource: authResult.source,
     size
   });
 
@@ -58,6 +227,12 @@ export async function handleStart(
     phoneNumberId: state.phoneNumberId,
     agentProfileId: state.agentProfileId
   });
+
+  return {
+    accepted: true,
+    authenticated: true,
+    authSource: authResult.source
+  };
 }
 
 /**

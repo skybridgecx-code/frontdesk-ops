@@ -15,6 +15,7 @@
  *    or a Say+Hangup for non-AI routes.
  */
 
+import { createHmac } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
@@ -38,30 +39,65 @@ function twimlSayAndHangup(message: string) {
 /**
  * Returns TwiML that connects the call to a media stream WebSocket.
  *
- * The stream URL includes query params that the realtime gateway uses
- * to look up the call, phone number, and agent profile. The internal
- * secret is passed as a `token` param for WebSocket authentication.
+ * Twilio forwards stream context through <Parameter> entries that arrive
+ * in the first `start.customParameters` media event.
  */
 function twimlConnectStream(input: {
   streamBaseUrl: string;
   callSid: string;
   phoneNumberId: string;
+  tenantId: string;
+  businessId: string;
   agentProfileId: string | null;
-  internalSecret: string | null;
+  authSignature: string | null;
   recordingStatusCallbackUrl: string;
 }) {
-  const base = input.streamBaseUrl.replace(/\/$/, '');
-  const params = new URLSearchParams({
-    callSid: input.callSid,
-    phoneNumberId: input.phoneNumberId,
-    agentProfileId: input.agentProfileId ?? ''
-  });
-  if (input.internalSecret) {
-    params.set('token', input.internalSecret);
-  }
-  const url = `${base}?${params.toString()}`;
+  const streamUrl = input.streamBaseUrl.replace(/\/$/, '');
+  const streamParams = [
+    ['callSid', input.callSid],
+    ['phoneNumberId', input.phoneNumberId],
+    ['tenantId', input.tenantId],
+    ['businessId', input.businessId]
+  ] as Array<[string, string]>;
 
-  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect record="record-from-answer-dual" recordingStatusCallback="${escapeXml(input.recordingStatusCallbackUrl)}" recordingStatusCallbackMethod="POST" recordingStatusCallbackEvent="completed absent"><Stream url="${escapeXml(url)}" /></Connect></Response>`;
+  if (input.agentProfileId) {
+    streamParams.push(['agentProfileId', input.agentProfileId]);
+  }
+
+  if (input.authSignature) {
+    streamParams.push(['authSignature', input.authSignature]);
+  }
+
+  const streamParamXml = streamParams
+    .map(([name, value]) => `<Parameter name="${escapeXml(name)}" value="${escapeXml(value)}" />`)
+    .join('');
+
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect record="record-from-answer-dual" recordingStatusCallback="${escapeXml(input.recordingStatusCallbackUrl)}" recordingStatusCallbackMethod="POST" recordingStatusCallbackEvent="completed absent"><Stream url="${escapeXml(streamUrl)}">${streamParamXml}</Stream></Connect></Response>`;
+}
+
+/**
+ * Creates an HMAC signature for Twilio custom stream parameters.
+ * The raw internal secret never leaves the API process.
+ */
+function buildMediaStreamAuthSignature(input: {
+  callSid: string;
+  phoneNumberId: string;
+  tenantId: string;
+  businessId: string;
+  agentProfileId: string | null;
+  internalSecret: string | null;
+}) {
+  if (!input.internalSecret) return null;
+
+  const payload = [
+    input.callSid,
+    input.phoneNumberId,
+    input.tenantId,
+    input.businessId,
+    input.agentProfileId ?? ''
+  ].join('|');
+
+  return createHmac('sha256', input.internalSecret).update(payload).digest('hex');
 }
 
 /**
@@ -317,6 +353,14 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
         process.env.FRONTDESK_REALTIME_WS_BASE_URL ?? 'ws://127.0.0.1:4001/ws/media-stream';
 
       const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET ?? null;
+      const authSignature = buildMediaStreamAuthSignature({
+        callSid: twilioCallSid,
+        phoneNumberId: call.phoneNumberId,
+        tenantId: phoneNumber.tenantId,
+        businessId: phoneNumber.businessId,
+        agentProfileId: call.agentProfileId ?? null,
+        internalSecret
+      });
       const apiPublicBaseUrl = process.env.FRONTDESK_API_PUBLIC_URL ?? 'http://localhost:4000';
       const recordingStatusCallbackUrl = `${apiPublicBaseUrl.replace(/\/$/, '')}/v1/twilio/voice/recording-status`;
 
@@ -325,8 +369,10 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
           streamBaseUrl,
           callSid: twilioCallSid,
           phoneNumberId: call.phoneNumberId,
+          tenantId: phoneNumber.tenantId,
+          businessId: phoneNumber.businessId,
           agentProfileId: call.agentProfileId ?? null,
-          internalSecret,
+          authSignature,
           recordingStatusCallbackUrl
         })
       );

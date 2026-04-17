@@ -23,12 +23,22 @@ export interface CallContext {
 export class EventPersistence {
   private callId: string | null = null;
   private sequence = 0;
-  private readonly queryCallSid: string | null;
+  private queryCallSid: string | null;
   private readonly log: FastifyBaseLogger;
 
   constructor(queryCallSid: string | null, log: FastifyBaseLogger) {
     this.queryCallSid = queryCallSid;
     this.log = log;
+  }
+
+  setCallSid(callSid: string | null): void {
+    if (this.queryCallSid === callSid) {
+      return;
+    }
+
+    this.queryCallSid = callSid;
+    this.callId = null;
+    this.sequence = 0;
   }
 
   /**
