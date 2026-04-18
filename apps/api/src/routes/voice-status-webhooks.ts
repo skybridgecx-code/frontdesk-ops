@@ -15,9 +15,18 @@
  */
 
 import type { FastifyInstance } from 'fastify';
-import { CallStatus, prisma } from '@frontdesk/db';
+import { CallDirection, CallStatus, prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 import { handleMissedCall } from '../lib/missed-call-handler.js';
+
+const STATUS_LOOKUP_RETRY_DELAYS_MS = [50, 100, 200] as const;
+
+type CallStatusRecord = {
+  id: string;
+  twilioCallSid: string;
+  answeredAt: Date | null;
+  endedAt: Date | null;
+};
 
 /** Maps Twilio status strings to our CallStatus enum values. */
 function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof typeof CallStatus] {
@@ -52,6 +61,123 @@ function isTerminalStatus(status: typeof CallStatus[keyof typeof CallStatus]) {
   );
 }
 
+function wait(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isUniqueConstraintViolation(error: unknown) {
+  return (
+    error instanceof Error &&
+    (error.message.includes('Unique constraint') || error.message.includes('unique constraint'))
+  );
+}
+
+async function findCallForStatusCallback(twilioCallSid: string): Promise<CallStatusRecord | null> {
+  return prisma.call.findFirst({
+    where: {
+      OR: [{ twilioCallSid }, { callSid: twilioCallSid }]
+    },
+    select: {
+      id: true,
+      twilioCallSid: true,
+      answeredAt: true,
+      endedAt: true
+    }
+  });
+}
+
+async function recoverCallFromStatusPayload(input: {
+  twilioCallSid: string;
+  body: Record<string, string | undefined>;
+  mappedStatus: typeof CallStatus[keyof typeof CallStatus];
+  parsedDuration: number | null;
+}): Promise<{ call: CallStatusRecord | null; source: 'recovered-from-status-payload' | 'none' }> {
+  const toE164 = input.body.To?.trim() ?? '';
+  if (!toE164) {
+    return { call: null, source: 'none' };
+  }
+
+  const phoneNumber = await prisma.phoneNumber.findUnique({
+    where: { e164: toE164 },
+    select: {
+      id: true,
+      tenantId: true,
+      businessId: true,
+      isActive: true
+    }
+  });
+
+  if (!phoneNumber || !phoneNumber.isActive) {
+    return { call: null, source: 'none' };
+  }
+
+  const now = new Date();
+
+  try {
+    const call = await prisma.call.create({
+      data: {
+        tenantId: phoneNumber.tenantId,
+        businessId: phoneNumber.businessId,
+        phoneNumberId: phoneNumber.id,
+        direction: CallDirection.INBOUND,
+        twilioCallSid: input.twilioCallSid,
+        callSid: input.twilioCallSid,
+        status: input.mappedStatus,
+        fromE164: input.body.From ?? null,
+        toE164: toE164,
+        ...(input.mappedStatus === CallStatus.IN_PROGRESS ? { answeredAt: now } : {}),
+        ...(isTerminalStatus(input.mappedStatus) ? { endedAt: now } : {}),
+        ...(input.parsedDuration !== null ? { durationSeconds: input.parsedDuration } : {})
+      },
+      select: {
+        id: true,
+        twilioCallSid: true,
+        answeredAt: true,
+        endedAt: true
+      }
+    });
+
+    return { call, source: 'recovered-from-status-payload' };
+  } catch (error: unknown) {
+    if (!isUniqueConstraintViolation(error)) throw error;
+
+    const call = await findCallForStatusCallback(input.twilioCallSid);
+    return {
+      call,
+      source: call ? 'recovered-from-status-payload' : 'none'
+    };
+  }
+}
+
+async function resolveCallForStatusCallback(input: {
+  twilioCallSid: string;
+  body: Record<string, string | undefined>;
+  mappedStatus: typeof CallStatus[keyof typeof CallStatus];
+  parsedDuration: number | null;
+}): Promise<{
+  call: CallStatusRecord | null;
+  source: 'sid' | 'recovered-from-status-payload' | 'none';
+}> {
+  let call = await findCallForStatusCallback(input.twilioCallSid);
+  if (call) {
+    return { call, source: 'sid' };
+  }
+
+  for (const retryDelayMs of STATUS_LOOKUP_RETRY_DELAYS_MS) {
+    await wait(retryDelayMs);
+    call = await findCallForStatusCallback(input.twilioCallSid);
+    if (call) {
+      return { call, source: 'sid' };
+    }
+  }
+
+  const recovered = await recoverCallFromStatusPayload(input);
+  return {
+    call: recovered.call,
+    source: recovered.source
+  };
+}
+
 export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
   app.post('/v1/twilio/voice/status', async (request, reply) => {
     const body = (request.body ?? {}) as Record<string, string | undefined>;
@@ -75,17 +201,28 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
       });
     }
 
-    const existingCall = await prisma.call.findUnique({
-      where: { twilioCallSid },
-      select: {
-        id: true,
-        answeredAt: true,
-        endedAt: true
-      }
+    const resolved = await resolveCallForStatusCallback({
+      twilioCallSid,
+      body,
+      mappedStatus,
+      parsedDuration
     });
+    const existingCall = resolved.call;
 
     if (!existingCall) {
-      return reply.notFound(`Call not found for CallSid=${twilioCallSid}`);
+      app.log.warn({
+        msg: 'Twilio status callback could not be correlated to a call',
+        twilioCallSid,
+        callStatus: rawCallStatus ?? null,
+        fromE164: body.From ?? null,
+        toE164: body.To ?? null
+      });
+
+      return reply.status(200).send({
+        ok: true,
+        correlated: false,
+        status: mappedStatus
+      });
     }
 
     const updateData: {
@@ -110,7 +247,7 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
     }
 
     await prisma.call.update({
-      where: { twilioCallSid },
+      where: { id: existingCall.id },
       data: updateData
     });
 
@@ -138,10 +275,10 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
     }
 
     if (isTerminalStatus(mappedStatus)) {
-      void handleMissedCall(twilioCallSid).catch((error: unknown) => {
+      void handleMissedCall(existingCall.twilioCallSid).catch((error: unknown) => {
         app.log.error({
           msg: 'Failed to process missed-call text-back',
-          twilioCallSid,
+          twilioCallSid: existingCall.twilioCallSid,
           error
         });
       });
@@ -150,7 +287,8 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
     return {
       ok: true,
       callId: existingCall.id,
-      status: mappedStatus
+      status: mappedStatus,
+      correlationSource: resolved.source
     };
   });
 }
