@@ -18,6 +18,7 @@
 import { createHmac } from 'node:crypto';
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
+import type { Prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 import { enforceUsageLimits } from '../lib/usage-limiter.js';
 
@@ -205,6 +206,10 @@ async function createCallEventWithRetry(input: {
   type: string;
   payloadJson: unknown;
 }) {
+  function toPrismaJsonValue(value: unknown): Prisma.InputJsonValue {
+    return JSON.parse(JSON.stringify(value ?? null)) as Prisma.InputJsonValue;
+  }
+
   for (let attempt = 0; attempt < 3; attempt++) {
     const existingEventCount = await prisma.callEvent.count({
       where: { callId: input.callId }
@@ -215,7 +220,7 @@ async function createCallEventWithRetry(input: {
           callId: input.callId,
           type: input.type,
           sequence: existingEventCount + 1,
-          payloadJson: input.payloadJson
+          payloadJson: toPrismaJsonValue(input.payloadJson)
         }
       });
       return;
