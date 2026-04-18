@@ -248,7 +248,8 @@ export async function registerCallRoutes(app: FastifyInstance) {
           select: {
             type: true,
             sequence: true,
-            createdAt: true
+            createdAt: true,
+            payloadJson: true
           }
         }
       }

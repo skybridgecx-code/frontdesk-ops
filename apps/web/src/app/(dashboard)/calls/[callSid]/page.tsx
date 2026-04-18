@@ -6,6 +6,24 @@ import { formatCallDuration, formatPhoneNumber, normalizeCallStatus } from '@/li
 
 export const dynamic = 'force-dynamic';
 
+type CallEventPayload = {
+  reason?: string | null;
+  routeKind?: string | null;
+  status?: string | null;
+  to?: string | null;
+  from?: string | null;
+  message?: string | null;
+  errorMessage?: string | null;
+  destinationPhoneNumberE164?: string | null;
+};
+
+type CallEvent = {
+  type: string;
+  sequence: number;
+  createdAt: string;
+  payloadJson?: CallEventPayload | null;
+};
+
 type CallDetail = {
   id?: string;
   callSid?: string | null;
@@ -28,6 +46,7 @@ type CallDetail = {
   recordingDuration?: number | null;
   createdAt?: string;
   startedAt?: string;
+  events?: CallEvent[];
 };
 
 type CallResponse = {
@@ -103,6 +122,27 @@ function formatDuration(call: CallDetail) {
   return `${minutes}m ${remaining}s`;
 }
 
+function formatEvidenceText(value: string | null | undefined) {
+  if (!value) {
+    return '—';
+  }
+
+  return value
+    .replace(/^twilio\.status\./, '')
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, (char) => char.toUpperCase());
+}
+
+function getLatestEvent(call: CallDetail, type: string) {
+  const matches = (call.events ?? []).filter((event) => event.type === type);
+  return matches.length > 0 ? matches[matches.length - 1] : null;
+}
+
+function getLatestStatusEvent(call: CallDetail) {
+  const matches = (call.events ?? []).filter((event) => event.type.startsWith('twilio.status.'));
+  return matches.length > 0 ? matches[matches.length - 1] : null;
+}
+
 function DetailCard({
   label,
   value,
@@ -150,6 +190,10 @@ export default async function CallDetailPage({
   const resolvedCallSid = call.callSid ?? call.twilioCallSid ?? callSid;
   const resolvedVoicemailUrl = call.voicemailUrl ?? call.recordingUrl ?? null;
   const resolvedVoicemailDuration = call.voicemailDuration ?? call.recordingDuration ?? null;
+  const fallbackEvent = getLatestEvent(call, 'twilio.inbound.fallback');
+  const textbackSkippedEvent = getLatestEvent(call, 'textback.skipped');
+  const textbackSentEvent = getLatestEvent(call, 'textback.sent');
+  const latestStatusEvent = getLatestStatusEvent(call);
 
   return (
     <div className="space-y-6">
@@ -175,6 +219,44 @@ export default async function CallDetailPage({
         <DetailCard label="Duration" value={formatDuration(call)} />
         <DetailCard label="Call SID" value={resolvedCallSid} className="font-mono text-xs" />
       </div>
+
+      {fallbackEvent || textbackSkippedEvent || textbackSentEvent || latestStatusEvent ? (
+        <div className="bg-white rounded-xl shadow-sm border p-6">
+          <h3 className="text-lg font-semibold text-gray-900 mb-4">Voice handling evidence</h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <DetailCard
+              label="Inbound Fallback"
+              value={
+                fallbackEvent
+                  ? `Used — ${formatEvidenceText(fallbackEvent.payloadJson?.reason)}`
+                  : 'Not used'
+              }
+            />
+
+            <DetailCard
+              label="Missed-Call Text Back"
+              value={
+                textbackSentEvent
+                  ? 'Sent'
+                  : textbackSkippedEvent
+                    ? `Skipped — ${formatEvidenceText(textbackSkippedEvent.payloadJson?.reason)}`
+                    : 'No event'
+              }
+            />
+
+            <DetailCard
+              label="Latest Twilio Status"
+              value={latestStatusEvent ? formatEvidenceText(latestStatusEvent.type) : '—'}
+            />
+
+            <DetailCard
+              label="Latest Status At"
+              value={latestStatusEvent ? formatDate(latestStatusEvent.createdAt) : '—'}
+            />
+          </div>
+        </div>
+      ) : null}
 
       {resolvedVoicemailUrl ? (
         <div className="mt-6 bg-purple-50 border border-purple-200 rounded-xl p-6">
