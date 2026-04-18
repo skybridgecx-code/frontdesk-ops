@@ -62,6 +62,7 @@ async function createApp() {
 
 describe('voice-webhooks TwiML stream parameters', () => {
   const originalEnv = { ...process.env };
+  let eventSequence = 0;
 
   beforeEach(() => {
     process.env = { ...originalEnv };
@@ -78,8 +79,12 @@ describe('voice-webhooks TwiML stream parameters', () => {
 
     requireTwilioSignatureMock.mockReturnValue({ valid: true });
     enforceUsageLimitsMock.mockReturnValue(async () => {});
-    callEventCountMock.mockResolvedValue(0);
-    callEventCreateMock.mockResolvedValue({ id: 'evt_1' });
+    eventSequence = 0;
+    callEventCountMock.mockImplementation(async () => eventSequence);
+    callEventCreateMock.mockImplementation(async () => {
+      eventSequence += 1;
+      return { id: `evt_${eventSequence}` };
+    });
   });
 
   afterEach(() => {
@@ -144,6 +149,76 @@ describe('voice-webhooks TwiML stream parameters', () => {
     );
     expect(response.body).not.toContain('super-secret');
     expect(response.body).not.toContain('token=');
+
+    await app.close();
+  });
+
+  it('returns polite fallback TwiML when realtime stream URL config is missing', async () => {
+    delete process.env.FRONTDESK_REALTIME_WS_BASE_URL;
+    delete process.env.PUBLIC_REALTIME_WS_BASE_URL;
+
+    phoneNumberFindUniqueMock.mockResolvedValue({
+      id: 'pn_1',
+      tenantId: 'tenant_1',
+      businessId: 'business_1',
+      e164: '+12029359687',
+      label: 'Main line',
+      isActive: true,
+      routingMode: PhoneRoutingMode.AI_ALWAYS,
+      primaryAgentProfileId: 'ap_1',
+      afterHoursAgentProfileId: null,
+      business: {
+        id: 'business_1',
+        name: 'Acme',
+        timezone: 'America/New_York',
+        businessHours: []
+      }
+    });
+
+    callUpsertMock.mockResolvedValue({
+      id: 'call_1',
+      phoneNumberId: 'pn_1',
+      agentProfileId: 'ap_1'
+    });
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/voice/inbound',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      payload: toFormPayload({
+        CallSid: 'CA123',
+        From: '+15551234567',
+        To: '+12029359687'
+      })
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.headers['content-type']).toContain('text/xml');
+    expect(response.body).toContain(
+      '<Say>Thanks for calling. Our assistant is temporarily unavailable right now. Please try again shortly.</Say>'
+    );
+    expect(response.body).toContain('<Hangup/>');
+    expect(response.body).not.toContain('<Connect');
+    expect(response.body).not.toContain('<Stream');
+
+    expect(callEventCreateMock).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          callId: 'call_1',
+          type: 'twilio.inbound.fallback',
+          sequence: 2,
+          payloadJson: expect.objectContaining({
+            reason: 'FRONTDESK_REALTIME_WS_BASE_URL is not configured',
+            routeKind: 'AI'
+          })
+        })
+      })
+    );
 
     await app.close();
   });

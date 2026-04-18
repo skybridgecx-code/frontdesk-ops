@@ -36,6 +36,9 @@ function twimlSayAndHangup(message: string) {
   return `<?xml version="1.0" encoding="UTF-8"?><Response><Say>${escapeXml(message)}</Say><Hangup/></Response>`;
 }
 
+const AI_LINE_UNAVAILABLE_MESSAGE =
+  'Thanks for calling. Our assistant is temporarily unavailable right now. Please try again shortly.';
+
 /**
  * Returns TwiML that connects the call to a media stream WebSocket.
  *
@@ -72,7 +75,8 @@ function twimlConnectStream(input: {
     .map(([name, value]) => `<Parameter name="${escapeXml(name)}" value="${escapeXml(value)}" />`)
     .join('');
 
-  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect record="record-from-answer-dual" recordingStatusCallback="${escapeXml(input.recordingStatusCallbackUrl)}" recordingStatusCallbackMethod="POST" recordingStatusCallbackEvent="completed absent"><Stream url="${escapeXml(streamUrl)}">${streamParamXml}</Stream></Connect></Response>`;
+  const escapedRecordingStatusCallbackUrl = escapeXml(input.recordingStatusCallbackUrl);
+  return `<?xml version="1.0" encoding="UTF-8"?><Response><Connect record="record-from-answer-dual" recordingStatusCallback="${escapedRecordingStatusCallbackUrl}" recordingStatusCallbackMethod="POST" recordingStatusCallbackEvent="completed absent"><Stream url="${escapeXml(streamUrl)}">${streamParamXml}</Stream></Connect></Response>`;
 }
 
 /**
@@ -158,6 +162,71 @@ function isBusinessOpen(
   if (!today.openTime || !today.closeTime) return false;
 
   return localTime >= today.openTime && localTime < today.closeTime;
+}
+
+function isLoopbackHost(hostname: string) {
+  const normalized = hostname.toLowerCase();
+  return normalized === 'localhost' || normalized === '127.0.0.1' || normalized === '::1';
+}
+
+function resolveRequiredBaseUrl(input: {
+  envName: string;
+  value: string | undefined;
+  allowedProtocols: Array<'http:' | 'https:' | 'ws:' | 'wss:'>;
+}) {
+  const raw = input.value?.trim();
+  if (!raw) {
+    return { ok: false as const, reason: `${input.envName} is not configured` };
+  }
+
+  let parsed: URL;
+  try {
+    parsed = new URL(raw);
+  } catch {
+    return { ok: false as const, reason: `${input.envName} is not a valid URL` };
+  }
+
+  if (!input.allowedProtocols.includes(parsed.protocol as 'http:' | 'https:' | 'ws:' | 'wss:')) {
+    return {
+      ok: false as const,
+      reason: `${input.envName} must use ${input.allowedProtocols.join(' or ')}`
+    };
+  }
+
+  if (isLoopbackHost(parsed.hostname)) {
+    return { ok: false as const, reason: `${input.envName} cannot point to localhost or loopback` };
+  }
+
+  return { ok: true as const, value: parsed.toString().replace(/\/$/, '') };
+}
+
+async function createCallEventWithRetry(input: {
+  callId: string;
+  type: string;
+  payloadJson: unknown;
+}) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const existingEventCount = await prisma.callEvent.count({
+      where: { callId: input.callId }
+    });
+    try {
+      await prisma.callEvent.create({
+        data: {
+          callId: input.callId,
+          type: input.type,
+          sequence: existingEventCount + 1,
+          payloadJson: input.payloadJson
+        }
+      });
+      return;
+    } catch (error: unknown) {
+      const isUniqueViolation =
+        error instanceof Error &&
+        (error.message.includes('Unique constraint') ||
+          error.message.includes('unique constraint'));
+      if (!isUniqueViolation || attempt === 2) throw error;
+    }
+  }
 }
 
 /**
@@ -322,35 +391,46 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       }
     });
 
-    for (let attempt = 0; attempt < 3; attempt++) {
-      const existingEventCount = await prisma.callEvent.count({
-        where: { callId: call.id }
-      });
-      try {
-        await prisma.callEvent.create({
-          data: {
-            callId: call.id,
-            type: 'twilio.inbound.received',
-            sequence: existingEventCount + 1,
-            payloadJson: body
-          }
-        });
-        break;
-      } catch (error: unknown) {
-        const isUniqueViolation =
-          error instanceof Error &&
-          (error.message.includes('Unique constraint') ||
-            error.message.includes('unique constraint'));
-        if (!isUniqueViolation || attempt === 2) throw error;
-      }
-    }
+    await createCallEventWithRetry({
+      callId: call.id,
+      type: 'twilio.inbound.received',
+      payloadJson: body
+    });
 
     reply.header('Content-Type', 'text/xml; charset=utf-8');
 
     if (route.routeKind === CallRouteKind.AI) {
-      const streamBaseUrl =
-        process.env.PUBLIC_REALTIME_WS_BASE_URL ??
-        process.env.FRONTDESK_REALTIME_WS_BASE_URL ?? 'ws://127.0.0.1:4001/ws/media-stream';
+      const streamUrlCheck = resolveRequiredBaseUrl({
+        envName: 'FRONTDESK_REALTIME_WS_BASE_URL',
+        value:
+          process.env.PUBLIC_REALTIME_WS_BASE_URL ??
+          process.env.FRONTDESK_REALTIME_WS_BASE_URL,
+        allowedProtocols: ['ws:', 'wss:']
+      });
+      const apiPublicUrlCheck = resolveRequiredBaseUrl({
+        envName: 'FRONTDESK_API_PUBLIC_URL',
+        value: process.env.FRONTDESK_API_PUBLIC_URL,
+        allowedProtocols: ['http:', 'https:']
+      });
+
+      if (!streamUrlCheck.ok || !apiPublicUrlCheck.ok) {
+        const fallbackReason = !streamUrlCheck.ok ? streamUrlCheck.reason : apiPublicUrlCheck.reason;
+        app.log.error({
+          msg: 'AI voice fallback returned from inbound webhook',
+          twilioCallSid,
+          callId: call.id,
+          fallbackReason
+        });
+        await createCallEventWithRetry({
+          callId: call.id,
+          type: 'twilio.inbound.fallback',
+          payloadJson: {
+            reason: fallbackReason,
+            routeKind: route.routeKind
+          }
+        });
+        return reply.send(twimlSayAndHangup(AI_LINE_UNAVAILABLE_MESSAGE));
+      }
 
       const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET ?? null;
       const authSignature = buildMediaStreamAuthSignature({
@@ -361,12 +441,11 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
         agentProfileId: call.agentProfileId ?? null,
         internalSecret
       });
-      const apiPublicBaseUrl = process.env.FRONTDESK_API_PUBLIC_URL ?? 'http://localhost:4000';
-      const recordingStatusCallbackUrl = `${apiPublicBaseUrl.replace(/\/$/, '')}/v1/twilio/voice/recording-status`;
+      const recordingStatusCallbackUrl = `${apiPublicUrlCheck.value}/v1/twilio/voice/recording-status`;
 
       return reply.send(
         twimlConnectStream({
-          streamBaseUrl,
+          streamBaseUrl: streamUrlCheck.value,
           callSid: twilioCallSid,
           phoneNumberId: call.phoneNumberId,
           tenantId: phoneNumber.tenantId,
