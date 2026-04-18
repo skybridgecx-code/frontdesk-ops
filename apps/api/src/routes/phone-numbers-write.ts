@@ -1,7 +1,8 @@
-import type { FastifyInstance } from 'fastify';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { z } from 'zod';
 import { PhoneRoutingMode, prisma } from '@frontdesk/db';
 import { phoneNumberIdParams } from '../lib/params.js';
+import { requireAdminAuth } from '../lib/admin-auth.js';
 
 const updatePhoneNumberBodySchema = z.object({
   label: z.string().min(1).max(120).optional(),
@@ -13,7 +14,11 @@ const updatePhoneNumberBodySchema = z.object({
 });
 
 export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
-  app.patch('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
+  const handlePhoneNumberUpdate = async (
+    request: FastifyRequest,
+    reply: FastifyReply,
+    options: { requireTenant: boolean }
+  ) => {
     const { phoneNumberId } = phoneNumberIdParams.parse(request.params);
     const parsed = updatePhoneNumberBodySchema.safeParse(request.body);
 
@@ -21,10 +26,16 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
       return reply.status(400).send({ ok: false, error: parsed.error.flatten() });
     }
 
+    if (options.requireTenant && !request.tenantId) {
+      return reply.status(401).send({
+        error: 'Unauthorized'
+      });
+    }
+
     const existingPhoneNumber = await prisma.phoneNumber.findFirst({
       where: {
         id: phoneNumberId,
-        ...(request.tenantId ? { tenantId: request.tenantId } : {})
+        ...(options.requireTenant && request.tenantId ? { tenantId: request.tenantId } : {})
       },
       select: {
         id: true,
@@ -41,7 +52,7 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
       const primaryAgent = await prisma.agentProfile.findFirst({
         where: {
           id: parsed.data.primaryAgentProfileId,
-          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+          ...(options.requireTenant && request.tenantId ? { tenantId: request.tenantId } : {})
         },
         select: { id: true, businessId: true, tenantId: true }
       });
@@ -65,7 +76,7 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
       const afterHoursAgent = await prisma.agentProfile.findFirst({
         where: {
           id: parsed.data.afterHoursAgentProfileId,
-          ...(request.tenantId ? { tenantId: request.tenantId } : {})
+          ...(options.requireTenant && request.tenantId ? { tenantId: request.tenantId } : {})
         },
         select: { id: true, businessId: true, tenantId: true }
       });
@@ -126,5 +137,17 @@ export async function registerPhoneNumberWriteRoutes(app: FastifyInstance) {
       ok: true,
       phoneNumber
     };
+  };
+
+  app.patch('/v1/phone-numbers/:phoneNumberId', async (request, reply) => {
+    return handlePhoneNumberUpdate(request, reply, { requireTenant: true });
   });
+
+  app.patch(
+    '/v1/admin/phone-numbers/:phoneNumberId',
+    { preHandler: requireAdminAuth },
+    async (request, reply) => {
+      return handlePhoneNumberUpdate(request, reply, { requireTenant: false });
+    }
+  );
 }
