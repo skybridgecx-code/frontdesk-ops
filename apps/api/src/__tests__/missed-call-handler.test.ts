@@ -198,9 +198,25 @@ describe('handleMissedCall', () => {
 
     expect(messagesCreateMock).not.toHaveBeenCalled();
     expect(callUpdateMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: {
+        callId: 'call_1',
+        type: 'textback.skipped',
+        sequence: 3,
+        payloadJson: {
+          reason: 'textback_disabled',
+          status: 'NO_ANSWER',
+          durationSeconds: null,
+          fromE164: '+17035550999',
+          toE164: '+17035550100',
+          destinationPhoneNumberE164: '+17035550100',
+          errorMessage: null
+        }
+      }
+    });
   });
 
-  it('missed call with no matching phone number skips silently', async () => {
+  it('missed call with no matching phone number records skip evidence', async () => {
     callFindUniqueMock.mockResolvedValue(buildCallFixture({ toE164: '+17035550100' }));
     phoneNumberFindFirstMock.mockResolvedValueOnce(null).mockResolvedValueOnce(null);
 
@@ -208,6 +224,22 @@ describe('handleMissedCall', () => {
 
     expect(messagesCreateMock).not.toHaveBeenCalled();
     expect(callUpdateMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: {
+        callId: 'call_1',
+        type: 'textback.skipped',
+        sequence: 3,
+        payloadJson: {
+          reason: 'destination_number_not_found',
+          status: 'NO_ANSWER',
+          durationSeconds: null,
+          fromE164: '+17035550999',
+          toE164: '+17035550100',
+          destinationPhoneNumberE164: null,
+          errorMessage: null
+        }
+      }
+    });
   });
 
   it('uses custom missed call text-back message when set', async () => {
@@ -267,8 +299,48 @@ describe('handleMissedCall', () => {
 
     expect(consoleErrorSpy).toHaveBeenCalled();
     expect(callUpdateMock).not.toHaveBeenCalled();
-    expect(callEventCreateMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: {
+        callId: 'call_1',
+        type: 'textback.skipped',
+        sequence: 3,
+        payloadJson: {
+          reason: 'provider_send_failed',
+          status: 'NO_ANSWER',
+          durationSeconds: null,
+          fromE164: '+17035550999',
+          toE164: '+17035550100',
+          destinationPhoneNumberE164: '+17035550100',
+          errorMessage: 'Twilio SMS failed'
+        }
+      }
+    });
 
     consoleErrorSpy.mockRestore();
+  });
+
+  it('missed call with missing caller number records skip evidence', async () => {
+    callFindUniqueMock.mockResolvedValue(buildCallFixture({ fromE164: null }));
+
+    await handleMissedCall('CA_missing_caller');
+
+    expect(messagesCreateMock).not.toHaveBeenCalled();
+    expect(callUpdateMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: {
+        callId: 'call_1',
+        type: 'textback.skipped',
+        sequence: 3,
+        payloadJson: {
+          reason: 'missing_caller_number',
+          status: 'NO_ANSWER',
+          durationSeconds: null,
+          fromE164: null,
+          toE164: '+17035550100',
+          destinationPhoneNumberE164: '+17035550100',
+          errorMessage: null
+        }
+      }
+    });
   });
 });

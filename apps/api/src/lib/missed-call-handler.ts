@@ -68,6 +68,58 @@ async function createTextBackSentEvent(input: {
   }
 }
 
+async function createTextBackSkippedEvent(input: {
+  callId: string;
+  reason: 'destination_number_not_found' | 'textback_disabled' | 'missing_caller_number' | 'provider_send_failed';
+  status: CallStatus;
+  durationSeconds: number | null;
+  fromE164: string | null;
+  toE164: string | null;
+  destinationPhoneNumberE164: string | null;
+  errorMessage?: string;
+}) {
+  for (let attempt = 0; attempt < 3; attempt++) {
+    const existingEventCount = await prisma.callEvent.count({
+      where: { callId: input.callId }
+    });
+
+    try {
+      await prisma.callEvent.create({
+        data: {
+          callId: input.callId,
+          type: 'textback.skipped',
+          sequence: existingEventCount + 1,
+          payloadJson: {
+            reason: input.reason,
+            status: input.status,
+            durationSeconds: input.durationSeconds,
+            fromE164: input.fromE164,
+            toE164: input.toE164,
+            destinationPhoneNumberE164: input.destinationPhoneNumberE164,
+            errorMessage: input.errorMessage ?? null
+          }
+        }
+      });
+      return;
+    } catch (error: unknown) {
+      const isUniqueViolation =
+        error instanceof Error &&
+        (error.message.includes('Unique constraint') || error.message.includes('unique constraint'));
+
+      if (!isUniqueViolation || attempt === 2) {
+        console.error('Failed to persist text-back skipped event', {
+          error,
+          callId: input.callId
+        });
+      }
+
+      if (!isUniqueViolation) {
+        return;
+      }
+    }
+  }
+}
+
 async function findDestinationPhoneNumber(input: {
   phoneNumberId: string;
   toE164: string | null;
@@ -165,11 +217,42 @@ export async function handleMissedCall(callSid: string) {
       businessId: call.businessId
     });
 
-    if (!destinationPhoneNumber || !destinationPhoneNumber.enableMissedCallTextBack) {
+    if (!destinationPhoneNumber) {
+      await createTextBackSkippedEvent({
+        callId: call.id,
+        reason: 'destination_number_not_found',
+        status: call.status,
+        durationSeconds: call.durationSeconds,
+        fromE164: call.fromE164,
+        toE164: call.toE164,
+        destinationPhoneNumberE164: null
+      });
+      return;
+    }
+
+    if (!destinationPhoneNumber.enableMissedCallTextBack) {
+      await createTextBackSkippedEvent({
+        callId: call.id,
+        reason: 'textback_disabled',
+        status: call.status,
+        durationSeconds: call.durationSeconds,
+        fromE164: call.fromE164,
+        toE164: call.toE164,
+        destinationPhoneNumberE164: destinationPhoneNumber.e164
+      });
       return;
     }
 
     if (!call.fromE164) {
+      await createTextBackSkippedEvent({
+        callId: call.id,
+        reason: 'missing_caller_number',
+        status: call.status,
+        durationSeconds: call.durationSeconds,
+        fromE164: null,
+        toE164: call.toE164,
+        destinationPhoneNumberE164: destinationPhoneNumber.e164
+      });
       return;
     }
 
@@ -195,6 +278,16 @@ export async function handleMissedCall(callSid: string) {
         callSid,
         to: call.fromE164,
         from: destinationPhoneNumber.e164
+      });
+      await createTextBackSkippedEvent({
+        callId: call.id,
+        reason: 'provider_send_failed',
+        status: call.status,
+        durationSeconds: call.durationSeconds,
+        fromE164: call.fromE164,
+        toE164: call.toE164,
+        destinationPhoneNumberE164: destinationPhoneNumber.e164,
+        errorMessage: error instanceof Error ? error.message : 'unknown'
       });
       return;
     }
