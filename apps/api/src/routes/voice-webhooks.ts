@@ -201,6 +201,49 @@ function resolveRequiredBaseUrl(input: {
   return { ok: true as const, value: parsed.toString().replace(/\/$/, '') };
 }
 
+function buildRealtimeHealthUrl(streamBaseUrl: string) {
+  const parsed = new URL(streamBaseUrl);
+  parsed.protocol = parsed.protocol === 'wss:' ? 'https:' : 'http:';
+  parsed.pathname = '/health';
+  parsed.search = '';
+  parsed.hash = '';
+  return parsed.toString();
+}
+
+async function checkRealtimeGatewayReadiness(streamBaseUrl: string, timeoutMs = 1500) {
+  const healthUrl = buildRealtimeHealthUrl(streamBaseUrl);
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    const response = await fetch(healthUrl, {
+      method: 'GET',
+      signal: controller.signal
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false as const,
+        reason: `realtime_health_http_${response.status}`,
+        healthUrl
+      };
+    }
+
+    return {
+      ok: true as const,
+      healthUrl
+    };
+  } catch {
+    return {
+      ok: false as const,
+      reason: 'realtime_health_unreachable',
+      healthUrl
+    };
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
 async function createCallEventWithRetry(input: {
   callId: string;
   type: string;
@@ -434,6 +477,29 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
             routeKind: route.routeKind
           }
         });
+        return reply.send(twimlSayAndHangup(AI_LINE_UNAVAILABLE_MESSAGE));
+      }
+
+      const readiness = await checkRealtimeGatewayReadiness(streamUrlCheck.value);
+      if (!readiness.ok) {
+        app.log.error({
+          msg: 'AI voice fallback returned from inbound webhook',
+          twilioCallSid,
+          callId: call.id,
+          fallbackReason: readiness.reason,
+          realtimeHealthUrl: readiness.healthUrl
+        });
+
+        await createCallEventWithRetry({
+          callId: call.id,
+          type: 'twilio.inbound.fallback',
+          payloadJson: {
+            reason: readiness.reason,
+            routeKind: route.routeKind,
+            realtimeHealthUrl: readiness.healthUrl
+          }
+        });
+
         return reply.send(twimlSayAndHangup(AI_LINE_UNAVAILABLE_MESSAGE));
       }
 
