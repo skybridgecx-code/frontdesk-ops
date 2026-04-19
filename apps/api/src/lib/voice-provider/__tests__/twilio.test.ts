@@ -3,6 +3,49 @@ import { CallStatus } from '@frontdesk/db';
 import { mapNormalizedVoiceStatusToCallStatus } from '../event-mapping.js';
 import { twilioVoiceProviderAdapter } from '../twilio.js';
 
+describe('twilioVoiceProviderAdapter.normalizeInboundCall', () => {
+  it('normalizes Twilio inbound payload fields', () => {
+    const normalized = twilioVoiceProviderAdapter.normalizeInboundCall?.({
+      CallSid: 'CA123',
+      From: '+15551234567',
+      To: '+12029359687'
+    }) ?? null;
+
+    expect(normalized).toEqual({
+      provider: 'twilio',
+      providerCallId: 'CA123',
+      fromE164: '+15551234567',
+      toE164: '+12029359687'
+    });
+  });
+
+  it('preserves raw inbound field values without trimming', () => {
+    const normalized = twilioVoiceProviderAdapter.normalizeInboundCall?.({
+      CallSid: ' CA123 ',
+      From: ' +15551234567 ',
+      To: ' +12029359687 '
+    }) ?? null;
+
+    expect(normalized).toEqual({
+      provider: 'twilio',
+      providerCallId: ' CA123 ',
+      fromE164: ' +15551234567 ',
+      toE164: ' +12029359687 '
+    });
+  });
+
+  it('returns default empty/null values when inbound keys are absent', () => {
+    const normalized = twilioVoiceProviderAdapter.normalizeInboundCall?.({}) ?? null;
+
+    expect(normalized).toEqual({
+      provider: 'twilio',
+      providerCallId: '',
+      fromE164: null,
+      toE164: null
+    });
+  });
+});
+
 describe('twilioVoiceProviderAdapter.normalizeStatusUpdate', () => {
   it('normalizes Twilio status payload fields', () => {
     const normalized = twilioVoiceProviderAdapter.normalizeStatusUpdate?.({

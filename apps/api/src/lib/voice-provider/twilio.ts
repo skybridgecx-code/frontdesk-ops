@@ -10,6 +10,11 @@ function getString(record: Record<string, unknown>, key: string) {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
+function getRawString(record: Record<string, unknown>, key: string) {
+  const value = record[key];
+  return typeof value === 'string' ? value : null;
+}
+
 function mapTwilioCallStatus(status: string): NormalizedVoiceCallStatus | null {
   switch (status) {
     case 'ringing':
@@ -41,6 +46,19 @@ function parseDurationSeconds(value: string | null) {
 
 export const twilioVoiceProviderAdapter: VoiceProviderAdapter = {
   provider: 'twilio',
+
+  normalizeInboundCall(input) {
+    if (!isRecord(input)) {
+      return null;
+    }
+
+    return {
+      provider: 'twilio',
+      providerCallId: getRawString(input, 'CallSid') ?? '',
+      fromE164: getRawString(input, 'From') ?? null,
+      toE164: getRawString(input, 'To') ?? null
+    };
+  },
 
   normalizeStatusUpdate(input: unknown): NormalizedVoiceStatusUpdate | null {
     if (!isRecord(input)) {

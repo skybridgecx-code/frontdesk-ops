@@ -23,6 +23,7 @@ import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Wee
 import type { Prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 import { enforceUsageLimits } from '../lib/usage-limiter.js';
+import { twilioVoiceProviderAdapter } from '../lib/voice-provider/twilio.js';
 
 /** Escapes XML special characters for safe embedding in TwiML responses. */
 function escapeXml(value: string) {
@@ -443,9 +444,10 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
       );
     }
 
-    const twilioCallSid = body.CallSid ?? '';
-    const fromE164 = body.From ?? null;
-    const toE164 = body.To ?? null;
+    const normalizedInboundCall = twilioVoiceProviderAdapter.normalizeInboundCall?.(body) ?? null;
+    const twilioCallSid = normalizedInboundCall?.providerCallId ?? '';
+    const fromE164 = normalizedInboundCall?.fromE164 ?? null;
+    const toE164 = normalizedInboundCall?.toE164 ?? null;
 
     if (!twilioCallSid || !toE164) {
       reply.header('Content-Type', 'text/xml; charset=utf-8');

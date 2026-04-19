@@ -26,6 +26,13 @@ export type NormalizedVoiceStatusUpdate = NormalizedVoiceCallContext & {
   durationSeconds?: number | null;
 };
 
+export type NormalizedVoiceInboundCall = {
+  provider: VoiceProvider;
+  providerCallId: string;
+  fromE164: string | null;
+  toE164: string | null;
+};
+
 export type NormalizedVoiceTranscriptArtifact = NormalizedVoiceCallContext & {
   transcript?: string | null;
   summary?: string | null;

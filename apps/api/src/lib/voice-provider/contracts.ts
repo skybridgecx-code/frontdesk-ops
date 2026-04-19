@@ -1,4 +1,5 @@
 import type {
+  NormalizedVoiceInboundCall,
   NormalizedVoiceEvidenceEvent,
   NormalizedVoiceStatusUpdate,
   NormalizedVoiceTranscriptArtifact,
@@ -7,6 +8,8 @@ import type {
 
 export interface VoiceProviderAdapter {
   readonly provider: VoiceProvider;
+
+  normalizeInboundCall?(input: unknown): NormalizedVoiceInboundCall | null;
 
   normalizeStatusUpdate?(input: unknown): NormalizedVoiceStatusUpdate | null;
 
