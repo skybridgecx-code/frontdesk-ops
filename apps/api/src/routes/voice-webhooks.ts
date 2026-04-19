@@ -15,7 +15,9 @@
  *    or a Say+Hangup for non-AI routes.
  */
 
-import { createHmac } from 'node:crypto';
+import { createHmac, randomBytes } from 'node:crypto';
+import { request as httpRequest } from 'node:http';
+import { request as httpsRequest } from 'node:https';
 import type { FastifyInstance } from 'fastify';
 import { prisma, CallDirection, CallRouteKind, CallStatus, PhoneRoutingMode, Weekday } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
@@ -212,37 +214,132 @@ function buildRealtimeHealthUrl(streamBaseUrl: string) {
 
 async function checkRealtimeGatewayReadiness(streamBaseUrl: string, timeoutMs = 1500) {
   const healthUrl = buildRealtimeHealthUrl(streamBaseUrl);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), timeoutMs);
+  const wsProbeUrl = streamBaseUrl.replace(/^wss:/, 'https:').replace(/^ws:/, 'http:');
 
-  try {
-    const response = await fetch(healthUrl, {
-      method: 'GET',
-      signal: controller.signal
-    });
+  for (let attempt = 0; attempt < 2; attempt += 1) {
+    const health = await realtimeReadiness.checkHealth(healthUrl, timeoutMs);
+    if (!health.ok) {
+      if (attempt === 1) {
+        return {
+          ok: false as const,
+          reason: health.reason,
+          healthUrl,
+          wsProbeUrl
+        };
+      }
+      await new Promise((resolve) => setTimeout(resolve, 250));
+      continue;
+    }
 
-    if (!response.ok) {
+    const wsProbe = await realtimeReadiness.checkWebSocketUpgrade(wsProbeUrl, timeoutMs);
+    if (wsProbe.ok) {
       return {
-        ok: false as const,
-        reason: `realtime_health_http_${response.status}`,
-        healthUrl
+        ok: true as const,
+        healthUrl,
+        wsProbeUrl
       };
     }
 
-    return {
-      ok: true as const,
-      healthUrl
-    };
-  } catch {
-    return {
-      ok: false as const,
-      reason: 'realtime_health_unreachable',
-      healthUrl
-    };
-  } finally {
-    clearTimeout(timeout);
+    if (attempt === 1) {
+      return {
+        ok: false as const,
+        reason: wsProbe.reason,
+        healthUrl,
+        wsProbeUrl
+      };
+    }
+
+    await new Promise((resolve) => setTimeout(resolve, 250));
   }
+
+  return {
+    ok: false as const,
+    reason: 'realtime_readiness_unknown',
+    healthUrl,
+    wsProbeUrl
+  };
 }
+
+export const realtimeReadiness = {
+  async checkHealth(healthUrl: string, timeoutMs: number) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+
+    try {
+      const response = await fetch(healthUrl, {
+        method: 'GET',
+        signal: controller.signal
+      });
+
+      if (!response.ok) {
+        return {
+          ok: false as const,
+          reason: `realtime_health_http_${response.status}`
+        };
+      }
+
+      return { ok: true as const };
+    } catch {
+      return {
+        ok: false as const,
+        reason: 'realtime_health_unreachable'
+      };
+    } finally {
+      clearTimeout(timeout);
+    }
+  },
+
+  checkWebSocketUpgrade(wsProbeUrl: string, timeoutMs: number) {
+    const parsed = new URL(wsProbeUrl);
+    const requestFn = parsed.protocol === 'https:' ? httpsRequest : httpRequest;
+
+    return new Promise<
+      | { ok: true }
+      | { ok: false; reason: string }
+    >((resolve) => {
+      const request = requestFn(parsed, {
+        method: 'GET',
+        headers: {
+          Connection: 'Upgrade',
+          Upgrade: 'websocket',
+          'Sec-WebSocket-Version': '13',
+          'Sec-WebSocket-Key': randomBytes(16).toString('base64')
+        }
+      });
+
+      let settled = false;
+      const settle = (result: { ok: true } | { ok: false; reason: string }) => {
+        if (settled) return;
+        settled = true;
+        request.destroy();
+        resolve(result);
+      };
+
+      request.setTimeout(timeoutMs, () => {
+        settle({ ok: false, reason: 'realtime_ws_upgrade_timeout' });
+      });
+
+      request.on('upgrade', (_response, socket) => {
+        socket.destroy();
+        settle({ ok: true });
+      });
+
+      request.on('response', (response) => {
+        response.resume();
+        settle({
+          ok: false,
+          reason: `realtime_ws_upgrade_http_${response.statusCode ?? 'unknown'}`
+        });
+      });
+
+      request.on('error', () => {
+        settle({ ok: false, reason: 'realtime_ws_upgrade_unreachable' });
+      });
+
+      request.end();
+    });
+  }
+};
 
 async function createCallEventWithRetry(input: {
   callId: string;
@@ -487,7 +584,8 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
           twilioCallSid,
           callId: call.id,
           fallbackReason: readiness.reason,
-          realtimeHealthUrl: readiness.healthUrl
+          realtimeHealthUrl: readiness.healthUrl,
+          realtimeWsProbeUrl: readiness.wsProbeUrl
         });
 
         await createCallEventWithRetry({
@@ -496,7 +594,8 @@ export async function registerVoiceWebhookRoutes(app: FastifyInstance) {
           payloadJson: {
             reason: readiness.reason,
             routeKind: route.routeKind,
-            realtimeHealthUrl: readiness.healthUrl
+            realtimeHealthUrl: readiness.healthUrl,
+            realtimeWsProbeUrl: readiness.wsProbeUrl
           }
         });
 

@@ -3,7 +3,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fastify from 'fastify';
 import formbody from '@fastify/formbody';
 import { PhoneRoutingMode } from '@frontdesk/db';
-import { registerVoiceWebhookRoutes } from '../voice-webhooks.js';
+import { realtimeReadiness, registerVoiceWebhookRoutes } from '../voice-webhooks.js';
 
 const {
   phoneNumberFindUniqueMock,
@@ -63,6 +63,7 @@ async function createApp() {
 describe('voice-webhooks TwiML stream parameters', () => {
   const originalEnv = { ...process.env };
   const originalFetch = globalThis.fetch;
+  let checkWebSocketUpgradeSpy: ReturnType<typeof vi.spyOn>;
   let eventSequence = 0;
 
   beforeEach(() => {
@@ -90,11 +91,15 @@ describe('voice-webhooks TwiML stream parameters', () => {
       ok: true,
       status: 200
     } as Response);
+    checkWebSocketUpgradeSpy = vi
+      .spyOn(realtimeReadiness, 'checkWebSocketUpgrade')
+      .mockResolvedValue({ ok: true });
   });
 
   afterEach(() => {
     process.env = { ...originalEnv };
     globalThis.fetch = originalFetch;
+    checkWebSocketUpgradeSpy.mockRestore();
   });
 
   it('includes signed custom <Parameter> stream context without exposing raw secret', async () => {
@@ -230,7 +235,7 @@ describe('voice-webhooks TwiML stream parameters', () => {
   });
 
   it('returns polite fallback TwiML when realtime health check is unreachable', async () => {
-    (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValueOnce(new Error('connect timeout'));
+    (globalThis.fetch as ReturnType<typeof vi.fn>).mockRejectedValue(new Error('connect timeout'));
 
     phoneNumberFindUniqueMock.mockResolvedValue({
       id: 'pn_1',
@@ -290,6 +295,78 @@ describe('voice-webhooks TwiML stream parameters', () => {
             reason: 'realtime_health_unreachable',
             routeKind: 'AI',
             realtimeHealthUrl: 'https://realtime.example.com/health'
+          })
+        })
+      })
+    );
+
+    await app.close();
+  });
+
+  it('returns polite fallback TwiML when realtime websocket upgrade probe fails', async () => {
+    checkWebSocketUpgradeSpy.mockResolvedValue({
+      ok: false,
+      reason: 'realtime_ws_upgrade_timeout'
+    });
+
+    phoneNumberFindUniqueMock.mockResolvedValue({
+      id: 'pn_1',
+      tenantId: 'tenant_1',
+      businessId: 'business_1',
+      e164: '+12029359687',
+      label: 'Main line',
+      isActive: true,
+      routingMode: PhoneRoutingMode.AI_ALWAYS,
+      primaryAgentProfileId: 'ap_1',
+      afterHoursAgentProfileId: null,
+      business: {
+        id: 'business_1',
+        name: 'Acme',
+        timezone: 'America/New_York',
+        businessHours: []
+      }
+    });
+
+    callUpsertMock.mockResolvedValue({
+      id: 'call_1',
+      phoneNumberId: 'pn_1',
+      agentProfileId: 'ap_1'
+    });
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/voice/inbound',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      payload: toFormPayload({
+        CallSid: 'CA888',
+        From: '+15551234567',
+        To: '+12029359687'
+      })
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body).toContain(
+      '<Say>Thanks for calling. Our assistant is temporarily unavailable right now. Please try again shortly.</Say>'
+    );
+    expect(response.body).not.toContain('<Connect');
+    expect(response.body).not.toContain('<Stream');
+
+    expect(callEventCreateMock).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        data: expect.objectContaining({
+          callId: 'call_1',
+          type: 'twilio.inbound.fallback',
+          sequence: 2,
+          payloadJson: expect.objectContaining({
+            reason: 'realtime_ws_upgrade_timeout',
+            routeKind: 'AI',
+            realtimeHealthUrl: 'https://realtime.example.com/health',
+            realtimeWsProbeUrl: 'https://realtime.example.com/ws/media-stream'
           })
         })
       })
