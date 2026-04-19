@@ -91,7 +91,9 @@ Preferred approach:
 ### Review and classify
 - `apps/api/src/routes/twilio-voice.ts`
 
-`twilio-voice.ts` appears to be a separate legacy TwiML/voicemail-style flow.
+`twilio-voice.ts` is currently still registered in API startup and should be treated
+as a live legacy TwiML/voicemail-style flow until proven otherwise.
+
 Before production cutover, it must be explicitly classified as one of:
 1. legacy path to retire
 2. temporary fallback path to preserve
