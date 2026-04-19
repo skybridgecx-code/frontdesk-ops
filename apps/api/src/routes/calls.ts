@@ -3,6 +3,12 @@ import { prisma, CallReviewStatus, CallTriageStatus } from '@frontdesk/db';
 import type { Prisma } from '@frontdesk/db';
 import { callSidParams } from '../lib/params.js';
 
+const VOICE_HANDLING_EVENT_TYPES = [
+  'twilio.inbound.fallback',
+  'textback.sent',
+  'textback.skipped'
+] as const;
+
 const callListSelect = {
   twilioCallSid: true,
   twilioStreamSid: true,
@@ -34,6 +40,20 @@ const callListSelect = {
   recordingStatus: true,
   textBackSent: true,
   textBackSentAt: true,
+  events: {
+    where: {
+      type: {
+        in: [...VOICE_HANDLING_EVENT_TYPES]
+      }
+    },
+    orderBy: { sequence: 'desc' },
+    take: 10,
+    select: {
+      type: true,
+      sequence: true,
+      payloadJson: true
+    }
+  },
   phoneNumber: {
     select: {
       e164: true,
@@ -47,6 +67,32 @@ const callListSelect = {
     }
   }
 } satisfies Prisma.CallSelect;
+
+function getTextBackSkippedReason(payload: Prisma.JsonValue | null) {
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    return null;
+  }
+
+  const reason = (payload as Record<string, unknown>).reason;
+  return typeof reason === 'string' && reason.trim().length > 0 ? reason : null;
+}
+
+function summarizeSkippedReason(reason: string | null) {
+  if (!reason) return null;
+
+  switch (reason) {
+    case 'destination_number_not_found':
+      return 'no sender line';
+    case 'textback_disabled':
+      return 'text-back off';
+    case 'missing_caller_number':
+      return 'caller number missing';
+    case 'provider_send_failed':
+      return 'sms failed';
+    default:
+      return reason.replaceAll('_', ' ');
+  }
+}
 
 function parsePage(value: string | undefined) {
   return Math.max(Number(value ?? '1') || 1, 1);
@@ -137,9 +183,37 @@ export async function registerCallRoutes(app: FastifyInstance) {
       })
     ]);
 
+    const callsWithVoiceHandling = calls.map((call) => {
+      const fallbackUsed = call.events.some((event) => event.type === 'twilio.inbound.fallback');
+      const latestTextBackEvent = call.events.find(
+        (event) => event.type === 'textback.sent' || event.type === 'textback.skipped'
+      );
+      const textBackOutcome =
+        latestTextBackEvent?.type === 'textback.sent'
+          ? 'sent'
+          : latestTextBackEvent?.type === 'textback.skipped'
+            ? 'skipped'
+            : null;
+      const textBackSkippedReason =
+        latestTextBackEvent?.type === 'textback.skipped'
+          ? summarizeSkippedReason(getTextBackSkippedReason(latestTextBackEvent.payloadJson))
+          : null;
+
+      const { events, ...rest } = call;
+
+      return {
+        ...rest,
+        voiceHandling: {
+          fallbackUsed,
+          textBackOutcome,
+          textBackSkippedReason
+        }
+      };
+    });
+
     return {
       ok: true,
-      calls,
+      calls: callsWithVoiceHandling,
       page,
       limit,
       total,

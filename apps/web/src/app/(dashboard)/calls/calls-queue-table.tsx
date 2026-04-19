@@ -20,6 +20,11 @@ type CallRow = {
   durationSeconds: number | null;
   recordingUrl: string | null;
   recordingStatus: string | null;
+  voiceHandling?: {
+    fallbackUsed?: boolean;
+    textBackOutcome?: 'sent' | 'skipped' | null;
+    textBackSkippedReason?: string | null;
+  };
 };
 
 function formatDuration(seconds: number | null) {
@@ -59,6 +64,36 @@ function RecordingIndicator() {
       </svg>
       Rec
     </span>
+  );
+}
+
+function VoiceEvidence({ call }: { call: CallRow }) {
+  const fallbackUsed = Boolean(call.voiceHandling?.fallbackUsed);
+  const textBackOutcome = call.voiceHandling?.textBackOutcome ?? null;
+  const skippedReason = call.voiceHandling?.textBackSkippedReason ?? null;
+
+  if (!fallbackUsed && !textBackOutcome) {
+    return null;
+  }
+
+  return (
+    <div className="mt-1 flex flex-wrap items-center gap-1">
+      {fallbackUsed ? (
+        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+          Fallback
+        </span>
+      ) : null}
+      {textBackOutcome === 'sent' ? (
+        <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+          Text-back sent
+        </span>
+      ) : null}
+      {textBackOutcome === 'skipped' ? (
+        <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+          {skippedReason ? `Text-back skipped: ${skippedReason}` : 'Text-back skipped'}
+        </span>
+      ) : null}
+    </div>
   );
 }
 
@@ -109,7 +144,10 @@ export function CallsQueueTable({
                 onClick={() => router.push(`/calls/${call.twilioCallSid}?returnTo=${encodeURIComponent(returnTo)}`)}
                 className="cursor-pointer border-b border-gray-100 text-sm text-gray-700 transition hover:bg-indigo-50"
               >
-                <td className="px-4 py-3 font-medium text-gray-900">{callDisplayName(call)}</td>
+                <td className="px-4 py-3 font-medium text-gray-900">
+                  <div>{callDisplayName(call)}</div>
+                  <VoiceEvidence call={call} />
+                </td>
                 <td className="px-4 py-3 text-gray-600">{call.leadPhone ?? call.fromE164 ?? '—'}</td>
                 <td className="px-4 py-3 text-gray-600">{call.leadIntent ?? '—'}</td>
                 <td className="px-4 py-3">
@@ -164,6 +202,7 @@ export function CallsQueueTable({
               <div>
                 <p className="text-base font-semibold text-gray-900">{callDisplayName(call)}</p>
                 <p className="mt-1 text-sm text-gray-500">{call.leadPhone ?? call.fromE164 ?? '—'}</p>
+                <VoiceEvidence call={call} />
               </div>
               <StatusBadge value={call.urgency ?? 'unknown'} type="urgency" fallback="Unknown" />
             </div>

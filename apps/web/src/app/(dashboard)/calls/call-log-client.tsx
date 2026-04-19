@@ -27,6 +27,11 @@ type CallRecord = {
   endedAt?: string | null;
   createdAt?: string;
   startedAt?: string;
+  voiceHandling?: {
+    fallbackUsed?: boolean;
+    textBackOutcome?: 'sent' | 'skipped' | null;
+    textBackSkippedReason?: string | null;
+  };
 };
 
 type CallsResponse = {
@@ -121,6 +126,37 @@ function getDuration(call: CallRecord) {
 
 function getDate(call: CallRecord) {
   return formatDate(call.createdAt ?? call.startedAt);
+}
+
+function VoiceEvidence({ call }: { call: CallRecord }) {
+  const fallbackUsed = Boolean(call.voiceHandling?.fallbackUsed);
+  const textBackOutcome = call.voiceHandling?.textBackOutcome ?? null;
+  const skippedReason = call.voiceHandling?.textBackSkippedReason ?? null;
+
+  const hasEvidence = fallbackUsed || textBackOutcome;
+  if (!hasEvidence) {
+    return <span className="text-xs text-gray-400">—</span>;
+  }
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {fallbackUsed ? (
+        <span className="inline-flex items-center rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-medium text-amber-800">
+          Fallback
+        </span>
+      ) : null}
+      {textBackOutcome === 'sent' ? (
+        <span className="inline-flex items-center rounded-full border border-emerald-200 bg-emerald-50 px-2 py-0.5 text-xs font-medium text-emerald-700">
+          Text-back sent
+        </span>
+      ) : null}
+      {textBackOutcome === 'skipped' ? (
+        <span className="inline-flex items-center rounded-full border border-gray-200 bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-700">
+          {skippedReason ? `Text-back skipped: ${skippedReason}` : 'Text-back skipped'}
+        </span>
+      ) : null}
+    </div>
+  );
 }
 
 export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLogClientProps) {
@@ -226,6 +262,7 @@ export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLog
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Phone</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Reason</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Voice</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Duration</th>
                   <th className="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide text-gray-500">Date</th>
                 </tr>
@@ -259,6 +296,9 @@ export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLog
                       <td className="px-4 py-3 text-sm">
                         <StatusBadge status={status} />
                       </td>
+                      <td className="px-4 py-3 text-sm text-gray-600">
+                        <VoiceEvidence call={call} />
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{getDuration(call)}</td>
                       <td className="px-4 py-3 text-sm text-gray-600">{getDate(call)}</td>
                     </tr>
@@ -284,6 +324,9 @@ export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLog
                     <StatusBadge status={status} size="sm" />
                   </div>
                   <p className="mt-3 text-sm text-gray-700">{getReason(call)}</p>
+                  <div className="mt-2">
+                    <VoiceEvidence call={call} />
+                  </div>
                   <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
                     <span>{getDuration(call)}</span>
                     <span>{getDate(call)}</span>
