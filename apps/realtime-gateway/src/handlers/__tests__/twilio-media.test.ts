@@ -28,6 +28,8 @@ function makeState(overrides: Record<string, unknown> = {}) {
     assistantTranscriptBuffer: '',
     callerTranscriptBuffer: '',
     pendingResponseTrigger: null,
+    hasUncommittedAudio: false,
+    responseCreateInFlight: false,
     pendingAudio: [] as any[],
     openAIReady: false,
     openAISocket: null,
@@ -270,6 +272,7 @@ describe('handleMedia', () => {
     expect(openAISocket.send).toHaveBeenCalledWith(
       JSON.stringify({ type: 'input_audio_buffer.append', audio: 'audiodata' })
     );
+    expect(state.hasUncommittedAudio).toBe(true);
     expect(state.pendingAudio).toHaveLength(0);
   });
 
@@ -286,6 +289,7 @@ describe('handleMedia', () => {
     );
 
     expect(state.pendingAudio).toHaveLength(1);
+    expect(state.hasUncommittedAudio).toBe(true);
     expect(state.pendingAudio[0]).toEqual({
       payload: 'audiodata',
       streamSid: 'MZ123',
@@ -342,7 +346,7 @@ describe('handleStop', () => {
 
   it('marks call as COMPLETED and commits audio when OpenAI is ready', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
-    const state = makeState({ openAIReady: true, openAISocket });
+    const state = makeState({ openAIReady: true, openAISocket, hasUncommittedAudio: true });
     const events = makeEvents();
 
     await handleStop(
@@ -379,7 +383,7 @@ describe('handleStop', () => {
   });
 
   it('queues response trigger when OpenAI is not ready', async () => {
-    const state = makeState({ openAIReady: false });
+    const state = makeState({ openAIReady: false, hasUncommittedAudio: true });
     const events = makeEvents();
 
     await handleStop(
@@ -401,7 +405,7 @@ describe('handleStop', () => {
   });
 
   it('falls back to queryCallSid when stop.callSid is missing', async () => {
-    const state = makeState({ queryCallSid: 'CA-FALLBACK', openAIReady: false });
+    const state = makeState({ queryCallSid: 'CA-FALLBACK', openAIReady: false, hasUncommittedAudio: true });
     const events = makeEvents();
 
     await handleStop(
@@ -420,7 +424,7 @@ describe('handleStop', () => {
   it('persists stop event even when call context is null', async () => {
     const events = makeEvents();
     events.ensureCallContext.mockResolvedValue(null);
-    const state = makeState({ openAIReady: false });
+    const state = makeState({ openAIReady: false, hasUncommittedAudio: true });
 
     await handleStop(
       { event: 'stop', stop: { callSid: 'CA123', streamSid: 'MZ123' } },
@@ -431,5 +435,30 @@ describe('handleStop', () => {
 
     expect(events.persistEvent).toHaveBeenCalledWith('twilio.media.stop', expect.any(Object));
     expect(mockPrisma.call.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('does not trigger response on stop when no uncommitted audio remains', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      openAIReady: true,
+      openAISocket,
+      hasUncommittedAudio: false
+    });
+    const events = makeEvents();
+
+    await handleStop(
+      { event: 'stop', stop: { callSid: 'CA123', streamSid: 'MZ123' } },
+      state,
+      events,
+      50
+    );
+
+    expect(openAISocket.send).not.toHaveBeenCalledWith(
+      expect.stringContaining('"response.create"')
+    );
+    expect(events.persistEvent).not.toHaveBeenCalledWith(
+      'openai.response.create.sent',
+      expect.anything()
+    );
   });
 });

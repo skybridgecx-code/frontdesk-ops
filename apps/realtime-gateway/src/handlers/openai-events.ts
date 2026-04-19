@@ -84,6 +84,40 @@ export function handleOpenAIMessage(
   if (eventType === 'input_audio_buffer.committed') {
     const itemId = getString(message, 'item_id');
     state.currentInputItemId = itemId;
+    state.hasUncommittedAudio = false;
+
+    const canTriggerResponse =
+      Boolean(state.openAISocket) &&
+      state.openAISocket!.readyState === 1 &&
+      !state.responseCreateInFlight;
+
+    if (canTriggerResponse) {
+      state.openAISocket!.send(
+        JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: 'Respond naturally, briefly, and only in English to the caller.'
+          }
+        })
+      );
+      state.responseCreateInFlight = true;
+
+      enqueue(async () => {
+        await events.persistEvent('openai.response.create.sent', {
+          callSid: state.queryCallSid,
+          streamSid: state.currentStreamSid,
+          source: 'vad'
+        });
+      });
+
+      state.log.info({
+        msg: 'openai response.create sent',
+        callSid: state.queryCallSid,
+        streamSid: state.currentStreamSid,
+        source: 'vad'
+      });
+    }
+
     enqueue(async () => {
       await events.persistEvent('openai.input_audio_buffer.committed', {
         callSid: state.queryCallSid,
@@ -154,6 +188,7 @@ export function handleOpenAIMessage(
   }
 
   if (eventType === 'response.done') {
+    state.responseCreateInFlight = false;
     enqueue(async () => {
       await events.persistEvent('openai.response.done', {
         callSid: state.queryCallSid,

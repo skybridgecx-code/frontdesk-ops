@@ -262,6 +262,7 @@ export function handleMedia(
   const streamSid = getString(message, 'streamSid');
   const chunk = media ? getNumberOrString(media, 'chunk') : null;
   const track = media ? getString(media, 'track') : null;
+  state.hasUncommittedAudio = true;
 
   if (state.openAIReady && state.openAISocket && state.openAISocket.readyState === 1) {
     state.openAISocket.send(
@@ -333,8 +334,18 @@ export async function handleStop(
     streamSid: stopStreamSid
   });
 
+  if (!state.hasUncommittedAudio) {
+    state.log.info({
+      msg: 'openai response trigger skipped on stop: no uncommitted audio',
+      callSid: stopCallSid,
+      streamSid: stopStreamSid
+    });
+    return;
+  }
+
   if (state.openAIReady && state.openAISocket && state.openAISocket.readyState === 1) {
     state.openAISocket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+    state.hasUncommittedAudio = false;
 
     await events.persistEvent('openai.input_audio_buffer.commit.sent', {
       callSid: stopCallSid,
@@ -349,27 +360,30 @@ export async function handleStop(
       source: 'live'
     });
 
-    state.openAISocket.send(
-      JSON.stringify({
-        type: 'response.create',
-        response: {
-          instructions: 'Respond naturally, briefly, and only in English to the caller.'
-        }
-      })
-    );
+    if (!state.responseCreateInFlight) {
+      state.openAISocket.send(
+        JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: 'Respond naturally, briefly, and only in English to the caller.'
+          }
+        })
+      );
+      state.responseCreateInFlight = true;
 
-    await events.persistEvent('openai.response.create.sent', {
-      callSid: stopCallSid,
-      streamSid: stopStreamSid,
-      source: 'live'
-    });
+      await events.persistEvent('openai.response.create.sent', {
+        callSid: stopCallSid,
+        streamSid: stopStreamSid,
+        source: 'live'
+      });
 
-    state.log.info({
-      msg: 'openai response.create sent',
-      callSid: stopCallSid,
-      streamSid: stopStreamSid,
-      source: 'live'
-    });
+      state.log.info({
+        msg: 'openai response.create sent',
+        callSid: stopCallSid,
+        streamSid: stopStreamSid,
+        source: 'live'
+      });
+    }
   } else {
     state.pendingResponseTrigger = { callSid: stopCallSid, streamSid: stopStreamSid };
 

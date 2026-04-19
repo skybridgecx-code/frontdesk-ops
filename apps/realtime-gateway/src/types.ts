@@ -30,6 +30,12 @@ export interface SessionState {
   /** If OpenAI isn't ready yet, we queue the response trigger */
   pendingResponseTrigger: { callSid: string | null; streamSid: string | null } | null;
 
+  /** True after caller audio append until OpenAI commits the input buffer */
+  hasUncommittedAudio: boolean;
+
+  /** Guards against duplicate response.create while a response is still active */
+  responseCreateInFlight: boolean;
+
   /** Audio chunks queued before OpenAI WS is ready */
   pendingAudio: Array<{
     payload: string;

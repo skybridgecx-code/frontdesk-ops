@@ -93,6 +93,7 @@ export function initOpenAIBridge(
       // Drain queued response trigger
       if (state.pendingResponseTrigger && openAISocket.readyState === 1) {
         openAISocket.send(JSON.stringify({ type: 'input_audio_buffer.commit' }));
+        state.hasUncommittedAudio = false;
 
         await events.persistEvent('openai.input_audio_buffer.commit.sent', {
           callSid: state.pendingResponseTrigger.callSid,
@@ -115,6 +116,7 @@ export function initOpenAIBridge(
             }
           })
         );
+        state.responseCreateInFlight = true;
 
         await events.persistEvent('openai.response.create.sent', {
           callSid: state.pendingResponseTrigger.callSid,

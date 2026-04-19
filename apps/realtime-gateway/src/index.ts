@@ -44,6 +44,8 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
     assistantTranscriptBuffer: '',
     callerTranscriptBuffer: '',
     pendingResponseTrigger: null,
+    hasUncommittedAudio: false,
+    responseCreateInFlight: false,
     pendingAudio: [],
     openAIReady: false,
     openAISocket: null,

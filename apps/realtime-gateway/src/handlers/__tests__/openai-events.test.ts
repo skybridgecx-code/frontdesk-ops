@@ -11,9 +11,14 @@ function makeState(overrides: Record<string, unknown> = {}) {
     assistantTranscriptBuffer: '',
     callerTranscriptBuffer: '',
     pendingResponseTrigger: null,
+    hasUncommittedAudio: false,
+    responseCreateInFlight: false,
     pendingAudio: [],
     openAIReady: true,
-    openAISocket: null,
+    openAISocket: {
+      readyState: 1,
+      send: vi.fn()
+    },
     twilioSocket: {
       send: vi.fn()
     },
@@ -113,7 +118,7 @@ describe('handleOpenAIMessage', () => {
   });
 
   describe('input_audio_buffer.committed', () => {
-    it('sets currentInputItemId', async () => {
+    it('sets currentInputItemId and triggers response.create before stop', async () => {
       const msg = JSON.stringify({
         type: 'input_audio_buffer.committed',
         item_id: 'item-42'
@@ -121,12 +126,39 @@ describe('handleOpenAIMessage', () => {
 
       handleOpenAIMessage(msg, state, events, transcripts, enqueue);
       expect(state.currentInputItemId).toBe('item-42');
+      expect(state.hasUncommittedAudio).toBe(false);
+      expect(state.responseCreateInFlight).toBe(true);
+      expect(state.openAISocket.send).toHaveBeenCalledWith(
+        JSON.stringify({
+          type: 'response.create',
+          response: {
+            instructions: 'Respond naturally, briefly, and only in English to the caller.'
+          }
+        })
+      );
 
       await runEnqueued();
       expect(events.persistEvent).toHaveBeenCalledWith(
         'openai.input_audio_buffer.committed',
         expect.objectContaining({ itemId: 'item-42' })
       );
+      expect(events.persistEvent).toHaveBeenCalledWith(
+        'openai.response.create.sent',
+        expect.objectContaining({ source: 'vad' })
+      );
+    });
+
+    it('does not trigger duplicate response.create when one is already in flight', () => {
+      state.responseCreateInFlight = true;
+
+      const msg = JSON.stringify({
+        type: 'input_audio_buffer.committed',
+        item_id: 'item-43'
+      });
+
+      handleOpenAIMessage(msg, state, events, transcripts, enqueue);
+
+      expect(state.openAISocket.send).not.toHaveBeenCalled();
     });
   });
 
@@ -255,6 +287,22 @@ describe('handleOpenAIMessage', () => {
       const msg = JSON.stringify({ type: 'rate_limits.updated' });
       handleOpenAIMessage(msg, state, events, transcripts, enqueue);
       expect(enqueuedTasks).toHaveLength(0);
+    });
+  });
+
+  describe('response.done', () => {
+    it('clears responseCreateInFlight', async () => {
+      state.responseCreateInFlight = true;
+
+      const msg = JSON.stringify({ type: 'response.done' });
+      handleOpenAIMessage(msg, state, events, transcripts, enqueue);
+
+      expect(state.responseCreateInFlight).toBe(false);
+      await runEnqueued();
+      expect(events.persistEvent).toHaveBeenCalledWith(
+        'openai.response.done',
+        expect.any(Object)
+      );
     });
   });
 
