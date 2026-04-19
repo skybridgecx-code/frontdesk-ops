@@ -11,6 +11,13 @@ import {
   buildVoicemailCompleteTwiml
 } from '../lib/twiml-builder.js';
 
+/**
+ * Live legacy Twilio voice flow.
+ *
+ * This route group serves the legacy gather/voicemail TwiML path under
+ * `/v1/twilio/voice/*` and remains active during Retell/Telnyx migration
+ * until explicit cutover/retirement decisions are complete.
+ */
 type TwilioVoicePayload = Record<string, string | undefined>;
 
 type CallStatusUpdate = {
@@ -169,7 +176,7 @@ async function findTenantAndPhoneByNumber(to: string) {
   };
 }
 
-export default async function twilioVoice(app: FastifyInstance) {
+export async function registerLiveLegacyTwilioVoiceRoutes(app: FastifyInstance) {
   app.addHook('preHandler', validateTwilioRequest);
 
   app.post('/v1/twilio/voice/incoming', async (request, reply) => {
@@ -396,3 +403,5 @@ export default async function twilioVoice(app: FastifyInstance) {
     return reply.status(200).send({ received: true });
   });
 }
+
+export default registerLiveLegacyTwilioVoiceRoutes;

@@ -94,6 +94,10 @@ Preferred approach:
 `twilio-voice.ts` is currently still registered in API startup and should be treated
 as a live legacy TwiML/voicemail-style flow until proven otherwise.
 
+In code, this path is explicitly isolated as
+`registerLiveLegacyTwilioVoiceRoutes` in `apps/api/src/server.ts`.
+This is naming/classification only; runtime behavior remains unchanged.
+
 Before production cutover, it must be explicitly classified as one of:
 1. legacy path to retire
 2. temporary fallback path to preserve
