@@ -155,6 +155,58 @@ describe('retell-webhooks route', () => {
     await app.close();
   });
 
+  it('persists call_analyzed transcript payloads from nested analysis data', async () => {
+    callFindFirstMock.mockResolvedValue({
+      id: 'call_1',
+      twilioCallSid: 'retell_call_1',
+      answeredAt: null,
+      endedAt: null
+    });
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      payload: {
+        event: 'call_analyzed',
+        call: {
+          call_id: 'retell_call_1',
+          from_number: '+15551230000',
+          to_number: '+15557654321'
+        },
+        analysis: {
+          transcript: 'Caller requested emergency plumbing repair.',
+          summary: 'Emergency plumbing call'
+        }
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_1',
+      providerCallId: 'retell_call_1',
+      correlationSource: 'sid',
+      applied: {
+        status: false,
+        transcript: true
+      }
+    });
+
+    expect(callUpdateMock).toHaveBeenCalledWith({
+      where: { id: 'call_1' },
+      data: {
+        summary: 'Emergency plumbing call',
+        callerTranscript: 'Caller requested emergency plumbing repair.'
+      }
+    });
+    expect(callEventCreateMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
   it('creates a call from Retell status metadata when no existing call is found', async () => {
     callFindFirstMock.mockResolvedValueOnce(null);
 

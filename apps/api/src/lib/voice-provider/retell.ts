@@ -193,12 +193,22 @@ export const retellVoiceProviderAdapter: VoiceProviderAdapter = {
       return null;
     }
 
+    const analysis =
+      getNestedRecord(canonical.root, 'analysis') ??
+      getNestedRecord(canonical.call, 'analysis') ??
+      getNestedRecord(canonical.root, 'call_analysis') ??
+      getNestedRecord(canonical.call, 'call_analysis') ??
+      getNestedRecord(canonical.root, 'callAnalysis') ??
+      getNestedRecord(canonical.call, 'callAnalysis');
+
     const transcript =
       getString(canonical.call, 'transcript', 'transcript_text', 'transcriptText') ??
-      getString(canonical.root, 'transcript', 'transcript_text', 'transcriptText');
+      getString(canonical.root, 'transcript', 'transcript_text', 'transcriptText') ??
+      (analysis ? getString(analysis, 'transcript', 'transcript_text', 'transcriptText') : null);
     const summary =
       getString(canonical.call, 'summary', 'call_summary', 'callSummary') ??
-      getString(canonical.root, 'summary', 'call_summary', 'callSummary');
+      getString(canonical.root, 'summary', 'call_summary', 'callSummary') ??
+      (analysis ? getString(analysis, 'summary', 'call_summary', 'callSummary') : null);
 
     if (!transcript && !summary) {
       return null;

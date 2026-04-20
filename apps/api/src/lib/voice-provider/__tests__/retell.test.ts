@@ -93,4 +93,56 @@ describe('retellVoiceProviderAdapter.normalizeTranscriptArtifact', () => {
       summary: 'Emergency plumbing request'
     });
   });
+
+  it('normalizes transcript artifacts nested under analysis payloads', () => {
+    const normalized = retellVoiceProviderAdapter.normalizeTranscriptArtifact?.({
+      event: 'call_analyzed',
+      call: {
+        call_id: 'retell_call_5',
+        from_number: '+15550000001',
+        to_number: '+15550000002'
+      },
+      analysis: {
+        transcript: 'Caller needs same-day electrical service.',
+        summary: 'Urgent electrical service request'
+      }
+    }) ?? null;
+
+    expect(normalized).toEqual({
+      provider: 'retell',
+      providerCallId: 'retell_call_5',
+      tenantId: null,
+      businessId: null,
+      phoneNumberId: null,
+      fromE164: '+15550000001',
+      toE164: '+15550000002',
+      transcript: 'Caller needs same-day electrical service.',
+      summary: 'Urgent electrical service request'
+    });
+  });
+
+  it('normalizes summary nested under call.call_analysis payloads', () => {
+    const normalized = retellVoiceProviderAdapter.normalizeTranscriptArtifact?.({
+      event: 'call_analyzed',
+      call: {
+        call_id: 'retell_call_6',
+        transcript: 'Caller asked for same-day garage door repair.',
+        call_analysis: {
+          call_summary: 'Urgent garage door repair'
+        }
+      }
+    }) ?? null;
+
+    expect(normalized).toEqual({
+      provider: 'retell',
+      providerCallId: 'retell_call_6',
+      tenantId: null,
+      businessId: null,
+      phoneNumberId: null,
+      fromE164: null,
+      toE164: null,
+      transcript: 'Caller asked for same-day garage door repair.',
+      summary: 'Urgent garage door repair'
+    });
+  });
 });

@@ -13,6 +13,35 @@ It does not cut over production voice.
 
 This temporary route lives under /v1/twilio/* in this phase so it can reuse current webhook auth-skip behavior without widening scope.
 
+## Public webhook URL to register
+
+Path:
+
+- `/v1/twilio/retell/webhook`
+
+Current production API host in this repo:
+
+- `https://frontdesk-ops.onrender.com/v1/twilio/retell/webhook`
+
+If your API host differs, use:
+
+- `${FRONTDESK_API_PUBLIC_URL}/v1/twilio/retell/webhook`
+
+## Retell events to enable (exact)
+
+Enable exactly:
+
+1. `call_ended`
+2. `call_analyzed`
+
+Do not enable additional Retell webhook events in this phase.
+
+## Current webhook security state
+
+- Retell signature verification (`x-retell-signature`) is not implemented in this route yet.
+- This route is currently reachable under `/v1/twilio/*` webhook auth-skip behavior by design for sandbox testing.
+- Keep this webhook configuration on sandbox-only Retell agents/workspaces during this phase.
+
 ## Supported sandbox behavior
 
 The sandbox Retell webhook currently supports:
@@ -50,7 +79,7 @@ Practical minimum fields for status testing:
 
 Practical minimum fields for transcript / summary testing:
 - provider call id
-- transcript and/or summary
+- transcript and/or summary (`analysis.*` or `call.call_analysis.*` are supported)
 
 ## Example status payload
 
@@ -80,11 +109,11 @@ Practical minimum fields for transcript / summary testing:
   "call": {
     "call_id": "retell-call-001",
     "from_number": "+15717199673",
-    "to_number": "+12029359687"
-  },
-  "analysis": {
+    "to_number": "+12029359687",
     "transcript": "Caller asked about emergency plumbing service for a leaking pipe.",
-    "summary": "Emergency plumbing inquiry for active leak."
+    "call_analysis": {
+      "call_summary": "Emergency plumbing inquiry for active leak."
+    }
   }
 }
 
@@ -120,13 +149,35 @@ curl -sS -X POST "$API_URL/v1/twilio/retell/webhook" \
     "call": {
       "call_id": "retell-call-001",
       "from_number": "+15717199673",
-      "to_number": "+12029359687"
-    },
-    "analysis": {
+      "to_number": "+12029359687",
       "transcript": "Caller asked about emergency plumbing service for a leaking pipe.",
-      "summary": "Emergency plumbing inquiry for active leak."
+      "call_analysis": {
+        "call_summary": "Emergency plumbing inquiry for active leak."
+      }
     }
   }' | jq
+
+## Retell dashboard setup steps (manual)
+
+Recommended: agent-level webhook on the sandbox voice agent.
+
+1. Open Retell Dashboard -> agent detail page for the sandbox agent you will call.
+2. Open the webhook configuration section on that agent detail page.
+3. Paste webhook URL:
+   - `https://frontdesk-ops.onrender.com/v1/twilio/retell/webhook`
+4. Set webhook events to only:
+   - `call_ended`
+   - `call_analyzed`
+5. Save webhook settings.
+
+Alternative account-level location (if using account-level webhooks): Dashboard system settings -> Webhooks tab.
+
+## One browser/web-call test
+
+1. In Retell Dashboard, start one web call from the same sandbox agent.
+2. Speak for 10-20 seconds so transcript and summary can be generated.
+3. End the call.
+4. Wait for post-call processing to complete (this is when `call_analyzed` is sent).
 
 ## Expected responses
 
@@ -148,6 +199,11 @@ curl -sS "$API_URL/v1/calls?limit=5" | jq
 Verify via /v1/calls/:callSid:
 
 curl -sS "$API_URL/v1/calls/retell-call-001" | jq
+
+Or verify with the latest call sid from API:
+
+CALL_SID=$(curl -sS "$API_URL/v1/calls?limit=1" | jq -r '.calls[0].twilioCallSid')
+curl -sS "$API_URL/v1/calls/$CALL_SID" | jq
 
 Current compatibility may rely on storing the Retell provider call id in legacy-compatible call id fields during the sandbox phase.
 
