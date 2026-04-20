@@ -18,6 +18,9 @@ import type { FastifyInstance } from 'fastify';
 import { CallDirection, CallStatus, prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 import { handleMissedCall } from '../lib/missed-call-handler.js';
+import { mapNormalizedVoiceStatusToCallStatus } from '../lib/voice-provider/event-mapping.js';
+import { applyNormalizedStatusUpdateToCall } from '../lib/voice-provider/persistence.js';
+import { twilioVoiceProviderAdapter } from '../lib/voice-provider/twilio.js';
 
 const STATUS_LOOKUP_RETRY_DELAYS_MS = [50, 100, 200] as const;
 
@@ -27,28 +30,6 @@ type CallStatusRecord = {
   answeredAt: Date | null;
   endedAt: Date | null;
 };
-
-/** Maps Twilio status strings to our CallStatus enum values. */
-function mapTwilioStatus(status: string | undefined): typeof CallStatus[keyof typeof CallStatus] {
-  switch (status) {
-    case 'ringing':
-      return CallStatus.RINGING;
-    case 'in-progress':
-      return CallStatus.IN_PROGRESS;
-    case 'completed':
-      return CallStatus.COMPLETED;
-    case 'busy':
-      return CallStatus.BUSY;
-    case 'no-answer':
-      return CallStatus.NO_ANSWER;
-    case 'failed':
-      return CallStatus.FAILED;
-    case 'canceled':
-      return CallStatus.CANCELED;
-    default:
-      return CallStatus.RINGING;
-  }
-}
 
 /** Returns true if the status represents a terminal call state (no further updates expected). */
 function isTerminalStatus(status: typeof CallStatus[keyof typeof CallStatus]) {
@@ -190,7 +171,13 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
 
     const twilioCallSid = body.CallSid ?? '';
     const rawCallStatus = body.CallStatus;
-    const mappedStatus = mapTwilioStatus(rawCallStatus);
+    const normalizedStatusUpdate =
+      typeof rawCallStatus === 'string' && rawCallStatus !== rawCallStatus.trim()
+        ? null
+        : (twilioVoiceProviderAdapter.normalizeStatusUpdate?.(body) ?? null);
+    const mappedStatus = normalizedStatusUpdate
+      ? mapNormalizedVoiceStatusToCallStatus(normalizedStatusUpdate.status)
+      : CallStatus.RINGING;
     const parsedDuration =
       body.CallDuration && /^\d+$/.test(body.CallDuration) ? Number(body.CallDuration) : null;
 
@@ -225,30 +212,18 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
       });
     }
 
-    const updateData: {
-      status: typeof mappedStatus;
-      answeredAt?: Date;
-      endedAt?: Date;
-      durationSeconds?: number;
-    } = {
-      status: mappedStatus
+    const persistenceStatusUpdate = {
+      provider: 'twilio' as const,
+      providerCallId: twilioCallSid,
+      status: normalizedStatusUpdate?.status ?? 'ringing',
+      fromE164: normalizedStatusUpdate?.fromE164 ?? body.From ?? null,
+      toE164: normalizedStatusUpdate?.toE164 ?? body.To ?? null,
+      durationSeconds: parsedDuration
     };
 
-    if (mappedStatus === CallStatus.IN_PROGRESS && !existingCall.answeredAt) {
-      updateData.answeredAt = new Date();
-    }
-
-    if (isTerminalStatus(mappedStatus) && !existingCall.endedAt) {
-      updateData.endedAt = new Date();
-    }
-
-    if (parsedDuration !== null) {
-      updateData.durationSeconds = parsedDuration;
-    }
-
-    await prisma.call.update({
-      where: { id: existingCall.id },
-      data: updateData
+    await applyNormalizedStatusUpdateToCall({
+      call: existingCall,
+      statusUpdate: persistenceStatusUpdate
     });
 
     for (let attempt = 0; attempt < 3; attempt++) {

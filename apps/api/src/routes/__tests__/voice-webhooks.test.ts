@@ -374,4 +374,31 @@ describe('voice-webhooks TwiML stream parameters', () => {
 
     await app.close();
   });
+
+  it('returns 400 TwiML when required inbound call data is missing', async () => {
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/voice/inbound',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded'
+      },
+      payload: toFormPayload({
+        From: '+15551234567',
+        To: '+12029359687'
+      })
+    });
+
+    expect(response.statusCode).toBe(400);
+    expect(response.headers['content-type']).toContain('text/xml');
+    expect(response.body).toContain(
+      '<Say>We could not process your call because required call data was missing.</Say>'
+    );
+    expect(phoneNumberFindUniqueMock).not.toHaveBeenCalled();
+    expect(callUpsertMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
 });

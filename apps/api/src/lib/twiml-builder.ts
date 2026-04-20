@@ -1,3 +1,9 @@
+/**
+ * Legacy TwiML helpers for `/v1/twilio/voice/*` gather/voicemail routes.
+ *
+ * These builders are still live and intentionally preserved while legacy
+ * Twilio flow classification is completed during migration.
+ */
 function escapeXml(value: string) {
   return value
     .replaceAll('&', '&amp;')

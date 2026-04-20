@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fastify from 'fastify';
 import formbody from '@fastify/formbody';
-import twilioVoice from '../twilio-voice.js';
+import { registerLiveLegacyTwilioVoiceRoutes } from '../twilio-voice.js';
 
 const {
   tenantFindUniqueMock,
@@ -61,11 +61,11 @@ function toFormPayload(payload: Record<string, string>) {
 async function createApp() {
   const app = fastify({ logger: false });
   await app.register(formbody);
-  await app.register(twilioVoice);
+  await app.register(registerLiveLegacyTwilioVoiceRoutes);
   return app;
 }
 
-describe('twilio voice routes', () => {
+describe('live legacy twilio voice routes', () => {
   const originalEnv = { ...process.env };
 
   beforeEach(() => {
