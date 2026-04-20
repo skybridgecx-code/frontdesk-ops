@@ -42,6 +42,26 @@ Do not enable additional Retell webhook events in this phase.
 - This route is currently reachable under `/v1/twilio/*` webhook auth-skip behavior by design for sandbox testing.
 - Keep this webhook configuration on sandbox-only Retell agents/workspaces during this phase.
 
+## Phase 2E sandbox ownership fallback (browser/web-call)
+
+Use this only when Retell browser/web-call payloads do not include enough phone-number ownership context and `/v1/twilio/retell/webhook` returns `202`.
+
+Required env vars for fallback:
+
+- `FRONTDESK_RETELL_SANDBOX_TENANT_ID`
+- `FRONTDESK_RETELL_SANDBOX_BUSINESS_ID`
+- `FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID`
+
+Optional hard scope by Retell agent id:
+
+- `FRONTDESK_RETELL_SANDBOX_AGENT_IDS=agent_id_1,agent_id_2`
+
+Fallback behavior order:
+
+1. explicit Retell payload metadata ownership
+2. destination-number ownership lookup (existing phone-number flow)
+3. sandbox fallback via agent-id-gated env config above
+
 ## Supported sandbox behavior
 
 The sandbox Retell webhook currently supports:

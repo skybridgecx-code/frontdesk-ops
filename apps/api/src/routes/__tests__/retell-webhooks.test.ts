@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fastify from 'fastify';
 import { CallDirection, CallReviewStatus, CallStatus, CallTriageStatus } from '@frontdesk/db';
 import { registerRetellWebhookRoutes } from '../retell-webhooks.js';
@@ -25,6 +25,20 @@ const {
   callEventCreateMock: vi.fn(),
   phoneNumberFindUniqueMock: vi.fn()
 }));
+
+const originalRetellSandboxTenantId = process.env.FRONTDESK_RETELL_SANDBOX_TENANT_ID;
+const originalRetellSandboxBusinessId = process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID;
+const originalRetellSandboxPhoneNumberId = process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
+const originalRetellSandboxAgentIds = process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+
+function restoreEnvValue(key: string, value: string | undefined) {
+  if (value === undefined) {
+    delete process.env[key];
+    return;
+  }
+
+  process.env[key] = value;
+}
 
 vi.mock('@frontdesk/db', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@frontdesk/db')>();
@@ -89,6 +103,18 @@ describe('retell-webhooks route', () => {
     callEventCountMock.mockResolvedValue(0);
     callEventCreateMock.mockResolvedValue({ id: 'evt_1' });
     phoneNumberFindUniqueMock.mockResolvedValue(null);
+
+    delete process.env.FRONTDESK_RETELL_SANDBOX_TENANT_ID;
+    delete process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID;
+    delete process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
+    delete process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+  });
+
+  afterEach(() => {
+    restoreEnvValue('FRONTDESK_RETELL_SANDBOX_TENANT_ID', originalRetellSandboxTenantId);
+    restoreEnvValue('FRONTDESK_RETELL_SANDBOX_BUSINESS_ID', originalRetellSandboxBusinessId);
+    restoreEnvValue('FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID', originalRetellSandboxPhoneNumberId);
+    restoreEnvValue('FRONTDESK_RETELL_SANDBOX_AGENT_IDS', originalRetellSandboxAgentIds);
   });
 
   it('persists normalized Retell status and transcript for an existing call', async () => {
@@ -313,6 +339,120 @@ describe('retell-webhooks route', () => {
         phoneNumberId: 'pn_lookup',
         twilioCallSid: 'retell_call_lookup',
         callSid: 'retell_call_lookup'
+      }),
+      select: {
+        id: true,
+        twilioCallSid: true,
+        answeredAt: true,
+        endedAt: true
+      }
+    });
+
+    await app.close();
+  });
+
+  it('creates a call from sandbox agent-id fallback when phone-number lookup context is unavailable', async () => {
+    callFindFirstMock.mockResolvedValueOnce(null);
+    process.env.FRONTDESK_RETELL_SANDBOX_TENANT_ID = 'tenant_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID = 'business_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID = 'pn_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS = 'agent_sandbox_1';
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      payload: {
+        event: 'call_ended',
+        call: {
+          call_id: 'retell_call_sandbox_agent_fallback',
+          agent_id: 'agent_sandbox_1',
+          status: 'ended'
+        }
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_created',
+      providerCallId: 'retell_call_sandbox_agent_fallback',
+      correlationSource: 'created-from-status-payload',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+    expect(callCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        tenantId: 'tenant_sandbox',
+        businessId: 'business_sandbox',
+        phoneNumberId: 'pn_sandbox',
+        twilioCallSid: 'retell_call_sandbox_agent_fallback',
+        callSid: 'retell_call_sandbox_agent_fallback',
+        status: CallStatus.COMPLETED
+      }),
+      select: {
+        id: true,
+        twilioCallSid: true,
+        answeredAt: true,
+        endedAt: true
+      }
+    });
+
+    await app.close();
+  });
+
+  it('keeps destination-number ownership lookup precedence when sandbox fallback is configured', async () => {
+    callFindFirstMock.mockResolvedValueOnce(null);
+    phoneNumberFindUniqueMock.mockResolvedValue({
+      id: 'pn_lookup',
+      tenantId: 'tenant_lookup',
+      businessId: 'business_lookup',
+      isActive: true
+    });
+    process.env.FRONTDESK_RETELL_SANDBOX_TENANT_ID = 'tenant_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID = 'business_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID = 'pn_sandbox';
+    process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS = 'agent_sandbox_1';
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      payload: {
+        event_type: 'call_started',
+        call: {
+          call_id: 'retell_call_lookup_precedence',
+          status: 'in_progress',
+          to_number: '+12029350000',
+          agent_id: 'agent_sandbox_1'
+        }
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_created',
+      providerCallId: 'retell_call_lookup_precedence',
+      correlationSource: 'created-from-status-payload',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+    expect(callCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        tenantId: 'tenant_lookup',
+        businessId: 'business_lookup',
+        phoneNumberId: 'pn_lookup',
+        twilioCallSid: 'retell_call_lookup_precedence',
+        callSid: 'retell_call_lookup_precedence'
       }),
       select: {
         id: true,

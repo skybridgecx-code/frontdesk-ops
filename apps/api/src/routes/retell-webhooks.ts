@@ -16,11 +16,108 @@ type RetellStatusCallRecord = {
   endedAt: Date | null;
 };
 
+type RetellCallOwnership = {
+  tenantId: string;
+  businessId: string;
+  phoneNumberId: string;
+};
+
 function isUniqueConstraintViolation(error: unknown) {
   return (
     error instanceof Error &&
     (error.message.includes('Unique constraint') || error.message.includes('unique constraint'))
   );
+}
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function getString(record: Record<string, unknown> | null, ...keys: string[]) {
+  if (!record) {
+    return null;
+  }
+
+  for (const key of keys) {
+    const value = record[key];
+    if (typeof value === 'string' && value.trim().length > 0) {
+      return value.trim();
+    }
+  }
+
+  return null;
+}
+
+function getNestedRecord(record: Record<string, unknown> | null, key: string) {
+  if (!record) {
+    return null;
+  }
+
+  const value = record[key];
+  return isRecord(value) ? value : null;
+}
+
+function extractRetellSandboxAgentId(payload: unknown) {
+  if (!isRecord(payload)) {
+    return null;
+  }
+
+  const call = getNestedRecord(payload, 'call');
+  const metadata = getNestedRecord(payload, 'metadata');
+  const callMetadata = getNestedRecord(call, 'metadata');
+  const agent = getNestedRecord(payload, 'agent');
+  const callAgent = getNestedRecord(call, 'agent');
+
+  return (
+    getString(call, 'agent_id', 'agentId', 'retell_agent_id', 'retellAgentId') ??
+    getString(payload, 'agent_id', 'agentId', 'retell_agent_id', 'retellAgentId') ??
+    getString(callMetadata, 'agent_id', 'agentId', 'retell_agent_id', 'retellAgentId') ??
+    getString(metadata, 'agent_id', 'agentId', 'retell_agent_id', 'retellAgentId') ??
+    getString(callAgent, 'id', 'agent_id', 'agentId') ??
+    getString(agent, 'id', 'agent_id', 'agentId')
+  );
+}
+
+function parseConfiguredRetellSandboxAgentIds() {
+  const configured = process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+  if (!configured) {
+    return null;
+  }
+
+  const ids = configured
+    .split(',')
+    .map((value) => value.trim())
+    .filter((value) => value.length > 0);
+  if (ids.length === 0) {
+    return null;
+  }
+
+  return new Set(ids);
+}
+
+function resolveRetellSandboxOwnershipFallback(payload: unknown): RetellCallOwnership | null {
+  const tenantId = process.env.FRONTDESK_RETELL_SANDBOX_TENANT_ID?.trim();
+  const businessId = process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID?.trim();
+  const phoneNumberId = process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID?.trim();
+  if (!tenantId || !businessId || !phoneNumberId) {
+    return null;
+  }
+
+  const agentId = extractRetellSandboxAgentId(payload);
+  if (!agentId) {
+    return null;
+  }
+
+  const configuredAgentIds = parseConfiguredRetellSandboxAgentIds();
+  if (configuredAgentIds && !configuredAgentIds.has(agentId)) {
+    return null;
+  }
+
+  return {
+    tenantId,
+    businessId,
+    phoneNumberId
+  };
 }
 
 async function findCallForRetellWebhook(providerCallId: string): Promise<RetellStatusCallRecord | null> {
@@ -37,7 +134,12 @@ async function findCallForRetellWebhook(providerCallId: string): Promise<RetellS
   });
 }
 
-async function resolveRetellCallOwnershipFromStatusPayload(statusUpdate: NormalizedVoiceStatusUpdate) {
+async function resolveRetellCallOwnershipFromStatusPayload(input: {
+  statusUpdate: NormalizedVoiceStatusUpdate;
+  payload: unknown;
+}) {
+  const { statusUpdate, payload } = input;
+
   if (statusUpdate.tenantId && statusUpdate.businessId && statusUpdate.phoneNumberId) {
     return {
       tenantId: statusUpdate.tenantId,
@@ -48,7 +150,7 @@ async function resolveRetellCallOwnershipFromStatusPayload(statusUpdate: Normali
 
   const toE164 = statusUpdate.toE164?.trim();
   if (!toE164) {
-    return null;
+    return resolveRetellSandboxOwnershipFallback(payload);
   }
 
   const phoneNumber = await prisma.phoneNumber.findUnique({
@@ -62,7 +164,7 @@ async function resolveRetellCallOwnershipFromStatusPayload(statusUpdate: Normali
   });
 
   if (!phoneNumber || !phoneNumber.isActive) {
-    return null;
+    return resolveRetellSandboxOwnershipFallback(payload);
   }
 
   return {
@@ -73,9 +175,12 @@ async function resolveRetellCallOwnershipFromStatusPayload(statusUpdate: Normali
 }
 
 async function recoverRetellCallFromStatusPayload(
-  statusUpdate: NormalizedVoiceStatusUpdate
+  input: {
+    statusUpdate: NormalizedVoiceStatusUpdate;
+    payload: unknown;
+  }
 ): Promise<RetellStatusCallRecord | null> {
-  const ownership = await resolveRetellCallOwnershipFromStatusPayload(statusUpdate);
+  const ownership = await resolveRetellCallOwnershipFromStatusPayload(input);
   if (!ownership) {
     return null;
   }
@@ -87,11 +192,11 @@ async function recoverRetellCallFromStatusPayload(
         businessId: ownership.businessId,
         phoneNumberId: ownership.phoneNumberId,
         direction: CallDirection.INBOUND,
-        twilioCallSid: statusUpdate.providerCallId,
-        callSid: statusUpdate.providerCallId,
-        status: mapNormalizedVoiceStatusToCallStatus(statusUpdate.status),
-        fromE164: statusUpdate.fromE164 ?? null,
-        toE164: statusUpdate.toE164 ?? null
+        twilioCallSid: input.statusUpdate.providerCallId,
+        callSid: input.statusUpdate.providerCallId,
+        status: mapNormalizedVoiceStatusToCallStatus(input.statusUpdate.status),
+        fromE164: input.statusUpdate.fromE164 ?? null,
+        toE164: input.statusUpdate.toE164 ?? null
       },
       select: {
         id: true,
@@ -104,13 +209,14 @@ async function recoverRetellCallFromStatusPayload(
     if (!isUniqueConstraintViolation(error)) {
       throw error;
     }
-    return findCallForRetellWebhook(statusUpdate.providerCallId);
+    return findCallForRetellWebhook(input.statusUpdate.providerCallId);
   }
 }
 
 async function resolveCallForRetellWebhook(input: {
   providerCallId: string;
   statusUpdate: NormalizedVoiceStatusUpdate | null;
+  payload: unknown;
 }) {
   const bySid = await findCallForRetellWebhook(input.providerCallId);
   if (bySid) {
@@ -121,7 +227,10 @@ async function resolveCallForRetellWebhook(input: {
     return { call: null, source: 'none' as const };
   }
 
-  const recovered = await recoverRetellCallFromStatusPayload(input.statusUpdate);
+  const recovered = await recoverRetellCallFromStatusPayload({
+    statusUpdate: input.statusUpdate,
+    payload: input.payload
+  });
   if (!recovered) {
     return { call: null, source: 'none' as const };
   }
@@ -161,7 +270,8 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
 
     const resolved = await resolveCallForRetellWebhook({
       providerCallId,
-      statusUpdate
+      statusUpdate,
+      payload: body
     });
 
     if (!resolved.call) {
