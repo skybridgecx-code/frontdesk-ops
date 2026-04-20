@@ -225,6 +225,20 @@ Or verify with the latest call sid from API:
 CALL_SID=$(curl -sS "$API_URL/v1/calls?limit=1" | jq -r '.calls[0].twilioCallSid')
 curl -sS "$API_URL/v1/calls/$CALL_SID" | jq
 
+## Log verification aid (no deployed web UI)
+
+On successful Retell webhook correlation/create (200 path), API logs now emit:
+
+- `event: "retell.sandbox.webhook.correlated"`
+- `providerCallId`
+- `callId`
+- `correlationSource`
+- `createdFromWebhook`
+- `applied.status`
+- `applied.transcript`
+
+Use this log event to confirm sandbox success when no Render-hosted web dashboard is available.
+
 Current compatibility may rely on storing the Retell provider call id in legacy-compatible call id fields during the sandbox phase.
 
 ## Suggested manual test order

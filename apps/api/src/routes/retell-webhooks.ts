@@ -311,6 +311,16 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
       applied.transcript = transcriptResult.updated;
     }
 
+    request.log.info({
+      event: 'retell.sandbox.webhook.correlated',
+      provider: 'retell',
+      providerCallId,
+      callId: resolved.call.id,
+      correlationSource: resolved.source,
+      createdFromWebhook: resolved.source === 'created-from-status-payload',
+      applied
+    });
+
     return {
       ok: true,
       provider: 'retell',
