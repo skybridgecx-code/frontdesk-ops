@@ -26,6 +26,7 @@ import { requireActiveSubscription } from './lib/subscription-guard.js';
 import { registerVoiceWebhookRoutes } from './routes/voice-webhooks.js';
 import { registerVoiceStatusWebhookRoutes } from './routes/voice-status-webhooks.js';
 import { registerVoiceRecordingWebhookRoutes } from './routes/voice-recording-webhooks.js';
+import { registerRetellWebhookRoutes } from './routes/retell-webhooks.js';
 import { registerLiveLegacyTwilioVoiceRoutes } from './routes/twilio-voice.js';
 import { registerAgentProfileWriteRoutes } from './routes/agent-profiles-write.js';
 import { registerProspectImportRoutes } from './routes/prospect-import.js';
@@ -184,6 +185,7 @@ export async function buildServer() {
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerVoiceRecordingWebhookRoutes(app);
+  await registerRetellWebhookRoutes(app);
   // Live legacy gather/voicemail Twilio path. Kept active until migration classification/cutover.
   await app.register(registerLiveLegacyTwilioVoiceRoutes);
   await registerStripeWebhookRoutes(app);

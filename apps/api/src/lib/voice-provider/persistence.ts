@@ -3,6 +3,7 @@ import type { Prisma } from '@frontdesk/db';
 import { mapNormalizedEvidenceEventType, mapNormalizedVoiceStatusToCallStatus } from './event-mapping.js';
 import type {
   NormalizedVoiceEvidenceEvent,
+  NormalizedVoiceCallStatus,
   NormalizedVoiceStatusUpdate,
   NormalizedVoiceTranscriptArtifact
 } from './types.js';
@@ -65,6 +66,25 @@ async function persistCallEventWithRetry(input: {
   }
 }
 
+function toLegacyStatusEventSuffix(status: NormalizedVoiceCallStatus) {
+  switch (status) {
+    case 'ringing':
+      return 'ringing';
+    case 'in_progress':
+      return 'in-progress';
+    case 'completed':
+      return 'completed';
+    case 'busy':
+      return 'busy';
+    case 'no_answer':
+      return 'no-answer';
+    case 'failed':
+      return 'failed';
+    case 'canceled':
+      return 'canceled';
+  }
+}
+
 export async function applyNormalizedStatusUpdateToCall(input: {
   call: PersistedCallStatusState;
   statusUpdate: NormalizedVoiceStatusUpdate;
@@ -122,6 +142,22 @@ export async function persistNormalizedEvidenceEvent(input: {
     callId: input.callId,
     type: eventType,
     payloadJson: input.payloadJson ?? input.event
+  });
+
+  return eventType;
+}
+
+export async function persistNormalizedStatusEvent(input: {
+  callId: string;
+  statusUpdate: NormalizedVoiceStatusUpdate;
+  payloadJson?: unknown;
+}) {
+  const eventType = `twilio.status.${toLegacyStatusEventSuffix(input.statusUpdate.status)}`;
+
+  await persistCallEventWithRetry({
+    callId: input.callId,
+    type: eventType,
+    payloadJson: input.payloadJson ?? input.statusUpdate
   });
 
   return eventType;

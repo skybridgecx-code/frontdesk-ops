@@ -3,6 +3,7 @@ import { CallStatus } from '@frontdesk/db';
 import {
   applyNormalizedStatusUpdateToCall,
   persistNormalizedEvidenceEvent,
+  persistNormalizedStatusEvent,
   persistNormalizedTranscriptArtifact
 } from '../persistence.js';
 
@@ -135,6 +136,29 @@ describe('voice-provider persistence service', () => {
         payloadJson: expect.objectContaining({
           type: 'inbound_fallback',
           reason: 'realtime_health_unreachable'
+        })
+      })
+    });
+  });
+
+  it('persists normalized status lifecycle event as legacy-compatible status evidence type', async () => {
+    await persistNormalizedStatusEvent({
+      callId: 'call_1',
+      statusUpdate: {
+        provider: 'retell',
+        providerCallId: 'call_retell_1',
+        status: 'completed'
+      }
+    });
+
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        callId: 'call_1',
+        type: 'twilio.status.completed',
+        sequence: 1,
+        payloadJson: expect.objectContaining({
+          provider: 'retell',
+          status: 'completed'
         })
       })
     });
