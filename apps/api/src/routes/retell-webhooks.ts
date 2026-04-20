@@ -37,19 +37,55 @@ async function findCallForRetellWebhook(providerCallId: string): Promise<RetellS
   });
 }
 
+async function resolveRetellCallOwnershipFromStatusPayload(statusUpdate: NormalizedVoiceStatusUpdate) {
+  if (statusUpdate.tenantId && statusUpdate.businessId && statusUpdate.phoneNumberId) {
+    return {
+      tenantId: statusUpdate.tenantId,
+      businessId: statusUpdate.businessId,
+      phoneNumberId: statusUpdate.phoneNumberId
+    };
+  }
+
+  const toE164 = statusUpdate.toE164?.trim();
+  if (!toE164) {
+    return null;
+  }
+
+  const phoneNumber = await prisma.phoneNumber.findUnique({
+    where: { e164: toE164 },
+    select: {
+      id: true,
+      tenantId: true,
+      businessId: true,
+      isActive: true
+    }
+  });
+
+  if (!phoneNumber || !phoneNumber.isActive) {
+    return null;
+  }
+
+  return {
+    tenantId: phoneNumber.tenantId,
+    businessId: phoneNumber.businessId,
+    phoneNumberId: phoneNumber.id
+  };
+}
+
 async function recoverRetellCallFromStatusPayload(
   statusUpdate: NormalizedVoiceStatusUpdate
 ): Promise<RetellStatusCallRecord | null> {
-  if (!statusUpdate.tenantId || !statusUpdate.businessId || !statusUpdate.phoneNumberId) {
+  const ownership = await resolveRetellCallOwnershipFromStatusPayload(statusUpdate);
+  if (!ownership) {
     return null;
   }
 
   try {
     return await prisma.call.create({
       data: {
-        tenantId: statusUpdate.tenantId,
-        businessId: statusUpdate.businessId,
-        phoneNumberId: statusUpdate.phoneNumberId,
+        tenantId: ownership.tenantId,
+        businessId: ownership.businessId,
+        phoneNumberId: ownership.phoneNumberId,
         direction: CallDirection.INBOUND,
         twilioCallSid: statusUpdate.providerCallId,
         callSid: statusUpdate.providerCallId,
