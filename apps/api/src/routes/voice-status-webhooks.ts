@@ -19,6 +19,7 @@ import { CallDirection, CallStatus, prisma } from '@frontdesk/db';
 import { requireTwilioSignature } from '../lib/twilio-validation.js';
 import { handleMissedCall } from '../lib/missed-call-handler.js';
 import { mapNormalizedVoiceStatusToCallStatus } from '../lib/voice-provider/event-mapping.js';
+import { applyNormalizedStatusUpdateToCall } from '../lib/voice-provider/persistence.js';
 import { twilioVoiceProviderAdapter } from '../lib/voice-provider/twilio.js';
 
 const STATUS_LOOKUP_RETRY_DELAYS_MS = [50, 100, 200] as const;
@@ -211,30 +212,18 @@ export async function registerVoiceStatusWebhookRoutes(app: FastifyInstance) {
       });
     }
 
-    const updateData: {
-      status: typeof mappedStatus;
-      answeredAt?: Date;
-      endedAt?: Date;
-      durationSeconds?: number;
-    } = {
-      status: mappedStatus
+    const persistenceStatusUpdate = {
+      provider: 'twilio' as const,
+      providerCallId: twilioCallSid,
+      status: normalizedStatusUpdate?.status ?? 'ringing',
+      fromE164: normalizedStatusUpdate?.fromE164 ?? body.From ?? null,
+      toE164: normalizedStatusUpdate?.toE164 ?? body.To ?? null,
+      durationSeconds: parsedDuration
     };
 
-    if (mappedStatus === CallStatus.IN_PROGRESS && !existingCall.answeredAt) {
-      updateData.answeredAt = new Date();
-    }
-
-    if (isTerminalStatus(mappedStatus) && !existingCall.endedAt) {
-      updateData.endedAt = new Date();
-    }
-
-    if (parsedDuration !== null) {
-      updateData.durationSeconds = parsedDuration;
-    }
-
-    await prisma.call.update({
-      where: { id: existingCall.id },
-      data: updateData
+    await applyNormalizedStatusUpdateToCall({
+      call: existingCall,
+      statusUpdate: persistenceStatusUpdate
     });
 
     for (let attempt = 0; attempt < 3; attempt++) {
