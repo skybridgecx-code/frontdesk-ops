@@ -32,7 +32,7 @@ export async function generateMetadata({
   const { prospectSid } = await params;
 
   return {
-    title: `Prospect ${prospectSid} | SkybridgeCX`
+    title: `Prospect ${prospectSid} | SkyBridgeCX`
   };
 }
 
@@ -162,7 +162,7 @@ export default async function ProspectDetailPage({
 
       <div className="grid gap-6 xl:grid-cols-[1.3fr_1fr]">
         <div className="space-y-6">
-          <Card title="Contact info" subtitle="Core lead details captured by SkybridgeCX.">
+          <Card title="Contact info" subtitle="Core lead details captured by SkyBridgeCX.">
             <dl className="grid gap-4 sm:grid-cols-2">
               <div>
                 <dt className="text-sm uppercase tracking-wide text-gray-500 sm:text-xs">Company</dt>

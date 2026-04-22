@@ -62,7 +62,7 @@ export async function generateMetadata({
   const { callSid } = await params;
 
   return {
-    title: `Call ${callSid} | SkybridgeCX`
+    title: `Call ${callSid} | SkyBridgeCX`
   };
 }
 

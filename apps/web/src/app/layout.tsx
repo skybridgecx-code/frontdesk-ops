@@ -11,9 +11,9 @@ const clerkPublishableKey = normalizeEnv(process.env.NEXT_PUBLIC_CLERK_PUBLISHAB
 const clerkSignInUrl = normalizeEnv(process.env.NEXT_PUBLIC_CLERK_SIGN_IN_URL) ?? '/sign-in';
 const clerkSignUpUrl = normalizeEnv(process.env.NEXT_PUBLIC_CLERK_SIGN_UP_URL) ?? '/sign-up';
 export const metadata: Metadata = {
-  title: 'SkybridgeCX | Done-for-you AI front desk for home-service businesses',
+  title: 'SkyBridgeCX — AI Front Desk for Home Service Businesses',
   description:
-    'SkybridgeCX helps HVAC, plumbing, electrical, roofing, garage door, and locksmith teams capture, qualify, route, and follow up on inbound requests so fewer jobs get missed.'
+    'SkyBridgeCX answers calls 24/7, captures lead details, and sends instant job alerts for home service businesses.'
 };
 
 export default function RootLayout({

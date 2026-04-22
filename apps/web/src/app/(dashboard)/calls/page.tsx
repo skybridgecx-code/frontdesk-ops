@@ -3,7 +3,7 @@ import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { CallLogClient } from './call-log-client';
 
 export const metadata: Metadata = {
-  title: 'Call Log | SkybridgeCX'
+  title: 'Call Log | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';

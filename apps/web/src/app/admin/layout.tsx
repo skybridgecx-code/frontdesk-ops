@@ -29,12 +29,14 @@ function AdminNavLink({ href, label }: { href: string; label: string }) {
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-gray-950">
-      <nav className="border-b border-gray-800 bg-gray-900 px-6 py-3">
+    <div className="skybridge-app min-h-screen">
+      <nav className="border-b border-white/10 bg-[#080c12]/95 px-6 py-3 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between">
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-bold text-white">SkybridgeCX Admin</h1>
-            <span className="rounded-full bg-red-500 px-2 py-0.5 text-xs font-medium text-white">INTERNAL</span>
+            <h1 className="text-lg font-bold text-[#f0f4f8]">SkyBridgeCX Admin</h1>
+            <span className="rounded-full border border-rose-400/25 bg-rose-400/10 px-2 py-0.5 text-xs font-medium text-rose-300">
+              INTERNAL
+            </span>
           </div>
           <div className="flex items-center gap-6">
             <AdminNavLink href="/admin" label="Dashboard" />

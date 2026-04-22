@@ -190,10 +190,10 @@ export function OnboardingWizardClient() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+      <div className="skybridge-app min-h-screen">
         <div className="mx-auto flex min-h-screen max-w-2xl items-center justify-center px-4 py-12">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm text-gray-700 shadow-sm">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-gray-400/40 border-t-gray-700" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1320]/85 px-4 py-2 text-sm text-[#c8d8e8] shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#00d4ff]/30 border-t-[#00d4ff]" />
             Loading onboarding...
           </div>
         </div>
@@ -202,11 +202,15 @@ export function OnboardingWizardClient() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
+    <div className="skybridge-app min-h-screen">
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900">Welcome to SkybridgeCX</h1>
-          <p className="mt-2 text-gray-500">Let us set up your AI receptionist in a few quick steps</p>
+          <div className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#00d4ff] text-sm font-extrabold tracking-wide text-[#020305]">
+            SX
+          </div>
+          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-[#00d4ff]">Activation</p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.05em] text-[#f0f4f8]">Welcome to SkyBridgeCX</h1>
+          <p className="mt-2 text-[#5a6a80]">Set up your AI front desk in a few quick steps</p>
         </div>
 
         <StepProgress currentStep={currentStep} />
@@ -251,12 +255,12 @@ export function OnboardingWizardClient() {
             type="button"
             onClick={handleSkip}
             disabled={isSkipping}
-            className="text-sm text-gray-400 underline transition hover:text-gray-600 disabled:cursor-not-allowed disabled:opacity-60"
+            className="text-sm text-[#5a6a80] underline underline-offset-4 transition hover:text-[#00d4ff] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSkipping ? 'Skipping...' : 'Skip setup for now'}
           </button>
 
-          {skipError ? <p className="mt-2 text-sm text-red-600">{skipError}</p> : null}
+          {skipError ? <p className="mt-2 text-sm text-red-300">{skipError}</p> : null}
         </div>
       </div>
     </div>

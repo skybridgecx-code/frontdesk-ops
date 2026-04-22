@@ -6,7 +6,7 @@ import { EmptyState } from '../components/empty-state';
 import { MissedCallTextBackSettings } from './missed-call-textback-settings';
 
 export const metadata: Metadata = {
-  title: 'Settings | SkybridgeCX'
+  title: 'Settings | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';

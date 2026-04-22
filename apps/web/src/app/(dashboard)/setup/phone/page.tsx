@@ -4,7 +4,7 @@ import { EmptyState } from '../../components/empty-state';
 import { PhoneSetupFlow } from './phone-setup-flow';
 
 export const metadata: Metadata = {
-  title: 'Phone Setup | SkybridgeCX'
+  title: 'Phone Setup | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';

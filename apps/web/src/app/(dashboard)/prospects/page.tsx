@@ -7,7 +7,7 @@ import { SearchInput } from '../components/search-input';
 import { ProspectsTable } from './prospects-table';
 
 export const metadata: Metadata = {
-  title: 'Prospects | SkybridgeCX'
+  title: 'Prospects | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';
@@ -179,7 +179,7 @@ export default async function ProspectsPage({
     return (
       <EmptyState
         title="No active business configured"
-        description="Prospects are unavailable until an active business is configured for SkybridgeCX."
+        description="Prospects are unavailable until an active business is configured for SkyBridgeCX."
       />
     );
   }
@@ -231,7 +231,7 @@ export default async function ProspectsPage({
       <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
         <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Prospects</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Manage the SkybridgeCX lead pipeline, prioritize high-value accounts, and track latest outreach progress.
+          Manage the SkyBridgeCX lead pipeline, prioritize high-value accounts, and track latest outreach progress.
         </p>
       </section>
 

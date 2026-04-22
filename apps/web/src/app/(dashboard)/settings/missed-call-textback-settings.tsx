@@ -214,7 +214,7 @@ export function MissedCallTextBackSettings({ businesses }: MissedCallTextBackSet
         subtitle="Automatically send a follow-up SMS when calls are missed, busy, canceled, failed, or disconnect too quickly."
       >
         <p className="text-sm text-gray-600">
-          SkybridgeCX will send an SMS from your business number when a call is missed and text-back is enabled.
+          SkyBridgeCX will send an SMS from your business number when a call is missed and text-back is enabled.
         </p>
       </Card>
 

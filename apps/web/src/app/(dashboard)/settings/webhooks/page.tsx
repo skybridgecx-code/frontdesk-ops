@@ -7,7 +7,7 @@ import { EmptyState } from '../../components/empty-state';
 import { WebhooksSettingsPanel } from './webhooks-settings-panel';
 
 export const metadata: Metadata = {
-  title: 'Webhook Settings | SkybridgeCX'
+  title: 'Webhook Settings | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';
@@ -122,7 +122,7 @@ export default async function WebhookSettingsPage() {
 
   return (
     <div className="space-y-6">
-      <Card title="Webhooks" subtitle="Connect SkybridgeCX to your CRM and automation workflows.">
+      <Card title="Webhooks" subtitle="Connect SkyBridgeCX to your CRM and automation workflows.">
         <div className="space-y-3">
           <p className="text-sm text-gray-600">
             Send lead events directly to ServiceTitan, Jobber, HousecallPro, Zapier, Make, or n8n.

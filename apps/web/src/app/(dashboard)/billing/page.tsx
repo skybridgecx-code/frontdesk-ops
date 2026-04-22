@@ -7,7 +7,7 @@ import { EmptyState } from '../components/empty-state';
 import { StatusBadge } from '../components/status-badge';
 
 export const metadata: Metadata = {
-  title: 'Billing | SkybridgeCX'
+  title: 'Billing | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';
@@ -320,7 +320,7 @@ export default async function BillingPage({
 
   return (
     <div className="space-y-6">
-      <Card title="Billing" subtitle={`Manage your SkybridgeCX subscription for ${tenant.name}.`}>
+      <Card title="Billing" subtitle={`Manage your SkyBridgeCX subscription for ${tenant.name}.`}>
         <p className="text-sm text-gray-600">
           Pick the plan that matches your call volume and team footprint. All plans include AI answering,
           recordings, and dashboard operations tooling.
@@ -447,7 +447,7 @@ export default async function BillingPage({
       ) : null}
 
       {hasSubscription && hasDashboardAccess ? null : (
-        <Card title="Choose a plan" subtitle="Monthly pricing for SkybridgeCX AI front desk operations.">
+        <Card title="Choose a plan" subtitle="Monthly pricing for SkyBridgeCX AI front desk operations.">
           <div className="grid gap-4 lg:grid-cols-3">
             {plans.map((plan) => {
               const isPro = plan.key === 'pro';
@@ -495,7 +495,7 @@ export default async function BillingPage({
 
                     {isEnterprise ? (
                       <a
-                        href="mailto:sales@skybridgecx.com?subject=SkybridgeCX%20Enterprise"
+                        href="mailto:sales@skybridgecx.com?subject=SkyBridgeCX%20Enterprise"
                         className="inline-flex min-h-11 w-full items-center justify-center rounded-md border border-gray-200 px-4 py-2 text-sm font-medium text-gray-700 transition hover:bg-indigo-50"
                       >
                         Contact Us

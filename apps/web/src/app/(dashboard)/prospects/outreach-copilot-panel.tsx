@@ -143,7 +143,7 @@ export function OutreachCopilotPanel({
 
   return (
     <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-      <div className="text-xs uppercase tracking-wide text-indigo-600">SkybridgeCX copilot</div>
+      <div className="text-xs uppercase tracking-wide text-indigo-600">SkyBridgeCX copilot</div>
       <h2 className="mt-2 text-xl font-semibold text-gray-900">Outreach draft generator</h2>
       <p className="mt-2 max-w-3xl text-sm text-gray-600">
         Build operator-ready outreach drafts from the latest prospect profile and attempt history.

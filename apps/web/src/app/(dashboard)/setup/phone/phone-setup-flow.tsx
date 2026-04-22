@@ -193,7 +193,7 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
     <div className="mx-auto max-w-6xl space-y-6">
       <Card
         title="Phone Setup"
-        subtitle={`Connect a Twilio number for ${tenantName}. Once active, calls are answered by SkybridgeCX automatically.`}
+        subtitle={`Connect a Twilio number for ${tenantName}. Once active, calls are answered by SkyBridgeCX automatically.`}
       >
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2">
@@ -311,7 +311,7 @@ export function PhoneSetupFlow({ tenantName, businesses, hasPhoneNumbers }: Phon
         <Card title="Activation complete" subtitle="Your AI front desk is now live.">
           <p className="text-sm text-gray-700">
             Your AI front desk is live! Calls to <span className="font-semibold text-gray-900">{purchasedNumber.e164}</span>{' '}
-            will be answered by SkybridgeCX.
+            will be answered by SkyBridgeCX.
           </p>
 
           <div className="mt-4 grid gap-3 sm:flex sm:flex-wrap">

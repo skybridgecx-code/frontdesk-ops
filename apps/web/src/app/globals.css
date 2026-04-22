@@ -1,10 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Sora:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 :root {
-  --background: #f7f6f2;
-  --foreground: #111827;
-  --font-geist-sans: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-geist-mono: 'SFMono-Regular', Menlo, Monaco, Consolas, 'Liberation Mono', monospace;
+  --background: #020305;
+  --foreground: #c8d8e8;
+  --skybridge-black: #020305;
+  --skybridge-deep: #080c12;
+  --skybridge-surface: #0d1320;
+  --skybridge-panel: #111827;
+  --skybridge-border: rgba(255, 255, 255, 0.08);
+  --skybridge-border-bright: rgba(255, 255, 255, 0.14);
+  --skybridge-cyan: #00d4ff;
+  --skybridge-white: #f0f4f8;
+  --skybridge-muted: #5a6a80;
+  --skybridge-text: #c8d8e8;
+  --font-geist-sans: 'Sora', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-geist-mono: 'DM Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
 }
 
 @theme inline {
@@ -26,49 +37,88 @@ body {
 }
 
 ::selection {
-  background: rgba(245, 158, 11, 0.28);
-  color: #17120f;
+  background: rgba(0, 212, 255, 0.28);
+  color: var(--skybridge-white);
 }
 
-@keyframes float-slow {
-  0%, 100% {
-    transform: translate3d(0, 0, 0);
-  }
-  50% {
-    transform: translate3d(0, -14px, 0);
-  }
+.skybridge-app {
+  min-height: 100vh;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% -10%, rgba(0, 212, 255, 0.14) 0%, transparent 68%),
+    radial-gradient(ellipse 40% 35% at 12% 80%, rgba(0, 100, 200, 0.08) 0%, transparent 60%),
+    var(--skybridge-black);
+  color: var(--skybridge-text);
 }
 
-@keyframes drift-slow {
-  0%, 100% {
-    transform: translate3d(0, 0, 0) rotate(0deg);
-  }
-  50% {
-    transform: translate3d(12px, -8px, 0) rotate(1.5deg);
-  }
+.skybridge-app::selection {
+  background: rgba(0, 212, 255, 0.28);
+  color: var(--skybridge-white);
 }
 
-@keyframes glow-pulse {
-  0%, 100% {
-    opacity: 0.55;
-    transform: scale(1);
-  }
-  50% {
-    opacity: 0.95;
-    transform: scale(1.05);
-  }
+.skybridge-app .bg-white,
+.skybridge-app .bg-gray-50 {
+  background-color: rgba(13, 19, 32, 0.92);
 }
 
-@layer utilities {
-  .animate-float-slow {
-    animation: float-slow 9s ease-in-out infinite;
-  }
+.skybridge-app .bg-gray-100,
+.skybridge-app .bg-blue-50,
+.skybridge-app .bg-indigo-50 {
+  background-color: rgba(0, 212, 255, 0.08);
+}
 
-  .animate-drift-slow {
-    animation: drift-slow 11s ease-in-out infinite;
-  }
+.skybridge-app .border-gray-200,
+.skybridge-app .border-gray-300 {
+  border-color: var(--skybridge-border);
+}
 
-  .animate-glow-pulse {
-    animation: glow-pulse 7s ease-in-out infinite;
-  }
+.skybridge-app .text-gray-900,
+.skybridge-app .text-gray-800,
+.skybridge-app .text-gray-700 {
+  color: var(--skybridge-white);
+}
+
+.skybridge-app .text-gray-600,
+.skybridge-app .text-gray-500,
+.skybridge-app .text-gray-400 {
+  color: var(--skybridge-muted);
+}
+
+.skybridge-app .text-indigo-700,
+.skybridge-app .text-indigo-600,
+.skybridge-app .text-blue-700,
+.skybridge-app .text-blue-600 {
+  color: var(--skybridge-cyan);
+}
+
+.skybridge-app .bg-indigo-600,
+.skybridge-app .bg-blue-600 {
+  background-color: var(--skybridge-cyan);
+  color: var(--skybridge-black);
+}
+
+.skybridge-app .hover\:bg-indigo-50:hover,
+.skybridge-app .hover\:bg-blue-50:hover,
+.skybridge-app .hover\:bg-gray-50:hover,
+.skybridge-app .hover\:bg-gray-100:hover {
+  background-color: rgba(0, 212, 255, 0.1);
+}
+
+.skybridge-app input,
+.skybridge-app textarea,
+.skybridge-app select {
+  background-color: rgba(2, 3, 5, 0.62);
+  border-color: var(--skybridge-border-bright);
+  color: var(--skybridge-white);
+}
+
+.skybridge-app input::placeholder,
+.skybridge-app textarea::placeholder {
+  color: var(--skybridge-muted);
+}
+
+.skybridge-app input:focus,
+.skybridge-app textarea:focus,
+.skybridge-app select:focus {
+  border-color: var(--skybridge-cyan);
+  box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.12);
 }

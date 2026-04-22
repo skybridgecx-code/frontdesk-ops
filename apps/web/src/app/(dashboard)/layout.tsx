@@ -7,7 +7,7 @@ import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
 import { SidebarNav } from './components/sidebar-nav';
 
 export const metadata: Metadata = {
-  title: 'Dashboard | SkybridgeCX'
+  title: 'Dashboard | SkyBridgeCX'
 };
 
 type BillingStatusResponse = {
@@ -99,7 +99,7 @@ export default async function DashboardLayout({
 
   if (isBillingPage && !hasDashboardAccess) {
     return (
-      <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
+      <div className="skybridge-app min-h-screen overflow-x-hidden">
         <main className="mx-auto w-full max-w-[1700px] px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">{children}</main>
       </div>
     );
@@ -108,7 +108,7 @@ export default async function DashboardLayout({
   const showPastDueBanner = !isBillingPage && normalizedBillingStatus === 'past_due';
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-gray-50 text-gray-900">
+    <div className="skybridge-app min-h-screen overflow-x-hidden">
       <div className="mx-auto flex min-h-screen w-full max-w-[1700px]">
         <SidebarNav subscriptionStatus={billingStatus.status} />
 
@@ -116,10 +116,10 @@ export default async function DashboardLayout({
           <div className="h-14 lg:hidden" />
 
           {showPastDueBanner ? (
-            <div className="border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-900 sm:px-6 lg:px-8">
+            <div className="border-b border-amber-400/20 bg-amber-400/10 px-4 py-2.5 text-sm text-amber-100 sm:px-6 lg:px-8">
               <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
                 <span>Your subscription is past due. Update billing to avoid service interruption.</span>
-                <Link href="/billing" className="font-semibold text-amber-900 underline underline-offset-4">
+                <Link href="/billing" className="font-semibold text-amber-100 underline underline-offset-4">
                   Go to billing
                 </Link>
               </div>

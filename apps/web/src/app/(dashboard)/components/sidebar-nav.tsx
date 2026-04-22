@@ -128,7 +128,7 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="fixed left-4 top-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-md border border-gray-200 bg-white text-gray-700 shadow-sm lg:hidden"
+        className="fixed left-4 top-4 z-40 inline-flex h-11 w-11 items-center justify-center rounded-md border border-white/10 bg-[#0d1320] text-[#f0f4f8] shadow-sm lg:hidden"
         aria-label="Open menu"
       >
         <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -137,29 +137,29 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
       </button>
 
       <div
-        className={`fixed inset-0 z-40 bg-gray-900/45 transition ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'} lg:hidden`}
+        className={`fixed inset-0 z-40 bg-black/65 transition ${isOpen ? 'opacity-100' : 'pointer-events-none opacity-0'} lg:hidden`}
         onClick={() => setIsOpen(false)}
         aria-hidden="true"
       />
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[85vw] max-w-[18rem] flex-col border-r border-gray-200 bg-white p-4 transition-transform sm:p-5 lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:max-w-none lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 flex w-[85vw] max-w-[18rem] flex-col border-r border-white/10 bg-[#080c12]/95 p-4 shadow-[24px_0_80px_rgba(0,0,0,0.38)] backdrop-blur transition-transform sm:p-5 lg:sticky lg:top-0 lg:h-screen lg:w-72 lg:max-w-none lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         <div className="mb-8 flex items-center justify-between">
           <Link href="/dashboard" className="group inline-flex items-center gap-3" onClick={() => setIsOpen(false)}>
-            <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-indigo-600 text-sm font-semibold text-white">
+            <span className="inline-flex h-9 w-9 items-center justify-center rounded-md bg-[#00d4ff] text-sm font-extrabold text-[#020305]">
               SX
             </span>
-            <span className="text-lg font-semibold tracking-tight text-gray-900 transition group-hover:text-indigo-600">
-              SkybridgeCX
+            <span className="text-lg font-semibold tracking-tight text-[#f0f4f8] transition group-hover:text-[#00d4ff]">
+              SkyBridgeCX
             </span>
           </Link>
           <button
             type="button"
             onClick={() => setIsOpen(false)}
-            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-gray-400 transition hover:bg-gray-100 hover:text-gray-700 lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-md text-[#5a6a80] transition hover:bg-[#00d4ff]/10 hover:text-[#f0f4f8] lg:hidden"
             aria-label="Close menu"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5" aria-hidden="true">
@@ -179,24 +179,24 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
                 onClick={() => setIsOpen(false)}
                 className={`group flex min-h-11 items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition ${
                   active
-                    ? 'bg-indigo-50 text-indigo-700'
-                    : 'text-gray-600 hover:bg-indigo-50 hover:text-indigo-700'
+                    ? 'bg-[#00d4ff]/12 text-[#00d4ff]'
+                    : 'text-[#8aa0b8] hover:bg-[#00d4ff]/10 hover:text-[#f0f4f8]'
                 }`}
               >
-                <span className={active ? 'text-indigo-600' : 'text-gray-400 group-hover:text-indigo-600'}>{item.icon}</span>
+                <span className={active ? 'text-[#00d4ff]' : 'text-[#5a6a80] group-hover:text-[#00d4ff]'}>{item.icon}</span>
                 <span>{item.label}</span>
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-auto space-y-4 border-t border-gray-200 pt-4">
-          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-gray-600 sm:text-xs">
+        <div className="mt-auto space-y-4 border-t border-white/10 pt-4">
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1320] px-3 py-2 text-sm font-medium text-[#8aa0b8] sm:text-xs">
             <span className={`h-2 w-2 rounded-full ${subscriptionUi.dot}`} aria-hidden="true" />
             <span>{subscriptionUi.label}</span>
           </div>
-          <div className="flex items-center justify-between rounded-md border border-gray-200 bg-gray-50 px-3 py-2">
-            <span className="text-sm font-medium text-gray-700">Account</span>
+          <div className="flex items-center justify-between rounded-md border border-white/10 bg-[#0d1320] px-3 py-2">
+            <span className="text-sm font-medium text-[#c8d8e8]">Account</span>
             <UserButton />
           </div>
         </div>

@@ -25,7 +25,7 @@ import type {
 } from '../components/analytics/types';
 
 export const metadata: Metadata = {
-  title: 'Dashboard | SkybridgeCX'
+  title: 'Dashboard | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';
