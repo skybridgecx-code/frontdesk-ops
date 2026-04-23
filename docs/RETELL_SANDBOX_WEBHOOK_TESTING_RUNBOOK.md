@@ -241,6 +241,38 @@ Use this log event to confirm sandbox success when no Render-hosted web dashboar
 
 Current compatibility may rely on storing the Retell provider call id in legacy-compatible call id fields during the sandbox phase.
 
+## Inbound DID elimination checklist (Telnyx -> Retell -> frontdesk)
+
+Repo/backend path already proven when all are true:
+
+1. Retell browser/web call appears in Retell Call History.
+2. API logs show `event: "retell.sandbox.webhook.correlated"` with `providerCallId` and `callId`.
+3. `GET /v1/calls` or `GET /v1/calls/:callSid` shows the correlated call record.
+
+Boundary rule:
+
+- If a real inbound DID call does **not** appear in Retell Call History, failure is before app webhook ingestion (Telnyx -> Retell provider routing boundary), not in this repo's webhook/persistence path.
+
+Remaining manual provider-side checks:
+
+1. Telnyx DID is active for inbound voice and assigned to the intended inbound connection/profile.
+2. Telnyx inbound routing target is the Retell SIP/connection target you intend to use (not a stale Twilio/legacy target).
+3. Retell has the same DID imported/attached in E.164 format and bound to the expected Retell agent.
+4. Retell inbound handling for that number is enabled (agent/phone mapping is active, not draft/disabled).
+5. Retell webhook settings for that agent/account still include:
+   - `call_ended`
+   - `call_analyzed`
+6. Place one fresh DID test call and verify this sequence:
+   - call appears in Retell Call History
+   - then frontdesk API logs show `retell.sandbox.webhook.correlated`
+   - then `/v1/calls` returns the call by `providerCallId`/`twilioCallSid`
+
+Escalation split:
+
+- Missing in Retell Call History: Telnyx/Retell telephony setup issue.
+- Present in Retell Call History but no frontdesk webhook logs: Retell webhook delivery/config issue.
+- Webhook logs present with 200 correlation but UI missing: app query/render contract investigation.
+
 ## Suggested manual test order
 
 1. Post the example status payload
