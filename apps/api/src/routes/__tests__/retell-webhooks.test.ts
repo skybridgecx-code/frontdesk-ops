@@ -1,3 +1,4 @@
+import { createHmac } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import fastify from 'fastify';
 import { CallDirection, CallReviewStatus, CallStatus, CallTriageStatus } from '@frontdesk/db';
@@ -30,6 +31,7 @@ const originalRetellSandboxTenantId = process.env.FRONTDESK_RETELL_SANDBOX_TENAN
 const originalRetellSandboxBusinessId = process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID;
 const originalRetellSandboxPhoneNumberId = process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
 const originalRetellSandboxAgentIds = process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+const originalRetellWebhookSecret = process.env.RETELL_WEBHOOK_SECRET;
 
 function restoreEnvValue(key: string, value: string | undefined) {
   if (value === undefined) {
@@ -78,6 +80,15 @@ async function createCompatibilityApp() {
   return app;
 }
 
+function signRetellPayload(payload: unknown, secret: string) {
+  const rawBody = JSON.stringify(payload);
+
+  return {
+    rawBody,
+    signature: createHmac('sha256', secret).update(rawBody).digest('hex')
+  };
+}
+
 describe('retell-webhooks route', () => {
   beforeEach(() => {
     callFindFirstMock.mockReset();
@@ -108,6 +119,7 @@ describe('retell-webhooks route', () => {
     delete process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID;
     delete process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
     delete process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+    process.env.RETELL_WEBHOOK_SECRET = 'skip';
   });
 
   afterEach(() => {
@@ -115,6 +127,154 @@ describe('retell-webhooks route', () => {
     restoreEnvValue('FRONTDESK_RETELL_SANDBOX_BUSINESS_ID', originalRetellSandboxBusinessId);
     restoreEnvValue('FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID', originalRetellSandboxPhoneNumberId);
     restoreEnvValue('FRONTDESK_RETELL_SANDBOX_AGENT_IDS', originalRetellSandboxAgentIds);
+    restoreEnvValue('RETELL_WEBHOOK_SECRET', originalRetellWebhookSecret);
+  });
+
+  it('accepts a valid x-retell-signature and continues existing handler behavior', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+    callFindFirstMock.mockResolvedValue({
+      id: 'call_1',
+      twilioCallSid: 'retell_call_1',
+      answeredAt: null,
+      endedAt: null
+    });
+
+    const payload = {
+      event: 'call_ended',
+      call: {
+        id: 'retell_call_1',
+        status: 'ended',
+        duration_ms: 12000
+      }
+    };
+    const { rawBody, signature } = signRetellPayload(payload, process.env.RETELL_WEBHOOK_SECRET);
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      headers: {
+        'content-type': 'application/json',
+        'x-retell-signature': signature
+      },
+      payload: rawBody
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_1',
+      providerCallId: 'retell_call_1',
+      correlationSource: 'sid',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+    expect(callUpdateMock).toHaveBeenCalledWith({
+      where: { id: 'call_1' },
+      data: expect.objectContaining({
+        status: CallStatus.COMPLETED,
+        durationSeconds: 12,
+        endedAt: expect.any(Date)
+      })
+    });
+
+    await app.close();
+  });
+
+  it('returns 401 when x-retell-signature is missing', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      headers: {
+        'content-type': 'application/json'
+      },
+      payload: JSON.stringify({
+        event: 'call_ended',
+        call: {
+          id: 'retell_missing_signature',
+          status: 'ended'
+        }
+      })
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ error: 'invalid signature' });
+    expect(callFindFirstMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('returns 401 when x-retell-signature is wrong', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      headers: {
+        'content-type': 'application/json',
+        'x-retell-signature': 'not_the_right_signature'
+      },
+      payload: JSON.stringify({
+        event: 'call_ended',
+        call: {
+          id: 'retell_wrong_signature',
+          status: 'ended'
+        }
+      })
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ error: 'invalid signature' });
+    expect(callFindFirstMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('bypasses signature verification when RETELL_WEBHOOK_SECRET=skip', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'skip';
+    callFindFirstMock.mockResolvedValue({
+      id: 'call_1',
+      twilioCallSid: 'retell_call_skip',
+      answeredAt: null,
+      endedAt: null
+    });
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      payload: {
+        event: 'call_ended',
+        call: {
+          id: 'retell_call_skip',
+          status: 'ended'
+        }
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_1',
+      providerCallId: 'retell_call_skip',
+      correlationSource: 'sid',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+
+    await app.close();
   });
 
   it('persists normalized Retell status and transcript for an existing call', async () => {

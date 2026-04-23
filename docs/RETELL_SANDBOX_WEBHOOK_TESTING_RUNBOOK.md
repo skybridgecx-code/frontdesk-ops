@@ -38,8 +38,9 @@ Do not enable additional Retell webhook events in this phase.
 
 ## Current webhook security state
 
-- Retell signature verification (`x-retell-signature`) is not implemented in this route yet.
-- This route is currently reachable under `/v1/twilio/*` webhook auth-skip behavior by design for sandbox testing.
+- Retell signature verification (`x-retell-signature`) is now implemented and enforced on this route using `RETELL_WEBHOOK_SECRET`.
+- Set `RETELL_WEBHOOK_SECRET` to the Retell webhook signing secret from Retell Dashboard -> Webhook settings.
+- Temporary sandbox bypass: set `RETELL_WEBHOOK_SECRET=skip` to disable signature verification for sandbox-only curl/manual testing.
 - Keep this webhook configuration on sandbox-only Retell agents/workspaces during this phase.
 
 ## Phase 2E sandbox ownership fallback (browser/web-call)

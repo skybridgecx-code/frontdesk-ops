@@ -1,4 +1,6 @@
-import type { FastifyInstance } from 'fastify';
+import { createHmac, timingSafeEqual } from 'node:crypto';
+import { Readable } from 'node:stream';
+import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 import { CallDirection, prisma } from '@frontdesk/db';
 import { mapNormalizedVoiceStatusToCallStatus } from '../lib/voice-provider/event-mapping.js';
 import {
@@ -21,6 +23,12 @@ type RetellCallOwnership = {
   businessId: string;
   phoneNumberId: string;
 };
+
+type RequestWithRawBody = FastifyRequest & {
+  rawBody?: Buffer;
+};
+
+const RETELL_WEBHOOK_PATH = '/v1/twilio/retell/webhook';
 
 function isUniqueConstraintViolation(error: unknown) {
   return (
@@ -76,6 +84,98 @@ function extractRetellSandboxAgentId(payload: unknown) {
     getString(callAgent, 'id', 'agent_id', 'agentId') ??
     getString(agent, 'id', 'agent_id', 'agentId')
   );
+}
+
+function shouldSkipRetellWebhookSignatureVerification() {
+  return process.env.RETELL_WEBHOOK_SECRET === 'skip';
+}
+
+function getHeaderValue(header: string | string[] | undefined) {
+  if (typeof header === 'string') {
+    return header;
+  }
+
+  if (Array.isArray(header)) {
+    return header[0] ?? null;
+  }
+
+  return null;
+}
+
+async function rawBodyHook(
+  request: FastifyRequest,
+  _reply: FastifyReply,
+  payload: NodeJS.ReadableStream
+) {
+  const chunks: Buffer[] = [];
+
+  for await (const chunk of payload) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  const rawBodyBuffer = Buffer.concat(chunks);
+  const requestWithRawBody = request as RequestWithRawBody;
+  requestWithRawBody.rawBody = rawBodyBuffer;
+  return Readable.from(rawBodyBuffer);
+}
+
+function getRawBody(request: FastifyRequest) {
+  const requestWithRawBody = request as RequestWithRawBody;
+
+  if (Buffer.isBuffer(requestWithRawBody.rawBody)) {
+    return requestWithRawBody.rawBody;
+  }
+
+  if (Buffer.isBuffer(request.body)) {
+    return request.body;
+  }
+
+  if (typeof request.body === 'string') {
+    return Buffer.from(request.body, 'utf8');
+  }
+
+  return Buffer.from(JSON.stringify(request.body ?? {}), 'utf8');
+}
+
+function signaturesMatch(expectedSignature: string, providedSignature: string) {
+  const normalizedProvidedSignature = providedSignature.trim().toLowerCase();
+  if (normalizedProvidedSignature.length !== expectedSignature.length) {
+    return false;
+  }
+
+  return timingSafeEqual(
+    Buffer.from(expectedSignature, 'utf8'),
+    Buffer.from(normalizedProvidedSignature, 'utf8')
+  );
+}
+
+async function verifyRetellWebhookSignature(request: FastifyRequest, reply: FastifyReply) {
+  if (shouldSkipRetellWebhookSignatureVerification()) {
+    return true;
+  }
+
+  const webhookSecret = process.env.RETELL_WEBHOOK_SECRET?.trim();
+  if (!webhookSecret) {
+    request.log.error({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook secret is not configured');
+    await reply.status(500).send({ error: 'webhook secret not configured' });
+    return false;
+  }
+
+  const signature = getHeaderValue(request.headers['x-retell-signature']);
+  if (!signature) {
+    request.log.warn({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
+    await reply.status(401).send({ error: 'invalid signature' });
+    return false;
+  }
+
+  const expectedSignature = createHmac('sha256', webhookSecret).update(getRawBody(request)).digest('hex');
+  if (!signaturesMatch(expectedSignature, signature)) {
+    request.log.warn({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
+    await reply.status(401).send({ error: 'invalid signature' });
+    return false;
+  }
+
+  return true;
 }
 
 function parseConfiguredRetellSandboxAgentIds() {
@@ -246,7 +346,12 @@ async function resolveCallForRetellWebhook(input: {
  * Twilio production routing paths.
  */
 export async function registerRetellWebhookRoutes(app: FastifyInstance) {
-  app.post('/v1/twilio/retell/webhook', async (request, reply) => {
+  app.post(RETELL_WEBHOOK_PATH, { preParsing: rawBodyHook }, async (request, reply) => {
+    const signatureVerified = await verifyRetellWebhookSignature(request, reply);
+    if (!signatureVerified) {
+      return;
+    }
+
     const body = request.body ?? {};
     const retellAdapter = getVoiceProviderAdapter('retell');
 

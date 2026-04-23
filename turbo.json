@@ -27,7 +27,8 @@
         "FRONTDESK_INTERNAL_API_SECRET",
         "FRONTDESK_WEB_URL",
         "STRIPE_WEBHOOK_SECRET",
-        "STRIPE_SECRET_KEY"
+        "STRIPE_SECRET_KEY",
+        "RETELL_WEBHOOK_SECRET"
       ]
     },
     "lint": {

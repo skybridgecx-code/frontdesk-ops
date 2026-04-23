@@ -6,6 +6,7 @@ type EnvRequirement = {
 const REQUIRED_ENV_VARS: readonly EnvRequirement[] = [
   { key: 'STRIPE_SECRET_KEY', message: 'Stripe billing will not work' },
   { key: 'STRIPE_WEBHOOK_SECRET', message: 'Stripe webhook verification will not work' },
+  { key: 'RETELL_WEBHOOK_SECRET', message: 'Retell webhook verification will not work' },
   { key: 'CLERK_SECRET_KEY', message: 'Clerk auth will not work' },
   { key: 'CLERK_WEBHOOK_SECRET', message: 'Clerk webhook verification will not work' },
   { key: 'TWILIO_ACCOUNT_SID', message: 'Twilio calls will not work' },
@@ -38,6 +39,10 @@ export function runEnvCheck() {
     if (!hasValue(process.env[requirement.key])) {
       warnMissingEnv(requirement.key, requirement.message);
     }
+  }
+
+  if (process.env.RETELL_WEBHOOK_SECRET === 'skip') {
+    console.warn('[env-check] RETELL_WEBHOOK_SECRET=skip — signature verification disabled, sandbox mode only');
   }
 
   if (!hasValue(process.env.STRIPE_PRICE_ID_STARTER)) {
