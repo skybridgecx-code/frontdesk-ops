@@ -68,6 +68,16 @@ type BillingStatusResponse =
 
 type SubscribedBillingStatus = Exclude<BillingStatusResponse, { status: 'none' }>;
 
+type BillingStatusFetchResult =
+  | {
+      ok: true;
+      billingStatus: BillingStatusResponse;
+    }
+  | {
+      ok: false;
+      message: string;
+    };
+
 const FALLBACK_PLANS: BillingPlan[] = [
   {
     key: 'starter',
@@ -164,28 +174,39 @@ function getPlanRank(planKey: PlanKey) {
   return 2;
 }
 
-async function getBillingStatus(tenantId: string): Promise<BillingStatusResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/v1/billing/status/${tenantId}`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+async function getBillingStatus(tenantId: string): Promise<BillingStatusFetchResult> {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/billing/status/${tenantId}`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: `Failed to load billing (${response.status}).`
+      };
+    }
+
+    const parsed = (await response.json()) as BillingStatusResponse;
+    const billingStatus =
+      parsed.plans.length === 0
+        ? {
+            ...parsed,
+            plans: FALLBACK_PLANS
+          }
+        : parsed;
+
     return {
-      status: 'none',
-      plans: FALLBACK_PLANS
+      ok: true,
+      billingStatus
+    };
+  } catch {
+    return {
+      ok: false,
+      message: 'Could not reach the billing API. Please try again.'
     };
   }
-
-  const parsed = (await response.json()) as BillingStatusResponse;
-  if (parsed.plans.length === 0) {
-    return {
-      ...parsed,
-      plans: FALLBACK_PLANS
-    };
-  }
-
-  return parsed;
 }
 
 export default async function BillingPage({
@@ -206,7 +227,20 @@ export default async function BillingPage({
   }
 
   const tenantId = tenant.id;
-  const billingStatus = await getBillingStatus(tenant.id);
+  const billingStatusResult = await getBillingStatus(tenant.id);
+
+  if (!billingStatusResult.ok) {
+    return (
+      <EmptyState
+        title="Could not load billing"
+        description={billingStatusResult.message}
+        actionLabel="Try again"
+        actionHref="/billing"
+      />
+    );
+  }
+
+  const billingStatus = billingStatusResult.billingStatus;
   const plans = billingStatus.plans.length > 0 ? billingStatus.plans : FALLBACK_PLANS;
 
   const subscriptionStatus: SubscribedBillingStatus | null =

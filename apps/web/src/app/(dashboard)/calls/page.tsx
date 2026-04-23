@@ -36,22 +36,64 @@ type CallsResponse = {
   totalPages: number;
 };
 
-async function getCalls(): Promise<CallsResponse> {
-  const response = await fetch(`${getApiBaseUrl()}/v1/calls?page=1&limit=25`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+type CallsFetchResult =
+  | {
+      ok: true;
+      calls: CallRecord[];
+      page: number;
+      totalPages: number;
+    }
+  | {
+      ok: false;
+      message: string;
+      calls: [];
+      page: 1;
+      totalPages: 1;
+    };
 
-  if (!response.ok) {
+async function getCalls(): Promise<CallsFetchResult> {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/calls?page=1&limit=25`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: `Failed to load calls (${response.status}).`,
+        calls: [],
+        page: 1,
+        totalPages: 1
+      };
+    }
+
+    const payload = (await response.json()) as CallsResponse;
+    if (!payload.ok || !Array.isArray(payload.calls)) {
+      return {
+        ok: false,
+        message: 'Could not parse calls response.',
+        calls: [],
+        page: 1,
+        totalPages: 1
+      };
+    }
+
+    return {
+      ok: true,
+      calls: payload.calls,
+      page: payload.page,
+      totalPages: payload.totalPages
+    };
+  } catch {
     return {
       ok: false,
+      message: 'Could not reach the API. Please try again.',
       calls: [],
       page: 1,
       totalPages: 1
     };
   }
-
-  return (await response.json()) as CallsResponse;
 }
 
 export default async function CallsPage() {
@@ -68,6 +110,7 @@ export default async function CallsPage() {
         initialCalls={callsResponse.calls}
         initialPage={callsResponse.page}
         totalPages={callsResponse.totalPages}
+        initialError={callsResponse.ok ? null : callsResponse.message}
       />
     </div>
   );

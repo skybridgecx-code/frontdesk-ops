@@ -54,6 +54,19 @@ type CallResponse = {
   call: CallDetail;
 };
 
+type CallFetchResult =
+  | {
+      status: 'ok';
+      call: CallDetail;
+    }
+  | {
+      status: 'not-found';
+    }
+  | {
+      status: 'error';
+      message: string;
+    };
+
 export async function generateMetadata({
   params
 }: {
@@ -66,7 +79,7 @@ export async function generateMetadata({
   };
 }
 
-async function getCall(callSid: string): Promise<CallDetail | null> {
+async function getCall(callSid: string): Promise<CallFetchResult> {
   try {
     const response = await fetch(`${getApiBaseUrl()}/v1/calls/${callSid}`, {
       cache: 'no-store',
@@ -74,21 +87,33 @@ async function getCall(callSid: string): Promise<CallDetail | null> {
     });
 
     if (response.status === 404) {
-      return null;
+      return { status: 'not-found' };
     }
 
     if (!response.ok) {
-      return null;
+      return {
+        status: 'error',
+        message: `Failed to load call (${response.status}).`
+      };
     }
 
     const payload = (await response.json()) as CallResponse;
-    if (!payload.ok) {
-      return null;
+    if (!payload.ok || !payload.call) {
+      return {
+        status: 'error',
+        message: 'Could not parse call response.'
+      };
     }
 
-    return payload.call;
+    return {
+      status: 'ok',
+      call: payload.call
+    };
   } catch {
-    return null;
+    return {
+      status: 'error',
+      message: 'Could not reach the API. Please try again.'
+    };
   }
 }
 
@@ -166,9 +191,9 @@ export default async function CallDetailPage({
   params: Promise<{ callSid: string }>;
 }) {
   const { callSid } = await params;
-  const call = await getCall(callSid);
+  const callResult = await getCall(callSid);
 
-  if (!call) {
+  if (callResult.status === 'not-found') {
     return (
       <div className="space-y-6">
         <Link href="/calls" className="text-blue-600 hover:text-blue-800 text-sm">
@@ -183,13 +208,32 @@ export default async function CallDetailPage({
     );
   }
 
+  if (callResult.status === 'error') {
+    return (
+      <div className="space-y-6">
+        <Link href="/calls" className="text-blue-600 hover:text-blue-800 text-sm">
+          ← Back to Call Log
+        </Link>
+
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
+          <h2 className="text-xl font-semibold text-rose-900">Could not load call</h2>
+          <p className="mt-2 text-sm text-rose-700">{callResult.message}</p>
+        </div>
+      </div>
+    );
+  }
+
+  const call = callResult.call;
+
   const callerName = call.callerName ?? call.leadName ?? 'Unknown Caller';
   const callerPhone = formatPhoneNumber(call.callerPhone ?? call.fromE164 ?? null);
   const reason = call.callReason ?? call.leadIntent ?? 'Not captured';
   const normalizedStatus = normalizeCallStatus(call.callStatus ?? call.status);
   const resolvedCallSid = call.callSid ?? call.twilioCallSid ?? callSid;
-  const resolvedVoicemailUrl = call.voicemailUrl ?? call.recordingUrl ?? null;
-  const resolvedVoicemailDuration = call.voicemailDuration ?? call.recordingDuration ?? null;
+  const hasVoicemail = Boolean(call.voicemailUrl);
+  const resolvedAudioUrl = call.voicemailUrl ?? call.recordingUrl ?? null;
+  const resolvedAudioDuration = hasVoicemail ? call.voicemailDuration : call.recordingDuration;
+  const audioTitle = hasVoicemail ? 'Voicemail' : 'Call recording';
   const fallbackEvent = getLatestEvent(call, 'twilio.inbound.fallback');
   const textbackSkippedEvent = getLatestEvent(call, 'textback.skipped');
   const textbackSentEvent = getLatestEvent(call, 'textback.sent');
@@ -258,15 +302,15 @@ export default async function CallDetailPage({
         </div>
       ) : null}
 
-      {resolvedVoicemailUrl ? (
+      {resolvedAudioUrl ? (
         <div className="mt-6 bg-purple-50 border border-purple-200 rounded-xl p-6">
-          <h3 className="text-lg font-semibold text-purple-900 mb-3">🎤 Voicemail</h3>
+          <h3 className="text-lg font-semibold text-purple-900 mb-3">🎤 {audioTitle}</h3>
           <audio controls className="w-full">
-            <source src={resolvedVoicemailUrl} type="audio/wav" />
+            <source src={resolvedAudioUrl} type="audio/wav" />
             Your browser does not support audio playback.
           </audio>
           <p className="text-sm text-purple-600 mt-2">
-            Duration: {resolvedVoicemailDuration ? `${resolvedVoicemailDuration}s` : 'Unknown'}
+            Duration: {resolvedAudioDuration !== null && resolvedAudioDuration !== undefined ? `${resolvedAudioDuration}s` : 'Unknown'}
           </p>
         </div>
       ) : null}

@@ -47,6 +47,7 @@ type CallLogClientProps = {
   initialCalls: CallRecord[];
   initialPage: number;
   totalPages: number;
+  initialError: string | null;
 };
 
 const FILTERS: Array<{ key: CallsFilter; label: string }> = [
@@ -159,7 +160,7 @@ function VoiceEvidence({ call }: { call: CallRecord }) {
   );
 }
 
-export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLogClientProps) {
+export function CallLogClient({ initialCalls, initialPage, totalPages, initialError }: CallLogClientProps) {
   const { getToken } = useAuth();
   const router = useRouter();
   const [selectedFilter, setSelectedFilter] = useState<CallsFilter>('all');
@@ -211,6 +212,25 @@ export function CallLogClient({ initialCalls, initialPage, totalPages }: CallLog
     } finally {
       setIsLoadingMore(false);
     }
+  }
+
+  if (calls.length === 0 && initialError) {
+    return (
+      <div className="rounded-xl border border-rose-200 bg-rose-50 p-8 text-center">
+        <div className="mx-auto h-12 w-12 text-rose-300">
+          <PhoneIcon />
+        </div>
+        <h3 className="mt-4 text-lg font-medium text-rose-900">Could not load calls</h3>
+        <p className="mt-2 text-sm text-rose-700">{initialError}</p>
+        <button
+          type="button"
+          onClick={() => router.refresh()}
+          className="mt-4 inline-flex min-h-11 items-center rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white transition hover:bg-indigo-500"
+        >
+          Try again
+        </button>
+      </div>
+    );
   }
 
   if (calls.length === 0) {

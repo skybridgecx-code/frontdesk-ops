@@ -90,39 +90,53 @@ function greetingPrefix(hour: number) {
 }
 
 async function fetchAnalytics<T>(path: string): Promise<T | null> {
-  const response = await fetch(`${getApiBaseUrl()}${path}`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+  try {
+    const response = await fetch(`${getApiBaseUrl()}${path}`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as ApiEnvelope & T;
+    if (!payload.ok) {
+      return null;
+    }
+
+    return payload;
+  } catch {
     return null;
   }
-
-  const payload = (await response.json()) as ApiEnvelope & T;
-  if (!payload.ok) {
-    return null;
-  }
-
-  return payload;
 }
 
 async function fetchRecentCalls() {
-  const response = await fetch(`${getApiBaseUrl()}/v1/calls?page=1&limit=5`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/calls?page=1&limit=5`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return null;
+    }
+
+    const payload = (await response.json()) as RecentCallsResponse;
+    if (!payload.ok) {
+      return null;
+    }
+
+    return payload.calls;
+  } catch {
     return null;
   }
+}
 
-  const payload = (await response.json()) as RecentCallsResponse;
-  if (!payload.ok) {
-    return null;
-  }
-
-  return payload.calls;
+function getPeriodStart(period: AnalyticsPeriod) {
+  const now = new Date();
+  const days = period === '7d' ? 7 : period === '90d' ? 90 : 30;
+  return new Date(now.getTime() - days * 24 * 60 * 60 * 1000);
 }
 
 function getRecentCallId(call: RecentCall) {
@@ -148,7 +162,7 @@ function getRecentCallDate(call: RecentCall) {
 
 function emptyOverview(period: AnalyticsPeriod): OverviewData {
   const now = new Date();
-  const start = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+  const start = getPeriodStart(period);
 
   return {
     period,
@@ -272,6 +286,8 @@ export default async function AnalyticsDashboardPage({
   const safeRecentActivity = recentActivity ?? emptyRecent(period);
   const safeWebhookHealth = webhookHealth ?? emptyWebhookHealth(period);
   const safeRecentCalls = recentCalls ?? [];
+  const analyticsUnavailable = overview === null;
+  const recentCallsUnavailable = recentCalls === null;
 
   const now = new Date();
   const name = user?.firstName ?? user?.username ?? 'Operator';
@@ -291,48 +307,59 @@ export default async function AnalyticsDashboardPage({
         </div>
       </section>
 
-      <KpiCards overview={safeOverview} />
-
-      {safeOverview.totalCalls === 0 ? (
-        <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
-          <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-50 text-cyan-700">
-            <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
-              <path
-                d="M6.5 4.5h2.8c.4 0 .8.3.9.7l.9 4.1c.1.4-.1.8-.4 1.1l-1.7 1.7a14.6 14.6 0 0 0 6 6l1.7-1.7c.3-.3.7-.5 1.1-.4l4.1.9c.4.1.7.5.7.9v2.8c0 .5-.4 1-1 1C11.2 22.5 1.5 12.8 1.5 5.5c0-.6.4-1 1-1Z"
-                stroke="currentColor"
-                strokeWidth="1.6"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </div>
-          <h2 className="text-lg font-semibold text-gray-900">No calls yet</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Once your AI receptionist starts taking calls, you&apos;ll see analytics here.
+      {analyticsUnavailable ? (
+        <section className="rounded-xl border border-amber-200 bg-amber-50 p-6 shadow-sm">
+          <h2 className="text-lg font-semibold text-amber-950">Analytics unavailable</h2>
+          <p className="mt-2 text-sm text-amber-800">
+            Dashboard analytics could not be loaded right now. Recent calls may still appear below.
           </p>
-          <div className="mt-5">
-            <Link
-              href="/setup/phone"
-              className="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-500"
-            >
-              Set up your phone number
-            </Link>
-          </div>
         </section>
       ) : (
         <>
-          <CallVolumeChart data={safeCallVolume.data} />
+          <KpiCards overview={safeOverview} />
 
-          <section className="grid gap-6 xl:grid-cols-2">
-            <IntentChart data={safeIntents.data} />
-            <UrgencyChart data={safeUrgency.data} />
-          </section>
+          {safeOverview.totalCalls === 0 ? (
+            <section className="rounded-xl border border-dashed border-gray-300 bg-white p-8 text-center shadow-sm">
+              <div className="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-full bg-cyan-50 text-cyan-700">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" aria-hidden="true">
+                  <path
+                    d="M6.5 4.5h2.8c.4 0 .8.3.9.7l.9 4.1c.1.4-.1.8-.4 1.1l-1.7 1.7a14.6 14.6 0 0 0 6 6l1.7-1.7c.3-.3.7-.5 1.1-.4l4.1.9c.4.1.7.5.7.9v2.8c0 .5-.4 1-1 1C11.2 22.5 1.5 12.8 1.5 5.5c0-.6.4-1 1-1Z"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </div>
+              <h2 className="text-lg font-semibold text-gray-900">No calls yet</h2>
+              <p className="mt-2 text-sm text-gray-600">
+                Once your AI receptionist starts taking calls, you&apos;ll see analytics here.
+              </p>
+              <div className="mt-5">
+                <Link
+                  href="/setup/phone"
+                  className="inline-flex min-h-11 items-center justify-center rounded-md bg-indigo-600 px-5 text-sm font-semibold text-white transition hover:bg-indigo-500"
+                >
+                  Set up your phone number
+                </Link>
+              </div>
+            </section>
+          ) : (
+            <>
+              <CallVolumeChart data={safeCallVolume.data} />
 
-          <PeakHoursChart data={safePeakHours.data} />
+              <section className="grid gap-6 xl:grid-cols-2">
+                <IntentChart data={safeIntents.data} />
+                <UrgencyChart data={safeUrgency.data} />
+              </section>
 
-          <RecentActivity rows={safeRecentActivity.data} />
+              <PeakHoursChart data={safePeakHours.data} />
 
-          <WebhookHealth health={safeWebhookHealth} />
+              <RecentActivity rows={safeRecentActivity.data} />
+
+              <WebhookHealth health={safeWebhookHealth} />
+            </>
+          )}
         </>
       )}
 
@@ -344,7 +371,11 @@ export default async function AnalyticsDashboardPage({
           </Link>
         </div>
 
-        {safeRecentCalls.length > 0 ? (
+        {recentCallsUnavailable ? (
+          <p className="py-8 text-center text-sm text-amber-700">
+            Recent calls could not be loaded right now.
+          </p>
+        ) : safeRecentCalls.length > 0 ? (
           <div>
             {safeRecentCalls.map((call) => {
               const status = normalizeCallStatus(call.callStatus ?? call.status);

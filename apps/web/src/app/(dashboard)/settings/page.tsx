@@ -48,46 +48,66 @@ type SettingsBusiness = {
   } | null;
 };
 
-async function fetchBusinessSettings(businessId: string, headers: Record<string, string>) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}`, {
-    cache: 'no-store',
-    headers
-  });
+type BusinessSettingsFetchResult =
+  | {
+      ok: true;
+      business: SettingsBusiness;
+    }
+  | {
+      ok: false;
+      message: string;
+    };
 
-  if (!response.ok) {
-    return null;
+async function fetchBusinessSettings(
+  businessId: string,
+  headers: Record<string, string>
+): Promise<BusinessSettingsFetchResult> {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/businesses/${businessId}`, {
+      cache: 'no-store',
+      headers
+    });
+
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: `Failed to load settings (${response.status}).`
+      };
+    }
+
+    const payload = (await response.json()) as BusinessDetailsResponse;
+    const activePhoneNumbers = payload.business.phoneNumbers.filter((phoneNumber) => phoneNumber.isActive);
+    const messageProfile =
+      payload.business.agentProfiles.find((agentProfile) => agentProfile.isActive) ??
+      payload.business.agentProfiles[0] ??
+      null;
+
+    return {
+      ok: true,
+      business: {
+        id: payload.business.id,
+        name: payload.business.name,
+        phoneNumbers: activePhoneNumbers.map((phoneNumber) => ({
+          id: phoneNumber.id,
+          e164: phoneNumber.e164,
+          label: phoneNumber.label,
+          enableMissedCallTextBack: phoneNumber.enableMissedCallTextBack
+        })),
+        messageProfile: messageProfile
+          ? {
+              id: messageProfile.id,
+              name: messageProfile.name,
+              missedCallTextBackMessage: messageProfile.missedCallTextBackMessage
+            }
+          : null
+      }
+    };
+  } catch {
+    return {
+      ok: false,
+      message: 'Could not reach the API. Please try again.'
+    };
   }
-
-  const payload = (await response.json()) as BusinessDetailsResponse;
-  const activePhoneNumbers = payload.business.phoneNumbers.filter((phoneNumber) => phoneNumber.isActive);
-  const messageProfile =
-    payload.business.agentProfiles.find((agentProfile) => agentProfile.isActive) ??
-    payload.business.agentProfiles[0] ??
-    null;
-
-  const settingsBusiness: SettingsBusiness = {
-    id: payload.business.id,
-    name: payload.business.name,
-    phoneNumbers: activePhoneNumbers.map((phoneNumber) => ({
-      id: phoneNumber.id,
-      e164: phoneNumber.e164,
-      label: phoneNumber.label,
-      enableMissedCallTextBack: phoneNumber.enableMissedCallTextBack
-    })),
-    messageProfile: messageProfile
-      ? {
-          id: messageProfile.id,
-          name: messageProfile.name,
-          missedCallTextBackMessage: messageProfile.missedCallTextBackMessage
-        }
-      : null
-  };
-
-  return settingsBusiness;
-}
-
-function isNonNullBusiness(value: SettingsBusiness | null): value is SettingsBusiness {
-  return value !== null;
 }
 
 export default async function SettingsPage() {
@@ -103,9 +123,22 @@ export default async function SettingsPage() {
   }
 
   const headers = await getInternalApiHeaders();
-  const settingsBusinesses = (
-    await Promise.all(tenant.businesses.map((business) => fetchBusinessSettings(business.id, headers)))
-  ).filter(isNonNullBusiness);
+  const settingsResults = await Promise.all(
+    tenant.businesses.map((business) => fetchBusinessSettings(business.id, headers))
+  );
+  const settingsBusinesses = settingsResults.flatMap((result) => (result.ok ? [result.business] : []));
+  const settingsErrors = settingsResults.flatMap((result) => (result.ok ? [] : [result.message]));
+
+  if (tenant.businesses.length > 0 && settingsBusinesses.length === 0) {
+    return (
+      <EmptyState
+        title="Could not load settings"
+        description={settingsErrors[0] ?? 'Business settings could not be loaded right now.'}
+        actionLabel="Try again"
+        actionHref="/settings"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -117,6 +150,13 @@ export default async function SettingsPage() {
       </section>
 
       <section className="grid gap-3 sm:grid-cols-2">
+        {settingsErrors.length > 0 ? (
+          <article className="sm:col-span-2 rounded-lg border border-amber-200 bg-amber-50 p-4 shadow-sm">
+            <h2 className="text-base font-semibold text-amber-950">Some settings could not be loaded</h2>
+            <p className="mt-1 text-sm text-amber-800">{settingsErrors[0]}</p>
+          </article>
+        ) : null}
+
         <article className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
           <h2 className="text-base font-semibold text-gray-900">Missed Call Text-Back</h2>
           <p className="mt-1 text-sm text-gray-600">Manage SMS recovery for unanswered calls and quick hangups.</p>

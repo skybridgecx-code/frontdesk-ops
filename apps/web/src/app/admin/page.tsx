@@ -178,7 +178,7 @@ export default function AdminDashboardPage() {
         />
       </div>
 
-      <div className="mb-8 grid grid-cols-3 gap-4">
+      <div className="mb-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <MiniStat label="Today" value={metrics.tenants.signedUpToday} />
         <MiniStat label="This Week" value={metrics.tenants.signedUpThisWeek} />
         <MiniStat label="This Month" value={metrics.tenants.signedUpThisMonth} />

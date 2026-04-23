@@ -42,6 +42,28 @@ type WebhooksListResponse = {
   error?: string;
 };
 
+type BillingPlanFetchResult =
+  | {
+      ok: true;
+      planKey: PlanKey | null;
+      planName: string | null;
+    }
+  | {
+      ok: false;
+      message: string;
+    };
+
+type WebhookSettingsFetchResult =
+  | {
+      ok: true;
+      availableEvents: string[];
+      endpoints: WebhookEndpoint[];
+    }
+  | {
+      ok: false;
+      message: string;
+    };
+
 const DEFAULT_EVENTS = ['call.completed', 'call.recording.ready', 'prospect.created'];
 
 function toPlanFromBilling(payload: BillingStatusResponse): { planKey: PlanKey | null; planName: string | null } {
@@ -58,49 +80,67 @@ function toPlanFromBilling(payload: BillingStatusResponse): { planKey: PlanKey |
   };
 }
 
-async function getBillingPlan(tenantId: string) {
-  const response = await fetch(`${getApiBaseUrl()}/v1/billing/status/${tenantId}`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+async function getBillingPlan(tenantId: string): Promise<BillingPlanFetchResult> {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/billing/status/${tenantId}`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: `Failed to load billing plan (${response.status}).`
+      };
+    }
+
+    const payload = (await response.json()) as BillingStatusResponse;
     return {
-      planKey: null,
-      planName: null
+      ok: true,
+      ...toPlanFromBilling(payload)
+    };
+  } catch {
+    return {
+      ok: false,
+      message: 'Could not reach the billing API. Please try again.'
     };
   }
-
-  const payload = (await response.json()) as BillingStatusResponse;
-  return toPlanFromBilling(payload);
 }
 
-async function getWebhookSettings() {
-  const response = await fetch(`${getApiBaseUrl()}/v1/webhooks`, {
-    cache: 'no-store',
-    headers: await getInternalApiHeaders()
-  });
+async function getWebhookSettings(): Promise<WebhookSettingsFetchResult> {
+  try {
+    const response = await fetch(`${getApiBaseUrl()}/v1/webhooks`, {
+      cache: 'no-store',
+      headers: await getInternalApiHeaders()
+    });
 
-  if (!response.ok) {
+    if (!response.ok) {
+      return {
+        ok: false,
+        message: `Failed to load webhook settings (${response.status}).`
+      };
+    }
+
+    const payload = (await response.json()) as WebhooksListResponse;
+
+    if (!payload.ok) {
+      return {
+        ok: false,
+        message: payload.error ?? 'Failed to load webhook settings.'
+      };
+    }
+
     return {
-      availableEvents: DEFAULT_EVENTS,
-      endpoints: [] as WebhookEndpoint[]
+      ok: true,
+      availableEvents: payload.events?.length ? payload.events : DEFAULT_EVENTS,
+      endpoints: payload.endpoints ?? []
+    };
+  } catch {
+    return {
+      ok: false,
+      message: 'Could not reach the API. Please try again.'
     };
   }
-
-  const payload = (await response.json()) as WebhooksListResponse;
-
-  if (!payload.ok) {
-    return {
-      availableEvents: DEFAULT_EVENTS,
-      endpoints: [] as WebhookEndpoint[]
-    };
-  }
-
-  return {
-    availableEvents: payload.events?.length ? payload.events : DEFAULT_EVENTS,
-    endpoints: payload.endpoints ?? []
-  };
 }
 
 export default async function WebhookSettingsPage() {
@@ -119,6 +159,23 @@ export default async function WebhookSettingsPage() {
     getBillingPlan(tenant.id),
     getWebhookSettings()
   ]);
+
+  if (!billingPlan.ok || !webhookSettings.ok) {
+    const errorMessage = !billingPlan.ok
+      ? billingPlan.message
+      : !webhookSettings.ok
+        ? webhookSettings.message
+        : 'Webhook settings could not be loaded.';
+
+    return (
+      <EmptyState
+        title="Could not load webhook settings"
+        description={errorMessage}
+        actionLabel="Try again"
+        actionHref="/settings/webhooks"
+      />
+    );
+  }
 
   return (
     <div className="space-y-6">
