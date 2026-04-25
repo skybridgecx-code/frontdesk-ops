@@ -10,6 +10,7 @@ type CompletionStepProps = {
   businessName: string;
   phoneNumber: string | null;
   postOnboardingHref: string;
+  onGoToPhoneStep?: () => void;
 };
 
 type CompletionResponse = {
@@ -48,11 +49,12 @@ function parseError(payload: unknown) {
   return 'Unable to finalize onboarding right now.';
 }
 
-export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }: CompletionStepProps) {
+export function CompletionStep({ businessName, phoneNumber, postOnboardingHref, onGoToPhoneStep }: CompletionStepProps) {
   const { getToken } = useAuth();
   const [isFinalizing, setIsFinalizing] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const missingPhone = !phoneNumber;
   const primaryCtaLabel =
     postOnboardingHref === '/dashboard' ? 'Go to Dashboard →' : 'Continue to Billing →';
 
@@ -116,24 +118,36 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
     return () => {
       mounted = false;
     };
-  }, [getToken, phoneNumber]);
+  }, [getToken]);
 
   return (
     <div className="py-12 text-center">
-      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#00d4ff]/30 bg-[#00d4ff]/10 text-2xl">
-        ✓
+      <div
+        className={`mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border text-2xl ${
+          missingPhone
+            ? 'border-amber-300/30 bg-amber-300/10'
+            : 'border-[#00d4ff]/30 bg-[#00d4ff]/10'
+        }`}
+      >
+        {missingPhone ? '📞' : '✓'}
       </div>
-      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#00d4ff]">Activated</p>
-      <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-[#f0f4f8]">You are all set</h2>
+      <p
+        className={`font-mono text-[10px] font-semibold uppercase tracking-[0.24em] ${
+          missingPhone ? 'text-amber-300' : 'text-[#00d4ff]'
+        }`}
+      >
+        {missingPhone ? 'Action Required' : 'Activated'}
+      </p>
+      <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-[#f0f4f8]">
+        {missingPhone ? 'Phone number required' : 'You are all set'}
+      </h2>
       <p className="mx-auto mt-3 max-w-md text-[#5a6a80]">
-        {formattedPhone ? (
+        {missingPhone ? (
+          <>Provision a business phone number before finishing onboarding.</>
+        ) : (
           <>
             Your AI front desk for <span className="font-semibold text-[#c8d8e8]">{formattedBusinessName}</span> is live.
             Customers can reach you at <span className="font-mono text-[#00d4ff]">{formattedPhone}</span>.
-          </>
-        ) : (
-          <>
-            Your setup is almost done. Add a phone number from Settings before your AI front desk can take calls.
           </>
         )}
       </p>
@@ -161,21 +175,33 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
       </div>
 
       <div className="mx-auto mt-8 max-w-md space-y-3">
-        <Link
-          href={postOnboardingHref}
-          className="inline-block w-full rounded-xl bg-[#00d4ff] py-3 text-center text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)]"
-        >
-          {primaryCtaLabel}
-        </Link>
-
-        {postOnboardingHref === '/dashboard' ? (
-          <Link
-            href="/billing"
-            className="inline-block w-full rounded-xl border border-white/10 bg-transparent py-3 text-center text-sm font-medium text-[#c8d8e8] transition hover:border-white/25 hover:bg-white/[0.04]"
+        {missingPhone ? (
+          <button
+            type="button"
+            onClick={onGoToPhoneStep}
+            className="inline-block w-full rounded-xl bg-[#00d4ff] py-3 text-center text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)]"
           >
-            Choose a Plan
-          </Link>
-        ) : null}
+            Back to Phone Number →
+          </button>
+        ) : (
+          <>
+            <Link
+              href={postOnboardingHref}
+              className="inline-block w-full rounded-xl bg-[#00d4ff] py-3 text-center text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)]"
+            >
+              {primaryCtaLabel}
+            </Link>
+
+            {postOnboardingHref === '/dashboard' ? (
+              <Link
+                href="/billing"
+                className="inline-block w-full rounded-xl border border-white/10 bg-transparent py-3 text-center text-sm font-medium text-[#c8d8e8] transition hover:border-white/25 hover:bg-white/[0.04]"
+              >
+                Choose a Plan
+              </Link>
+            ) : null}
+          </>
+        )}
       </div>
     </div>
   );

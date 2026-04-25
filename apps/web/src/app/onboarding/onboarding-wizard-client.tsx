@@ -249,6 +249,7 @@ export function OnboardingWizardClient() {
             businessName={effectiveBusinessName}
             phoneNumber={phoneNumber}
             postOnboardingHref={completionHref}
+            onGoToPhoneStep={() => setCurrentStep(2)}
           />
         ) : null}
 
