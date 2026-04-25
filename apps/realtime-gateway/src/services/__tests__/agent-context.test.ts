@@ -21,8 +21,9 @@ describe('loadAgentContext', () => {
   it('returns default agent when agentProfileId is null', async () => {
     const result = await loadAgentContext(null);
     expect(result.id).toBeNull();
-    expect(result.name).toBe('Default Agent');
+    expect(result.name).toBe('Sky');
     expect(result.voiceName).toBe('alloy');
+    expect(result.language).toBe('bilingual');
     expect(result.systemPrompt).toContain('home service business');
   });
 
@@ -30,7 +31,8 @@ describe('loadAgentContext', () => {
     mockPrisma.agentProfile.findUnique.mockResolvedValue(null);
     const result = await loadAgentContext('nonexistent-id');
     expect(result.id).toBeNull();
-    expect(result.name).toBe('Default Agent');
+    expect(result.name).toBe('Sky');
+    expect(result.language).toBe('bilingual');
   });
 
   it('returns agent with custom prompt', async () => {
@@ -38,6 +40,7 @@ describe('loadAgentContext', () => {
       id: 'agent-1',
       name: 'Cool HVAC Bot',
       voiceName: 'shimmer',
+      language: 'en',
       systemPrompt: 'You are Cool HVAC Bot.',
       business: { name: 'Cool HVAC Co' }
     });
@@ -47,6 +50,7 @@ describe('loadAgentContext', () => {
       id: 'agent-1',
       name: 'Cool HVAC Bot',
       voiceName: 'shimmer',
+      language: 'en',
       systemPrompt: 'You are Cool HVAC Bot.'
     });
   });
@@ -56,12 +60,14 @@ describe('loadAgentContext', () => {
       id: 'agent-2',
       name: 'Agent',
       voiceName: null,
+      language: 'bilingual',
       systemPrompt: null,
       business: { name: 'Best Plumbing LLC' }
     });
 
     const result = await loadAgentContext('agent-2');
     expect(result.voiceName).toBe('alloy');
+    expect(result.language).toBe('bilingual');
     expect(result.systemPrompt).toContain('Best Plumbing LLC');
   });
 });

@@ -8,6 +8,7 @@ const REQUIRED_KEYS = [
   'STRIPE_WEBHOOK_SECRET',
   'CLERK_SECRET_KEY',
   'CLERK_WEBHOOK_SECRET',
+  'RETELL_WEBHOOK_SECRET',
   'TWILIO_ACCOUNT_SID',
   'TWILIO_AUTH_TOKEN',
   'RESEND_API_KEY',
@@ -23,6 +24,7 @@ function setAllRequiredEnv() {
   process.env.STRIPE_WEBHOOK_SECRET = 'whsec_test';
   process.env.CLERK_SECRET_KEY = 'clerk_secret';
   process.env.CLERK_WEBHOOK_SECRET = 'clerk_whsec';
+  process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec';
   process.env.TWILIO_ACCOUNT_SID = 'AC123';
   process.env.TWILIO_AUTH_TOKEN = 'twilio_token';
   process.env.RESEND_API_KEY = 'resend_key';

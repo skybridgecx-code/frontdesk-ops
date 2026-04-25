@@ -28,6 +28,7 @@ type OnboardingStatusResponse = {
       complete: boolean;
       data: {
         greeting: string | null;
+        language?: 'en' | 'es' | 'bilingual' | null;
       };
     };
     phoneNumber: {
@@ -229,6 +230,7 @@ export function OnboardingWizardClient() {
             onComplete={() => setCurrentStep(2)}
             goBack={() => setCurrentStep(0)}
             businessName={effectiveBusinessName}
+            initialLanguage={onboardingData?.steps.greeting.data.language ?? null}
           />
         ) : null}
 

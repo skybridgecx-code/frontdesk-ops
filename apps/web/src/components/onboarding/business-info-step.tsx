@@ -109,14 +109,18 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
     }
   }
 
+  const inputClass =
+    'w-full rounded-lg border border-white/10 bg-[#080c12] px-3 py-2.5 text-sm text-[#f0f4f8] placeholder:text-[#5a6a80] focus:border-[#00d4ff] focus:outline-none focus:ring-2 focus:ring-[#00d4ff]/25';
+  const labelClass = 'mb-1 block text-xs font-semibold uppercase tracking-[0.16em] text-[#5a6a80]';
+
   return (
-    <div className="rounded-2xl border bg-white p-8 shadow-sm">
-      <h2 className="mb-1 text-xl font-semibold text-gray-900">Tell us about your business</h2>
-      <p className="mb-6 text-sm text-gray-500">This helps us personalize your AI receptionist</p>
+    <div className="rounded-2xl border border-white/10 bg-[#0d1320] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
+      <h2 className="mb-1 text-xl font-bold tracking-tight text-[#f0f4f8]">Tell us about your business</h2>
+      <p className="mb-6 text-sm text-[#5a6a80]">This is how your AI front desk will greet callers and route their leads.</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="business-name" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="business-name" className={labelClass}>
             Business Name
           </label>
           <input
@@ -125,20 +129,20 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
             value={businessName}
             onChange={(event) => setBusinessName(event.target.value)}
             placeholder="e.g. Johnson Plumbing"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className={inputClass}
             required
           />
         </div>
 
         <div>
-          <label htmlFor="industry" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="industry" className={labelClass}>
             Industry
           </label>
           <select
             id="industry"
             value={industry}
             onChange={(event) => setIndustry(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className={inputClass}
             required
           >
             <option value="">Select an industry</option>
@@ -151,7 +155,7 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
         </div>
 
         <div>
-          <label htmlFor="business-address" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="business-address" className={labelClass}>
             Business Address (optional)
           </label>
           <input
@@ -160,12 +164,12 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
             value={businessAddress}
             onChange={(event) => setBusinessAddress(event.target.value)}
             placeholder="123 Main St, Anytown, USA"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label htmlFor="business-phone" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="business-phone" className={labelClass}>
             Business Phone (optional)
           </label>
           <input
@@ -174,19 +178,19 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
             value={businessPhone}
             onChange={(event) => setBusinessPhone(event.target.value)}
             placeholder="(555) 123-4567"
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className={inputClass}
           />
         </div>
 
         <div>
-          <label htmlFor="timezone" className="mb-1 block text-sm font-medium text-gray-700">
+          <label htmlFor="timezone" className={labelClass}>
             Timezone (optional)
           </label>
           <select
             id="timezone"
             value={timezone}
             onChange={(event) => setTimezone(event.target.value)}
-            className="w-full rounded-lg border border-gray-300 px-3 py-2.5 text-sm text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+            className={inputClass}
           >
             {TIMEZONE_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
@@ -199,11 +203,11 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
         <button
           type="submit"
           disabled={!canSubmit}
-          className="inline-flex w-full items-center justify-center rounded-xl bg-blue-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-2 inline-flex w-full items-center justify-center rounded-xl bg-[#00d4ff] px-4 py-3 text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
         >
           {isSubmitting ? (
             <span className="inline-flex items-center gap-2">
-              <span className="h-4 w-4 animate-spin rounded-full border-2 border-white/70 border-t-transparent" />
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#020305]/40 border-t-[#020305]" />
               Saving...
             </span>
           ) : (
@@ -211,7 +215,9 @@ export function BusinessInfoStep({ onComplete }: BusinessInfoStepProps) {
           )}
         </button>
 
-        {errorMessage ? <p className="text-sm text-red-600">{errorMessage}</p> : null}
+        {errorMessage ? (
+          <p className="rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">{errorMessage}</p>
+        ) : null}
       </form>
     </div>
   );

@@ -28,8 +28,8 @@ function SummaryRow({ icon, label, value }: SummaryRowProps) {
     <div className="flex items-center gap-3">
       <span className="text-lg">{icon}</span>
       <div>
-        <p className="text-xs text-gray-500">{label}</p>
-        <p className="text-sm font-medium text-gray-900">{value}</p>
+        <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5a6a80]">{label}</p>
+        <p className="text-sm font-medium text-[#f0f4f8]">{value}</p>
       </div>
     </div>
   );
@@ -93,24 +93,6 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
 
         const completePayload = (await completeResponse.json()) as CompletionResponse;
 
-        if (completeResponse.status === 400 && !phoneNumber) {
-          const skipResponse = await fetch(getApiBaseUrl() + '/v1/onboarding/skip', {
-            method: 'POST',
-            headers
-          });
-
-          if (!skipResponse.ok) {
-            const skipPayload = (await skipResponse.json()) as CompletionResponse;
-            throw new Error(parseError(skipPayload));
-          }
-
-          if (mounted) {
-            setIsFinalizing(false);
-          }
-
-          return;
-        }
-
         throw new Error(parseError(completePayload));
       } catch (error) {
         if (!mounted) {
@@ -138,31 +120,39 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
 
   return (
     <div className="py-12 text-center">
-      <div className="mb-4 text-6xl">🎉</div>
-      <h2 className="text-2xl font-bold text-gray-900">You are all set</h2>
-      <p className="mx-auto mt-2 max-w-md text-gray-500">
+      <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[#00d4ff]/30 bg-[#00d4ff]/10 text-2xl">
+        ✓
+      </div>
+      <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.24em] text-[#00d4ff]">Activated</p>
+      <h2 className="mt-3 text-3xl font-extrabold tracking-[-0.04em] text-[#f0f4f8]">You are all set</h2>
+      <p className="mx-auto mt-3 max-w-md text-[#5a6a80]">
         {formattedPhone ? (
           <>
-            Your AI receptionist for <strong>{formattedBusinessName}</strong> is ready to take calls. Customers can reach you at <strong>{formattedPhone}</strong>.
+            Your AI front desk for <span className="font-semibold text-[#c8d8e8]">{formattedBusinessName}</span> is live.
+            Customers can reach you at <span className="font-mono text-[#00d4ff]">{formattedPhone}</span>.
           </>
         ) : (
           <>
-            Your setup is not complete yet. Add a phone number before your AI receptionist can take calls.
+            Your setup is almost done. Add a phone number from Settings before your AI front desk can take calls.
           </>
         )}
       </p>
 
       {isFinalizing ? (
-        <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full bg-blue-50 px-3 py-1 text-sm text-blue-700">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600/40 border-t-blue-700" />
+        <div className="mx-auto mt-4 flex w-fit items-center gap-2 rounded-full border border-[#00d4ff]/20 bg-[#00d4ff]/[0.06] px-3 py-1 text-sm text-[#00d4ff]">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#00d4ff]/30 border-t-[#00d4ff]" />
           Finalizing setup...
         </div>
       ) : null}
 
-      {errorMessage ? <p className="mt-3 text-sm text-red-600">{errorMessage}</p> : null}
+      {errorMessage ? (
+        <p className="mx-auto mt-3 max-w-md rounded-lg border border-red-500/20 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          {errorMessage}
+        </p>
+      ) : null}
 
-      <div className="mx-auto mt-8 max-w-md rounded-2xl border bg-white p-6 text-left shadow-sm">
-        <h3 className="mb-4 font-semibold text-gray-900">Setup Summary</h3>
+      <div className="mx-auto mt-8 max-w-md rounded-2xl border border-white/10 bg-[#0d1320] p-6 text-left shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
+        <h3 className="mb-4 font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#00d4ff]">Setup Summary</h3>
         <div className="space-y-3">
           <SummaryRow icon="🏢" label="Business" value={formattedBusinessName} />
           <SummaryRow icon="📞" label="Phone" value={formattedPhone ?? 'Not set up'} />
@@ -170,10 +160,10 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
         </div>
       </div>
 
-      <div className="mt-8 space-y-3">
+      <div className="mx-auto mt-8 max-w-md space-y-3">
         <Link
           href={postOnboardingHref}
-          className="inline-block w-full max-w-md rounded-xl bg-blue-600 py-3 text-center font-medium text-white transition hover:bg-blue-700"
+          className="inline-block w-full rounded-xl bg-[#00d4ff] py-3 text-center text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)]"
         >
           {primaryCtaLabel}
         </Link>
@@ -181,7 +171,7 @@ export function CompletionStep({ businessName, phoneNumber, postOnboardingHref }
         {postOnboardingHref === '/dashboard' ? (
           <Link
             href="/billing"
-            className="inline-block w-full max-w-md rounded-xl border bg-white py-3 text-center font-medium text-gray-700 transition hover:bg-gray-50"
+            className="inline-block w-full rounded-xl border border-white/10 bg-transparent py-3 text-center text-sm font-medium text-[#c8d8e8] transition hover:border-white/25 hover:bg-white/[0.04]"
           >
             Choose a Plan
           </Link>

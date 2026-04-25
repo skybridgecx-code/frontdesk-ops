@@ -8,6 +8,9 @@ const {
   tenantUpdateMock,
   tenantUserFindUniqueMock,
   tenantUserUpsertMock,
+  agentProfileCreateMock,
+  agentProfileFindFirstMock,
+  agentProfileUpdateManyMock,
   businessFindFirstMock,
   businessUpsertMock,
   findAvailableLocalNumberMock,
@@ -18,6 +21,9 @@ const {
   tenantUpdateMock: vi.fn(),
   tenantUserFindUniqueMock: vi.fn(),
   tenantUserUpsertMock: vi.fn(),
+  agentProfileCreateMock: vi.fn(),
+  agentProfileFindFirstMock: vi.fn(),
+  agentProfileUpdateManyMock: vi.fn(),
   businessFindFirstMock: vi.fn(),
   businessUpsertMock: vi.fn(),
   findAvailableLocalNumberMock: vi.fn(),
@@ -45,6 +51,11 @@ vi.mock('@frontdesk/db', async (importOriginal) => {
       tenantUser: {
         findUnique: tenantUserFindUniqueMock,
         upsert: tenantUserUpsertMock
+      },
+      agentProfile: {
+        create: agentProfileCreateMock,
+        findFirst: agentProfileFindFirstMock,
+        updateMany: agentProfileUpdateManyMock
       },
       business: {
         findFirst: businessFindFirstMock,
@@ -119,6 +130,9 @@ describe('onboarding wizard routes', () => {
     tenantUpdateMock.mockReset();
     tenantUserFindUniqueMock.mockReset();
     tenantUserUpsertMock.mockReset();
+    agentProfileCreateMock.mockReset();
+    agentProfileFindFirstMock.mockReset();
+    agentProfileUpdateManyMock.mockReset();
     businessFindFirstMock.mockReset();
     businessUpsertMock.mockReset();
     findAvailableLocalNumberMock.mockReset();
@@ -129,6 +143,9 @@ describe('onboarding wizard routes', () => {
     tenantUpdateMock.mockResolvedValue({});
     tenantUserFindUniqueMock.mockResolvedValue({ tenantId: 'tenant_1' });
     tenantUserUpsertMock.mockResolvedValue({});
+    agentProfileCreateMock.mockResolvedValue({});
+    agentProfileFindFirstMock.mockResolvedValue(null);
+    agentProfileUpdateManyMock.mockResolvedValue({ count: 1 });
     businessFindFirstMock.mockResolvedValue({ id: 'biz_1' });
     businessUpsertMock.mockResolvedValue({});
     findAvailableLocalNumberMock.mockResolvedValue({ phoneNumber: '+12125551234' });
@@ -170,7 +187,8 @@ describe('onboarding wizard routes', () => {
         greeting: {
           complete: false,
           data: {
-            greeting: null
+            greeting: null,
+            language: null
           }
         },
         phoneNumber: {
@@ -346,6 +364,43 @@ describe('onboarding wizard routes', () => {
       },
       select: {
         greeting: true
+      }
+    });
+
+    await app.close();
+  });
+
+  it('POST /v1/onboarding/greeting persists selected voice agent language', async () => {
+    tenantFindUniqueMock.mockResolvedValueOnce(createTenant({ onboardingStep: 1 }));
+    tenantUpdateMock.mockResolvedValueOnce({ greeting: null });
+
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/onboarding/greeting',
+      payload: {
+        useDefault: true,
+        language: 'bilingual'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      success: true,
+      onboardingStep: 2,
+      greeting: null,
+      language: 'bilingual'
+    });
+
+    expect(agentProfileUpdateManyMock).toHaveBeenCalledWith({
+      where: {
+        tenantId: 'tenant_1',
+        channel: 'VOICE',
+        isActive: true
+      },
+      data: {
+        language: 'bilingual'
       }
     });
 

@@ -18,6 +18,8 @@ type TwilioLikeError = {
   message?: unknown;
 };
 
+type AgentLanguage = 'en' | 'es' | 'bilingual';
+
 const INDUSTRY_VALUES = [
   'plumbing',
   'hvac',
@@ -44,7 +46,8 @@ const businessInfoBodySchema = z
 const greetingBodySchema = z
   .object({
     greeting: z.string().max(500).optional(),
-    useDefault: z.boolean().optional()
+    useDefault: z.boolean().optional(),
+    language: z.enum(['en', 'es', 'bilingual']).optional()
   })
   .strict();
 
@@ -117,6 +120,15 @@ function unauthorized(reply: FastifyReply) {
 function normalizeOptionalString(value: string | undefined) {
   const trimmed = value?.trim();
   return trimmed && trimmed.length > 0 ? trimmed : null;
+}
+
+function normalizeAgentLanguage(value: string | null | undefined): AgentLanguage | null {
+  const normalized = value?.trim().toLowerCase();
+  if (normalized === 'en' || normalized === 'es' || normalized === 'bilingual') {
+    return normalized;
+  }
+
+  return null;
 }
 
 function normalizeTwilioError(error: unknown) {
@@ -198,6 +210,66 @@ async function ensureDefaultBusinessForTenant(tenant: Pick<OnboardingTenant, 'id
       vertical: 'OTHER',
       timezone: tenant.timezone ?? 'America/New_York',
       isDefault: true
+    }
+  });
+}
+
+async function getTenantVoiceAgentLanguage(tenantId: string): Promise<AgentLanguage | null> {
+  const agentProfile = await prisma.agentProfile.findFirst({
+    where: {
+      tenantId,
+      channel: 'VOICE',
+      isActive: true
+    },
+    orderBy: {
+      createdAt: 'asc'
+    },
+    select: {
+      language: true
+    }
+  });
+
+  return normalizeAgentLanguage(agentProfile?.language);
+}
+
+async function ensureTenantVoiceAgentLanguage(tenant: OnboardingTenant, language: AgentLanguage) {
+  const updateResult = await prisma.agentProfile.updateMany({
+    where: {
+      tenantId: tenant.id,
+      channel: 'VOICE',
+      isActive: true
+    },
+    data: {
+      language
+    }
+  });
+
+  if (updateResult.count > 0) {
+    return;
+  }
+
+  const business = await prisma.business.findFirst({
+    where: {
+      tenantId: tenant.id,
+      isDefault: true
+    },
+    select: {
+      id: true
+    }
+  });
+
+  if (!business) {
+    return;
+  }
+
+  await prisma.agentProfile.create({
+    data: {
+      tenantId: tenant.id,
+      businessId: business.id,
+      name: 'Default Voice Agent',
+      channel: 'VOICE',
+      language,
+      isActive: true
     }
   });
 }
@@ -359,6 +431,7 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
     const greetingComplete = Boolean(tenant.greeting);
     const phoneNumberComplete = Boolean(tenant.twilioPhoneNumber);
     const billingComplete = tenant.plan !== 'free' && tenant.subscriptionStatus === 'active';
+    const language = await getTenantVoiceAgentLanguage(tenant.id);
 
     return {
       onboardingStep: tenant.onboardingStep,
@@ -377,7 +450,8 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
         greeting: {
           complete: greetingComplete,
           data: {
-            greeting: tenant.greeting
+            greeting: tenant.greeting,
+            language
           }
         },
         phoneNumber: {
@@ -473,10 +547,15 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
       }
     });
 
+    if (parsed.data.language) {
+      await ensureTenantVoiceAgentLanguage(tenant, parsed.data.language);
+    }
+
     return {
       success: true,
       onboardingStep: 2,
-      greeting: updatedTenant.greeting
+      greeting: updatedTenant.greeting,
+      ...(parsed.data.language ? { language: parsed.data.language } : {})
     };
   });
 

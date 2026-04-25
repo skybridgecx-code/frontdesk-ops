@@ -13,27 +13,27 @@ const STEPS = [
 
 function getStepClasses(index: number, currentStep: number) {
   if (index < currentStep) {
-    return 'bg-blue-600 text-white border-blue-600';
+    return 'bg-[#00d4ff] text-[#020305] border-[#00d4ff]';
   }
 
   if (index === currentStep) {
-    return 'bg-blue-600 text-white border-blue-600 ring-4 ring-blue-200 animate-pulse';
+    return 'bg-[#00d4ff] text-[#020305] border-[#00d4ff] shadow-[0_0_0_4px_rgba(0,212,255,0.18)]';
   }
 
-  return 'bg-gray-200 text-gray-400 border-gray-200';
+  return 'bg-[#080c12] text-[#5a6a80] border-white/10';
 }
 
 function getConnectorClasses(index: number, currentStep: number) {
   if (index < currentStep) {
-    return 'bg-blue-600';
+    return 'bg-[#00d4ff]';
   }
 
-  return 'bg-gray-200';
+  return 'bg-white/10';
 }
 
 export function StepProgress({ currentStep }: StepProgressProps) {
   return (
-    <div className="mb-8 rounded-2xl border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
+    <div className="mb-8 rounded-2xl border border-white/10 bg-[#0d1320] p-4 shadow-[0_30px_60px_rgba(0,0,0,0.4)] sm:p-6">
       <div className="flex items-start justify-between gap-2">
         {STEPS.map((step, index) => {
           const isCompleted = index < currentStep;
@@ -49,13 +49,15 @@ export function StepProgress({ currentStep }: StepProgressProps) {
                 >
                   {isCompleted ? '✓' : <span aria-hidden="true">{step.icon}</span>}
                 </div>
-                <p className="mt-2 hidden text-center text-xs font-medium text-gray-600 sm:block">{step.label}</p>
+                <p className="mt-2 hidden text-center font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5a6a80] sm:block">
+                  {step.label}
+                </p>
               </div>
 
               {index < STEPS.length - 1 ? (
                 <div
                   className={[
-                    'mt-5 h-1 w-full rounded-full transition-colors',
+                    'mt-5 h-[2px] w-full rounded-full transition-colors',
                     getConnectorClasses(index, currentStep)
                   ].join(' ')}
                 />

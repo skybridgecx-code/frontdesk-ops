@@ -163,14 +163,14 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
   }
 
   return (
-    <div className="rounded-2xl border bg-white p-8 shadow-sm">
-      <h2 className="mb-1 text-xl font-semibold text-gray-900">Get your AI phone number</h2>
-      <p className="mb-6 text-sm text-gray-500">
-        We will provision a local phone number for your AI receptionist. Customers call this number and your AI answers instantly.
+    <div className="rounded-2xl border border-white/10 bg-[#0d1320] p-8 shadow-[0_30px_60px_rgba(0,0,0,0.45)]">
+      <h2 className="mb-1 text-xl font-bold tracking-tight text-[#f0f4f8]">Get your AI phone number</h2>
+      <p className="mb-6 text-sm text-[#5a6a80]">
+        We provision a local number, attach it to your AI front desk, and route calls in seconds.
       </p>
 
       <div className="mt-4">
-        <label htmlFor="area-code" className="text-sm font-medium text-gray-700">
+        <label htmlFor="area-code" className="block font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#5a6a80]">
           Preferred area code (optional)
         </label>
         <input
@@ -179,10 +179,10 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
           maxLength={3}
           value={areaCode}
           onChange={(event) => setAreaCode(event.target.value.replace(/[^0-9]/g, '').slice(0, 3))}
-          placeholder="e.g. 212"
-          className="mt-1 w-24 rounded-lg border border-gray-300 p-2 text-center text-lg font-mono text-gray-900 focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100"
+          placeholder="212"
+          className="mt-2 w-28 rounded-lg border border-white/10 bg-[#080c12] p-2 text-center font-mono text-lg text-[#f0f4f8] placeholder:text-[#5a6a80] focus:border-[#00d4ff] focus:outline-none focus:ring-2 focus:ring-[#00d4ff]/25"
         />
-        <p className="mt-1 text-xs text-gray-400">
+        <p className="mt-2 text-xs text-[#5a6a80]">
           We will try to find a number with this area code. Leave blank for any available number.
         </p>
       </div>
@@ -192,31 +192,33 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
           type="button"
           onClick={handleProvision}
           disabled={isLoading}
-          className="mt-6 w-full rounded-xl bg-blue-600 py-3 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
+          className="mt-6 w-full rounded-xl bg-[#00d4ff] py-3 text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)] disabled:cursor-not-allowed disabled:opacity-50"
         >
-          {isLoading ? 'Working...' : '🔍 Find & Provision Number'}
+          {isLoading ? 'Working...' : 'Find & Provision Number'}
         </button>
       ) : null}
 
       {isLoading ? (
-        <div className="mt-4 flex items-center gap-2 text-sm text-blue-700">
-          <span className="h-4 w-4 animate-spin rounded-full border-2 border-blue-600/50 border-t-blue-700" />
+        <div className="mt-4 flex items-center gap-2 text-sm text-[#00d4ff]">
+          <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#00d4ff]/30 border-t-[#00d4ff]" />
           {loadingStage === 'searching' ? 'Searching for available numbers...' : 'Provisioning your number...'}
         </div>
       ) : null}
 
       {provisionedPhoneNumber ? (
-        <div className="mt-6 rounded-xl border border-green-200 bg-green-50 p-6 text-center">
-          <p className="text-sm font-medium text-green-600">Your AI phone number is ready</p>
-          <p className="mt-2 text-3xl font-bold text-green-900">{formattedPhoneNumber}</p>
-          <p className="mt-2 text-xs text-green-600">Customers can call this number right now</p>
+        <div className="mt-6 rounded-xl border border-[#00d4ff]/30 bg-[#00d4ff]/[0.06] p-6 text-center">
+          <p className="font-mono text-[10px] font-semibold uppercase tracking-[0.16em] text-[#00d4ff]">
+            Your AI phone number is live
+          </p>
+          <p className="mt-2 font-mono text-3xl font-bold text-[#f0f4f8]">{formattedPhoneNumber}</p>
+          <p className="mt-2 text-xs text-[#5a6a80]">Customers can call this number right now</p>
         </div>
       ) : null}
 
       {errorMessage ? (
-        <div className="mt-4 rounded-xl border border-red-200 bg-red-50 p-4">
-          <p className="text-sm text-red-800">{errorMessage}</p>
-          <p className="mt-1 text-xs text-red-600">You can skip this step and set it up later.</p>
+        <div className="mt-4 rounded-xl border border-red-500/20 bg-red-500/10 p-4">
+          <p className="text-sm text-red-300">{errorMessage}</p>
+          <p className="mt-1 text-xs text-red-300/70">You can skip this step and set it up later from Settings.</p>
         </div>
       ) : null}
 
@@ -224,7 +226,7 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
         <button
           type="button"
           onClick={goBack}
-          className="rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          className="rounded-xl border border-white/10 bg-transparent px-4 py-2.5 text-sm font-medium text-[#c8d8e8] transition hover:border-white/25 hover:bg-white/[0.04]"
         >
           ← Back
         </button>
@@ -232,9 +234,9 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
         <button
           type="button"
           onClick={() => onComplete({ phoneNumber: null })}
-          className="rounded-xl border border-gray-300 px-4 py-2.5 text-sm font-medium text-gray-700 transition hover:bg-gray-50"
+          className="rounded-xl border border-white/10 bg-transparent px-4 py-2.5 text-sm font-medium text-[#5a6a80] transition hover:text-[#c8d8e8]"
         >
-          Skip this step →
+          Skip for now →
         </button>
       </div>
 
@@ -242,7 +244,7 @@ export function PhoneNumberStep({ onComplete, goBack }: PhoneNumberStepProps) {
         <button
           type="button"
           onClick={() => onComplete({ phoneNumber: provisionedPhoneNumber })}
-          className="mt-4 w-full rounded-xl bg-blue-600 py-3 font-semibold text-white transition hover:bg-blue-700"
+          className="mt-4 w-full rounded-xl bg-[#00d4ff] py-3 text-sm font-bold tracking-tight text-[#020305] transition hover:bg-[#33ddff] hover:shadow-[0_12px_32px_rgba(0,212,255,0.35)]"
         >
           Continue →
         </button>
