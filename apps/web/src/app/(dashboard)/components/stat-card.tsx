@@ -1,25 +1,49 @@
 import type { ReactNode } from 'react';
-import { Card } from './card';
 
 export function StatCard({
   label,
   value,
   icon,
-  trend
+  trend,
+  accentColor,
 }: {
-  label: string;
-  value: string;
-  icon: ReactNode;
-  trend?: string;
+  label:        string;
+  value:        string;
+  icon:         ReactNode;
+  trend?:       string;
+  accentColor?: string;
 }) {
+  const color = accentColor ?? 'var(--accent)';
+  const bg    = accentColor ? `${accentColor}18` : 'var(--accent-dim)';
+
   return (
-    <Card className="p-4 sm:p-5">
+    <div
+      className="sb-card sb-card-lift rounded-xl p-5 transition-all"
+      style={{ animationFillMode: 'both' }}
+    >
       <div className="flex items-start justify-between gap-3">
-        <div className="rounded-md bg-[#00d4ff]/10 p-2 text-[#00d4ff]">{icon}</div>
-        <span className="text-sm text-[#5a6a80] sm:text-xs">{trend ?? 'Trend data soon'}</span>
+        <div
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg"
+          style={{ background: bg, color }}
+        >
+          {icon}
+        </div>
+        {trend ? (
+          <span
+            className="rounded-md px-2 py-0.5 text-xs font-medium"
+            style={{ background: 'var(--surface-3)', color: 'var(--text-secondary)' }}
+          >
+            {trend}
+          </span>
+        ) : null}
       </div>
-      <div className="mt-4 text-2xl font-semibold tracking-tight text-[#f0f4f8] sm:text-3xl">{value}</div>
-      <p className="mt-1 text-sm text-[#5a6a80]">{label}</p>
-    </Card>
+      <div
+        className="mt-4 text-2xl font-semibold tracking-tight sm:text-3xl"
+        style={{ color: 'var(--text-primary)', letterSpacing: '-0.03em' }}
+      >
+        {value}
+      </div>
+      <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>{label}</p>
+    </div>
   );
 }

@@ -100,7 +100,7 @@ export default async function DashboardLayout({
   if (isBillingPage && !hasDashboardAccess) {
     return (
       <div className="skybridge-app min-h-screen overflow-x-hidden">
-        <main className="mx-auto w-full max-w-[1700px] px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">{children}</main>
+        <main className="mx-auto w-full max-w-[1700px] px-4 pb-10 pt-6 sm:px-6 sm:pt-8 lg:px-10">{children}</main>
       </div>
     );
   }
@@ -109,24 +109,34 @@ export default async function DashboardLayout({
 
   return (
     <div className="skybridge-app min-h-screen overflow-x-hidden">
-      <div className="mx-auto flex min-h-screen w-full max-w-[1700px]">
+      <div className="flex min-h-screen w-full">
         <SidebarNav subscriptionStatus={billingStatus.status} />
 
         <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
+          {/* Mobile top spacer */}
           <div className="h-14 lg:hidden" />
 
           {showPastDueBanner ? (
-            <div className="border-b border-amber-400/20 bg-amber-400/10 px-4 py-2.5 text-sm text-amber-100 sm:px-6 lg:px-8">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <span>Your subscription is past due. Update billing to avoid service interruption.</span>
-                <Link href="/billing" className="font-semibold text-amber-100 underline underline-offset-4">
-                  Go to billing
-                </Link>
-              </div>
+            <div
+              className="flex flex-col gap-1 px-4 py-2.5 text-sm sm:flex-row sm:items-center sm:justify-between sm:px-6 lg:px-8"
+              style={{
+                background:  'rgba(245, 158, 11, 0.08)',
+                borderBottom: '1px solid rgba(245, 158, 11, 0.2)',
+                color:       '#92400E',
+              }}
+            >
+              <span>Your subscription is past due. Update billing to avoid service interruption.</span>
+              <Link
+                href="/billing"
+                className="font-semibold underline underline-offset-4 transition hover:opacity-80"
+                style={{ color: '#92400E' }}
+              >
+                Go to billing →
+              </Link>
             </div>
           ) : null}
 
-          <main className="flex-1 px-4 pb-8 pt-4 sm:px-6 sm:pt-6 lg:px-8">{children}</main>
+          <main className="flex-1 px-4 pb-10 pt-6 sm:px-6 sm:pt-7 lg:px-8 page-enter">{children}</main>
         </div>
       </div>
     </div>

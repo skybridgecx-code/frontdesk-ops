@@ -52,27 +52,15 @@ type ApiErrorPayload = {
 };
 
 function parseError(payload: unknown) {
-  if (!payload || typeof payload !== 'object') {
-    return 'Request failed. Please try again.';
-  }
-
+  if (!payload || typeof payload !== 'object') return 'Request failed. Please try again.';
   const value = payload as ApiErrorPayload;
-  if (typeof value.error === 'string' && value.error.trim().length > 0) {
-    return value.error;
-  }
-
+  if (typeof value.error === 'string' && value.error.trim().length > 0) return value.error;
   return 'Request failed. Please try again.';
 }
 
 function normalizeStep(step: number) {
-  if (step <= 0) {
-    return 0;
-  }
-
-  if (step >= 3) {
-    return 3;
-  }
-
+  if (step <= 0) return 0;
+  if (step >= 3) return 3;
   return step;
 }
 
@@ -82,9 +70,7 @@ function canAccessDashboard(subscriptionStatus: string | null | undefined) {
 }
 
 function getPostOnboardingHref(subscriptionStatus: string | null | undefined) {
-  return canAccessDashboard(subscriptionStatus)
-    ? '/dashboard'
-    : '/billing?notice=subscription-required';
+  return canAccessDashboard(subscriptionStatus) ? '/dashboard' : '/billing?notice=subscription-required';
 }
 
 export function OnboardingWizardClient() {
@@ -100,10 +86,7 @@ export function OnboardingWizardClient() {
   const [isSkipping, setIsSkipping] = useState(false);
 
   const effectiveBusinessName = useMemo(() => {
-    if (businessName.trim().length > 0) {
-      return businessName;
-    }
-
+    if (businessName.trim().length > 0) return businessName;
     return onboardingData?.steps.businessInfo.data.businessName ?? '';
   }, [businessName, onboardingData]);
 
@@ -113,32 +96,24 @@ export function OnboardingWizardClient() {
   );
 
   const loadStatus = useCallback(async () => {
-    if (!isLoaded) {
-      return;
-    }
-
+    if (!isLoaded) return;
     setLoading(true);
     setSkipError(null);
-
     try {
       const response = await fetch(getApiBaseUrl() + '/v1/onboarding/status', {
         cache: 'no-store',
         headers: await getClientInternalApiHeaders(() => getToken())
       });
-
       if (!response.ok) {
         const payload = (await response.json()) as ApiErrorPayload;
         setSkipError(parseError(payload));
         return;
       }
-
       const payload = (await response.json()) as OnboardingStatusResponse;
-
       if (payload.onboardingComplete) {
         router.push(getPostOnboardingHref(payload.steps.billing.data.subscriptionStatus));
         return;
       }
-
       setOnboardingData(payload);
       setCurrentStep(normalizeStep(payload.onboardingStep));
       setBusinessName(payload.steps.businessInfo.data.businessName ?? '');
@@ -157,29 +132,24 @@ export function OnboardingWizardClient() {
   async function handleSkip() {
     setSkipError(null);
     setIsSkipping(true);
-
     try {
       const response = await fetch(getApiBaseUrl() + '/v1/onboarding/skip', {
         method: 'POST',
         headers: await getClientInternalApiHeaders(() => getToken())
       });
-
       if (!response.ok) {
         const payload = (await response.json()) as ApiErrorPayload;
         setSkipError(parseError(payload));
         return;
       }
-
       const statusResponse = await fetch(getApiBaseUrl() + '/v1/onboarding/status', {
         cache: 'no-store',
         headers: await getClientInternalApiHeaders(() => getToken())
       });
-
       if (!statusResponse.ok) {
         router.push('/billing?notice=subscription-required');
         return;
       }
-
       const statusPayload = (await statusResponse.json()) as OnboardingStatusResponse;
       router.push(getPostOnboardingHref(statusPayload.steps.billing.data.subscriptionStatus));
     } catch {
@@ -191,10 +161,10 @@ export function OnboardingWizardClient() {
 
   if (loading) {
     return (
-      <div className="skybridge-app min-h-screen">
+      <div className="skybridge-app min-h-screen bg-gray-50">
         <div className="mx-auto flex min-h-screen max-w-2xl items-center justify-center px-4 py-12">
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-[#0d1320]/85 px-4 py-2 text-sm text-[#c8d8e8] shadow-[0_20px_60px_rgba(0,0,0,0.35)]">
-            <span className="h-4 w-4 animate-spin rounded-full border-2 border-[#00d4ff]/30 border-t-[#00d4ff]" />
+          <div className="inline-flex items-center gap-2 rounded-full border border-gray-200 bg-white px-4 py-2 text-sm text-gray-600 shadow-sm">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-indigo-200 border-t-indigo-600" />
             Loading onboarding...
           </div>
         </div>
@@ -203,15 +173,15 @@ export function OnboardingWizardClient() {
   }
 
   return (
-    <div className="skybridge-app min-h-screen">
+    <div className="skybridge-app min-h-screen bg-gray-50">
       <div className="mx-auto max-w-2xl px-4 py-12">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-[#00d4ff] text-sm font-extrabold tracking-wide text-[#020305]">
+          <div className="mx-auto mb-5 flex h-11 w-11 items-center justify-center rounded-xl bg-indigo-600 text-sm font-extrabold tracking-wide text-white">
             SX
           </div>
-          <p className="font-mono text-xs font-semibold uppercase tracking-[0.24em] text-[#00d4ff]">Activation</p>
-          <h1 className="mt-3 text-3xl font-extrabold tracking-[-0.05em] text-[#f0f4f8]">Welcome to SkyBridgeCX</h1>
-          <p className="mt-2 text-[#5a6a80]">Set up your AI front desk in a few quick steps</p>
+          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">Activation</p>
+          <h1 className="mt-3 text-3xl font-extrabold tracking-tight text-gray-900">Welcome to SkyBridgeCX</h1>
+          <p className="mt-2 text-gray-500">Set up your AI front desk in a few quick steps</p>
         </div>
 
         <StepProgress currentStep={currentStep} />
@@ -258,12 +228,12 @@ export function OnboardingWizardClient() {
             type="button"
             onClick={handleSkip}
             disabled={isSkipping}
-            className="text-sm text-[#5a6a80] underline underline-offset-4 transition hover:text-[#00d4ff] disabled:cursor-not-allowed disabled:opacity-60"
+            className="text-sm text-gray-400 underline underline-offset-4 transition hover:text-indigo-600 disabled:cursor-not-allowed disabled:opacity-60"
           >
             {isSkipping ? 'Skipping...' : 'Skip setup for now'}
           </button>
 
-          {skipError ? <p className="mt-2 text-sm text-red-300">{skipError}</p> : null}
+          {skipError ? <p className="mt-2 text-sm text-rose-600">{skipError}</p> : null}
         </div>
       </div>
     </div>

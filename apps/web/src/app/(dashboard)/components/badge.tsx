@@ -2,30 +2,61 @@ import type { ReactNode } from 'react';
 
 type BadgeVariant = 'default' | 'success' | 'warning' | 'danger' | 'info';
 
-const variantClasses: Record<BadgeVariant, string> = {
-  default: 'border-white/10 bg-white/5 text-[#c8d8e8]',
-  success: 'border-emerald-400/25 bg-emerald-400/10 text-emerald-300',
-  warning: 'border-amber-400/25 bg-amber-400/10 text-amber-300',
-  danger: 'border-rose-400/25 bg-rose-400/10 text-rose-300',
-  info: 'border-[#00d4ff]/25 bg-[#00d4ff]/10 text-[#00d4ff]'
+const variantStyles: Record<BadgeVariant, { background: string; color: string; border: string }> = {
+  default: {
+    background: 'var(--surface-3)',
+    color:      'var(--text-secondary)',
+    border:     'var(--border)',
+  },
+  success: {
+    background: 'var(--success-light)',
+    color:      '#065F46',
+    border:     'rgba(16, 185, 129, 0.2)',
+  },
+  warning: {
+    background: 'var(--warning-light)',
+    color:      '#92400E',
+    border:     'rgba(245, 158, 11, 0.2)',
+  },
+  danger: {
+    background: 'var(--danger-light)',
+    color:      '#991B1B',
+    border:     'rgba(239, 68, 68, 0.2)',
+  },
+  info: {
+    background: 'var(--info-light)',
+    color:      '#1E40AF',
+    border:     'rgba(59, 130, 246, 0.2)',
+  },
 };
 
 export function Badge({
   children,
   variant = 'default',
-  className
+  className,
 }: {
-  children: ReactNode;
-  variant?: BadgeVariant;
+  children:  ReactNode;
+  variant?:  BadgeVariant;
   className?: string;
 }) {
-  const classes = [
-    'inline-flex max-w-full items-center whitespace-nowrap rounded-full border px-2.5 py-1 text-sm font-medium leading-5 sm:text-xs',
-    variantClasses[variant],
-    className
-  ]
-    .filter(Boolean)
-    .join(' ');
+  const s = variantStyles[variant];
 
-  return <span className={classes}>{children}</span>;
+  return (
+    <span
+      className={[
+        'inline-flex max-w-full items-center whitespace-nowrap rounded-full border px-2.5 py-0.5 text-xs font-medium',
+        className,
+      ]
+        .filter(Boolean)
+        .join(' ')}
+      style={{
+        background:  s.background,
+        color:       s.color,
+        borderColor: s.border,
+        letterSpacing: '0.01em',
+      }}
+    >
+      {children}
+    </span>
+  );
 }

@@ -8,66 +8,32 @@ type RecentActivityProps = {
 };
 
 function formatRelativeTime(value: string) {
-  const timestamp = new Date(value).getTime();
-  const now = Date.now();
-  const diffMs = Math.max(0, now - timestamp);
-
-  const minutes = Math.floor(diffMs / (1000 * 60));
-  if (minutes < 1) {
-    return 'just now';
-  }
-
-  if (minutes < 60) {
-    return `${minutes}m ago`;
-  }
-
+  const diff    = Math.max(0, Date.now() - new Date(value).getTime());
+  const minutes = Math.floor(diff / 60000);
+  if (minutes < 1)  return 'just now';
+  if (minutes < 60) return `${minutes}m ago`;
   const hours = Math.floor(minutes / 60);
-  if (hours < 24) {
-    return `${hours}h ago`;
-  }
-
-  const days = Math.floor(hours / 24);
-  return `${days}d ago`;
+  if (hours < 24)   return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
 }
 
 function formatDuration(seconds: number | null) {
-  if (seconds === null || seconds < 0) {
-    return '—';
-  }
-
-  const minutes = Math.floor(seconds / 60);
-  const remainder = seconds % 60;
-  return `${minutes}:${String(remainder).padStart(2, '0')}`;
+  if (seconds === null || seconds < 0) return '—';
+  return `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')}`;
 }
 
-function statusBadgeTone(status: string) {
-  if (status === 'COMPLETED') {
-    return 'bg-emerald-50 text-emerald-700';
-  }
-
-  if (status === 'NO_ANSWER' || status === 'BUSY' || status === 'FAILED' || status === 'CANCELED') {
-    return 'bg-rose-50 text-rose-700';
-  }
-
-  return 'bg-gray-100 text-gray-700';
+function statusStyle(status: string): React.CSSProperties {
+  if (status === 'COMPLETED')                                               return { background: '#D1FAE5', color: '#065F46' };
+  if (['NO_ANSWER','BUSY','FAILED','CANCELED'].includes(status))           return { background: '#FEE2E2', color: '#991B1B' };
+  return { background: 'var(--surface-3)', color: 'var(--text-secondary)' };
 }
 
-function urgencyBadgeTone(urgency: string | null) {
-  const normalized = urgency?.toLowerCase() ?? '';
-
-  if (normalized.includes('high') || normalized.includes('emergency')) {
-    return 'bg-rose-50 text-rose-700';
-  }
-
-  if (normalized.includes('medium')) {
-    return 'bg-amber-50 text-amber-700';
-  }
-
-  if (normalized.includes('low')) {
-    return 'bg-emerald-50 text-emerald-700';
-  }
-
-  return 'bg-gray-100 text-gray-600';
+function urgencyStyle(urgency: string | null): React.CSSProperties {
+  const n = urgency?.toLowerCase() ?? '';
+  if (n.includes('high') || n.includes('emergency')) return { background: '#FEE2E2', color: '#991B1B' };
+  if (n.includes('medium'))                          return { background: '#FEF3C7', color: '#92400E' };
+  if (n.includes('low'))                             return { background: '#D1FAE5', color: '#065F46' };
+  return { background: 'var(--surface-3)', color: 'var(--text-secondary)' };
 }
 
 function displayCaller(row: RecentActivityRow) {
@@ -76,52 +42,111 @@ function displayCaller(row: RecentActivityRow) {
 
 export function RecentActivity({ rows }: RecentActivityProps) {
   return (
-    <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
+    <div
+      className="rounded-xl"
+      style={{
+        background:   'var(--surface)',
+        border:       '1px solid var(--border)',
+        boxShadow:    'var(--shadow-sm)',
+        overflow:     'hidden',
+      }}
+    >
+      <div className="flex items-start justify-between gap-3 px-5 py-4" style={{ borderBottom: '1px solid var(--border)' }}>
         <div>
-          <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
-          <p className="text-sm text-gray-600">Last 20 calls with extraction and text-back status.</p>
+          <h2
+            className="text-base font-semibold"
+            style={{ color: 'var(--text-primary)', letterSpacing: '-0.02em' }}
+          >
+            Recent Activity
+          </h2>
+          <p className="mt-0.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            Last 20 calls with extraction and text-back status
+          </p>
         </div>
       </div>
 
       {rows.length === 0 ? (
-        <p className="text-sm text-gray-600">No recent activity in this period.</p>
+        <p className="px-5 py-8 text-center text-sm" style={{ color: 'var(--text-tertiary)' }}>
+          No recent activity in this period.
+        </p>
       ) : (
         <div className="overflow-x-auto">
-          <table className="min-w-full table-auto border-collapse">
+          <table className="min-w-full table-auto border-collapse text-sm">
             <thead>
-              <tr className="border-b border-gray-200 text-left text-xs uppercase tracking-wide text-gray-500">
-                <th className="px-3 py-2 font-medium">Time</th>
-                <th className="px-3 py-2 font-medium">Caller</th>
-                <th className="hidden px-3 py-2 font-medium md:table-cell">Intent</th>
-                <th className="hidden px-3 py-2 font-medium md:table-cell">Urgency</th>
-                <th className="hidden px-3 py-2 font-medium sm:table-cell">Duration</th>
-                <th className="px-3 py-2 font-medium">Status</th>
-                <th className="hidden px-3 py-2 font-medium md:table-cell">Text-Back</th>
+              <tr style={{ borderBottom: '1px solid var(--border)' }}>
+                {['Time','Caller','Intent','Urgency','Duration','Status','Text-Back'].map((h, i) => (
+                  <th
+                    key={h}
+                    className={`px-4 py-3 text-left text-xs font-semibold uppercase tracking-wide ${
+                      i >= 2 && i <= 3 ? 'hidden md:table-cell' :
+                      i === 4          ? 'hidden sm:table-cell' :
+                      i === 6          ? 'hidden md:table-cell' : ''
+                    }`}
+                    style={{ color: 'var(--text-tertiary)', letterSpacing: '0.06em' }}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {rows.map((row) => (
-                <tr key={row.callSid} className="border-b border-gray-100 text-sm">
-                  <td className="px-3 py-3 text-gray-600">{formatRelativeTime(row.createdAt)}</td>
-                  <td className="px-3 py-3">
-                    <Link href={`/calls/${row.callSid}`} className="inline-flex min-h-11 items-center font-medium text-gray-900 hover:text-indigo-600">
+              {rows.map((row, i) => (
+                <tr
+                  key={row.callSid}
+                  className="transition-colors"
+                  style={{ borderBottom: i < rows.length - 1 ? '1px solid var(--border)' : 'none' }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'var(--surface-2)'; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = 'transparent'; }}
+                >
+                  <td className="px-4 py-3 text-xs font-mono" style={{ color: 'var(--text-tertiary)', whiteSpace: 'nowrap' }}>
+                    {formatRelativeTime(row.createdAt)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <Link
+                      href={`/calls/${row.callSid}`}
+                      className="font-medium transition-colors hover:underline"
+                      style={{ color: 'var(--accent)', textDecoration: 'none' }}
+                    >
                       {displayCaller(row)}
                     </Link>
                   </td>
-                  <td className="hidden px-3 py-3 text-gray-600 md:table-cell">{row.extractedIntent ?? '—'}</td>
-                  <td className="hidden px-3 py-3 md:table-cell">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-medium ${urgencyBadgeTone(row.extractedUrgency)}`}>
-                      {row.extractedUrgency ?? 'unknown'}
-                    </span>
+                  <td className="hidden px-4 py-3 md:table-cell" style={{ color: 'var(--text-secondary)', maxWidth: '12rem' }}>
+                    <span className="truncate block">{row.extractedIntent ?? '—'}</span>
                   </td>
-                  <td className="hidden px-3 py-3 text-gray-600 sm:table-cell">{formatDuration(row.durationSeconds)}</td>
-                  <td className="px-3 py-3">
-                    <span className={`inline-flex rounded-full px-2 py-1 text-xs font-semibold ${statusBadgeTone(row.status)}`}>
+                  <td className="hidden px-4 py-3 md:table-cell">
+                    {row.extractedUrgency ? (
+                      <span
+                        className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium"
+                        style={urgencyStyle(row.extractedUrgency)}
+                      >
+                        {row.extractedUrgency}
+                      </span>
+                    ) : <span style={{ color: 'var(--text-tertiary)' }}>—</span>}
+                  </td>
+                  <td className="hidden px-4 py-3 font-mono text-xs sm:table-cell" style={{ color: 'var(--text-secondary)' }}>
+                    {formatDuration(row.durationSeconds)}
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className="inline-flex rounded-full px-2.5 py-0.5 text-xs font-semibold"
+                      style={statusStyle(row.status)}
+                    >
                       {row.status}
                     </span>
                   </td>
-                  <td className="hidden px-3 py-3 text-gray-600 md:table-cell">{row.textBackSent ? '✓' : '—'}</td>
+                  <td className="hidden px-4 py-3 md:table-cell">
+                    {row.textBackSent ? (
+                      <span
+                        className="inline-flex h-5 w-5 items-center justify-center rounded-full text-xs"
+                        style={{ background: '#D1FAE5', color: '#065F46' }}
+                        aria-label="Text-back sent"
+                      >
+                        ✓
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--text-tertiary)' }}>—</span>
+                    )}
+                  </td>
                 </tr>
               ))}
             </tbody>
