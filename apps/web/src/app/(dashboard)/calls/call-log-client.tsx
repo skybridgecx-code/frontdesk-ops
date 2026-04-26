@@ -240,7 +240,7 @@ export function CallLogClient({ initialCalls, initialPage, totalPages, initialEr
           <PhoneIcon />
         </div>
         <h3 className="mt-4 text-lg font-medium text-gray-900">No calls yet</h3>
-        <p className="mt-2 text-gray-500">When customers call your AI receptionist, they'll appear here.</p>
+        <p className="mt-2 text-gray-500">When customers call your AI receptionist, they will appear here.</p>
       </div>
     );
   }

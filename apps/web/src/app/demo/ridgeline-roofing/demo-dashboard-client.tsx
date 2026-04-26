@@ -312,7 +312,6 @@ function SectionCard({ title, subtitle, children, className }: { title?: string;
 
 function OverviewTab({ calls, followUps, onUpdateFollowUp }: { calls: DemoCall[]; followUps: FollowUp[]; onUpdateFollowUp: (id: string, status: FollowUpStatus) => void }) {
   const urgent = calls.filter(c => c.urgency === 'Critical' || c.urgency === 'High');
-  const needsReview = calls.filter(c => c.status === 'Needs Review');
 
   return (
     <div className="space-y-5">
