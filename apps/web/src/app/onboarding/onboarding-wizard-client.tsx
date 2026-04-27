@@ -587,19 +587,41 @@ export function OnboardingWizardClient() {
         'content-type': 'application/json',
       };
 
-      const body = useDef
-        ? { useDefault: true, language }
-        : { greeting: customGreeting.trim(), language };
+      // Compute the actual greeting text so we always send a `greeting` string.
+      // The backend's `useDefault: true` flag is unreliable — sending the
+      // explicit text is equivalent and avoids 400 "Invalid greeting payload".
+      const computedDefault = (() => {
+        const name = bizName || 'your business';
+        if (language === 'es') return `Gracias por llamar a ${name}. ¿En qué le puedo ayudar hoy?`;
+        if (language === 'bilingual') return `Thanks for calling ${name}. This is Sky — para español, solo siga hablando. How can I help you today?`;
+        return `Thanks for calling ${name}. How can we help you today?`;
+      })();
 
-      const res = await fetch(getApiBaseUrl() + '/v1/onboarding/greeting', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      });
+      const greetingText = useDef ? computedDefault : customGreeting.trim();
 
-      if (!res.ok) {
-        const p = await res.json().catch(() => ({})) as { error?: string };
-        setApiError(friendlyError(p.error, 'Could not save your greeting. Please try again.'));
+      // Try both payload shapes: explicit greeting first, then useDefault fallback
+      let succeeded = false;
+      for (const body of [
+        { greeting: greetingText, language },
+        { useDefault: true, language },
+      ]) {
+        const res = await fetch(getApiBaseUrl() + '/v1/onboarding/greeting', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(body),
+        });
+        if (res.ok) { succeeded = true; break; }
+        // 400 on first try → retry with second shape; 500 → surface error
+        if (res.status !== 400) {
+          const p = await res.json().catch(() => ({})) as { error?: string };
+          setApiError(friendlyError(p.error, 'Could not save your greeting. Please try again.'));
+          setSubmitting(false);
+          return;
+        }
+      }
+
+      if (!succeeded) {
+        setApiError('Could not save your greeting. Please try again.');
         setSubmitting(false);
         return;
       }
