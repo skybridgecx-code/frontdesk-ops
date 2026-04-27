@@ -290,16 +290,49 @@ export function OnboardingWizardClient() {
     addMsg(mkMsg('user', text));
   }
 
+  // ── Intro sequence ───────────────────────────────────────────────────────
+
+  const runIntro = useCallback(async () => {
+    const greeting = firstName ? `Hey ${firstName} 👋` : 'Hey there 👋';
+    setSkyTyping(true);
+    await new Promise((r) => setTimeout(r, 600));
+    setSkyTyping(false);
+    setMessages((prev) => [...prev, mkMsg('sky', greeting)]);
+
+    setSkyTyping(true);
+    await new Promise((r) => setTimeout(r, 1400));
+    setSkyTyping(false);
+    setMessages((prev) => [...prev, mkMsg('sky', "I'm Sky — your new AI front desk. I answer every call, capture every lead, and make your business sound world-class. 24/7.")]);
+
+    setSkyTyping(true);
+    await new Promise((r) => setTimeout(r, 1600));
+    setSkyTyping(false);
+    setMessages((prev) => [...prev, mkMsg('sky', "Let's get you set up in about 2 minutes. First things first — what's the name of your business?")]);
+
+    setPhase('biz_name');
+  }, [firstName]);
+
   // ── Load onboarding status on mount ─────────────────────────────────────
 
   const loadStatus = useCallback(async () => {
     if (!isLoaded) return;
     try {
       const headers = await getClientInternalApiHeaders(() => getToken());
-      const res = await fetch(getApiBaseUrl() + '/v1/onboarding/status', {
-        cache: 'no-store',
-        headers,
-      });
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 7000);
+
+      let res: Response;
+      try {
+        res = await fetch(getApiBaseUrl() + '/v1/onboarding/status', {
+          cache: 'no-store',
+          headers,
+          signal: controller.signal,
+        });
+      } finally {
+        clearTimeout(timeoutId);
+      }
+
       if (!res.ok) {
         setPhase('intro');
         void runIntro();
@@ -333,25 +366,15 @@ export function OnboardingWizardClient() {
       setPhase('intro');
       void runIntro();
     } catch {
+      // Timeout, network error, or bad payload — just start the intro anyway
       setPhase('intro');
       void runIntro();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getToken, isLoaded, router]);
+  }, [getToken, isLoaded, router, runIntro]);
 
   useEffect(() => {
     void loadStatus();
   }, [loadStatus]);
-
-  // ── Intro sequence ───────────────────────────────────────────────────────
-
-  async function runIntro() {
-    const greeting = firstName ? `Hey ${firstName} 👋` : 'Hey there 👋';
-    await skySpeak(greeting, 600);
-    await skySpeak("I'm Sky — your new AI front desk. I answer every call, capture every lead, and make your business sound world-class. 24/7.", 1400);
-    await skySpeak("Let's get you set up in about 2 minutes. First things first — what's the name of your business?", 1600);
-    setPhase('biz_name');
-  }
 
   // ── Step: Business name ──────────────────────────────────────────────────
 
