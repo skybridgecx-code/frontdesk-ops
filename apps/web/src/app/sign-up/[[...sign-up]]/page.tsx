@@ -35,7 +35,7 @@ export default function SignUpPage() {
         </section>
 
         <section className="w-full max-w-md justify-self-center lg:justify-self-end">
-          <SignUp forceRedirectUrl="/onboarding" fallbackRedirectUrl="/onboarding" appearance={authAppearance} />
+          <SignUp forceRedirectUrl="/welcome" fallbackRedirectUrl="/welcome" appearance={authAppearance} />
         </section>
       </div>
     </main>
