@@ -49,7 +49,7 @@ const greetingBodySchema = z
     useDefault: z.boolean().optional(),
     language: z.enum(['en', 'es', 'bilingual']).optional()
   })
-  .strict();
+  .passthrough(); // allow unknown keys so minor client shape variations don't 400
 
 const phoneNumberBodySchema = z
   .object({
@@ -518,9 +518,7 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
     }
 
     let nextGreeting: string | null = null;
-    if (parsed.data.useDefault) {
-      nextGreeting = null;
-    } else if (typeof parsed.data.greeting === 'string') {
+    if (typeof parsed.data.greeting === 'string') {
       const trimmedGreeting = parsed.data.greeting.trim();
       if (trimmedGreeting.length > 500) {
         return reply.status(400).send({
@@ -528,11 +526,8 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
         });
       }
       nextGreeting = trimmedGreeting.length > 0 ? trimmedGreeting : null;
-    } else {
-      return reply.status(400).send({
-        error: 'Provide greeting text or set useDefault=true'
-      });
     }
+    // useDefault: true or no greeting provided → nextGreeting stays null (system default)
 
     const updatedTenant = await prisma.tenant.update({
       where: {
