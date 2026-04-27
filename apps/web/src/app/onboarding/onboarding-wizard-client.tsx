@@ -486,33 +486,7 @@ export function OnboardingWizardClient() {
     setSubmitting(true);
     setApiError(null);
 
-    try {
-      const headers = {
-        ...(await getClientInternalApiHeaders(() => getToken())),
-        'content-type': 'application/json',
-      };
-
-      const body: Record<string, string> = {
-        businessName: bizName,
-        industry,
-        timezone,
-      };
-      if (bizAddress.trim()) body.businessAddress = bizAddress.trim();
-      if (bizPhone.trim()) body.businessPhone = bizPhone.trim();
-
-      const res = await fetch(getApiBaseUrl() + '/v1/onboarding/business-info', {
-        method: 'POST',
-        headers,
-        body: JSON.stringify(body),
-      });
-
-      if (!res.ok) {
-        const p = await res.json().catch(() => ({})) as { error?: string };
-        setApiError(friendlyError(p.error, 'Something went wrong saving your info. Please try again.'));
-        setSubmitting(false);
-        return;
-      }
-
+    const proceed = async () => {
       if (skip) {
         userSay('Skip for now');
       } else {
@@ -521,11 +495,54 @@ export function OnboardingWizardClient() {
         if (bizPhone.trim()) parts.push(bizPhone.trim());
         userSay(parts.join(' · '));
       }
-
       await skySpeak("Got it! One more thing — how should I greet your callers? English, Spanish, or both?", 900);
       setPhase('language');
+    };
+
+    try {
+      const headers = {
+        ...(await getClientInternalApiHeaders(() => getToken())),
+        'content-type': 'application/json',
+      };
+
+      const payload = {
+        businessName: bizName,
+        industry,
+        businessAddress: bizAddress.trim() || undefined,
+        businessPhone: bizPhone.trim() || undefined,
+        timezone: timezone || 'America/New_York',
+      };
+
+      // Try up to 2 times before giving up
+      let lastError = '';
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const res = await fetch(getApiBaseUrl() + '/v1/onboarding/business-info', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          await proceed();
+          return;
+        }
+
+        const p = await res.json().catch(() => ({})) as { error?: string };
+        lastError = friendlyError(p.error, '');
+        if (attempt === 0) await new Promise((r) => setTimeout(r, 1200)); // brief pause before retry
+      }
+
+      // Both attempts failed — still let them proceed, just surface a soft warning
+      setApiError(lastError || 'Business info couldn\'t be saved right now — you can update it from Settings later.');
+      // After 3s, auto-advance anyway so they're not stuck
+      await new Promise((r) => setTimeout(r, 3000));
+      setApiError(null);
+      await proceed();
     } catch {
-      setApiError('Something went wrong. Please check your connection and try again.');
+      setApiError('Connection issue — moving you forward. You can update business info from Settings.');
+      await new Promise((r) => setTimeout(r, 2500));
+      setApiError(null);
+      await proceed();
     } finally {
       setSubmitting(false);
     }
