@@ -43,14 +43,6 @@ const businessInfoBodySchema = z
   })
   .strict();
 
-const greetingBodySchema = z
-  .object({
-    greeting: z.string().max(500).optional(),
-    useDefault: z.boolean().optional(),
-    language: z.enum(['en', 'es', 'bilingual']).optional()
-  })
-  .passthrough(); // allow unknown keys so minor client shape variations don't 400
-
 const phoneNumberBodySchema = z
   .object({
     areaCode: z
@@ -505,29 +497,41 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
   });
 
   fastify.post('/v1/onboarding/greeting', async (request, reply) => {
-    const parsed = greetingBodySchema.safeParse(request.body);
-    if (!parsed.success) {
+    // Manual validation — no Zod schema so no spurious 400s from body shape variations.
+    // Accept any object (or null/string body) and extract what we need defensively.
+    const rawBody = request.body;
+    const body: Record<string, unknown> =
+      rawBody && typeof rawBody === 'object' && !Array.isArray(rawBody)
+        ? (rawBody as Record<string, unknown>)
+        : typeof rawBody === 'string'
+          ? (() => {
+              try {
+                return JSON.parse(rawBody) as Record<string, unknown>;
+              } catch {
+                return {};
+              }
+            })()
+          : {};
+
+    const rawGreeting = body['greeting'];
+    const rawLanguage = body['language'];
+
+    const greetingStr = typeof rawGreeting === 'string' ? rawGreeting.trim() : null;
+    const language = normalizeAgentLanguage(typeof rawLanguage === 'string' ? rawLanguage : null);
+
+    if (greetingStr !== null && greetingStr.length > 500) {
       return reply.status(400).send({
-        error: 'Invalid greeting payload'
+        error: 'Greeting cannot exceed 500 characters'
       });
     }
+
+    // Empty string, missing, or useDefault=true all resolve to null (system default)
+    const nextGreeting = greetingStr && greetingStr.length > 0 ? greetingStr : null;
 
     const tenant = await getOnboardingTenant(request, reply);
     if (!tenant) {
       return reply;
     }
-
-    let nextGreeting: string | null = null;
-    if (typeof parsed.data.greeting === 'string') {
-      const trimmedGreeting = parsed.data.greeting.trim();
-      if (trimmedGreeting.length > 500) {
-        return reply.status(400).send({
-          error: 'Greeting cannot exceed 500 characters'
-        });
-      }
-      nextGreeting = trimmedGreeting.length > 0 ? trimmedGreeting : null;
-    }
-    // useDefault: true or no greeting provided → nextGreeting stays null (system default)
 
     const updatedTenant = await prisma.tenant.update({
       where: {
@@ -542,15 +546,15 @@ const onboarding: FastifyPluginAsync = async (fastify) => {
       }
     });
 
-    if (parsed.data.language) {
-      await ensureTenantVoiceAgentLanguage(tenant, parsed.data.language);
+    if (language) {
+      await ensureTenantVoiceAgentLanguage(tenant, language);
     }
 
     return {
       success: true,
       onboardingStep: 2,
       greeting: updatedTenant.greeting,
-      ...(parsed.data.language ? { language: parsed.data.language } : {})
+      ...(language ? { language } : {})
     };
   });
 
