@@ -14,6 +14,7 @@ type Phase =
   | 'intro'
   | 'biz_name'
   | 'industry'
+  | 'industry_confirm'
   | 'biz_details'
   | 'language'
   | 'greeting'
@@ -70,6 +71,56 @@ const LANGUAGES = [
 let msgCounter = 0;
 function mkMsg(role: 'sky' | 'user', text: string): ChatMsg {
   return { id: String(++msgCounter), role, text };
+}
+
+function toTitleCase(str: string): string {
+  return str
+    .trim()
+    .split(' ')
+    .filter(Boolean)
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
+
+// Map keywords in a business name → industry value
+const INDUSTRY_KEYWORDS: Array<{ keywords: string[]; value: string }> = [
+  { keywords: ['plumb'], value: 'plumbing' },
+  { keywords: ['hvac', 'heat', 'cooling', 'air condition', 'ac repair', 'furnace'], value: 'hvac' },
+  { keywords: ['electric', 'wiring', 'electrician'], value: 'electrical' },
+  { keywords: ['roof', 'shingle', 'gutter'], value: 'roofing' },
+  { keywords: ['landscap', 'lawn', 'mow', 'garden', 'turf', 'irrigation'], value: 'landscaping' },
+  { keywords: ['clean', 'maid', 'janitorial', 'housekeep'], value: 'cleaning' },
+  { keywords: ['pest', 'exterminat', 'termite', 'bug control'], value: 'pest-control' },
+  { keywords: ['paint'], value: 'painting' },
+  { keywords: ['contractor', 'construct', 'handyman', 'remodel', 'renovation', 'build'], value: 'general-contractor' },
+];
+
+function detectIndustry(name: string): string | null {
+  const lower = name.toLowerCase();
+  for (const { keywords, value } of INDUSTRY_KEYWORDS) {
+    if (keywords.some((kw) => lower.includes(kw))) return value;
+  }
+  return null;
+}
+
+function getBrowserTimezone(): string {
+  try {
+    const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (tz === 'America/New_York' || tz === 'America/Chicago' || tz === 'America/Denver' || tz === 'America/Los_Angeles') return tz;
+    // Map common aliases
+    if (tz.includes('Eastern') || tz === 'US/Eastern') return 'America/New_York';
+    if (tz.includes('Central') || tz === 'US/Central') return 'America/Chicago';
+    if (tz.includes('Mountain') || tz === 'US/Mountain') return 'America/Denver';
+    if (tz.includes('Pacific') || tz === 'US/Pacific') return 'America/Los_Angeles';
+  } catch { /* ignore */ }
+  return 'America/New_York';
+}
+
+function friendlyError(raw: string | undefined | null, fallback: string): string {
+  if (!raw) return fallback;
+  const lower = raw.toLowerCase();
+  if (lower.includes('internal server error') || lower === 'bad request' || lower === 'error') return fallback;
+  return raw;
 }
 
 function canAccessDashboard(status: string | null | undefined) {
@@ -242,7 +293,7 @@ export function OnboardingWizardClient() {
   const [industry, setIndustry] = useState('');
   const [bizAddress, setBizAddress] = useState('');
   const [bizPhone, setBizPhone] = useState('');
-  const [timezone, setTimezone] = useState('America/New_York');
+  const [timezone, setTimezone] = useState(() => getBrowserTimezone());
   const [language, setLanguage] = useState<AgentLanguage>('bilingual');
   const [useDefaultGreeting, setUseDefaultGreeting] = useState(true);
   const [customGreeting, setCustomGreeting] = useState('');
@@ -379,13 +430,41 @@ export function OnboardingWizardClient() {
   // ── Step: Business name ──────────────────────────────────────────────────
 
   async function handleBizName() {
-    const name = nameInput.trim();
+    const name = toTitleCase(nameInput);
     if (!name) return;
     userSay(name);
     setBizName(name);
     setNameInput('');
-    await skySpeak(`Love it — ${name} it is. What industry are you in?`, 900);
-    setPhase('industry');
+
+    const detected = detectIndustry(name);
+    if (detected) {
+      // Pre-select the detected industry and confirm with the user
+      setIndustry(detected);
+      const ind = INDUSTRIES.find((i) => i.value === detected);
+      const label = ind ? `${ind.emoji} ${ind.label}` : detected;
+      await skySpeak(`${name} — great name. Looks like you're in ${label}. Is that right, or should I pick a different industry?`, 900);
+      setPhase('industry_confirm');
+    } else {
+      await skySpeak(`${name} — nice. What industry are you in?`, 900);
+      setPhase('industry');
+    }
+  }
+
+  // ── Step: Industry confirm (when auto-detected) ──────────────────────────
+
+  async function handleIndustryConfirm(confirmed: boolean) {
+    if (confirmed) {
+      const ind = INDUSTRIES.find((i) => i.value === industry);
+      const label = ind ? `${ind.emoji} ${ind.label}` : industry;
+      userSay(`Yes, ${label}`);
+      await skySpeak("Perfect. Can I get your business address and phone number? Helps me route calls and book jobs correctly — both optional.", 900);
+      setPhase('biz_details');
+    } else {
+      userSay('Different industry');
+      setIndustry('');
+      await skySpeak("No problem — what industry are you in?", 600);
+      setPhase('industry');
+    }
   }
 
   // ── Step: Industry ───────────────────────────────────────────────────────
@@ -393,7 +472,7 @@ export function OnboardingWizardClient() {
   async function handleIndustry(value: string, label: string) {
     userSay(label);
     setIndustry(value);
-    await skySpeak("Nice. A couple quick details help me route calls and schedule jobs correctly — what's your business address? (Optional — you can skip)", 1000);
+    await skySpeak("Perfect. Can I get your business address and phone number? Helps me route calls and book jobs correctly — both optional, totally fine to skip.", 900);
     setPhase('biz_details');
   }
 
@@ -429,7 +508,7 @@ export function OnboardingWizardClient() {
 
       if (!res.ok) {
         const p = await res.json().catch(() => ({})) as { error?: string };
-        setApiError(p.error ?? 'Could not save business info. Please try again.');
+        setApiError(friendlyError(p.error, 'Something went wrong saving your info. Please try again.'));
         setSubmitting(false);
         return;
       }
@@ -443,10 +522,10 @@ export function OnboardingWizardClient() {
         userSay(parts.join(' · '));
       }
 
-      await skySpeak("Got it. Now let's configure how Sky greets your callers. Should I handle calls in English, Spanish, or both?", 1000);
+      await skySpeak("Got it! One more thing — how should I greet your callers? English, Spanish, or both?", 900);
       setPhase('language');
     } catch {
-      setApiError('Could not save business info. Please try again.');
+      setApiError('Something went wrong. Please check your connection and try again.');
     } finally {
       setSubmitting(false);
     }
@@ -468,7 +547,7 @@ export function OnboardingWizardClient() {
       defaultGreetingPreview = `Thanks for calling ${name}. How can we help you today?`;
     }
 
-    await skySpeak(`Here's how I'll greet your callers:\n\n"${defaultGreetingPreview}"\n\nDoes that work, or would you like to write something custom?`, 1100);
+    await skySpeak(`Here's exactly what your callers will hear when they call:\n\n"${defaultGreetingPreview}"\n\nSound good, or want to write your own?`, 1100);
     setPhase('greeting');
   }
 
@@ -503,16 +582,16 @@ export function OnboardingWizardClient() {
 
       if (!res.ok) {
         const p = await res.json().catch(() => ({})) as { error?: string };
-        setApiError(p.error ?? 'Could not save greeting. Please try again.');
+        setApiError(friendlyError(p.error, 'Could not save your greeting. Please try again.'));
         setSubmitting(false);
         return;
       }
 
       userSay(useDef ? 'That sounds perfect ✓' : `Custom: "${customGreeting.trim()}"`);
-      await skySpeak("Now for the most important part — your AI phone number. Callers will reach Sky at this number. Want a specific area code, or should I grab any available?", 1100);
+      await skySpeak("Great choice. Last step — let's get you a phone number. Callers will reach Sky here, 24/7. Want a specific area code or any available US number?", 1000);
       setPhase('phone');
     } catch {
-      setApiError('Could not save greeting. Please try again.');
+      setApiError('Something went wrong. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -576,17 +655,17 @@ export function OnboardingWizardClient() {
       setProvisionedPhone(purchased);
       setPhoneSearching(false);
       userSay(code ? `Area code ${code}` : 'Any area code');
-      await skySpeak(`You got it — ${formatPhoneNumber(purchased)}. That number is live right now. Customers can call and Sky will answer. Ready to see your dashboard?`, 1200);
+      await skySpeak(`Done — your number is ${formatPhoneNumber(purchased)} 🎉 It's already live. The moment someone calls, Sky picks up.`, 1100);
       void finalize(purchased);
     } catch {
-      setApiError('Unable to provision a phone number right now. Please try again.');
+      setApiError('Unable to get a number right now. Try a different area code, or skip and add one later from Settings.');
       setPhoneSearching(false);
     }
   }
 
   async function handleSkipPhone() {
     userSay('Skip for now');
-    await skySpeak("No problem — you can add a number anytime from Settings. Let me finish getting things set up for you...", 900);
+    await skySpeak("No worries — you can add a number anytime from your Settings. Let me get everything else activated for you...", 900);
     void finalize(null);
   }
 
@@ -776,6 +855,19 @@ export function OnboardingWizardClient() {
                   disabled={!nameInput.trim()}
                 >
                   →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {phase === 'industry_confirm' && !skyTyping && (
+            <div className="sky-input-panel sky-fadein">
+              <div className="sky-btn-row">
+                <button className="sky-btn-ghost" onClick={() => void handleIndustryConfirm(false)}>
+                  Different industry
+                </button>
+                <button className="sky-btn-primary" onClick={() => void handleIndustryConfirm(true)}>
+                  Yes, that's right ✓
                 </button>
               </div>
             </div>
