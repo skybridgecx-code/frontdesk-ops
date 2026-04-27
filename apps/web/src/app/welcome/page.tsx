@@ -51,8 +51,8 @@ export default function WelcomePage() {
 
         <p className="mt-6 text-sm text-gray-500">
           Questions?{' '}
-          <a href="mailto:hello@skybridgecx.com" className="text-indigo-600 hover:text-indigo-500">
-            hello@skybridgecx.com
+          <a href="mailto:skybridgecx@gmail.com" className="text-indigo-600 hover:text-indigo-500">
+            skybridgecx@gmail.com
           </a>
         </p>
 
