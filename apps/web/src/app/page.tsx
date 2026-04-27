@@ -473,7 +473,7 @@ const pageStyles = `
   .lp-feature-card h3 { font-size: 16px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.2px; }
   .lp-feature-card p { font-size: 13px; color: var(--text-secondary); line-height: 1.65; }
 
-  /* ── DEMO ── */
+  /* ── DEMO TRANSCRIPT ── */
   .lp-demo-inner {
     display: grid; grid-template-columns: 1fr 1fr;
     gap: 72px; align-items: center;
@@ -524,94 +524,231 @@ const pageStyles = `
     border-radius: 10px;
   }
 
-  /* ── TESTIMONIALS ── */
-  .lp-testimonials { background: var(--surface); border-top: 1px solid var(--border); }
-  .lp-testimonials-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 22px; margin-top: 60px;
+  /* ── INTERACTIVE DEMO ── */
+  .lp-idemo-section {
+    padding: 110px 24px;
+    background: linear-gradient(180deg, var(--surface) 0%, var(--bg) 100%);
+    border-top: 1px solid var(--border);
+    position: relative; overflow: hidden;
   }
-  .lp-testimonial {
-    background: var(--bg); border: 1px solid var(--border-mid);
-    border-radius: 20px; padding: 32px;
-    transition: all 0.3s;
+  .lp-idemo-section::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 60% 50% at 70% 50%, rgba(99,102,241,0.05) 0%, transparent 70%);
+    pointer-events: none;
   }
-  .lp-testimonial:hover {
-    border-color: rgba(99,102,241,0.25);
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-lg);
+  .lp-idemo-inner {
+    max-width: 1100px; margin: 0 auto;
+    display: grid; grid-template-columns: 1fr 1.2fr;
+    gap: 80px; align-items: center; position: relative;
   }
-  .lp-stars { color: #F59E0B; font-size: 14px; letter-spacing: 2px; margin-bottom: 18px; }
-  .lp-testimonial-quote {
-    font-size: 15px; color: var(--text-primary); line-height: 1.65; margin-bottom: 22px;
+  .lp-idemo-label {
+    display: inline-flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--accent); margin-bottom: 16px;
   }
-  .lp-testimonial-author { display: flex; align-items: center; gap: 12px; }
-  .lp-author-avatar {
-    width: 38px; height: 38px; border-radius: 50%;
-    background: var(--accent-dim);
+  .lp-idemo-label-dot {
+    width: 7px; height: 7px;
+    background: var(--accent); border-radius: 50%;
+    animation: lp-pulse 2s infinite;
+  }
+  .lp-idemo-h2 {
+    font-size: clamp(28px, 3.5vw, 48px);
+    font-weight: 800; letter-spacing: -1.5px;
+    color: var(--text-primary); line-height: 1.1; margin-bottom: 18px;
+  }
+  .lp-idemo-desc {
+    font-size: 16px; color: var(--text-secondary);
+    line-height: 1.7; margin-bottom: 36px; max-width: 440px;
+  }
+  .lp-idemo-points { list-style: none; display: flex; flex-direction: column; gap: 13px; margin-bottom: 40px; }
+  .lp-idemo-points li {
+    display: flex; align-items: center; gap: 11px;
+    font-size: 14px; color: var(--text-secondary);
+  }
+  .lp-idemo-point-icon {
+    width: 20px; height: 20px;
+    background: var(--accent-dim); border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 5px;
     display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: var(--accent); flex-shrink: 0;
+    font-size: 10px; color: var(--accent); flex-shrink: 0;
   }
-  .lp-author-name { font-size: 14px; font-weight: 600; color: var(--text-primary); }
-  .lp-author-role { font-size: 12px; color: var(--text-tertiary); }
-
-  /* ── PRICING ── */
-  .lp-pricing-grid {
-    display: grid; grid-template-columns: repeat(3, 1fr);
-    gap: 22px; margin-top: 60px; align-items: start;
-  }
-  .lp-pricing-card {
-    background: var(--surface); border: 1px solid var(--border-mid);
-    border-radius: 20px; padding: 36px 32px;
-    transition: all 0.3s; position: relative;
-    box-shadow: var(--shadow-sm);
-  }
-  .lp-pricing-card:hover:not(.featured) {
-    transform: translateY(-4px); box-shadow: var(--shadow-lg);
-  }
-  .lp-pricing-card.featured {
-    border-color: rgba(99,102,241,0.4);
-    background: linear-gradient(180deg, rgba(99,102,241,0.04) 0%, var(--surface) 100%);
-    box-shadow: 0 8px 40px rgba(99,102,241,0.15);
-  }
-  .lp-pricing-badge {
-    position: absolute; top: -14px; left: 50%;
-    transform: translateX(-50%);
+  .lp-idemo-start-btn {
+    display: inline-flex; align-items: center; gap: 10px;
     background: var(--accent); color: #fff;
-    font-size: 11px; font-weight: 700; letter-spacing: 0.8px;
-    text-transform: uppercase; padding: 4px 14px; border-radius: 100px;
-    box-shadow: 0 4px 12px var(--accent-glow);
-  }
-  .lp-plan-name {
-    font-size: 13px; font-weight: 600; color: var(--text-tertiary);
-    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px;
-  }
-  .lp-plan-price {
-    font-size: 48px; font-weight: 900;
-    color: var(--text-primary); letter-spacing: -2px; line-height: 1; margin-bottom: 4px;
-  }
-  .lp-plan-price span { font-size: 18px; font-weight: 400; color: var(--text-tertiary); }
-  .lp-plan-desc { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.55; }
-  .lp-plan-divider { height: 1px; background: var(--border); margin-bottom: 24px; }
-  .lp-plan-features { list-style: none; display: flex; flex-direction: column; gap: 11px; margin-bottom: 28px; }
-  .lp-plan-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; color: var(--text-secondary); }
-  .lp-plan-check { color: #10B981; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
-  .lp-btn-plan {
-    width: 100%; padding: 13px; border-radius: 10px;
-    font-family: var(--font); font-size: 15px; font-weight: 600;
-    cursor: pointer; transition: all 0.25s; text-align: center;
-    text-decoration: none; display: block; letter-spacing: -0.2px;
-  }
-  .lp-btn-plan-outline {
-    background: transparent; border: 1px solid var(--border-mid);
-    color: var(--text-primary);
-  }
-  .lp-btn-plan-outline:hover { border-color: var(--accent); color: var(--accent); }
-  .lp-btn-plan-solid { background: var(--accent); border: none; color: #fff; }
-  .lp-btn-plan-solid:hover {
-    background: var(--accent-hover);
+    font-family: var(--font); font-size: 15px; font-weight: 700;
+    padding: 15px 28px; border-radius: 12px; border: none;
+    cursor: pointer; letter-spacing: -0.2px;
+    transition: all 0.25s;
     box-shadow: 0 8px 24px var(--accent-glow);
-    transform: translateY(-1px);
   }
+  .lp-idemo-start-btn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px rgba(99,102,241,0.45);
+  }
+  .lp-idemo-start-btn:disabled {
+    background: var(--surface-3); color: var(--text-tertiary);
+    box-shadow: none; transform: none; cursor: default;
+  }
+
+  /* Demo Window */
+  .lp-idemo-window {
+    background: var(--surface);
+    border: 1px solid var(--border-mid);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--shadow-xl);
+  }
+  .lp-idemo-win-header {
+    background: var(--surface-2);
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .lp-idemo-win-dots { display: flex; gap: 6px; }
+  .lp-idemo-win-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .lp-idemo-status {
+    display: flex; align-items: center; gap: 7px;
+    font-size: 11px; font-weight: 600; color: var(--text-tertiary);
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .lp-idemo-status-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--surface-3);
+    transition: background 0.4s;
+  }
+  .lp-idemo-status-dot.active { background: #10B981; animation: lp-pulse 1.5s infinite; }
+
+  /* Chat panel */
+  .lp-idemo-chat {
+    padding: 20px;
+    min-height: 260px;
+    display: flex; flex-direction: column; gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .lp-idemo-bubble {
+    max-width: 85%;
+    padding: 10px 14px; border-radius: 14px;
+    font-size: 13px; line-height: 1.55;
+    opacity: 0; transform: translateY(8px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+  .lp-idemo-bubble.visible { opacity: 1; transform: translateY(0); }
+  .lp-idemo-bubble.ai {
+    background: var(--accent-dim);
+    border: 1px solid rgba(99,102,241,0.15);
+    color: var(--text-primary);
+    align-self: flex-start; border-bottom-left-radius: 4px;
+  }
+  .lp-idemo-bubble.caller {
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+    align-self: flex-end; border-bottom-right-radius: 4px;
+  }
+  .lp-idemo-bubble .bubble-speaker {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 4px;
+  }
+  .lp-idemo-bubble.ai .bubble-speaker { color: var(--accent); }
+  .lp-idemo-bubble.caller .bubble-speaker { color: var(--text-tertiary); }
+  .lp-idemo-typing {
+    display: flex; align-items: center; gap: 5px;
+    padding: 12px 16px;
+    background: var(--accent-dim);
+    border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 14px; border-bottom-left-radius: 4px;
+    align-self: flex-start;
+    opacity: 0; transition: opacity 0.3s;
+  }
+  .lp-idemo-typing.visible { opacity: 1; }
+  .lp-typing-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent); opacity: 0.4;
+    animation: lp-typing-bounce 1.2s infinite;
+  }
+  .lp-typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .lp-typing-dot:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes lp-typing-bounce {
+    0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+    40% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* Lead card */
+  .lp-idemo-lead {
+    padding: 18px 20px;
+  }
+  .lp-idemo-lead-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .lp-idemo-lead-title {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 1px; color: var(--text-tertiary);
+  }
+  .lp-idemo-alert-badge {
+    display: flex; align-items: center; gap: 5px;
+    background: #D1FAE5; border: 1px solid rgba(16,185,129,0.25);
+    border-radius: 100px; padding: 3px 10px;
+    font-size: 10px; font-weight: 700; color: #065F46;
+    text-transform: uppercase; letter-spacing: 0.5px;
+    opacity: 0; transform: scale(0.8);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .lp-idemo-alert-badge.visible { opacity: 1; transform: scale(1); }
+  .lp-idemo-fields {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  }
+  .lp-idemo-field {
+    background: var(--surface-2); border: 1px solid var(--border);
+    border-radius: 9px; padding: 9px 12px;
+    opacity: 0.35; transition: opacity 0.5s, border-color 0.4s, background 0.4s;
+  }
+  .lp-idemo-field.full { grid-column: 1 / -1; }
+  .lp-idemo-field.filled {
+    opacity: 1;
+    border-color: rgba(99,102,241,0.25);
+    background: rgba(99,102,241,0.03);
+  }
+  .lp-idemo-field-label {
+    font-size: 9px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.8px; color: var(--text-tertiary); margin-bottom: 3px;
+  }
+  .lp-idemo-field-value {
+    font-size: 12px; font-weight: 600; color: var(--text-primary);
+    min-height: 16px;
+  }
+  .lp-idemo-field-value .placeholder { color: var(--surface-3); }
+  .lp-urgency-high {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #FEE2E2; border: 1px solid rgba(239,68,68,0.2);
+    color: #991B1B; border-radius: 5px;
+    padding: 1px 7px; font-size: 11px; font-weight: 700;
+  }
+  .lp-idemo-sent-row {
+    margin-top: 12px; padding: 11px 14px;
+    background: linear-gradient(135deg, rgba(99,102,241,0.08), rgba(139,92,246,0.06));
+    border: 1px solid rgba(99,102,241,0.2);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: space-between;
+    opacity: 0; transform: translateY(6px);
+    transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .lp-idemo-sent-row.visible { opacity: 1; transform: translateY(0); }
+  .lp-idemo-sent-text {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    text-transform: uppercase; letter-spacing: 0.6px;
+  }
+  .lp-idemo-sent-sub {
+    font-size: 11px; color: var(--text-tertiary); margin-top: 2px;
+  }
+  .lp-idemo-timer {
+    font-size: 22px; font-weight: 900; color: var(--accent);
+    letter-spacing: -1px; line-height: 1;
+  }
+  .lp-idemo-timer span { font-size: 11px; font-weight: 500; color: var(--text-tertiary); }
 
   /* ── FAQ ── */
   .lp-faq-container { max-width: 680px; margin: 56px auto 0; }
@@ -707,18 +844,21 @@ const pageStyles = `
   @media (max-width: 1024px) {
     .lp-features-header { grid-template-columns: 1fr; gap: 20px; }
     .lp-demo-inner { grid-template-columns: 1fr; gap: 48px; }
+    .lp-idemo-inner { grid-template-columns: 1fr; gap: 48px; }
     .lp-stats-inner { grid-template-columns: repeat(2, 1fr); }
     .lp-footer-inner { grid-template-columns: 1fr 1fr; gap: 36px; }
   }
   @media (max-width: 768px) {
     .lp-nav { padding: 0 20px; }
     .lp-nav-links { display: none; }
-    .lp-pain-grid, .lp-features-grid, .lp-testimonials-grid, .lp-pricing-grid, .lp-steps { grid-template-columns: 1fr; }
+    .lp-pain-grid, .lp-features-grid, .lp-steps { grid-template-columns: 1fr; }
     .lp-steps::before { display: none; }
     .lp-stats-inner { grid-template-columns: 1fr; }
     .lp-section { padding: 80px 20px; }
     .lp-footer-inner { grid-template-columns: 1fr; gap: 28px; }
     .lp-footer-bottom { flex-direction: column; gap: 10px; text-align: center; }
+    .lp-idemo-fields { grid-template-columns: 1fr; }
+    .lp-idemo-field.full { grid-column: 1; }
   }
 `;
 
@@ -732,7 +872,7 @@ const pageMarkup = `
   <ul class="lp-nav-links">
     <li><a href="#features">Features</a></li>
     <li><a href="#how-it-works">How It Works</a></li>
-    <li><a href="#pricing">Pricing</a></li>
+    <li><a href="#demo">Demo</a></li>
     <li><a href="#faq">FAQ</a></li>
   </ul>
   <div class="lp-nav-actions">
@@ -754,7 +894,7 @@ const pageMarkup = `
     <p>Your AI front desk answers every call, captures every lead, and delivers the details before the caller even hangs up.</p>
     <div class="lp-hero-cta">
       <a href="/sign-up" class="lp-btn-hero">Start Free Trial →</a>
-      <a href="#how-it-works" class="lp-btn-hero-ghost">▶ See How It Works</a>
+      <a href="#demo" class="lp-btn-hero-ghost">▶ See It Live</a>
     </div>
     <div class="lp-hero-meta">
       <span><span class="chk">✓</span> Setup in 5 minutes</span>
@@ -890,29 +1030,87 @@ const pageMarkup = `
   </div>
 </section>
 
-<!-- TESTIMONIALS -->
-<section class="lp-section lp-testimonials">
-  <div class="lp-container">
-    <div class="lp-eyebrow reveal" style="text-align:center;">What Customers Say</div>
-    <h2 class="lp-h2 reveal" style="text-align:center;">Trusted by Home Service<br>Businesses Nationwide</h2>
-    <div class="lp-testimonials-grid">
-      <div class="lp-testimonial reveal"><div class="lp-stars">★★★★★</div><p class="lp-testimonial-quote">"We were missing 30% of our after-hours calls. SkyBridgeCX catches every single one now. ROI was immediate — paid for itself in week one."</p><div class="lp-testimonial-author"><div class="lp-author-avatar">M</div><div><div class="lp-author-name">Mike R.</div><div class="lp-author-role">Owner, Reliable HVAC · Dallas, TX</div></div></div></div>
-      <div class="lp-testimonial reveal"><div class="lp-stars">★★★★★</div><p class="lp-testimonial-quote">"Replaced our $800/month answering service. The AI captures better details, never gets the address wrong, and costs a fraction of the price."</p><div class="lp-testimonial-author"><div class="lp-author-avatar">S</div><div><div class="lp-author-name">Sarah T.</div><div class="lp-author-role">Owner, Apex Plumbing · Phoenix, AZ</div></div></div></div>
-      <div class="lp-testimonial reveal"><div class="lp-stars">★★★★★</div><p class="lp-testimonial-quote">"I get a text with the lead details before I even put my tools down. It's like having a dispatcher who never takes a break and never makes a mistake."</p><div class="lp-testimonial-author"><div class="lp-author-avatar">J</div><div><div class="lp-author-name">James K.</div><div class="lp-author-role">Owner, Precision Electric · Austin, TX</div></div></div></div>
+<!-- INTERACTIVE DEMO -->
+<section class="lp-idemo-section" id="demo">
+  <div class="lp-idemo-inner">
+    <div class="reveal">
+      <div class="lp-idemo-label">
+        <div class="lp-idemo-label-dot"></div>
+        Interactive Demo
+      </div>
+      <h2 class="lp-idemo-h2">Watch the AI<br>Front Desk Work<br><span style="background: linear-gradient(135deg, #6366F1 0%, #8B5CF6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">in Real Time.</span></h2>
+      <p class="lp-idemo-desc">Press Start Demo and watch exactly what happens when someone calls your business. Every field populates live — the way your team would actually see it.</p>
+      <ul class="lp-idemo-points">
+        <li><div class="lp-idemo-point-icon">✓</div> AI greets caller and extracts details naturally</li>
+        <li><div class="lp-idemo-point-icon">✓</div> Lead card populates in real time as you watch</li>
+        <li><div class="lp-idemo-point-icon">✓</div> Emergency flagged and alert fired automatically</li>
+        <li><div class="lp-idemo-point-icon">✓</div> Full lead delivered in under 30 seconds</li>
+      </ul>
+      <button class="lp-idemo-start-btn" id="lp-demo-btn" onclick="lpStartDemo()">
+        <span id="lp-demo-btn-icon">▶</span>
+        <span id="lp-demo-btn-text">Start Demo</span>
+      </button>
     </div>
-  </div>
-</section>
 
-<!-- PRICING -->
-<section class="lp-section" id="pricing" style="background: var(--surface); border-top: 1px solid var(--border);">
-  <div class="lp-container">
-    <div class="lp-eyebrow reveal" style="text-align:center;">Pricing</div>
-    <h2 class="lp-h2 reveal" style="text-align:center;">Simple Pricing.<br>No Hidden Fees.</h2>
-    <p class="lp-sub reveal" style="text-align:center; margin: 0 auto;">14-day free trial on all plans. Cancel anytime.</p>
-    <div class="lp-pricing-grid">
-      <div class="lp-pricing-card reveal"><div class="lp-plan-name">Starter</div><div class="lp-plan-price">$299<span>/mo</span></div><div class="lp-plan-desc">Perfect for solo operators and small teams getting started.</div><div class="lp-plan-divider"></div><ul class="lp-plan-features"><li><span class="lp-plan-check">✓</span> 500 calls/month</li><li><span class="lp-plan-check">✓</span> 1 phone number</li><li><span class="lp-plan-check">✓</span> AI call answering 24/7</li><li><span class="lp-plan-check">✓</span> Lead extraction & email alerts</li><li><span class="lp-plan-check">✓</span> Call recording & playback</li><li><span class="lp-plan-check">✓</span> Basic dashboard & CRM</li></ul><a href="/sign-up" class="lp-btn-plan lp-btn-plan-outline">Start Free Trial</a></div>
-      <div class="lp-pricing-card featured reveal"><div class="lp-pricing-badge">Most Popular</div><div class="lp-plan-name">Pro</div><div class="lp-plan-price">$499<span>/mo</span></div><div class="lp-plan-desc">For growing businesses ready to systemize lead capture completely.</div><div class="lp-plan-divider"></div><ul class="lp-plan-features"><li><span class="lp-plan-check">✓</span> Unlimited calls</li><li><span class="lp-plan-check">✓</span> Up to 3 phone numbers</li><li><span class="lp-plan-check">✓</span> Everything in Starter</li><li><span class="lp-plan-check">✓</span> AI Outreach Copilot</li><li><span class="lp-plan-check">✓</span> Custom agent personality</li><li><span class="lp-plan-check">✓</span> Priority support</li></ul><a href="/sign-up" class="lp-btn-plan lp-btn-plan-solid">Start Free Trial</a></div>
-      <div class="lp-pricing-card reveal"><div class="lp-plan-name">Enterprise</div><div class="lp-plan-price">$999<span>/mo</span></div><div class="lp-plan-desc">For multi-location businesses and franchise operators at scale.</div><div class="lp-plan-divider"></div><ul class="lp-plan-features"><li><span class="lp-plan-check">✓</span> Unlimited calls</li><li><span class="lp-plan-check">✓</span> Up to 10 phone numbers</li><li><span class="lp-plan-check">✓</span> Up to 5 locations</li><li><span class="lp-plan-check">✓</span> Everything in Pro</li><li><span class="lp-plan-check">✓</span> API access & webhooks</li><li><span class="lp-plan-check">✓</span> Dedicated onboarding manager</li></ul><a href="mailto:hello@skybridgecx.com" class="lp-btn-plan lp-btn-plan-outline">Contact Sales</a></div>
+    <div class="lp-idemo-window reveal">
+      <div class="lp-idemo-win-header">
+        <div class="lp-idemo-win-dots">
+          <div class="lp-idemo-win-dot" style="background:#FF5F57"></div>
+          <div class="lp-idemo-win-dot" style="background:#FFBD2E"></div>
+          <div class="lp-idemo-win-dot" style="background:#28CA40"></div>
+        </div>
+        <div class="lp-idemo-status">
+          <div class="lp-idemo-status-dot" id="lp-status-dot"></div>
+          <span id="lp-status-text">Ready</span>
+        </div>
+      </div>
+
+      <div class="lp-idemo-chat" id="lp-demo-chat">
+        <div style="flex:1; display:flex; align-items:center; justify-content:center; color: var(--text-tertiary); font-size:13px; opacity:0.6;" id="lp-demo-idle">
+          Press "Start Demo" to watch a live call →
+        </div>
+      </div>
+
+      <div class="lp-idemo-lead">
+        <div class="lp-idemo-lead-header">
+          <div class="lp-idemo-lead-title">Captured Lead</div>
+          <div class="lp-idemo-alert-badge" id="lp-alert-badge">
+            <span>✓</span> Alert Sent
+          </div>
+        </div>
+        <div class="lp-idemo-fields">
+          <div class="lp-idemo-field" id="lp-f-name">
+            <div class="lp-idemo-field-label">Caller Name</div>
+            <div class="lp-idemo-field-value" id="lp-fv-name"><span class="placeholder">—</span></div>
+          </div>
+          <div class="lp-idemo-field" id="lp-f-phone">
+            <div class="lp-idemo-field-label">Phone</div>
+            <div class="lp-idemo-field-value" id="lp-fv-phone"><span class="placeholder">—</span></div>
+          </div>
+          <div class="lp-idemo-field" id="lp-f-intent">
+            <div class="lp-idemo-field-label">Issue</div>
+            <div class="lp-idemo-field-value" id="lp-fv-intent"><span class="placeholder">—</span></div>
+          </div>
+          <div class="lp-idemo-field" id="lp-f-urgency">
+            <div class="lp-idemo-field-label">Urgency</div>
+            <div class="lp-idemo-field-value" id="lp-fv-urgency"><span class="placeholder">—</span></div>
+          </div>
+          <div class="lp-idemo-field full" id="lp-f-address">
+            <div class="lp-idemo-field-label">Service Address</div>
+            <div class="lp-idemo-field-value" id="lp-fv-address"><span class="placeholder">—</span></div>
+          </div>
+        </div>
+        <div class="lp-idemo-sent-row" id="lp-sent-row">
+          <div>
+            <div class="lp-idemo-sent-text">📨 Lead delivered</div>
+            <div class="lp-idemo-sent-sub">Owner notified · Emergency flagged · CRM updated</div>
+          </div>
+          <div>
+            <div class="lp-idemo-timer" id="lp-timer">—</div>
+            <div style="font-size:10px; color: var(--text-tertiary); text-align:right; margin-top:2px;">seconds</div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
@@ -927,7 +1125,7 @@ const pageMarkup = `
       <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">Can I keep my existing phone number?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">Yes. You can port your existing business number to SkyBridgeCX or use a new local number. Porting takes 3–7 business days and we handle the process for you.</div></div>
       <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">What if the AI can't handle a call?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">The AI handles 95%+ of standard intake calls. For complex or escalated situations, you configure overflow rules — calls can be transferred, or the AI captures what it can and flags it for follow-up.</div></div>
       <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">How fast do I get lead notifications?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">Lead details are delivered to your email within 30 seconds of the call ending. Emergency-flagged leads trigger instant notification regardless of time of day.</div></div>
-      <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">Can I customize the AI's greeting?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">Yes, on Pro and Enterprise plans. You can customize the agent's name, greeting script, tone, and the business information it references during calls.</div></div>
+      <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">Can I customize the AI's greeting?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">Yes. You can customize the agent's name, greeting script, tone, and the business information it references during calls from your dashboard.</div></div>
       <div class="lp-faq-item"><div class="lp-faq-question" onclick="lpToggleFaq(this)">Is there a long-term contract?<div class="lp-faq-icon">+</div></div><div class="lp-faq-answer">No contracts. All plans are month-to-month. You can cancel anytime from your dashboard. We're confident you'll stay because it works.</div></div>
     </div>
   </div>
@@ -949,7 +1147,7 @@ const pageMarkup = `
       <div class="lp-footer-brand-name"><div class="lp-footer-brand-mark">SX</div>SkyBridgeCX</div>
       <p class="lp-footer-desc">AI front desk for home service businesses. Never miss a call, never lose a lead.</p>
     </div>
-    <div class="lp-footer-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#pricing">Pricing</a></li><li><a href="#faq">FAQ</a></li><li><a href="/dashboard">Dashboard</a></li></ul></div>
+    <div class="lp-footer-col"><h4>Product</h4><ul><li><a href="#features">Features</a></li><li><a href="#demo">Live Demo</a></li><li><a href="#faq">FAQ</a></li><li><a href="/dashboard">Dashboard</a></li></ul></div>
     <div class="lp-footer-col"><h4>Company</h4><ul><li><a href="/">About</a></li><li><a href="/">Blog</a></li><li><a href="/privacy">Privacy Policy</a></li><li><a href="/terms">Terms of Service</a></li></ul></div>
     <div class="lp-footer-col"><h4>Contact</h4><ul><li><a href="mailto:hello@skybridgecx.com">hello@skybridgecx.com</a></li><li><a href="/">Twitter / X</a></li><li><a href="/">LinkedIn</a></li><li><a href="/">Support</a></li></ul></div>
   </div>
@@ -978,6 +1176,159 @@ const pageScript = `(() => {
     const isOpen = item.classList.contains('open');
     document.querySelectorAll('.lp-faq-item').forEach(i => i.classList.remove('open'));
     if (!isOpen) item.classList.add('open');
+  };
+
+  // ── Interactive Demo ──
+  let demoRunning = false;
+  let demoStartTime = null;
+  let timerInterval = null;
+
+  function lpSetStatus(text, active) {
+    document.getElementById('lp-status-text').textContent = text;
+    document.getElementById('lp-status-dot').classList.toggle('active', active);
+  }
+
+  function lpAddBubble(type, speaker, text) {
+    const chat = document.getElementById('lp-demo-chat');
+    const idle = document.getElementById('lp-demo-idle');
+    if (idle) idle.remove();
+
+    const bubble = document.createElement('div');
+    bubble.className = 'lp-idemo-bubble ' + type;
+    bubble.innerHTML = '<div class="bubble-speaker">' + speaker + '</div>' + text;
+    chat.appendChild(bubble);
+    setTimeout(() => bubble.classList.add('visible'), 20);
+    chat.scrollTop = chat.scrollHeight;
+    return bubble;
+  }
+
+  function lpShowTyping() {
+    const chat = document.getElementById('lp-demo-chat');
+    const typing = document.createElement('div');
+    typing.className = 'lp-idemo-typing';
+    typing.id = 'lp-typing-indicator';
+    typing.innerHTML = '<div class="lp-typing-dot"></div><div class="lp-typing-dot"></div><div class="lp-typing-dot"></div>';
+    chat.appendChild(typing);
+    setTimeout(() => typing.classList.add('visible'), 20);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function lpHideTyping() {
+    const t = document.getElementById('lp-typing-indicator');
+    if (t) t.remove();
+  }
+
+  function lpFillField(id, valueId, html, delay) {
+    setTimeout(() => {
+      document.getElementById(id).classList.add('filled');
+      document.getElementById(valueId).innerHTML = html;
+    }, delay);
+  }
+
+  function delay(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+  async function lpRunDemo() {
+    // Reset
+    const chat = document.getElementById('lp-demo-chat');
+    chat.innerHTML = '';
+    ['lp-f-name','lp-f-phone','lp-f-intent','lp-f-urgency','lp-f-address'].forEach(id => {
+      document.getElementById(id).classList.remove('filled');
+    });
+    ['lp-fv-name','lp-fv-phone','lp-fv-intent','lp-fv-urgency','lp-fv-address'].forEach(id => {
+      document.getElementById(id).innerHTML = '<span class="placeholder">—</span>';
+    });
+    document.getElementById('lp-alert-badge').classList.remove('visible');
+    document.getElementById('lp-sent-row').classList.remove('visible');
+    document.getElementById('lp-timer').textContent = '—';
+    if (timerInterval) clearInterval(timerInterval);
+
+    const btn = document.getElementById('lp-demo-btn');
+    btn.disabled = true;
+    document.getElementById('lp-demo-btn-icon').textContent = '⏳';
+    document.getElementById('lp-demo-btn-text').textContent = 'Running…';
+
+    // Phone ring event
+    lpSetStatus('Incoming Call…', true);
+    lpAddBubble('ai', 'System', '📞 Incoming call from (512) 555-0193');
+    await delay(900);
+
+    // AI greeting
+    lpShowTyping();
+    await delay(1400);
+    lpHideTyping();
+    lpAddBubble('ai', 'Sky AI', 'Thanks for calling Pro-Flow Plumbing! This is Sky — how can I help you today?');
+    await delay(1200);
+
+    // Start timer
+    demoStartTime = Date.now();
+    timerInterval = setInterval(() => {
+      const elapsed = ((Date.now() - demoStartTime) / 1000).toFixed(1);
+      document.getElementById('lp-timer').textContent = elapsed;
+    }, 100);
+
+    // Caller intro
+    lpAddBubble('caller', 'Caller', 'Hi yeah — my kitchen sink is completely backed up. Water is just sitting there, won\\'t drain at all.');
+    await delay(1000);
+
+    // AI empathy + intent detected
+    lpShowTyping();
+    await delay(1300);
+    lpHideTyping();
+    lpAddBubble('ai', 'Sky AI', 'Oh no, that\\'s definitely frustrating — let me get someone on this right away. Can I get your name and the address we\\'d be coming to?');
+    lpFillField('lp-f-intent', 'lp-fv-intent', 'Blocked kitchen drain', 0);
+    await delay(1200);
+
+    // Caller provides details
+    lpAddBubble('caller', 'Caller', 'Sure, it\\'s Marcus Webb. 7714 Lamar Boulevard in Austin, Texas.');
+    await delay(600);
+    lpFillField('lp-f-name', 'lp-fv-name', 'Marcus Webb', 0);
+    lpFillField('lp-f-phone', 'lp-fv-phone', '(512) 555-0193', 400);
+    lpFillField('lp-f-address', 'lp-fv-address', '7714 Lamar Blvd, Austin TX', 800);
+    await delay(1000);
+
+    // AI urgency probe
+    lpShowTyping();
+    await delay(1100);
+    lpHideTyping();
+    lpAddBubble('ai', 'Sky AI', 'Got it, Marcus. Is this causing any overflow or water damage risk right now?');
+    await delay(1000);
+
+    // Caller urgency
+    lpAddBubble('caller', 'Caller', 'Yeah it\\'s starting to back up into the dishwasher too — it\\'s getting bad.');
+    await delay(600);
+    lpFillField('lp-f-urgency', 'lp-fv-urgency', '<span class="lp-urgency-high">🟠 High</span>', 0);
+    await delay(800);
+
+    // AI close
+    lpShowTyping();
+    await delay(1200);
+    lpHideTyping();
+    lpAddBubble('ai', 'Sky AI', 'Understood — I\\'ve flagged this as high priority. Your team has all the details and will reach out within 15 minutes to confirm a time. You\\'re all set, Marcus!');
+    await delay(700);
+
+    // Stop timer, show sent
+    clearInterval(timerInterval);
+    const finalTime = ((Date.now() - demoStartTime) / 1000).toFixed(1);
+    document.getElementById('lp-timer').textContent = finalTime;
+    lpSetStatus('Lead Captured', true);
+
+    await delay(400);
+    document.getElementById('lp-alert-badge').classList.add('visible');
+    await delay(300);
+    document.getElementById('lp-sent-row').classList.add('visible');
+
+    // Re-enable button for replay
+    await delay(600);
+    btn.disabled = false;
+    document.getElementById('lp-demo-btn-icon').textContent = '↺';
+    document.getElementById('lp-demo-btn-text').textContent = 'Replay Demo';
+    demoRunning = false;
+  }
+
+  window.lpStartDemo = function() {
+    if (demoRunning) return;
+    demoRunning = true;
+    lpRunDemo();
   };
 })();`;
 
