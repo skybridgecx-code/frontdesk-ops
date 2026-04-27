@@ -8,81 +8,56 @@ export default function WelcomePage() {
   const firstName = user?.firstName ?? null;
 
   return (
-    <main
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0a0f1e 0%, #0d1320 50%, #0a0f1e 100%)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
-      }}
-    >
-      <div style={{ maxWidth: '520px', width: '100%', textAlign: 'center' }}>
+    <main className="skybridge-app flex min-h-screen items-center justify-center bg-gray-50 px-6 py-10">
+      <div className="w-full max-w-lg text-center">
 
-        {/* Sky orb */}
-        <div style={{
-          display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
-          width: '72px', height: '72px', borderRadius: '20px',
-          background: 'linear-gradient(135deg, #4f46e5, #6366f1)',
-          marginBottom: '32px',
-          boxShadow: '0 0 48px rgba(99,102,241,0.45)',
-        }}>
-          <span style={{ fontSize: '32px' }}>🌤️</span>
+        {/* Logo mark */}
+        <div className="mx-auto mb-8 flex h-16 w-16 items-center justify-center rounded-2xl bg-indigo-600 shadow-lg">
+          <span className="text-3xl">🌤️</span>
         </div>
 
-        <h1 style={{
-          fontSize: '34px', fontWeight: 800, color: '#f0f4f8',
-          letterSpacing: '-0.02em', marginBottom: '16px', lineHeight: 1.2,
-        }}>
+        <h1 className="text-3xl font-extrabold tracking-tight text-gray-900 sm:text-4xl">
           {firstName ? `You're in, ${firstName}! 🎉` : "You're in! 🎉"}
         </h1>
 
-        <p style={{ fontSize: '16px', color: '#94a3b8', lineHeight: 1.75, marginBottom: '40px' }}>
+        <p className="mt-4 text-base leading-7 text-gray-500">
           Thanks for signing up for SkyBridgeCX. We review every new account personally
           and will send you a setup link within{' '}
-          <strong style={{ color: '#c7d2fe' }}>24 hours</strong> so we can get your
+          <strong className="text-gray-900">24 hours</strong> so we can get your
           AI front desk configured exactly right for your business.
         </p>
 
-        <div style={{
-          background: 'rgba(255,255,255,0.04)',
-          border: '1px solid rgba(255,255,255,0.08)',
-          borderRadius: '16px', padding: '28px', marginBottom: '36px',
-        }}>
-          <p style={{ fontSize: '11px', color: '#475569', marginBottom: '20px',
-            textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 700 }}>
+        <div className="mt-8 rounded-2xl border border-gray-200 bg-white px-6 py-6 shadow-sm">
+          <p className="mb-5 text-xs font-semibold uppercase tracking-widest text-indigo-600">
             What happens next
           </p>
 
-          {[
-            ['📧', 'Check your inbox', "We'll email you a personalized setup link"],
-            ['⚡', 'Quick 2-min setup', 'Sky walks you through everything conversationally'],
-            ['📞', 'Go live', 'Your AI front desk answers calls 24/7 from day one'],
-          ].map(([emoji, title, desc]) => (
-            <div key={title} style={{
-              display: 'flex', alignItems: 'flex-start', gap: '14px',
-              marginBottom: '18px', textAlign: 'left',
-            }}>
-              <span style={{ fontSize: '20px', flexShrink: 0, marginTop: '1px' }}>{emoji}</span>
-              <div>
-                <p style={{ fontSize: '14px', fontWeight: 600, color: '#e2e8f0', marginBottom: '3px' }}>{title}</p>
-                <p style={{ fontSize: '13px', color: '#64748b', lineHeight: 1.5 }}>{desc}</p>
+          <div className="space-y-4 text-left">
+            {([
+              ['📧', 'Check your inbox', "We'll email you a personalized setup link"],
+              ['⚡', 'Quick 2-min setup', 'Sky walks you through everything conversationally'],
+              ['📞', 'Go live', 'Your AI front desk answers calls 24/7 from day one'],
+            ] as [string, string, string][]).map(([emoji, title, desc]) => (
+              <div key={title} className="flex items-start gap-3">
+                <span className="mt-0.5 text-xl">{emoji}</span>
+                <div>
+                  <p className="text-sm font-semibold text-gray-900">{title}</p>
+                  <p className="text-sm text-gray-500">{desc}</p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        <p style={{ fontSize: '13px', color: '#475569' }}>
+        <p className="mt-6 text-sm text-gray-500">
           Questions?{' '}
-          <a href="mailto:hello@skybridgecx.com" style={{ color: '#818cf8', textDecoration: 'none' }}>
+          <a href="mailto:hello@skybridgecx.com" className="text-indigo-600 hover:text-indigo-500">
             hello@skybridgecx.com
           </a>
         </p>
 
-        <div style={{ marginTop: '36px' }}>
-          <Link href="/" style={{ fontSize: '13px', color: '#475569', textDecoration: 'none' }}>
+        <div className="mt-6">
+          <Link href="/" className="text-sm text-gray-400 hover:text-gray-600">
             ← Back to homepage
           </Link>
         </div>

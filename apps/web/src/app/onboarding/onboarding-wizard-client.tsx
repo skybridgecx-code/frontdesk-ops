@@ -1125,11 +1125,11 @@ function SkyStyles() {
       /* ── Reset / shell ── */
       .sky-shell {
         min-height: 100svh;
-        background: #060a10;
+        background: #F7F8FA;
         display: flex;
         flex-direction: column;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        color: #f0f4f8;
+        color: #111827;
       }
 
       /* ── Header ── */
@@ -1138,9 +1138,8 @@ function SkyStyles() {
         align-items: center;
         gap: 12px;
         padding: 18px 24px;
-        border-bottom: 1px solid rgba(255,255,255,0.06);
-        background: rgba(255,255,255,0.02);
-        backdrop-filter: blur(8px);
+        border-bottom: 1px solid #e5e7eb;
+        background: #ffffff;
         position: sticky;
         top: 0;
         z-index: 10;
@@ -1162,12 +1161,12 @@ function SkyStyles() {
       .sky-header-title {
         font-size: 15px;
         font-weight: 700;
-        color: #f0f4f8;
+        color: #111827;
         line-height: 1.2;
       }
       .sky-header-sub {
         font-size: 11px;
-        color: #5a6a80;
+        color: #6b7280;
       }
 
       /* ── Chat area ── */
@@ -1220,10 +1219,11 @@ function SkyStyles() {
         line-height: 1.55;
       }
       .sky-bubble--sky {
-        background: #0d1624;
-        border: 1px solid rgba(255,255,255,0.08);
-        color: #d0dce8;
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        color: #374151;
         border-bottom-left-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.06);
       }
       .sky-bubble--user {
         background: linear-gradient(135deg, #4f46e5, #6366f1);
@@ -1265,19 +1265,19 @@ function SkyStyles() {
       }
       .sky-text-input {
         flex: 1;
-        background: #0d1624;
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #ffffff;
+        border: 1px solid #d1d5db;
         border-radius: 12px;
         padding: 12px 16px;
-        color: #f0f4f8;
+        color: #111827;
         font-size: 15px;
         outline: none;
         transition: border-color 0.15s, box-shadow 0.15s;
       }
-      .sky-text-input::placeholder { color: #3a4a5a; }
+      .sky-text-input::placeholder { color: #9ca3af; }
       .sky-text-input:focus {
         border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
       }
       .sky-send-btn {
         width: 46px;
@@ -1309,18 +1309,19 @@ function SkyStyles() {
         gap: 8px;
         padding: 10px 14px;
         border-radius: 12px;
-        border: 1px solid rgba(255,255,255,0.09);
-        background: #0d1624;
-        color: #c8d8e8;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
+        color: #374151;
         font-size: 13px;
         font-weight: 500;
         cursor: pointer;
         transition: border-color 0.15s, background 0.15s, transform 0.1s;
         text-align: left;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
       }
       .sky-chip:hover {
         border-color: #4f46e5;
-        background: rgba(79,70,229,0.1);
+        background: #eef2ff;
         transform: translateY(-1px);
       }
       .sky-chip-emoji { font-size: 16px; }
@@ -1344,23 +1345,24 @@ function SkyStyles() {
       .sky-tz-chip {
         padding: 10px 12px;
         border-radius: 10px;
-        border: 1px solid rgba(255,255,255,0.09);
-        background: #0d1624;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
         cursor: pointer;
         text-align: center;
         transition: border-color 0.15s, background 0.15s;
         display: flex;
         flex-direction: column;
         gap: 2px;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
       }
-      .sky-tz-chip:hover { border-color: rgba(255,255,255,0.2); }
+      .sky-tz-chip:hover { border-color: #a5b4fc; background: #f5f3ff; }
       .sky-tz-chip--active {
         border-color: #4f46e5;
-        background: rgba(79,70,229,0.12);
+        background: #eef2ff;
         box-shadow: 0 0 0 1px rgba(79,70,229,0.4);
       }
-      .sky-tz-label { font-size: 13px; font-weight: 600; color: #c8d8e8; }
-      .sky-tz-sub { font-size: 10px; color: #5a6a80; }
+      .sky-tz-label { font-size: 13px; font-weight: 600; color: #374151; }
+      .sky-tz-sub { font-size: 10px; color: #6b7280; }
 
       /* ── Language grid ── */
       .sky-lang-grid {
@@ -1371,19 +1373,21 @@ function SkyStyles() {
       .sky-lang-card {
         padding: 14px 16px;
         border-radius: 14px;
-        border: 1px solid rgba(255,255,255,0.09);
-        background: #0d1624;
+        border: 1px solid #e5e7eb;
+        background: #ffffff;
         cursor: pointer;
         text-align: left;
         transition: border-color 0.15s, background 0.15s, transform 0.1s;
+        box-shadow: 0 1px 2px rgba(0,0,0,0.04);
       }
       .sky-lang-card:hover {
-        border-color: rgba(79,70,229,0.5);
+        border-color: #a5b4fc;
+        background: #f5f3ff;
         transform: translateY(-1px);
       }
       .sky-lang-card--active {
         border-color: #4f46e5;
-        background: rgba(79,70,229,0.1);
+        background: #eef2ff;
         box-shadow: 0 0 0 1px rgba(79,70,229,0.4);
       }
       .sky-lang-top {
@@ -1392,16 +1396,16 @@ function SkyStyles() {
         justify-content: space-between;
         margin-bottom: 4px;
       }
-      .sky-lang-label { font-size: 14px; font-weight: 600; color: #f0f4f8; }
-      .sky-lang-sub { font-size: 12px; color: #5a6a80; line-height: 1.4; }
+      .sky-lang-label { font-size: 14px; font-weight: 600; color: #111827; }
+      .sky-lang-sub { font-size: 12px; color: #6b7280; line-height: 1.4; }
       .sky-badge {
         font-size: 9px;
         font-weight: 700;
         letter-spacing: 0.1em;
         text-transform: uppercase;
-        color: #818cf8;
-        background: rgba(79,70,229,0.2);
-        border: 1px solid rgba(79,70,229,0.4);
+        color: #4f46e5;
+        background: #eef2ff;
+        border: 1px solid #c7d2fe;
         border-radius: 999px;
         padding: 2px 8px;
       }
@@ -1409,11 +1413,11 @@ function SkyStyles() {
       /* ── Greeting textarea ── */
       .sky-textarea {
         width: 100%;
-        background: #0d1624;
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #ffffff;
+        border: 1px solid #d1d5db;
         border-radius: 12px;
         padding: 12px 16px;
-        color: #f0f4f8;
+        color: #111827;
         font-size: 14px;
         line-height: 1.55;
         resize: vertical;
@@ -1422,10 +1426,10 @@ function SkyStyles() {
         font-family: inherit;
         transition: border-color 0.15s, box-shadow 0.15s;
       }
-      .sky-textarea::placeholder { color: #3a4a5a; }
+      .sky-textarea::placeholder { color: #9ca3af; }
       .sky-textarea:focus {
         border-color: #4f46e5;
-        box-shadow: 0 0 0 3px rgba(79,70,229,0.2);
+        box-shadow: 0 0 0 3px rgba(79,70,229,0.15);
       }
 
       /* ── Phone row ── */
@@ -1436,10 +1440,10 @@ function SkyStyles() {
       }
       .sky-phone-prefix {
         padding: 12px 14px;
-        background: #0d1624;
-        border: 1px solid rgba(255,255,255,0.1);
+        background: #f9fafb;
+        border: 1px solid #d1d5db;
         border-radius: 12px;
-        color: #5a6a80;
+        color: #6b7280;
         font-size: 14px;
         font-family: ui-monospace, monospace;
         flex-shrink: 0;
@@ -1456,7 +1460,7 @@ function SkyStyles() {
         display: flex;
         align-items: center;
         gap: 8px;
-        color: #818cf8;
+        color: #4f46e5;
         font-size: 13px;
       }
 
@@ -1470,42 +1474,44 @@ function SkyStyles() {
       .sky-btn-primary {
         padding: 11px 22px;
         border-radius: 12px;
-        background: linear-gradient(135deg, #4f46e5, #6366f1);
+        background: #4f46e5;
         color: #fff;
         font-size: 14px;
         font-weight: 700;
         border: none;
         cursor: pointer;
-        transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+        transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
       }
       .sky-btn-primary:hover:not(:disabled) {
+        background: #4338ca;
         transform: translateY(-1px);
-        box-shadow: 0 8px 24px rgba(79,70,229,0.4);
+        box-shadow: 0 4px 16px rgba(79,70,229,0.3);
       }
       .sky-btn-primary:disabled { opacity: 0.5; cursor: default; }
       .sky-btn-ghost {
         padding: 11px 18px;
         border-radius: 12px;
-        background: transparent;
-        border: 1px solid rgba(255,255,255,0.1);
-        color: #5a6a80;
+        background: #ffffff;
+        border: 1px solid #d1d5db;
+        color: #6b7280;
         font-size: 14px;
         font-weight: 500;
         cursor: pointer;
-        transition: border-color 0.15s, color 0.15s;
+        transition: border-color 0.15s, color 0.15s, background 0.15s;
       }
       .sky-btn-ghost:hover:not(:disabled) {
-        border-color: rgba(255,255,255,0.2);
-        color: #c8d8e8;
+        border-color: #9ca3af;
+        color: #374151;
+        background: #f9fafb;
       }
       .sky-btn-ghost:disabled { opacity: 0.4; cursor: default; }
 
       /* ── Error ── */
       .sky-error {
         font-size: 13px;
-        color: #f87171;
-        background: rgba(248,113,113,0.1);
-        border: 1px solid rgba(248,113,113,0.2);
+        color: #dc2626;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
         border-radius: 8px;
         padding: 8px 12px;
       }
@@ -1515,11 +1521,12 @@ function SkyStyles() {
       .sky-footer {
         padding: 16px 24px;
         text-align: center;
-        border-top: 1px solid rgba(255,255,255,0.05);
+        border-top: 1px solid #e5e7eb;
+        background: #ffffff;
       }
       .sky-skip-btn {
         font-size: 12px;
-        color: #3a4a5a;
+        color: #9ca3af;
         background: none;
         border: none;
         cursor: pointer;
@@ -1527,7 +1534,7 @@ function SkyStyles() {
         text-underline-offset: 3px;
         transition: color 0.15s;
       }
-      .sky-skip-btn:hover:not(:disabled) { color: #818cf8; }
+      .sky-skip-btn:hover:not(:disabled) { color: #4f46e5; }
       .sky-skip-btn:disabled { opacity: 0.5; cursor: default; }
 
       /* ── Loading ── */
@@ -1538,7 +1545,7 @@ function SkyStyles() {
         justify-content: center;
         gap: 10px;
         font-size: 14px;
-        color: #5a6a80;
+        color: #6b7280;
       }
       .sky-spin {
         display: inline-block;
