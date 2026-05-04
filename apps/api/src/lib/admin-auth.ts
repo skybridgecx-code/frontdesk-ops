@@ -1,4 +1,13 @@
+import { timingSafeEqual } from 'node:crypto';
 import type { FastifyReply, FastifyRequest } from 'fastify';
+
+// SECURITY (M1, 2026-04-27): constant-time string comparison so a network-side
+// attacker cannot infer the admin secret one byte at a time from response
+// timing differences.
+function safeEqualString(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  return timingSafeEqual(Buffer.from(a), Buffer.from(b));
+}
 
 export async function requireAdminAuth(
   request: FastifyRequest,
@@ -20,7 +29,7 @@ export async function requireAdminAuth(
 
   const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : authHeader;
 
-  if (token !== secret) {
+  if (!safeEqualString(token, secret)) {
     reply.code(403).send({ error: 'Invalid admin credentials' });
     return;
   }

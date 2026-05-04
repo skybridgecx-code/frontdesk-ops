@@ -1,10 +1,11 @@
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { Readable } from 'node:stream';
-import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import type { FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { CallDirection, prisma } from '@frontdesk/db';
 import { mapNormalizedVoiceStatusToCallStatus } from '../lib/voice-provider/event-mapping.js';
 import {
   applyNormalizedStatusUpdateToCall,
+  persistNormalizedProviderEvent,
   persistNormalizedStatusEvent,
   persistNormalizedTranscriptArtifact
 } from '../lib/voice-provider/persistence.js';
@@ -28,7 +29,9 @@ type RequestWithRawBody = FastifyRequest & {
   rawBody?: Buffer;
 };
 
-const RETELL_WEBHOOK_PATH = '/v1/twilio/retell/webhook';
+const RETELL_WEBHOOK_PREFIX = '/v1/twilio/retell';
+const RETELL_WEBHOOK_PATH = '/webhook';
+const RETELL_FULL_WEBHOOK_PATH = `${RETELL_WEBHOOK_PREFIX}${RETELL_WEBHOOK_PATH}`;
 
 function isUniqueConstraintViolation(error: unknown) {
   return (
@@ -87,6 +90,11 @@ function extractRetellSandboxAgentId(payload: unknown) {
 }
 
 function shouldSkipRetellWebhookSignatureVerification() {
+  // SECURITY (H1, 2026-04-27): the `=skip` shortcut is a developer convenience
+  // so local sandbox calls can be replayed without a real Retell secret. It is
+  // gated to non-production environments to prevent a misconfigured prod env
+  // from silently disabling Retell webhook signature verification.
+  if (process.env.NODE_ENV === 'production') return false;
   return process.env.RETELL_WEBHOOK_SECRET === 'skip';
 }
 
@@ -156,26 +164,39 @@ async function verifyRetellWebhookSignature(request: FastifyRequest, reply: Fast
 
   const webhookSecret = process.env.RETELL_WEBHOOK_SECRET?.trim();
   if (!webhookSecret) {
-    request.log.error({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook secret is not configured');
+    request.log.error({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook secret is not configured');
     await reply.status(500).send({ error: 'webhook secret not configured' });
     return false;
   }
 
   const signature = getHeaderValue(request.headers['x-retell-signature']);
   if (!signature) {
-    request.log.warn({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
+    request.log.warn({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
     await reply.status(401).send({ error: 'invalid signature' });
     return false;
   }
 
   const expectedSignature = createHmac('sha256', webhookSecret).update(getRawBody(request)).digest('hex');
   if (!signaturesMatch(expectedSignature, signature)) {
-    request.log.warn({ route: RETELL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
+    request.log.warn({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
     await reply.status(401).send({ error: 'invalid signature' });
     return false;
   }
 
   return true;
+}
+
+function normalizeRetellEventType(input: unknown) {
+  if (!isRecord(input)) {
+    return null;
+  }
+
+  const event = getString(input, 'event', 'event_type', 'eventType');
+  if (!event) {
+    return null;
+  }
+
+  return event.toLowerCase().replaceAll('.', '_').replaceAll('-', '_');
 }
 
 function parseConfiguredRetellSandboxAgentIds() {
@@ -345,7 +366,7 @@ async function resolveCallForRetellWebhook(input: {
  * lifecycle data into existing Call/CallEvent storage without touching
  * Twilio production routing paths.
  */
-export async function registerRetellWebhookRoutes(app: FastifyInstance) {
+export const registerRetellWebhookRoutes: FastifyPluginAsync = async (app) => {
   app.post(RETELL_WEBHOOK_PATH, { preParsing: rawBodyHook }, async (request, reply) => {
     const signatureVerified = await verifyRetellWebhookSignature(request, reply);
     if (!signatureVerified) {
@@ -354,6 +375,7 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
 
     const body = request.body ?? {};
     const retellAdapter = getVoiceProviderAdapter('retell');
+    const normalizedEventType = normalizeRetellEventType(body);
 
     const statusUpdate = retellAdapter.normalizeStatusUpdate?.(body) ?? null;
     const transcriptArtifact = retellAdapter.normalizeTranscriptArtifact?.(body) ?? null;
@@ -402,7 +424,8 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
       await persistNormalizedStatusEvent({
         callId: resolved.call.id,
         statusUpdate,
-        payloadJson: body
+        payloadJson: body,
+        eventTypePrefix: 'retell.status'
       });
 
       applied.status = true;
@@ -414,6 +437,16 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
         artifact: transcriptArtifact
       });
       applied.transcript = transcriptResult.updated;
+
+      const transcriptEventType =
+        normalizedEventType && normalizedEventType.length > 0
+          ? `retell.${normalizedEventType}`
+          : 'retell.call_analyzed';
+      await persistNormalizedProviderEvent({
+        callId: resolved.call.id,
+        eventType: transcriptEventType,
+        payloadJson: body
+      });
     }
 
     request.log.info({
@@ -435,4 +468,4 @@ export async function registerRetellWebhookRoutes(app: FastifyInstance) {
       applied
     };
   });
-}
+};

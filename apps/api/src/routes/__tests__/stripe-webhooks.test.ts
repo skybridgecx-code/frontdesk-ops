@@ -252,12 +252,12 @@ describe('stripe webhook hardening routes', () => {
   });
 
   it('skips duplicate events by idempotency key', async () => {
-    processedWebhookFindUniqueMock.mockResolvedValue({
-      id: 'processed_1',
-      eventId: 'evt_dup_1',
-      type: 'checkout.session.completed',
-      createdAt: new Date('2026-01-01T00:00:00.000Z')
-    });
+    // claimWebhookEventAtomically does an atomic INSERT and treats a unique
+    // constraint violation as the duplicate signal — it never calls findUnique.
+    // Simulate the violation so the handler returns {received:true,duplicate:true}.
+    processedWebhookCreateMock.mockRejectedValueOnce(
+      new Error('Unique constraint failed on the fields: (`eventId`)')
+    );
 
     constructEventMock.mockReturnValue({
       id: 'evt_dup_1',

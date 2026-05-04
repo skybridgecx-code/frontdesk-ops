@@ -70,7 +70,15 @@ function validateStartAuthentication(input: {
 
   const internalSecret = getConfiguredInternalSecret();
   if (!internalSecret) {
-    return { valid: true, source: 'dev' };
+    // SECURITY (C2, 2026-04-27): fail closed in production. The realtime
+    // gateway accepts the start event without HMAC validation only when
+    // running in development. Production deploys must set
+    // FRONTDESK_INTERNAL_API_SECRET; otherwise a forged WebSocket can stand
+    // up a fake call and burn OpenAI Realtime tokens.
+    if (process.env.NODE_ENV === 'development') {
+      return { valid: true, source: 'dev' };
+    }
+    return { valid: false, reason: 'internal_secret_not_configured' };
   }
 
   if (

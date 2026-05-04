@@ -84,6 +84,7 @@ describe('analytics routes', () => {
 
   afterEach(() => {
     process.env = { ...originalEnv };
+    vi.useRealTimers();
   });
 
   it('overview returns correct counts and rates', async () => {
@@ -156,6 +157,11 @@ describe('analytics routes', () => {
   });
 
   it('call-volume returns daily grouped data for 30d', async () => {
+    // Pin "now" so 2026-04-01 is always inside the 30-day window regardless of
+    // when this test runs.  window: 2026-03-31 → 2026-04-30 (30 d).
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-04-30T12:00:00.000Z'));
+
     queryRawMock.mockResolvedValueOnce([
       { bucket: new Date('2026-04-01T00:00:00.000Z'), total: 3, answered: 2, missed: 1 },
       { bucket: new Date('2026-04-02T00:00:00.000Z'), total: 1, answered: 1, missed: 0 }

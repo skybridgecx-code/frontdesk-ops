@@ -1,4 +1,4 @@
-export type VoiceProvider = 'twilio' | 'retell';
+export type VoiceProvider = 'twilio' | 'retell' | 'telnyx';
 
 export type NormalizedVoiceCallStatus =
   | 'ringing'

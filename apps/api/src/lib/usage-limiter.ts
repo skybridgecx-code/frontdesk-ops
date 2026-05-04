@@ -131,21 +131,39 @@ export function enforceUsageLimits(scope: UsageLimitScope): preHandlerHookHandle
 
     const subscription = await getSubscriptionByTenantId(tenantId);
 
-    if (!subscription) {
-      return;
-    }
-
-    const plan = resolvePlan(subscription);
+    // SECURITY (H4, 2026-04-27): if a tenant has no subscription record yet
+    // (Stripe webhook hasn't fired, or signup is mid-flight), apply a
+    // conservative FREE-tier ceiling rather than skipping enforcement.
+    // Previously this returned early and granted unlimited usage, which is a
+    // real cost-leak vector for self-serve signups and a race window during
+    // Stripe propagation.
+    const FREE_PLAN_FALLBACK = {
+      callsPerMonth: 25,
+      maxPhoneNumbers: 1,
+      maxBusinesses: 1
+    } as const;
+    const plan = subscription ? resolvePlan(subscription) : FREE_PLAN_FALLBACK;
 
     if (scope === 'calls') {
       if (plan.callsPerMonth === -1) {
         return;
       }
 
+      // For tenants without a subscription, count against a rolling 30-day
+      // window starting from the current month boundary so free-plan caps
+      // still apply.
+      const now = new Date();
+      const periodStart = subscription
+        ? subscription.currentPeriodStart
+        : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1));
+      const periodEnd = subscription
+        ? subscription.currentPeriodEnd
+        : new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth() + 1, 0, 23, 59, 59));
+
       const callsThisPeriod = await countCallsForPeriod({
         tenantId,
-        start: subscription.currentPeriodStart,
-        end: subscription.currentPeriodEnd
+        start: periodStart,
+        end: periodEnd
       });
 
       if (callsThisPeriod >= plan.callsPerMonth) {

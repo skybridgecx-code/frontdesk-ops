@@ -185,7 +185,7 @@ export async function buildServer() {
   await registerVoiceWebhookRoutes(app);
   await registerVoiceStatusWebhookRoutes(app);
   await registerVoiceRecordingWebhookRoutes(app);
-  await registerRetellWebhookRoutes(app);
+  await app.register(registerRetellWebhookRoutes, { prefix: '/v1/twilio/retell' });
   // Live legacy gather/voicemail Twilio path. Kept active until migration classification/cutover.
   await app.register(registerLiveLegacyTwilioVoiceRoutes);
   await registerStripeWebhookRoutes(app);

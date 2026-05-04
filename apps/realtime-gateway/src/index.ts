@@ -16,12 +16,40 @@ await app.register(websocket);
 
 app.get('/health', async () => ({ ok: true, service: 'realtime-gateway' }));
 
+// SECURITY (H2, 2026-04-27): hard cap on call duration to bound OpenAI
+// Realtime spend per call. Default 10 minutes; override with
+// FRONTDESK_MAX_CALL_DURATION_SECONDS. A motivated caller leaving silence
+// on the line cannot rack up unbounded charges.
+const MAX_CALL_DURATION_MS = (() => {
+  const raw = process.env.FRONTDESK_MAX_CALL_DURATION_SECONDS;
+  const parsed = raw ? Number(raw) : NaN;
+  if (Number.isFinite(parsed) && parsed > 0 && parsed <= 60 * 60) {
+    return Math.floor(parsed) * 1000;
+  }
+  return 10 * 60 * 1000;
+})();
+
 app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
   const url = new URL(request.url, 'http://localhost');
   const queryCallSid = url.searchParams.get('callSid');
   const phoneNumberId = url.searchParams.get('phoneNumberId');
   const agentProfileId = url.searchParams.get('agentProfileId');
   const token = url.searchParams.get('token');
+
+  // Hard cap on the WebSocket lifetime (H2). Closes the socket cleanly so the
+  // OpenAI bridge tears down; Twilio will hang up the parent call.
+  const maxDurationTimer = setTimeout(() => {
+    app.log.warn({
+      msg: 'media stream closed by max-duration cap',
+      callSid: queryCallSid,
+      maxDurationMs: MAX_CALL_DURATION_MS
+    });
+    try {
+      socket.close(4408, 'Max call duration exceeded');
+    } catch {
+      // best effort
+    }
+  }, MAX_CALL_DURATION_MS);
 
   // Query-param auth remains supported for local/manual fallback.
   const hasQueryAuthInput = Boolean(queryCallSid || phoneNumberId || agentProfileId || token);
@@ -197,11 +225,16 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
   // ── Cleanup ──
   socket.on('close', () => {
     clearStartAuthTimeout();
+    clearTimeout(maxDurationTimer);
     if (state.openAISocket) state.openAISocket.close();
     app.log.info({ msg: 'media stream websocket closed', callSid: state.queryCallSid });
   });
 
   socket.on('error', (error: Error) => {
+    // H2 follow-up (2026-04-27): also clear the duration timer on `error` —
+    // the 'close' handler usually fires too, but we don't want to rely on
+    // ordering for cleanup of an unbounded resource.
+    clearTimeout(maxDurationTimer);
     app.log.error({ msg: 'media stream websocket error', callSid: state.queryCallSid, error });
   });
 });

@@ -1,5 +1,7 @@
 # SkyBridgeCX — First-Customer Outreach Kit
 
+> **2026-04-27 update:** This kit is the "tactical week 1" plan — what Mo runs by hand. The full operating doctrine (ICP, cadence, copy library, objection handling, pipeline math, weekly cadence) lives in **[`OUTREACH_PLAYBOOK.md`](./OUTREACH_PLAYBOOK.md)**. The agent at [`agents/skybridge-outreach.md`](../agents/skybridge-outreach.md) reads the playbook on every run.
+
 Goal: book 5 demos this week → close 1–2 paying customers. Targeting **owner-operator home-services contractors** in HVAC, plumbing, electrical, roofing.
 
 ## ICP (lock this in writing)

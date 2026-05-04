@@ -159,6 +159,36 @@ async function recordProcessedWebhookEvent(eventId: string, type: string) {
   }
 }
 
+/**
+ * SECURITY (H3, 2026-04-27): atomically claim the right to process this Stripe
+ * event. Returns `true` if this delivery is the first one to insert; `false`
+ * if another concurrent delivery beat us to it (unique constraint violation).
+ *
+ * The previous implementation checked existence then recorded at the end,
+ * leaving a race where two near-simultaneous Stripe retries could both pass
+ * the check and both run side effects (sending two billing emails, etc).
+ */
+async function claimWebhookEventAtomically(eventId: string, type: string): Promise<boolean> {
+  if (!shouldUseProcessedWebhookStore()) {
+    return true;
+  }
+
+  try {
+    await prisma.processedWebhookEvent.create({
+      data: { eventId, type }
+    });
+    return true;
+  } catch (error: unknown) {
+    const isUniqueViolation =
+      error instanceof Error &&
+      (error.message.includes('Unique constraint') ||
+        error.message.includes('unique constraint'));
+    if (isUniqueViolation) return false;
+    // DB hiccup — fall back to the looser check; logged in caller.
+    throw error;
+  }
+}
+
 async function updateTenantFromCheckoutSession(session: Stripe.Checkout.Session) {
   const tenantId = getTenantIdFromMetadata(session.metadata);
   const planKey = toPlanKey(session.metadata?.planKey ?? null);
@@ -322,12 +352,31 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
           });
         }
 
-        const existing = await findProcessedWebhookEvent(event.id);
-        if (existing) {
-          return reply.send({
-            received: true,
-            duplicate: true
-          });
+        // SECURITY (H3, 2026-04-27): atomic claim. If another delivery already
+        // started processing this event id, we exit early with `duplicate: true`
+        // before any side effects run.
+        //
+        // SECURITY (H3 follow-up, 2026-04-27): if the claim *throws* (DB
+        // hiccup), we MUST NOT fall back to a non-atomic existence check —
+        // two concurrent deliveries could both fail the claim, both pass the
+        // existence check, and both run side effects. Instead, surface a 503
+        // and let Stripe retry. Stripe retries with exponential backoff for up
+        // to 3 days, so a transient DB blip is recoverable without duplication.
+        let claimed: boolean;
+        try {
+          claimed = await claimWebhookEventAtomically(event.id, event.type);
+        } catch (error: unknown) {
+          request.log.error(
+            { err: error, eventId: event.id, eventType: event.type },
+            'Stripe webhook idempotency claim failed; asking Stripe to retry.'
+          );
+          return reply
+            .code(503)
+            .send({ received: false, error: 'idempotency_claim_failed_retry' });
+        }
+
+        if (!claimed) {
+          return reply.send({ received: true, duplicate: true });
         }
 
         if (event.type === 'checkout.session.completed') {
@@ -496,7 +545,7 @@ export async function registerStripeWebhookRoutes(app: FastifyInstance) {
           }
         }
 
-        await recordProcessedWebhookEvent(event.id, event.type);
+        // Idempotency record was already inserted above (claimWebhookEventAtomically).
 
         return reply.send({
           received: true

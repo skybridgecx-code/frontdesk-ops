@@ -14,9 +14,16 @@ export function authorizeWebSocket(
 ): boolean {
   const expectedSecret = process.env.FRONTDESK_INTERNAL_API_SECRET;
 
+  // SECURITY (C2, 2026-04-27): fail closed in production.
+  // Previously this returned `true` whenever the secret was unset, so a
+  // misconfigured prod deploy accepted any WebSocket and would happily burn
+  // OpenAI Realtime tokens. Allow the bypass only when explicitly running in
+  // development.
   if (!expectedSecret) {
-    // No secret configured — allow (dev mode)
-    return true;
+    if (process.env.NODE_ENV === 'development') return true;
+    log.error({ msg: 'WebSocket rejected: FRONTDESK_INTERNAL_API_SECRET not configured', callSid });
+    socket.close(4500, 'Server misconfigured');
+    return false;
   }
 
   if (

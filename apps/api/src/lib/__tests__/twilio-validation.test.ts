@@ -101,6 +101,9 @@ describe('requireTwilioSignature', () => {
   it('allows in development when TWILIO_AUTH_TOKEN is not set', () => {
     delete process.env.TWILIO_AUTH_TOKEN;
     process.env.NODE_ENV = 'development';
+    // The implementation requires an explicit opt-in to prevent a typo'd
+    // NODE_ENV from silently disabling signature verification in production.
+    process.env.TWILIO_SIGNATURE_DISABLED_FOR_DEV = 'true';
     const result = requireTwilioSignature(makeRequest('/v1/twilio/voice/inbound', ''), {});
     expect(result).toEqual({ valid: true });
   });

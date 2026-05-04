@@ -60,9 +60,19 @@ describe('enforceBasicAuth', () => {
     process.env = { ...originalEnv };
   });
 
-  it('returns true when basic auth credentials are not configured', () => {
+  it('fails closed (503) when no auth is configured outside development (C1)', () => {
     delete process.env.BASIC_AUTH_USERNAME;
     delete process.env.BASIC_AUTH_PASSWORD;
+    process.env.NODE_ENV = 'production';
+    const reply = makeFastifyReply();
+    expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(false);
+    expect(reply.statusCode).toBe(503);
+  });
+
+  it('allows the bypass only when NODE_ENV=development (C1 dev escape)', () => {
+    delete process.env.BASIC_AUTH_USERNAME;
+    delete process.env.BASIC_AUTH_PASSWORD;
+    process.env.NODE_ENV = 'development';
     const reply = makeFastifyReply();
     expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(true);
   });
@@ -127,10 +137,12 @@ describe('enforceBasicAuth', () => {
     expect(reply.statusCode).toBe(401);
   });
 
-  it('returns true when one credential is missing', () => {
+  it('fails closed (503) when one credential is missing outside development (C1)', () => {
     delete process.env.BASIC_AUTH_PASSWORD;
+    process.env.NODE_ENV = 'production';
     const reply = makeFastifyReply();
-    expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(true);
+    expect(enforceBasicAuth(makeFastifyRequest(), reply)).toBe(false);
+    expect(reply.statusCode).toBe(503);
   });
 
   it('handles colons in password', () => {

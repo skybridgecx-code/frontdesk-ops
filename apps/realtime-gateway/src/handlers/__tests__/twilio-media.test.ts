@@ -86,7 +86,8 @@ describe('handleStart', () => {
       { event: 'start', start: { streamSid: 'MZ456', callSid: 'CA123' } },
       state,
       events,
-      100
+      100,
+      { queryAuthVerified: true }
     );
 
     expect(state.currentStreamSid).toBe('MZ456');
@@ -109,7 +110,8 @@ describe('handleStart', () => {
       { event: 'start', start: { streamSid: 'MZ789' } },
       state,
       events,
-      50
+      50,
+      { queryAuthVerified: true }
     );
 
     expect(mockPrisma.call.updateMany).toHaveBeenCalledWith({

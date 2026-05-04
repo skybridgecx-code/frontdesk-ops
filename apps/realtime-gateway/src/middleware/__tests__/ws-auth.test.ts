@@ -30,12 +30,25 @@ describe('authorizeWebSocket', () => {
     process.env = { ...originalEnv };
   });
 
-  it('allows connection when no secret is configured (dev mode)', () => {
+  it('allows connection when no secret is configured AND NODE_ENV=development (dev mode)', () => {
     delete process.env.FRONTDESK_INTERNAL_API_SECRET;
+    process.env.NODE_ENV = 'development';
     const socket = makeSocket();
     const result = authorizeWebSocket(socket, null, 'CA123', makeLogger());
     expect(result).toBe(true);
     expect(socket.closed).toBe(false);
+  });
+
+  it('fails closed when no secret is configured outside development (C2)', () => {
+    delete process.env.FRONTDESK_INTERNAL_API_SECRET;
+    process.env.NODE_ENV = 'production';
+    const socket = makeSocket();
+    const log = makeLogger();
+    const result = authorizeWebSocket(socket, null, 'CA123', log);
+    expect(result).toBe(false);
+    expect(socket.closed).toBe(true);
+    expect(socket.closeCode).toBe(4500);
+    expect(log.error).toHaveBeenCalled();
   });
 
   it('allows connection with correct token', () => {

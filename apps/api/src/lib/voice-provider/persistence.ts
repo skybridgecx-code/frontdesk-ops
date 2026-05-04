@@ -151,8 +151,10 @@ export async function persistNormalizedStatusEvent(input: {
   callId: string;
   statusUpdate: NormalizedVoiceStatusUpdate;
   payloadJson?: unknown;
+  eventTypePrefix?: string;
 }) {
-  const eventType = `twilio.status.${toLegacyStatusEventSuffix(input.statusUpdate.status)}`;
+  const eventTypePrefix = input.eventTypePrefix?.trim() || 'twilio.status';
+  const eventType = `${eventTypePrefix}.${toLegacyStatusEventSuffix(input.statusUpdate.status)}`;
 
   await persistCallEventWithRetry({
     callId: input.callId,
@@ -161,6 +163,20 @@ export async function persistNormalizedStatusEvent(input: {
   });
 
   return eventType;
+}
+
+export async function persistNormalizedProviderEvent(input: {
+  callId: string;
+  eventType: string;
+  payloadJson?: unknown;
+}) {
+  await persistCallEventWithRetry({
+    callId: input.callId,
+    type: input.eventType,
+    payloadJson: input.payloadJson ?? null
+  });
+
+  return input.eventType;
 }
 
 export async function persistNormalizedTranscriptArtifact(input: {

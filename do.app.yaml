@@ -1,0 +1,129 @@
+name: skybridgecx
+region: nyc
+
+databases:
+  - name: skybridgecx-db
+    engine: PG
+    production: true
+    cluster_name: skybridgecx-db
+
+services:
+  - name: api
+    dockerfile_path: apps/api/Dockerfile
+    source_dir: /
+    http_port: 4000
+    instance_size_slug: basic-xs
+    instance_count: 1
+    routes:
+      - path: /v1
+      - path: /healthz
+    health_check:
+      http_path: /healthz
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT_API
+        value: "4000"
+      - key: DATABASE_URL
+        value: ${skybridgecx-db.DATABASE_URL}
+        type: SECRET
+      - key: FRONTDESK_API_PUBLIC_URL
+        value: ${APP_URL}
+      - key: FRONTDESK_INTERNAL_API_SECRET
+        value: REPLACE_ME_FRONTDESK_INTERNAL_API_SECRET
+        type: SECRET
+      - key: CLERK_SECRET_KEY
+        value: REPLACE_ME_CLERK_SECRET_KEY
+        type: SECRET
+      - key: STRIPE_SECRET_KEY
+        value: REPLACE_ME_STRIPE_SECRET_KEY
+        type: SECRET
+      - key: STRIPE_WEBHOOK_SECRET
+        value: REPLACE_ME_STRIPE_WEBHOOK_SECRET
+        type: SECRET
+      - key: STRIPE_PRICE_ID_STARTER
+        value: REPLACE_ME_STRIPE_PRICE_ID_STARTER
+        type: SECRET
+      - key: STRIPE_PRICE_ID_PRO
+        value: REPLACE_ME_STRIPE_PRICE_ID_PRO
+        type: SECRET
+      - key: STRIPE_PRICE_ID_ENTERPRISE
+        value: REPLACE_ME_STRIPE_PRICE_ID_ENTERPRISE
+        type: SECRET
+      - key: TELNYX_API_KEY
+        value: REPLACE_ME_TELNYX_API_KEY
+        type: SECRET
+      - key: TELNYX_VOICE_PROFILE_ID
+        value: REPLACE_ME_TELNYX_VOICE_PROFILE_ID
+        type: SECRET
+      - key: TELNYX_CONNECTION_ID
+        value: REPLACE_ME_TELNYX_CONNECTION_ID
+        type: SECRET
+      - key: RETELL_API_KEY
+        value: REPLACE_ME_RETELL_API_KEY
+        type: SECRET
+      - key: RETELL_AGENT_ID_HOME_SERVICES
+        value: REPLACE_ME_RETELL_AGENT_ID_HOME_SERVICES
+        type: SECRET
+      - key: RETELL_WEBHOOK_SECRET
+        value: REPLACE_ME_RETELL_WEBHOOK_SECRET
+        type: SECRET
+      - key: RESEND_API_KEY
+        value: REPLACE_ME_RESEND_API_KEY
+        type: SECRET
+      - key: NOTIFICATION_FROM_EMAIL
+        value: SkyBridgeCX <notifications@skybridgecx.com>
+      - key: SENTRY_DSN
+        value: REPLACE_ME_SENTRY_DSN
+        type: SECRET
+
+  - name: web
+    dockerfile_path: docker/web.Dockerfile
+    source_dir: /
+    http_port: 3000
+    instance_size_slug: basic-xs
+    instance_count: 1
+    routes:
+      - path: /
+    health_check:
+      http_path: /
+    envs:
+      - key: NODE_ENV
+        value: production
+      - key: PORT_WEB
+        value: "3000"
+      - key: NEXT_PUBLIC_API_URL
+        value: ${api.PUBLIC_URL}
+      - key: FRONTDESK_API_BASE_URL
+        value: ${api.PUBLIC_URL}
+      - key: FRONTDESK_INTERNAL_API_SECRET
+        value: REPLACE_ME_FRONTDESK_INTERNAL_API_SECRET
+        type: SECRET
+      - key: NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+        value: REPLACE_ME_NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+      - key: CLERK_SECRET_KEY
+        value: REPLACE_ME_CLERK_SECRET_KEY
+        type: SECRET
+      - key: NEXT_PUBLIC_CLERK_SIGN_IN_URL
+        value: /sign-in
+      - key: NEXT_PUBLIC_CLERK_SIGN_UP_URL
+        value: /sign-up
+      - key: NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL
+        value: /dashboard
+      - key: NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL
+        value: /onboarding
+      - key: NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+        value: REPLACE_ME_NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      - key: NEXT_PUBLIC_ADMIN_EMAILS
+        value: REPLACE_ME_NEXT_PUBLIC_ADMIN_EMAILS
+      - key: SENTRY_DSN
+        value: REPLACE_ME_SENTRY_DSN
+        type: SECRET
+
+domains:
+  - domain: skybridgecx.com
+    type: PRIMARY
+    zone: skybridgecx.com
+  - domain: app.skybridgecx.com
+    type: ALIAS
+    zone: skybridgecx.com

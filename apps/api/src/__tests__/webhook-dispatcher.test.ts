@@ -1,6 +1,16 @@
 import { createHmac } from 'node:crypto';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
+// Mock Node's DNS lookup so assertWebhookUrlIsSafe resolves via a microtask
+// rather than real I/O.  This is essential for the fake-timer timeout test:
+// vi.advanceTimersByTimeAsync flushes microtasks but not libuv I/O callbacks,
+// so without this mock the setTimeout inside postWithTimeout is registered
+// *after* the advance completes and therefore never fires.
+// The SSRF guard code still executes; 93.184.216.34 is a legitimate public IP.
+vi.mock('node:dns/promises', () => ({
+  lookup: vi.fn().mockResolvedValue([{ address: '93.184.216.34', family: 4 }])
+}));
+
 const {
   findManyMock,
   createDeliveryMock,

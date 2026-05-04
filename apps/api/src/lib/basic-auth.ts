@@ -35,7 +35,19 @@ export function enforceBasicAuth(request: FastifyRequest, reply: FastifyReply) {
   const expectedPass = process.env.BASIC_AUTH_PASSWORD;
   const internalSecret = process.env.FRONTDESK_INTERNAL_API_SECRET;
 
-  if (!expectedUser || !expectedPass) return true;
+  // SECURITY (C1, 2026-04-27): fail closed when no auth scheme is configured.
+  // Previously this returned `true`, which meant a deploy missing both
+  // CLERK_SECRET_KEY *and* BASIC_AUTH_* served the entire dashboard API
+  // unauthenticated. In development, allow the bypass; everywhere else,
+  // refuse the request with 503 so the misconfiguration is loud.
+  if (!expectedUser || !expectedPass) {
+    if (process.env.NODE_ENV === 'development') return true;
+    reply.code(503).send({
+      ok: false,
+      error: 'Auth not configured. Set CLERK_SECRET_KEY or BASIC_AUTH_USERNAME/BASIC_AUTH_PASSWORD.'
+    });
+    return false;
+  }
 
   const internalHeader = request.headers['x-frontdesk-internal-secret'];
   if (

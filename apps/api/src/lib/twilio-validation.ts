@@ -31,7 +31,15 @@ export function requireTwilioSignature(
 ): { valid: boolean; error?: string } {
   const authToken = process.env.TWILIO_AUTH_TOKEN;
   if (!authToken) {
-    if (process.env.NODE_ENV === 'development') return { valid: true };
+    // SECURITY (M2, 2026-04-27): the dev shortcut requires NODE_ENV=development
+    // *and* an explicit opt-in env var so a typo'd NODE_ENV in production
+    // cannot disable Twilio signature verification by accident.
+    if (
+      process.env.NODE_ENV === 'development' &&
+      process.env.TWILIO_SIGNATURE_DISABLED_FOR_DEV === 'true'
+    ) {
+      return { valid: true };
+    }
     return { valid: false, error: 'TWILIO_AUTH_TOKEN is not configured' };
   }
 

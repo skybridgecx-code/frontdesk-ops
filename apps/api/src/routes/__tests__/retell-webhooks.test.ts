@@ -69,13 +69,13 @@ vi.mock('@frontdesk/db', async (importOriginal) => {
 
 async function createApp() {
   const app = fastify({ logger: false });
-  await registerRetellWebhookRoutes(app);
+  await app.register(registerRetellWebhookRoutes, { prefix: '/v1/twilio/retell' });
   return app;
 }
 
 async function createCompatibilityApp() {
   const app = fastify({ logger: false });
-  await registerRetellWebhookRoutes(app);
+  await app.register(registerRetellWebhookRoutes, { prefix: '/v1/twilio/retell' });
   await registerCallRoutes(app);
   return app;
 }
@@ -330,13 +330,11 @@ describe('retell-webhooks route', () => {
         callerTranscript: 'Caller reported no heat.'
       }
     });
-    expect(callEventCreateMock).toHaveBeenCalledWith({
-      data: expect.objectContaining({
-        callId: 'call_1',
-        type: 'twilio.status.completed',
-        sequence: 1
-      })
-    });
+    const createdEventTypes = callEventCreateMock.mock.calls.map(
+      (call) => call[0].data.type as string
+    );
+    expect(createdEventTypes).toContain('retell.status.completed');
+    expect(createdEventTypes).toContain('retell.call_ended');
 
     await app.close();
   });
@@ -388,7 +386,13 @@ describe('retell-webhooks route', () => {
         callerTranscript: 'Caller requested emergency plumbing repair.'
       }
     });
-    expect(callEventCreateMock).not.toHaveBeenCalled();
+    expect(callEventCreateMock).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        callId: 'call_1',
+        type: 'retell.call_analyzed',
+        sequence: 1
+      })
+    });
 
     await app.close();
   });
@@ -907,32 +911,57 @@ describe('retell-webhooks route', () => {
 
     const app = await createCompatibilityApp();
 
-    const webhookResponse = await app.inject({
+    const startedResponse = await app.inject({
       method: 'POST',
       url: '/v1/twilio/retell/webhook',
       payload: {
-        event: 'call_ended',
+        event: 'call_started',
         call: {
           id: 'retell_contract_1',
-          status: 'ended',
+          status: 'in_progress',
           from_number: '+15551230000',
           to_number: '+12029350000',
-          start_timestamp: '2026-04-20T12:00:00.000Z',
-          end_timestamp: '2026-04-20T12:00:34.000Z',
-          duration_ms: 34000,
+          start_timestamp: '2026-04-20T12:00:00.000Z'
+        }
+      }
+    });
+
+    expect(startedResponse.statusCode).toBe(200);
+    expect(startedResponse.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_contract_1',
+      providerCallId: 'retell_contract_1',
+      correlationSource: 'created-from-status-payload',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+
+    const analyzedResponse = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      payload: {
+        event: 'call_analyzed',
+        call: {
+          id: 'retell_contract_1',
+          status: 'in_progress',
+          from_number: '+15551230000',
+          to_number: '+12029350000',
           transcript: 'Caller requested emergency HVAC repair.',
           call_summary: 'Emergency HVAC request'
         }
       }
     });
 
-    expect(webhookResponse.statusCode).toBe(200);
-    expect(webhookResponse.json()).toEqual({
+    expect(analyzedResponse.statusCode).toBe(200);
+    expect(analyzedResponse.json()).toEqual({
       ok: true,
       provider: 'retell',
       callId: 'call_contract_1',
       providerCallId: 'retell_contract_1',
-      correlationSource: 'created-from-status-payload',
+      correlationSource: 'sid',
       applied: {
         status: true,
         transcript: true
@@ -959,10 +988,10 @@ describe('retell-webhooks route', () => {
     expect(listBody.calls[0]).toEqual(
       expect.objectContaining({
         twilioCallSid: 'retell_contract_1',
-        status: 'COMPLETED',
+        status: 'IN_PROGRESS',
         fromE164: '+15551230000',
         toE164: '+12029350000',
-        durationSeconds: 34,
+        durationSeconds: null,
         summary: 'Emergency HVAC request',
         callerTranscript: 'Caller requested emergency HVAC repair.'
       })
@@ -989,18 +1018,22 @@ describe('retell-webhooks route', () => {
         ok: true,
         call: expect.objectContaining({
           twilioCallSid: 'retell_contract_1',
-          status: 'COMPLETED',
-          durationSeconds: 34,
+          status: 'IN_PROGRESS',
+          durationSeconds: null,
           summary: 'Emergency HVAC request',
           callerTranscript: 'Caller requested emergency HVAC repair.'
         })
       })
     );
+    expect(detailBody.call.events.every((event: { type: string }) => event.type.startsWith('retell.'))).toBe(true);
     expect(detailBody.call).toEqual(
       expect.objectContaining({
         events: expect.arrayContaining([
           expect.objectContaining({
-            type: 'twilio.status.completed'
+            type: 'retell.status.in-progress'
+          }),
+          expect.objectContaining({
+            type: 'retell.call_analyzed'
           })
         ])
       })
