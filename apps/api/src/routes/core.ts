@@ -87,6 +87,13 @@ export async function registerCoreRoutes(app: FastifyInstance) {
     };
   });
 
+  app.get('/healthz', async () => {
+    return {
+      ok: true,
+      timestamp: new Date().toISOString()
+    };
+  });
+
   app.get('/v1/ping', async () => {
     return {
       pong: true

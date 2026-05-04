@@ -55,6 +55,7 @@ function shouldSkipTenantResolver(url: string) {
 
   return (
     pathname === '/health' ||
+    pathname === '/healthz' ||
     pathname === '/v1/ping' ||
     pathname === '/v1/bootstrap' ||
     pathname.startsWith('/v1/admin/') ||

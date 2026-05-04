@@ -10,6 +10,7 @@ function shouldSkipTenantResolver(url: string) {
 
   return (
     pathname === '/health' ||
+    pathname === '/healthz' ||
     pathname === '/v1/ping' ||
     pathname.startsWith('/v1/twilio/') ||
     pathname.startsWith('/v1/stripe/') ||
@@ -44,6 +45,7 @@ async function createApp() {
   }));
 
   app.get('/health', async () => ({ ok: true }));
+  app.get('/healthz', async () => ({ ok: true }));
   app.get('/v1/ping', async () => ({ pong: true }));
   app.post('/v1/twilio/voice/inbound/mock', async () => ({ ok: true }));
   app.post('/v1/clerk/webhooks', async () => ({ ok: true }));
@@ -144,9 +146,11 @@ describe('tenant resolver middleware', () => {
     const app = await createApp();
 
     const health = await app.inject({ method: 'GET', url: '/health' });
+    const healthz = await app.inject({ method: 'GET', url: '/healthz' });
     const ping = await app.inject({ method: 'GET', url: '/v1/ping' });
 
     expect(health.statusCode).toBe(200);
+    expect(healthz.statusCode).toBe(200);
     expect(ping.statusCode).toBe(200);
     expect(queryRawMock).not.toHaveBeenCalled();
 

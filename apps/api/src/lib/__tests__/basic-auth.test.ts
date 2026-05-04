@@ -26,6 +26,10 @@ describe('shouldSkipBasicAuth', () => {
     expect(shouldSkipBasicAuth('/health')).toBe(true);
   });
 
+  it('skips /healthz', () => {
+    expect(shouldSkipBasicAuth('/healthz')).toBe(true);
+  });
+
   it('skips /v1/ping', () => {
     expect(shouldSkipBasicAuth('/v1/ping')).toBe(true);
   });

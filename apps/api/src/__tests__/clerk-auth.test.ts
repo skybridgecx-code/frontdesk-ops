@@ -48,6 +48,7 @@ async function createAuthTestApp() {
   });
 
   app.get('/health', async () => ({ ok: true }));
+  app.get('/healthz', async () => ({ ok: true }));
   app.get('/v1/ping', async () => ({ pong: true }));
   app.post('/v1/twilio/voice/inbound/mock', async () => ({ ok: true }));
   app.post('/v1/stripe/webhooks', async () => ({ ok: true }));
@@ -155,12 +156,17 @@ describe('clerk auth integration hook', () => {
       method: 'GET',
       url: '/health'
     });
+    const healthzResponse = await app.inject({
+      method: 'GET',
+      url: '/healthz'
+    });
     const pingResponse = await app.inject({
       method: 'GET',
       url: '/v1/ping'
     });
 
     expect(healthResponse.statusCode).toBe(200);
+    expect(healthzResponse.statusCode).toBe(200);
     expect(pingResponse.statusCode).toBe(200);
     expect(verifyTokenMock).not.toHaveBeenCalled();
 

@@ -23,6 +23,7 @@ function shouldSkipTenantResolver(url: string) {
 
   return (
     pathname === '/health' ||
+    pathname === '/healthz' ||
     pathname === '/v1/ping' ||
     pathname.startsWith('/v1/twilio/') ||
     pathname.startsWith('/v1/stripe/') ||

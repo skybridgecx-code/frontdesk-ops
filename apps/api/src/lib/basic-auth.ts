@@ -24,6 +24,7 @@ function unauthorized(reply: FastifyReply) {
 export function shouldSkipBasicAuth(url: string) {
   return (
     url === '/health' ||
+    url === '/healthz' ||
     url === '/v1/ping' ||
     url.startsWith('/v1/twilio/voice/inbound') ||
     url.startsWith('/v1/twilio/voice/status')
