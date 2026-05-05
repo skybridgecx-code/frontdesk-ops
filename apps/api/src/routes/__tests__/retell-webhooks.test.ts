@@ -32,6 +32,7 @@ const originalRetellSandboxBusinessId = process.env.FRONTDESK_RETELL_SANDBOX_BUS
 const originalRetellSandboxPhoneNumberId = process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
 const originalRetellSandboxAgentIds = process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
 const originalRetellWebhookSecret = process.env.RETELL_WEBHOOK_SECRET;
+const originalRetellApiKey = process.env.RETELL_API_KEY;
 
 function restoreEnvValue(key: string, value: string | undefined) {
   if (value === undefined) {
@@ -80,12 +81,13 @@ async function createCompatibilityApp() {
   return app;
 }
 
-function signRetellPayload(payload: unknown, secret: string) {
+function signRetellPayload(payload: unknown, secret: string, timestamp = `${Math.floor(Date.now() / 1000)}`) {
   const rawBody = JSON.stringify(payload);
+  const digest = createHmac('sha256', secret).update(`${rawBody}${timestamp}`).digest('hex');
 
   return {
     rawBody,
-    signature: createHmac('sha256', secret).update(rawBody).digest('hex')
+    signature: `v=${timestamp},d=${digest}`
   };
 }
 
@@ -119,6 +121,7 @@ describe('retell-webhooks route', () => {
     delete process.env.FRONTDESK_RETELL_SANDBOX_BUSINESS_ID;
     delete process.env.FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID;
     delete process.env.FRONTDESK_RETELL_SANDBOX_AGENT_IDS;
+    delete process.env.RETELL_API_KEY;
     process.env.RETELL_WEBHOOK_SECRET = 'skip';
   });
 
@@ -128,6 +131,7 @@ describe('retell-webhooks route', () => {
     restoreEnvValue('FRONTDESK_RETELL_SANDBOX_PHONE_NUMBER_ID', originalRetellSandboxPhoneNumberId);
     restoreEnvValue('FRONTDESK_RETELL_SANDBOX_AGENT_IDS', originalRetellSandboxAgentIds);
     restoreEnvValue('RETELL_WEBHOOK_SECRET', originalRetellWebhookSecret);
+    restoreEnvValue('RETELL_API_KEY', originalRetellApiKey);
   });
 
   it('accepts a valid x-retell-signature and continues existing handler behavior', async () => {
@@ -211,8 +215,24 @@ describe('retell-webhooks route', () => {
     await app.close();
   });
 
-  it('returns 401 when x-retell-signature is wrong', async () => {
-    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+  it('accepts a valid signature using RETELL_API_KEY when RETELL_WEBHOOK_SECRET is unset', async () => {
+    delete process.env.RETELL_WEBHOOK_SECRET;
+    process.env.RETELL_API_KEY = 'retell_api_key_test';
+    callFindFirstMock.mockResolvedValue({
+      id: 'call_1',
+      twilioCallSid: 'retell_call_api_key',
+      answeredAt: null,
+      endedAt: null
+    });
+
+    const payload = {
+      event: 'call_ended',
+      call: {
+        id: 'retell_call_api_key',
+        status: 'ended'
+      }
+    };
+    const { rawBody, signature } = signRetellPayload(payload, process.env.RETELL_API_KEY);
     const app = await createApp();
 
     const response = await app.inject({
@@ -220,15 +240,81 @@ describe('retell-webhooks route', () => {
       url: '/v1/twilio/retell/webhook',
       headers: {
         'content-type': 'application/json',
-        'x-retell-signature': 'not_the_right_signature'
+        'x-retell-signature': signature
       },
-      payload: JSON.stringify({
-        event: 'call_ended',
-        call: {
-          id: 'retell_wrong_signature',
-          status: 'ended'
-        }
-      })
+      payload: rawBody
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      provider: 'retell',
+      callId: 'call_1',
+      providerCallId: 'retell_call_api_key',
+      correlationSource: 'sid',
+      applied: {
+        status: true,
+        transcript: false
+      }
+    });
+
+    await app.close();
+  });
+
+  it('returns 401 when x-retell-signature digest is wrong', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+    const payload = {
+      event: 'call_ended',
+      call: {
+        id: 'retell_wrong_signature',
+        status: 'ended'
+      }
+    };
+    const { rawBody, signature } = signRetellPayload(payload, 'not_the_real_secret');
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      headers: {
+        'content-type': 'application/json',
+        'x-retell-signature': signature
+      },
+      payload: rawBody
+    });
+
+    expect(response.statusCode).toBe(401);
+    expect(response.json()).toEqual({ error: 'invalid signature' });
+    expect(callFindFirstMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('returns 401 when x-retell-signature timestamp is stale', async () => {
+    process.env.RETELL_WEBHOOK_SECRET = 'retell_whsec_test';
+    const payload = {
+      event: 'call_ended',
+      call: {
+        id: 'retell_stale_signature',
+        status: 'ended'
+      }
+    };
+    const staleTimestamp = `${Math.floor(Date.now() / 1000) - 301}`;
+    const { rawBody, signature } = signRetellPayload(
+      payload,
+      process.env.RETELL_WEBHOOK_SECRET,
+      staleTimestamp
+    );
+    const app = await createApp();
+
+    const response = await app.inject({
+      method: 'POST',
+      url: '/v1/twilio/retell/webhook',
+      headers: {
+        'content-type': 'application/json',
+        'x-retell-signature': signature
+      },
+      payload: rawBody
     });
 
     expect(response.statusCode).toBe(401);

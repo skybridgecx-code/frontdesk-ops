@@ -32,6 +32,7 @@ type RequestWithRawBody = FastifyRequest & {
 const RETELL_WEBHOOK_PREFIX = '/v1/twilio/retell';
 const RETELL_WEBHOOK_PATH = '/webhook';
 const RETELL_FULL_WEBHOOK_PATH = `${RETELL_WEBHOOK_PREFIX}${RETELL_WEBHOOK_PATH}`;
+const RETELL_SIGNATURE_MAX_AGE_SECONDS = 5 * 60;
 
 function isUniqueConstraintViolation(error: unknown) {
   return (
@@ -157,13 +158,62 @@ function signaturesMatch(expectedSignature: string, providedSignature: string) {
   );
 }
 
+function parseRetellSignatureHeader(headerValue: string) {
+  const parts = headerValue
+    .split(',')
+    .map((part) => part.trim())
+    .filter((part) => part.length > 0);
+
+  let timestamp: string | null = null;
+  let digest: string | null = null;
+
+  for (const part of parts) {
+    const [rawKey, ...rawValue] = part.split('=');
+    const key = rawKey?.trim().toLowerCase();
+    const value = rawValue.join('=').trim();
+
+    if (!key || !value) {
+      continue;
+    }
+
+    if (key === 'v') {
+      timestamp = value;
+    } else if (key === 'd') {
+      digest = value;
+    }
+  }
+
+  if (!timestamp || !digest) {
+    return null;
+  }
+
+  return { timestamp, digest };
+}
+
+function isRetellTimestampFresh(timestamp: string) {
+  const parsed = Number.parseInt(timestamp, 10);
+  if (!Number.isFinite(parsed)) {
+    return false;
+  }
+
+  const timestampMs = parsed > 1_000_000_000_000 ? parsed : parsed * 1000;
+  if (!Number.isFinite(timestampMs)) {
+    return false;
+  }
+
+  const ageSeconds = Math.abs(Date.now() - timestampMs) / 1000;
+  return ageSeconds <= RETELL_SIGNATURE_MAX_AGE_SECONDS;
+}
+
 async function verifyRetellWebhookSignature(request: FastifyRequest, reply: FastifyReply) {
   if (shouldSkipRetellWebhookSignatureVerification()) {
     return true;
   }
 
   const webhookSecret = process.env.RETELL_WEBHOOK_SECRET?.trim();
-  if (!webhookSecret) {
+  const fallbackApiKey = process.env.RETELL_API_KEY?.trim();
+  const signingSecret = webhookSecret || fallbackApiKey;
+  if (!signingSecret) {
     request.log.error({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook secret is not configured');
     await reply.status(500).send({ error: 'webhook secret not configured' });
     return false;
@@ -176,8 +226,19 @@ async function verifyRetellWebhookSignature(request: FastifyRequest, reply: Fast
     return false;
   }
 
-  const expectedSignature = createHmac('sha256', webhookSecret).update(getRawBody(request)).digest('hex');
-  if (!signaturesMatch(expectedSignature, signature)) {
+  const parsedSignature = parseRetellSignatureHeader(signature);
+  if (!parsedSignature || !isRetellTimestampFresh(parsedSignature.timestamp)) {
+    request.log.warn({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
+    await reply.status(401).send({ error: 'invalid signature' });
+    return false;
+  }
+
+  const rawBodyString = getRawBody(request).toString('utf8');
+  const expectedSignature = createHmac('sha256', signingSecret)
+    .update(`${rawBodyString}${parsedSignature.timestamp}`)
+    .digest('hex');
+
+  if (!signaturesMatch(expectedSignature, parsedSignature.digest)) {
     request.log.warn({ route: RETELL_FULL_WEBHOOK_PATH }, 'Retell webhook rejected: invalid signature');
     await reply.status(401).send({ error: 'invalid signature' });
     return false;
