@@ -27,4 +27,4 @@ ENV PORT=3001
 COPY --from=builder --chown=node:node /app ./
 USER node
 EXPOSE 3001
-CMD ["dumb-init", "node", "apps/api/dist/index.js"]
+CMD ["dumb-init", "node", "apps/api/dist/apps/api/src/index.js"]
