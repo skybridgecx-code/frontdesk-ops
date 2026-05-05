@@ -13,6 +13,7 @@ COPY --from=pruner /app/out/json/ ./
 COPY --from=pruner /app/out/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY --from=pruner /app/out/full/ ./
+COPY --from=pruner /app/tsconfig.base.json ./tsconfig.base.json
 RUN pnpm --filter @frontdesk/db run prisma:generate
 RUN pnpm turbo build --filter=@frontdesk/api...
 RUN pnpm prune --prod --no-optional
