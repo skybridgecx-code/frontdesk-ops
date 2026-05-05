@@ -16,6 +16,7 @@ COPY --from=pruner /app/out/full/ ./
 COPY --from=pruner /app/tsconfig.base.json ./tsconfig.base.json
 RUN pnpm --filter @frontdesk/db run prisma:generate
 RUN pnpm turbo build --filter=@frontdesk/api...
+RUN mkdir -p packages/db/dist/generated/prisma && cp packages/db/src/generated/prisma/*.node packages/db/dist/generated/prisma/ 2>/dev/null || true
 RUN pnpm prune --prod --no-optional
 RUN pnpm --filter @frontdesk/db run prisma:generate
 
@@ -27,4 +28,4 @@ ENV PORT=3001
 COPY --from=builder --chown=node:node /app ./
 USER node
 EXPOSE 3001
-CMD ["dumb-init", "node", "apps/api/dist/apps/api/src/index.js"]
+CMD ["dumb-init", "node", "--conditions=production", "apps/api/dist/apps/api/src/index.js"]
