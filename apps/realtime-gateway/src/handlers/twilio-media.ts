@@ -36,7 +36,7 @@ export interface HandleStartResult {
 const DEFAULT_RESPONSE_INSTRUCTIONS = 'Respond naturally, briefly, and only in English to the caller.';
 const INITIAL_GREETING_INSTRUCTIONS =
   'In one short sentence, greet the caller as the front desk and ask how you can help.';
-type InitialGreetingSource = 'twilio_start' | 'openai_ready';
+type InitialGreetingSource = 'twilio_start' | 'openai_ready' | 'twilio_media_fallback';
 type InitialGreetingSkipReason =
   | 'twilio_not_started'
   | 'openai_not_ready'
@@ -340,24 +340,46 @@ export async function handleStart(
  * Otherwise queues it in `state.pendingAudio` to be drained when
  * the OpenAI bridge comes up.
  */
-export function handleMedia(
+export async function handleMedia(
   message: JsonRecord,
-  state: SessionState
-): void {
+  state: SessionState,
+  events: EventPersistence
+): Promise<void> {
   const media = isRecord(message.media) ? message.media : null;
   const payload = media ? getString(media, 'payload') : null;
+  const streamSid = getString(message, 'streamSid') ?? state.currentStreamSid;
+
+  if (streamSid && !state.currentStreamSid) {
+    state.currentStreamSid = streamSid;
+  }
+
+  if (!state.twilioStartReceived && streamSid) {
+    state.twilioStartReceived = true;
+    state.log.info({
+      msg: 'twilio.media_start_fallback.detected',
+      callSid: state.queryCallSid,
+      streamSid,
+      hasStreamSid: true
+    });
+
+    await events.persistEvent('twilio.media_start_fallback.detected', {
+      callSid: state.queryCallSid,
+      streamSid
+    });
+
+    await maybeSendInitialGreeting(state, events, 'twilio_media_fallback');
+  }
 
   state.log.info({
     msg: 'media stream media received',
     callSid: state.queryCallSid,
-    streamSid: getString(message, 'streamSid'),
+    streamSid,
     chunk: media ? getNumberOrString(media, 'chunk') : null,
     track: media ? getString(media, 'track') : null
   });
 
   if (!payload) return;
 
-  const streamSid = getString(message, 'streamSid');
   const chunk = media ? getNumberOrString(media, 'chunk') : null;
   const track = media ? getString(media, 'track') : null;
   state.hasUncommittedAudio = true;

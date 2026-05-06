@@ -37,7 +37,7 @@ export function initOpenAIBridge(
 
   openAISocket.on('open', () => {
     state.log.info({
-      msg: 'openai realtime websocket connected',
+      msg: 'openai realtime websocket opened',
       callSid: state.queryCallSid,
       agentProfileId: agent.id,
       agentName: agent.name
@@ -55,7 +55,7 @@ export function initOpenAIBridge(
       state.openAISessionReady = true;
 
       state.log.info({
-        msg: 'openai realtime session.update sent',
+        msg: 'openai session.update sent',
         callSid: state.queryCallSid,
         agentProfileId: agent.id
       });

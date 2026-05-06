@@ -227,7 +227,7 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
       }
 
       if (event === 'media') {
-        handleMedia(message, state);
+        await handleMedia(message, state, events);
         return;
       }
 

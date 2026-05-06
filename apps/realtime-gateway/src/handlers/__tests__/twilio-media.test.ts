@@ -322,17 +322,19 @@ describe('handleStart', () => {
 });
 
 describe('handleMedia', () => {
-  it('sends audio to OpenAI when ready', () => {
+  it('sends audio to OpenAI when ready', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
     const state = makeState({ openAIReady: true, openAISocket });
+    const events = makeEvents();
 
-    handleMedia(
+    await handleMedia(
       {
         event: 'media',
         streamSid: 'MZ123',
         media: { payload: 'audiodata', chunk: 1, track: 'inbound' }
       },
-      state
+      state,
+      events
     );
 
     expect(openAISocket.send).toHaveBeenCalledWith(
@@ -342,16 +344,18 @@ describe('handleMedia', () => {
     expect(state.pendingAudio).toHaveLength(0);
   });
 
-  it('queues audio when OpenAI is not ready', () => {
+  it('queues audio when OpenAI is not ready', async () => {
     const state = makeState({ openAIReady: false });
+    const events = makeEvents();
 
-    handleMedia(
+    await handleMedia(
       {
         event: 'media',
         streamSid: 'MZ123',
         media: { payload: 'audiodata', chunk: 1, track: 'inbound' }
       },
-      state
+      state,
+      events
     );
 
     expect(state.pendingAudio).toHaveLength(1);
@@ -364,46 +368,148 @@ describe('handleMedia', () => {
     });
   });
 
-  it('queues audio when OpenAI socket is not in OPEN state', () => {
+  it('queues audio when OpenAI socket is not in OPEN state', async () => {
     const openAISocket = { readyState: 0, send: vi.fn() };
     const state = makeState({ openAIReady: true, openAISocket });
+    const events = makeEvents();
 
-    handleMedia(
+    await handleMedia(
       {
         event: 'media',
         streamSid: 'MZ123',
         media: { payload: 'audiodata', chunk: 1, track: 'inbound' }
       },
-      state
+      state,
+      events
     );
 
     expect(openAISocket.send).not.toHaveBeenCalled();
     expect(state.pendingAudio).toHaveLength(1);
   });
 
-  it('does nothing when payload is missing', () => {
+  it('does nothing when payload is missing', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
     const state = makeState({ openAIReady: true, openAISocket });
+    const events = makeEvents();
 
-    handleMedia(
+    await handleMedia(
       { event: 'media', streamSid: 'MZ123', media: {} },
-      state
+      state,
+      events
     );
 
     expect(openAISocket.send).not.toHaveBeenCalled();
     expect(state.pendingAudio).toHaveLength(0);
   });
 
-  it('does nothing when media object is missing', () => {
+  it('does nothing when media object is missing', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
     const state = makeState({ openAIReady: true, openAISocket });
+    const events = makeEvents();
 
-    handleMedia(
+    await handleMedia(
       { event: 'media', streamSid: 'MZ123' },
-      state
+      state,
+      events
     );
 
     expect(openAISocket.send).not.toHaveBeenCalled();
+  });
+
+  it('marks twilioStartReceived from first media when start is missing and streamSid exists', async () => {
+    const state = makeState({ twilioStartReceived: false, currentStreamSid: null, openAIReady: false });
+    const events = makeEvents();
+
+    await handleMedia(
+      {
+        event: 'media',
+        streamSid: 'MZ-FALLBACK',
+        media: { payload: 'audiodata', chunk: 1, track: 'inbound' }
+      },
+      state,
+      events
+    );
+
+    expect(state.twilioStartReceived).toBe(true);
+    expect(state.currentStreamSid).toBe('MZ-FALLBACK');
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'twilio.media_start_fallback.detected',
+      expect.objectContaining({ streamSid: 'MZ-FALLBACK' })
+    );
+  });
+
+  it('first media fallback plus OpenAI ready sends initial greeting once', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      twilioStartReceived: false,
+      currentStreamSid: null,
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket
+    });
+    const events = makeEvents();
+
+    await handleMedia(
+      {
+        event: 'media',
+        streamSid: 'MZ-FALLBACK-GREETING',
+        media: { payload: 'audiodata', chunk: 1, track: 'inbound' }
+      },
+      state,
+      events
+    );
+
+    expect(state.initialGreetingSent).toBe(true);
+    expect(openAISocket.send).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'response.create',
+        response: {
+          instructions:
+            'In one short sentence, greet the caller as the front desk and ask how you can help.'
+        }
+      })
+    );
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.response_create.sent',
+      expect.objectContaining({ source: 'twilio_media_fallback' })
+    );
+  });
+
+  it('duplicate media frames do not duplicate initial greeting', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      twilioStartReceived: false,
+      currentStreamSid: null,
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket
+    });
+    const events = makeEvents();
+
+    await handleMedia(
+      {
+        event: 'media',
+        streamSid: 'MZ-FALLBACK-DUP',
+        media: { payload: 'audiodata1', chunk: 1, track: 'inbound' }
+      },
+      state,
+      events
+    );
+    await handleMedia(
+      {
+        event: 'media',
+        streamSid: 'MZ-FALLBACK-DUP',
+        media: { payload: 'audiodata2', chunk: 2, track: 'inbound' }
+      },
+      state,
+      events
+    );
+
+    expect(openAISocket.send).toHaveBeenCalledTimes(3);
+    const greetingSentCalls = events.persistEvent.mock.calls.filter(
+      ([eventType]: [string]) => eventType === 'openai.initial_greeting.response_create.sent'
+    );
+    expect(greetingSentCalls).toHaveLength(1);
   });
 });
 
