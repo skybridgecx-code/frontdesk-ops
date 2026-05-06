@@ -27,6 +27,7 @@
 import type { SessionState, WsRaw, JsonRecord } from '../types.js';
 import type { EventPersistence } from '../services/event-persistence.js';
 import type { TranscriptManager } from '../services/transcript-manager.js';
+import { maybeSendInitialGreeting } from './twilio-media.js';
 import { rawToText, isRecord, getString } from '../lib/ws-utils.js';
 
 /** Event types that are logged but not persisted to the database. */
@@ -75,6 +76,14 @@ export function handleOpenAIMessage(
   const eventType = getString(message, 'type') ?? 'unknown';
 
   state.log.info({ msg: 'openai realtime server event', callSid: state.queryCallSid, eventType });
+
+  if (eventType === 'session.created' || eventType === 'session.updated') {
+    state.openAISessionReady = true;
+    enqueue(async () => {
+      await maybeSendInitialGreeting(state, events, 'openai_ready');
+    });
+    return;
+  }
 
   if (eventType === 'response.output_audio.delta') {
     handleAudioDelta(message, state, events, enqueue);

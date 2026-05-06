@@ -36,6 +36,13 @@ export interface HandleStartResult {
 const DEFAULT_RESPONSE_INSTRUCTIONS = 'Respond naturally, briefly, and only in English to the caller.';
 const INITIAL_GREETING_INSTRUCTIONS =
   'In one short sentence, greet the caller as the front desk and ask how you can help.';
+type InitialGreetingSource = 'twilio_start' | 'openai_ready';
+type InitialGreetingSkipReason =
+  | 'twilio_not_started'
+  | 'openai_not_ready'
+  | 'already_sent'
+  | 'missing_stream_sid'
+  | 'missing_call_sid';
 
 function getConfiguredInternalSecret() {
   const secret = process.env.FRONTDESK_INTERNAL_API_SECRET?.trim();
@@ -45,14 +52,52 @@ function getConfiguredInternalSecret() {
 export async function maybeSendInitialGreeting(
   state: SessionState,
   events: EventPersistence,
-  source: 'twilio_start' | 'openai_ready'
+  source: InitialGreetingSource
 ) {
-  if (state.initialGreetingSent) return false;
-  if (state.responseCreateInFlight) return false;
-  if (!state.currentStreamSid) return false;
-  if (!state.openAIReady || !state.openAISocket || state.openAISocket.readyState !== 1) return false;
+  let reason: InitialGreetingSkipReason | null = null;
 
-  state.openAISocket.send(
+  if (state.initialGreetingSent) {
+    reason = 'already_sent';
+  } else if (!state.queryCallSid) {
+    reason = 'missing_call_sid';
+  } else if (!state.twilioStartReceived) {
+    reason = 'twilio_not_started';
+  } else if (!state.currentStreamSid) {
+    reason = 'missing_stream_sid';
+  } else if (
+    state.responseCreateInFlight ||
+    !state.openAIReady ||
+    !state.openAISessionReady ||
+    !state.openAISocket ||
+    state.openAISocket.readyState !== 1
+  ) {
+    reason = 'openai_not_ready';
+  }
+
+  if (reason) {
+    await events.persistEvent('openai.initial_greeting.skipped', {
+      callSid: state.queryCallSid,
+      streamSid: state.currentStreamSid,
+      source,
+      reason
+    });
+
+    state.log.info({
+      msg: 'openai.initial_greeting.skipped',
+      callSid: state.queryCallSid,
+      streamSid: state.currentStreamSid,
+      source,
+      reason
+    });
+    return false;
+  }
+
+  const openAISocket = state.openAISocket;
+  if (!openAISocket) {
+    return false;
+  }
+
+  openAISocket.send(
     JSON.stringify({
       type: 'response.create',
       response: {
@@ -258,6 +303,7 @@ export async function handleStart(
       data: { twilioStreamSid: streamSid }
     });
   }
+  state.twilioStartReceived = true;
 
   await events.persistEvent('twilio.media.start', {
     callSid: messageCallSid,

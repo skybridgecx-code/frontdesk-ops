@@ -75,8 +75,10 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
     initialGreetingSent: false,
+    twilioStartReceived: false,
     pendingAudio: [],
     openAIReady: false,
+    openAISessionReady: false,
     openAISocket: null,
     twilioSocket: socket,
     log: app.log

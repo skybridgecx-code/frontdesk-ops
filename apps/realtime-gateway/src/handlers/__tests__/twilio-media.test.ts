@@ -31,8 +31,10 @@ function makeState(overrides: Record<string, unknown> = {}) {
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
     initialGreetingSent: false,
+    twilioStartReceived: false,
     pendingAudio: [] as any[],
     openAIReady: false,
+    openAISessionReady: false,
     openAISocket: null,
     twilioSocket: { send: vi.fn(), close: vi.fn() },
     log: { info: vi.fn(), warn: vi.fn(), error: vi.fn(), debug: vi.fn() },
@@ -138,7 +140,7 @@ describe('handleStart', () => {
 
   it('sends one proactive initial greeting when start is authenticated and OpenAI is ready', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
-    const state = makeState({ openAIReady: true, openAISocket });
+    const state = makeState({ openAIReady: true, openAISessionReady: true, openAISocket });
     const events = makeEvents();
 
     await handleStart(
@@ -172,7 +174,12 @@ describe('handleStart', () => {
 
   it('does not send duplicate initial greeting when already sent', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
-    const state = makeState({ openAIReady: true, openAISocket, initialGreetingSent: true });
+    const state = makeState({
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket,
+      initialGreetingSent: true
+    });
     const events = makeEvents();
 
     await handleStart(
@@ -405,17 +412,65 @@ describe('maybeSendInitialGreeting', () => {
     vi.clearAllMocks();
   });
 
-  it('sends greeting from openai_ready path when stream is already started', async () => {
+  it('sends greeting once when Twilio start happens before OpenAI session ready', async () => {
     const openAISocket = { readyState: 1, send: vi.fn() };
     const state = makeState({
       currentStreamSid: 'MZ-READY',
-      openAIReady: true,
+      twilioStartReceived: true,
+      openAIReady: false,
+      openAISessionReady: false,
       openAISocket,
       initialGreetingSent: false
     });
     const events = makeEvents();
 
-    const sent = await maybeSendInitialGreeting(state, events, 'openai_ready');
+    const firstAttempt = await maybeSendInitialGreeting(state, events, 'twilio_start');
+    expect(firstAttempt).toBe(false);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.skipped',
+      expect.objectContaining({
+        source: 'twilio_start',
+        reason: 'openai_not_ready'
+      })
+    );
+
+    state.openAIReady = true;
+    state.openAISessionReady = true;
+    const secondAttempt = await maybeSendInitialGreeting(state, events, 'openai_ready');
+
+    expect(secondAttempt).toBe(true);
+    expect(state.initialGreetingSent).toBe(true);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.response_create.sent',
+      expect.objectContaining({
+        source: 'openai_ready'
+      })
+    );
+  });
+
+  it('sends greeting once when OpenAI becomes ready before Twilio start', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      currentStreamSid: 'MZ-READY',
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket,
+      initialGreetingSent: false
+    });
+    const events = makeEvents();
+
+    const firstAttempt = await maybeSendInitialGreeting(state, events, 'openai_ready');
+    expect(firstAttempt).toBe(false);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.skipped',
+      expect.objectContaining({
+        source: 'openai_ready',
+        reason: 'twilio_not_started'
+      })
+    );
+
+    state.twilioStartReceived = true;
+    const sent = await maybeSendInitialGreeting(state, events, 'twilio_start');
 
     expect(sent).toBe(true);
     expect(openAISocket.send).toHaveBeenCalledWith(
@@ -432,7 +487,78 @@ describe('maybeSendInitialGreeting', () => {
       expect.objectContaining({
         callSid: 'CA123',
         streamSid: 'MZ-READY',
-        source: 'openai_ready'
+        source: 'twilio_start'
+      })
+    );
+  });
+
+  it('does not duplicate greeting across repeated start/ready attempts', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      currentStreamSid: 'MZ-READY',
+      twilioStartReceived: true,
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket
+    });
+    const events = makeEvents();
+
+    const first = await maybeSendInitialGreeting(state, events, 'openai_ready');
+    const second = await maybeSendInitialGreeting(state, events, 'twilio_start');
+
+    expect(first).toBe(true);
+    expect(second).toBe(false);
+    expect(openAISocket.send).toHaveBeenCalledTimes(1);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.skipped',
+      expect.objectContaining({
+        reason: 'already_sent'
+      })
+    );
+  });
+
+  it('skips with missing_stream_sid when Twilio start has no streamSid', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      queryCallSid: 'CA123',
+      currentStreamSid: null,
+      twilioStartReceived: true,
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket
+    });
+    const events = makeEvents();
+
+    const sent = await maybeSendInitialGreeting(state, events, 'openai_ready');
+
+    expect(sent).toBe(false);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.skipped',
+      expect.objectContaining({
+        reason: 'missing_stream_sid'
+      })
+    );
+  });
+
+  it('skips with missing_call_sid when call sid is unavailable', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      queryCallSid: null,
+      currentStreamSid: 'MZ-READY',
+      twilioStartReceived: true,
+      openAIReady: true,
+      openAISessionReady: true,
+      openAISocket
+    });
+    const events = makeEvents();
+
+    const sent = await maybeSendInitialGreeting(state, events, 'openai_ready');
+
+    expect(sent).toBe(false);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.skipped',
+      expect.objectContaining({
+        reason: 'missing_call_sid'
       })
     );
   });

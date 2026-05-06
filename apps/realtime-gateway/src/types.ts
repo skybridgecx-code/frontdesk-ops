@@ -39,6 +39,9 @@ export interface SessionState {
   /** Ensures the proactive front-desk greeting is sent only once per call */
   initialGreetingSent: boolean;
 
+  /** True once an authenticated Twilio `start` event has been accepted */
+  twilioStartReceived: boolean;
+
   /** Audio chunks queued before OpenAI WS is ready */
   pendingAudio: Array<{
     payload: string;
@@ -49,6 +52,9 @@ export interface SessionState {
 
   /** Whether the OpenAI WS has received session.update */
   openAIReady: boolean;
+
+  /** True once OpenAI confirms the session is created/updated server-side */
+  openAISessionReady: boolean;
 
   /** Reference to the OpenAI WebSocket (null until connected) */
   openAISocket: WebSocket | null;

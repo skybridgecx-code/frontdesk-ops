@@ -14,8 +14,10 @@ function makeState(overrides: Record<string, unknown> = {}) {
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
     initialGreetingSent: false,
+    twilioStartReceived: false,
     pendingAudio: [],
     openAIReady: true,
+    openAISessionReady: false,
     openAISocket: {
       readyState: 1,
       send: vi.fn()
@@ -285,10 +287,15 @@ describe('handleOpenAIMessage', () => {
   });
 
   describe('low-value events', () => {
-    it('does not persist session.created', () => {
+    it('marks OpenAI session ready on session.created and attempts greeting', async () => {
       const msg = JSON.stringify({ type: 'session.created' });
       handleOpenAIMessage(msg, state, events, transcripts, enqueue);
-      expect(enqueuedTasks).toHaveLength(0);
+      expect(state.openAISessionReady).toBe(true);
+      await runEnqueued();
+      expect(events.persistEvent).toHaveBeenCalledWith(
+        'openai.initial_greeting.skipped',
+        expect.objectContaining({ reason: 'twilio_not_started' })
+      );
     });
 
     it('does not persist rate_limits.updated', () => {
