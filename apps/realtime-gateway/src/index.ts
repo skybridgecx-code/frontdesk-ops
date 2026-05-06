@@ -74,6 +74,7 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
     pendingResponseTrigger: null,
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
+    initialGreetingSent: false,
     pendingAudio: [],
     openAIReady: false,
     openAISocket: null,

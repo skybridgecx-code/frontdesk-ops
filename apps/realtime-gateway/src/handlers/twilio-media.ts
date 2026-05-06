@@ -33,9 +33,51 @@ export interface HandleStartResult {
   authSource: StartAuthSource | null;
 }
 
+const DEFAULT_RESPONSE_INSTRUCTIONS = 'Respond naturally, briefly, and only in English to the caller.';
+const INITIAL_GREETING_INSTRUCTIONS =
+  'In one short sentence, greet the caller as the front desk and ask how you can help.';
+
 function getConfiguredInternalSecret() {
   const secret = process.env.FRONTDESK_INTERNAL_API_SECRET?.trim();
   return secret && secret.length > 0 ? secret : null;
+}
+
+export async function maybeSendInitialGreeting(
+  state: SessionState,
+  events: EventPersistence,
+  source: 'twilio_start' | 'openai_ready'
+) {
+  if (state.initialGreetingSent) return false;
+  if (state.responseCreateInFlight) return false;
+  if (!state.currentStreamSid) return false;
+  if (!state.openAIReady || !state.openAISocket || state.openAISocket.readyState !== 1) return false;
+
+  state.openAISocket.send(
+    JSON.stringify({
+      type: 'response.create',
+      response: {
+        instructions: INITIAL_GREETING_INSTRUCTIONS
+      }
+    })
+  );
+
+  state.initialGreetingSent = true;
+  state.responseCreateInFlight = true;
+
+  await events.persistEvent('openai.initial_greeting.response_create.sent', {
+    callSid: state.queryCallSid,
+    streamSid: state.currentStreamSid,
+    source
+  });
+
+  state.log.info({
+    msg: 'openai.initial_greeting.response_create.sent',
+    callSid: state.queryCallSid,
+    streamSid: state.currentStreamSid,
+    source
+  });
+
+  return true;
 }
 
 function buildStartSignaturePayload(input: {
@@ -236,6 +278,8 @@ export async function handleStart(
     agentProfileId: state.agentProfileId
   });
 
+  await maybeSendInitialGreeting(state, events, 'twilio_start');
+
   return {
     accepted: true,
     authenticated: true,
@@ -373,7 +417,7 @@ export async function handleStop(
         JSON.stringify({
           type: 'response.create',
           response: {
-            instructions: 'Respond naturally, briefly, and only in English to the caller.'
+            instructions: DEFAULT_RESPONSE_INSTRUCTIONS
           }
         })
       );

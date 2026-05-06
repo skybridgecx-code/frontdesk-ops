@@ -13,6 +13,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
     pendingResponseTrigger: null,
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
+    initialGreetingSent: false,
     pendingAudio: [],
     openAIReady: true,
     openAISocket: {
@@ -89,6 +90,13 @@ describe('handleOpenAIMessage', () => {
       });
 
       handleOpenAIMessage(msg, state, events, transcripts, enqueue);
+
+      expect(state.log.info).toHaveBeenCalledWith(
+        expect.objectContaining({
+          msg: 'openai.output_audio.delta received',
+          payloadSize: 'base64audiodata'.length
+        })
+      );
 
       expect(state.twilioSocket.send).toHaveBeenCalledWith(
         JSON.stringify({

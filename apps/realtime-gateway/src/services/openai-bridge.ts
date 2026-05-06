@@ -3,6 +3,7 @@ import type { SessionState, JsonRecord } from '../types.js';
 import type { EventPersistence } from './event-persistence.js';
 import type { AgentContext } from './agent-context.js';
 import { handleOpenAIMessage } from '../handlers/openai-events.js';
+import { maybeSendInitialGreeting } from '../handlers/twilio-media.js';
 import type { TranscriptManager } from './transcript-manager.js';
 
 /**
@@ -62,6 +63,8 @@ export function initOpenAIBridge(
         callSid: state.queryCallSid,
         agentProfileId: agent.id
       });
+
+      await maybeSendInitialGreeting(state, events, 'openai_ready');
 
       // Drain queued audio
       while (state.pendingAudio.length > 0 && openAISocket.readyState === 1) {

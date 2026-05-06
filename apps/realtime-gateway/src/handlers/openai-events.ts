@@ -223,6 +223,13 @@ function handleAudioDelta(
   const delta = getString(message, 'delta');
   if (!delta || !state.currentStreamSid) return;
 
+  state.log.info({
+    msg: 'openai.output_audio.delta received',
+    callSid: state.queryCallSid,
+    streamSid: state.currentStreamSid,
+    payloadSize: delta.length
+  });
+
   state.twilioSocket.send(
     JSON.stringify({
       event: 'media',

@@ -36,6 +36,9 @@ export interface SessionState {
   /** Guards against duplicate response.create while a response is still active */
   responseCreateInFlight: boolean;
 
+  /** Ensures the proactive front-desk greeting is sent only once per call */
+  initialGreetingSent: boolean;
+
   /** Audio chunks queued before OpenAI WS is ready */
   pendingAudio: Array<{
     payload: string;

@@ -10,7 +10,7 @@ vi.mock('@frontdesk/db', () => ({
 }));
 
 import { prisma } from '@frontdesk/db';
-import { handleStart, handleMedia, handleStop } from '../twilio-media.js';
+import { handleStart, handleMedia, handleStop, maybeSendInitialGreeting } from '../twilio-media.js';
 
 const mockPrisma = prisma as any;
 const originalEnv = { ...process.env };
@@ -30,6 +30,7 @@ function makeState(overrides: Record<string, unknown> = {}) {
     pendingResponseTrigger: null,
     hasUncommittedAudio: false,
     responseCreateInFlight: false,
+    initialGreetingSent: false,
     pendingAudio: [] as any[],
     openAIReady: false,
     openAISocket: null,
@@ -133,6 +134,62 @@ describe('handleStart', () => {
 
     expect(state.currentStreamSid).toBeNull();
     expect(mockPrisma.call.updateMany).not.toHaveBeenCalled();
+  });
+
+  it('sends one proactive initial greeting when start is authenticated and OpenAI is ready', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({ openAIReady: true, openAISocket });
+    const events = makeEvents();
+
+    await handleStart(
+      { event: 'start', start: { streamSid: 'MZ-GREETING', callSid: 'CA123' } },
+      state,
+      events,
+      100,
+      { queryAuthVerified: true }
+    );
+
+    expect(openAISocket.send).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'response.create',
+        response: {
+          instructions:
+            'In one short sentence, greet the caller as the front desk and ask how you can help.'
+        }
+      })
+    );
+    expect(state.initialGreetingSent).toBe(true);
+    expect(state.responseCreateInFlight).toBe(true);
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.response_create.sent',
+      expect.objectContaining({
+        callSid: 'CA123',
+        streamSid: 'MZ-GREETING',
+        source: 'twilio_start'
+      })
+    );
+  });
+
+  it('does not send duplicate initial greeting when already sent', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({ openAIReady: true, openAISocket, initialGreetingSent: true });
+    const events = makeEvents();
+
+    await handleStart(
+      { event: 'start', start: { streamSid: 'MZ-GREETING-2', callSid: 'CA123' } },
+      state,
+      events,
+      100,
+      { queryAuthVerified: true }
+    );
+
+    expect(openAISocket.send).not.toHaveBeenCalledWith(
+      expect.stringContaining('"response.create"')
+    );
+    expect(events.persistEvent).not.toHaveBeenCalledWith(
+      'openai.initial_greeting.response_create.sent',
+      expect.any(Object)
+    );
   });
 
   it('authenticates using start.customParameters when query params are missing', async () => {
@@ -340,6 +397,44 @@ describe('handleMedia', () => {
     );
 
     expect(openAISocket.send).not.toHaveBeenCalled();
+  });
+});
+
+describe('maybeSendInitialGreeting', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it('sends greeting from openai_ready path when stream is already started', async () => {
+    const openAISocket = { readyState: 1, send: vi.fn() };
+    const state = makeState({
+      currentStreamSid: 'MZ-READY',
+      openAIReady: true,
+      openAISocket,
+      initialGreetingSent: false
+    });
+    const events = makeEvents();
+
+    const sent = await maybeSendInitialGreeting(state, events, 'openai_ready');
+
+    expect(sent).toBe(true);
+    expect(openAISocket.send).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'response.create',
+        response: {
+          instructions:
+            'In one short sentence, greet the caller as the front desk and ask how you can help.'
+        }
+      })
+    );
+    expect(events.persistEvent).toHaveBeenCalledWith(
+      'openai.initial_greeting.response_create.sent',
+      expect.objectContaining({
+        callSid: 'CA123',
+        streamSid: 'MZ-READY',
+        source: 'openai_ready'
+      })
+    );
   });
 });
 
