@@ -31,6 +31,12 @@ This note is the operator handoff point to pause OpenAI billing/credits work wit
 2. Expect log: `openai.output_audio.delta received`
 3. Expect log: `twilio outbound media sent`
 
+## Operator Dashboard Surface
+1. The tenant dashboard now includes a **Realtime Voice Status** card under **Phone + voice readiness**.
+2. It explicitly marks Twilio/DB/routing/realtime path as confirmed.
+3. It explicitly marks OpenAI quota/billing credits as the active blocker.
+4. It includes the operator checklist for post-credit verification.
+
 ## Exact Log Command To Rerun After Credits Fix
 ```bash
 cd "/Users/muhammadaatif/frontdesk-os"

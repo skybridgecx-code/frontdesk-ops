@@ -5,6 +5,7 @@ import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
 import { formatPhoneNumber, normalizeCallStatus, timeAgo } from '@/lib/call-utils';
 import type { AnalyticsPeriod, OverviewData, WebhookHealthData } from '../components/analytics/types';
+import { getVoiceReadinessModel } from './voice-readiness';
 
 export const metadata: Metadata = {
   title: 'Command Center | SkyBridgeCX'
@@ -543,6 +544,7 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const businessName = business?.name ?? onboardingDetail?.steps?.businessInfo?.data?.businessName ?? tenant?.name ?? onboardingStatus?.tenantName ?? 'your business';
   const operatorName = user?.firstName ?? user?.username ?? 'Operator';
   const heading = `${greetingPrefix(new Date().getHours())}, ${operatorName}`;
+  const voiceReadiness = getVoiceReadinessModel();
 
   return (
     <div className="space-y-6">
@@ -764,6 +766,45 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
                 <p className="mt-1 text-sm text-gray-500">{row.sub}</p>
               </div>
             ))}
+            <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">{voiceReadiness.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-indigo-800">{voiceReadiness.summary}</p>
+                </div>
+                <Badge tone="amber">Quota blocker</Badge>
+              </div>
+              <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">
+                {voiceReadiness.blocker}
+              </p>
+              <div className="mt-4 space-y-2">
+                {voiceReadiness.signals.map((signal) => (
+                  <div key={signal.label} className="rounded-lg border border-indigo-100 bg-white px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-gray-900">{signal.label}</p>
+                      <Badge tone={signal.tone === 'confirmed' ? 'emerald' : 'amber'}>
+                        {signal.tone === 'confirmed' ? 'Confirmed' : 'Blocked'}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-600">{signal.detail}</p>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Operator checklist</p>
+                <ul className="mt-2 space-y-1.5 text-sm text-gray-700">
+                  {voiceReadiness.checklist.map((item) => (
+                    <li key={item} className="flex items-start gap-2">
+                      <span className="mt-0.5 text-indigo-500">•</span>
+                      <span>{item}</span>
+                    </li>
+                  ))}
+                </ul>
+                <p className="mt-3 text-xs text-gray-500">
+                  Do not confirm audible AI responses to callers until quota is restored and outbound audio logs are observed.
+                </p>
+              </div>
+            </div>
           </div>
         </Panel>
 
