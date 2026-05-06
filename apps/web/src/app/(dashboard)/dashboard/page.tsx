@@ -546,6 +546,8 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const heading = `${greetingPrefix(new Date().getHours())}, ${operatorName}`;
   const voiceReadiness = getVoiceReadinessModel();
   const voiceSimulation = getVoiceSimulationModel();
+  const confirmedReadinessSignals = voiceReadiness.signals.filter((signal) => signal.tone === 'confirmed');
+  const blockedReadinessSignal = voiceReadiness.signals.find((signal) => signal.tone === 'blocked') ?? null;
 
   return (
     <div className="space-y-6">
@@ -768,39 +770,52 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
               </div>
             ))}
             <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-              <div className="flex items-start justify-between gap-3">
+              <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">{voiceReadiness.title}</p>
                   <p className="mt-2 text-sm leading-6 text-indigo-800">{voiceReadiness.summary}</p>
                 </div>
-                <Badge tone="amber">Quota blocker</Badge>
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge tone="emerald">{confirmedReadinessSignals.length} confirmed</Badge>
+                  <Badge tone="amber">1 blocked</Badge>
+                </div>
               </div>
-              <p className="mt-3 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">
-                {voiceReadiness.blocker}
-              </p>
-              <div className="mt-4 space-y-2">
-                {voiceReadiness.signals.map((signal) => (
-                  <div key={signal.label} className="rounded-lg border border-indigo-100 bg-white px-3 py-2.5">
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{signal.label}</p>
-                      <Badge tone={signal.tone === 'confirmed' ? 'emerald' : 'amber'}>
-                        {signal.tone === 'confirmed' ? 'Confirmed' : 'Blocked'}
-                      </Badge>
+              <div className="mt-4 rounded-lg border border-indigo-100 bg-white p-3.5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">Confirmed call path</p>
+                <div className="mt-2 space-y-2">
+                  {confirmedReadinessSignals.map((signal) => (
+                    <div key={signal.label} className="rounded-lg border border-emerald-100 bg-emerald-50/40 px-3 py-2.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-sm font-semibold text-gray-900">{signal.label}</p>
+                        <Badge tone="emerald">Confirmed</Badge>
+                      </div>
+                      <p className="mt-1 text-xs text-gray-600">{signal.detail}</p>
                     </div>
-                    <p className="mt-1 text-xs text-gray-600">{signal.detail}</p>
-                  </div>
-                ))}
+                  ))}
+                </div>
+              </div>
+              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3.5">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-amber-800">Current blocker</p>
+                  <Badge tone="amber">Blocked</Badge>
+                </div>
+                <p className="mt-2 text-sm font-semibold text-amber-900">{voiceReadiness.blocker}</p>
+                {blockedReadinessSignal ? (
+                  <p className="mt-1 text-xs text-amber-800">{blockedReadinessSignal.detail}</p>
+                ) : null}
               </div>
               <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Operator checklist</p>
-                <ul className="mt-2 space-y-1.5 text-sm text-gray-700">
-                  {voiceReadiness.checklist.map((item) => (
-                    <li key={item} className="flex items-start gap-2">
-                      <span className="mt-0.5 text-indigo-500">•</span>
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Post-credit validation checklist</p>
+                <ol className="mt-2 space-y-2 text-sm text-gray-700">
+                  {voiceReadiness.checklist.map((item, index) => (
+                    <li key={item} className="flex items-start gap-2.5">
+                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-indigo-200 bg-indigo-50 text-[11px] font-semibold text-indigo-700">
+                        {index + 1}
+                      </span>
                       <span>{item}</span>
                     </li>
                   ))}
-                </ul>
+                </ol>
                 <p className="mt-3 text-xs text-gray-500">
                   Do not confirm audible AI responses to callers until quota is restored and outbound audio logs are observed.
                 </p>
@@ -817,9 +832,25 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
               <p className="mt-3 rounded-lg border border-cyan-200 bg-white px-3 py-2 text-sm font-semibold text-cyan-900">
                 {voiceSimulation.disclaimer}
               </p>
-              <div className="mt-4 space-y-2">
+              <div className="mt-4 rounded-lg border border-cyan-100 bg-white p-3.5">
+                <p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">Demo flow snapshot</p>
+                <p className="mt-1 text-xs text-cyan-700">
+                  Use this script for buyer demos while credits are blocked. It mirrors the verified runtime path without claiming live audible AI.
+                </p>
+              </div>
+              <div className="mt-3 space-y-2">
                 {voiceSimulation.steps.map((step) => (
-                  <div key={step.label} className="rounded-lg border border-cyan-100 bg-white px-3 py-2.5">
+                  <div
+                    key={step.label}
+                    className={cn(
+                      'rounded-lg border bg-white px-3 py-2.5',
+                      step.status === 'confirmed'
+                        ? 'border-emerald-100'
+                        : step.status === 'blocked'
+                          ? 'border-amber-200'
+                          : 'border-slate-200'
+                    )}
+                  >
                     <div className="flex items-center justify-between gap-2">
                       <p className="text-sm font-semibold text-gray-900">{step.label}</p>
                       <Badge tone={step.status === 'confirmed' ? 'emerald' : step.status === 'blocked' ? 'amber' : 'slate'}>
