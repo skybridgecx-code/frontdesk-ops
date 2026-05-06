@@ -298,10 +298,15 @@ describe('handleOpenAIMessage', () => {
       );
     });
 
-    it('does not persist rate_limits.updated', () => {
+    it('uses rate_limits.updated as an OpenAI-ready signal and attempts greeting', async () => {
       const msg = JSON.stringify({ type: 'rate_limits.updated' });
       handleOpenAIMessage(msg, state, events, transcripts, enqueue);
-      expect(enqueuedTasks).toHaveLength(0);
+      expect(state.openAISessionReady).toBe(true);
+      await runEnqueued();
+      expect(events.persistEvent).toHaveBeenCalledWith(
+        'openai.initial_greeting.skipped',
+        expect.objectContaining({ reason: 'twilio_not_started' })
+      );
     });
   });
 

@@ -42,6 +42,12 @@ const LOW_VALUE_EVENT_TYPES = new Set([
   'rate_limits.updated'
 ]);
 
+const OPENAI_SESSION_READY_EVENT_TYPES = new Set([
+  'session.created',
+  'session.updated',
+  'rate_limits.updated'
+]);
+
 /**
  * Parses and routes a single OpenAI Realtime API server event.
  *
@@ -75,14 +81,13 @@ export function handleOpenAIMessage(
 
   const eventType = getString(message, 'type') ?? 'unknown';
 
-  state.log.info({ msg: 'openai realtime server event', callSid: state.queryCallSid, eventType });
+  state.log.info({ msg: 'openai realtime event received', eventType });
 
-  if (eventType === 'session.created' || eventType === 'session.updated') {
+  if (OPENAI_SESSION_READY_EVENT_TYPES.has(eventType)) {
     state.openAISessionReady = true;
     enqueue(async () => {
       await maybeSendInitialGreeting(state, events, 'openai_ready');
     });
-    return;
   }
 
   if (eventType === 'response.output_audio.delta') {

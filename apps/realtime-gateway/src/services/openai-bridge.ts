@@ -52,6 +52,7 @@ export function initOpenAIBridge(
 
       openAISocket.send(JSON.stringify(sessionConfig));
       state.openAIReady = true;
+      state.openAISessionReady = true;
 
       state.log.info({
         msg: 'openai realtime session.update sent',

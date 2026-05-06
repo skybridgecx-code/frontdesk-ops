@@ -169,6 +169,27 @@ app.get('/ws/media-stream', { websocket: true }, (socket, request) => {
       }
 
       const event = getString(message, 'event');
+      const start = isRecord(message.start) ? message.start : null;
+      const stop = isRecord(message.stop) ? message.stop : null;
+      const customParameters =
+        start && isRecord(start.customParameters) ? start.customParameters : null;
+      const hasStreamSid = Boolean(
+        getString(message, 'streamSid') ??
+          (start ? getString(start, 'streamSid') : null) ??
+          (stop ? getString(stop, 'streamSid') : null)
+      );
+      const hasCallSid = Boolean(
+        (start ? getString(start, 'callSid') : null) ??
+          (stop ? getString(stop, 'callSid') : null) ??
+          (customParameters ? getString(customParameters, 'callSid') : null)
+      );
+
+      app.log.info({
+        msg: 'twilio media stream event received',
+        eventType: event ?? 'unknown',
+        hasStreamSid,
+        hasCallSid
+      });
 
       if (event === 'start') {
         const startResult = await handleStart(message, state, events, size, {
