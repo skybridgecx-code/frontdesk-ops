@@ -1,3 +1,5 @@
+'use client';
+
 import type { InputHTMLAttributes } from 'react';
 
 export function SearchInput(props: InputHTMLAttributes<HTMLInputElement>) {
