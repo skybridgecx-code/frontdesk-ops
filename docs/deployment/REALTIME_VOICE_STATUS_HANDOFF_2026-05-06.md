@@ -37,6 +37,15 @@ This note is the operator handoff point to pause OpenAI billing/credits work wit
 3. It explicitly marks OpenAI quota/billing credits as the active blocker.
 4. It includes the operator checklist for post-credit verification.
 
+## Voice Simulation Mode (Demo-Safe)
+1. The same dashboard panel now includes a **Voice Simulation Mode** card labeled `Demo mode`.
+2. It demonstrates the expected call flow milestones without making OpenAI API calls.
+3. It explicitly flags the quota blocker and does not claim callers currently hear AI audio.
+4. Use this mode for demos while credits are unavailable.
+5. After credits are added, rerun a live call and verify:
+   - `openai.output_audio.delta received`
+   - `twilio outbound media sent`
+
 ## Exact Log Command To Rerun After Credits Fix
 ```bash
 cd "/Users/muhammadaatif/frontdesk-os"

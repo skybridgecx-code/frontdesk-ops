@@ -5,7 +5,7 @@ import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
 import { formatPhoneNumber, normalizeCallStatus, timeAgo } from '@/lib/call-utils';
 import type { AnalyticsPeriod, OverviewData, WebhookHealthData } from '../components/analytics/types';
-import { getVoiceReadinessModel } from './voice-readiness';
+import { getVoiceReadinessModel, getVoiceSimulationModel } from './voice-readiness';
 
 export const metadata: Metadata = {
   title: 'Command Center | SkyBridgeCX'
@@ -545,6 +545,7 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const operatorName = user?.firstName ?? user?.username ?? 'Operator';
   const heading = `${greetingPrefix(new Date().getHours())}, ${operatorName}`;
   const voiceReadiness = getVoiceReadinessModel();
+  const voiceSimulation = getVoiceSimulationModel();
 
   return (
     <div className="space-y-6">
@@ -803,6 +804,31 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
                 <p className="mt-3 text-xs text-gray-500">
                   Do not confirm audible AI responses to callers until quota is restored and outbound audio logs are observed.
                 </p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">{voiceSimulation.title}</p>
+                  <p className="mt-2 text-sm leading-6 text-cyan-900">{voiceSimulation.summary}</p>
+                </div>
+                <Badge tone="slate">Demo mode</Badge>
+              </div>
+              <p className="mt-3 rounded-lg border border-cyan-200 bg-white px-3 py-2 text-sm font-semibold text-cyan-900">
+                {voiceSimulation.disclaimer}
+              </p>
+              <div className="mt-4 space-y-2">
+                {voiceSimulation.steps.map((step) => (
+                  <div key={step.label} className="rounded-lg border border-cyan-100 bg-white px-3 py-2.5">
+                    <div className="flex items-center justify-between gap-2">
+                      <p className="text-sm font-semibold text-gray-900">{step.label}</p>
+                      <Badge tone={step.status === 'confirmed' ? 'emerald' : step.status === 'blocked' ? 'amber' : 'slate'}>
+                        {step.status === 'confirmed' ? 'Confirmed' : step.status === 'blocked' ? 'Blocked' : 'Next'}
+                      </Badge>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-600">{step.detail}</p>
+                  </div>
+                ))}
               </div>
             </div>
           </div>

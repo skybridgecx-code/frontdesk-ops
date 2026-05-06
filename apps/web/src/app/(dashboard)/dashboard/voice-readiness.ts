@@ -14,6 +14,21 @@ export type VoiceReadinessModel = {
   checklist: string[];
 };
 
+export type VoiceSimulationStatus = 'confirmed' | 'blocked' | 'next';
+
+export type VoiceSimulationStep = {
+  label: string;
+  status: VoiceSimulationStatus;
+  detail: string;
+};
+
+export type VoiceSimulationModel = {
+  title: string;
+  summary: string;
+  disclaimer: string;
+  steps: VoiceSimulationStep[];
+};
+
 export const VOICE_READINESS_PHONE_NUMBER = '+1 202 935 9687';
 
 export function getVoiceReadinessModel(): VoiceReadinessModel {
@@ -35,6 +50,51 @@ export function getVoiceReadinessModel(): VoiceReadinessModel {
       `Call ${VOICE_READINESS_PHONE_NUMBER}.`,
       'Confirm log: openai.output_audio.delta received.',
       'Confirm log: twilio outbound media sent.'
+    ]
+  };
+}
+
+export function getVoiceSimulationModel(): VoiceSimulationModel {
+  return {
+    title: 'Voice Simulation Mode',
+    summary: 'Demo-safe visualization of the current voice lifecycle when OpenAI quota blocks live audio output.',
+    disclaimer: 'Simulation only. This does not mean a real caller heard AI audio.',
+    steps: [
+      {
+        label: 'Inbound call received',
+        status: 'confirmed',
+        detail: 'Twilio inbound webhook reaches the API.'
+      },
+      {
+        label: 'Phone number matched',
+        status: 'confirmed',
+        detail: 'The inbound number resolves to the tenant record.'
+      },
+      {
+        label: 'Routing mode AI_ALWAYS',
+        status: 'confirmed',
+        detail: 'Calls route to the AI workflow by policy.'
+      },
+      {
+        label: 'Realtime gateway connected',
+        status: 'confirmed',
+        detail: 'Twilio media stream reaches the realtime gateway.'
+      },
+      {
+        label: 'OpenAI response.create reached',
+        status: 'confirmed',
+        detail: 'Initial response creation is triggered by the realtime gateway.'
+      },
+      {
+        label: 'Blocker shown: OpenAI quota',
+        status: 'blocked',
+        detail: 'Provider returns insufficient_quota until credits are added.'
+      },
+      {
+        label: 'Next expected step',
+        status: 'next',
+        detail: 'After credits: observe openai.output_audio.delta and twilio outbound media sent.'
+      }
     ]
   };
 }
