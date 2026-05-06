@@ -13,6 +13,7 @@ COPY --from=pruner /app/out/json/ ./
 COPY --from=pruner /app/out/pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile --ignore-scripts
 COPY --from=pruner /app/out/full/ ./
+COPY --from=pruner /app/tsconfig.base.json ./tsconfig.base.json
 RUN pnpm --filter @frontdesk/db run prisma:generate
 RUN pnpm turbo build --filter=@frontdesk/realtime-gateway...
 RUN pnpm prune --prod --no-optional
@@ -22,8 +23,8 @@ FROM node:22-alpine AS runner
 RUN apk add --no-cache dumb-init
 WORKDIR /app
 ENV NODE_ENV=production
-ENV PORT=3002
+ENV PORT_REALTIME=4001
 COPY --from=builder --chown=node:node /app ./
 USER node
 EXPOSE 3002
-CMD ["dumb-init", "node", "apps/realtime-gateway/dist/index.js"]
+CMD ["dumb-init", "node", "--conditions=production", "apps/realtime-gateway/dist/apps/realtime-gateway/src/index.js"]
