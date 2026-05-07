@@ -119,6 +119,7 @@ export default async function DashboardLayout({
           subscriptionStatus={billingStatus.status}
           workspaces={workspaces}
           activeWorkspaceId={activeWorkspaceId}
+          activeWorkspaceSlug={tenant?.slug ?? null}
         />
 
         <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">

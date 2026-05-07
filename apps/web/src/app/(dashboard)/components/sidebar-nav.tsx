@@ -15,6 +15,7 @@ type SidebarNavProps = {
     label: string;
   }>;
   activeWorkspaceId: string | null;
+  activeWorkspaceSlug: string | null;
 };
 
 type NavItem = {
@@ -115,7 +116,7 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SidebarNav({ subscriptionStatus, workspaces, activeWorkspaceId }: SidebarNavProps) {
+export function SidebarNav({ subscriptionStatus, workspaces, activeWorkspaceId, activeWorkspaceSlug }: SidebarNavProps) {
   const pathname = usePathname();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
@@ -124,6 +125,8 @@ export function SidebarNav({ subscriptionStatus, workspaces, activeWorkspaceId }
 
   const currentWorkspaceId =
     activeWorkspaceId ?? workspaces[0]?.id ?? null;
+  const isDemoWorkspace = activeWorkspaceSlug === 'skybridge-demo';
+  const visibleNavItems = isDemoWorkspace ? navItems.filter((item) => item.href !== '/acquisition') : navItems;
 
   async function handleWorkspaceChange(nextWorkspaceId: string) {
     if (!nextWorkspaceId || nextWorkspaceId === currentWorkspaceId) {
@@ -246,7 +249,7 @@ export function SidebarNav({ subscriptionStatus, workspaces, activeWorkspaceId }
 
         {/* Nav items */}
         <nav className="flex-1 space-y-0.5">
-          {navItems.map((item, i) => {
+          {visibleNavItems.map((item, i) => {
             const active = isItemActive(pathname, item.href);
             return (
               <Link

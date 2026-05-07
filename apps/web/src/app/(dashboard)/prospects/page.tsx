@@ -210,6 +210,7 @@ export default async function ProspectsPage({
   }
 
   const allProspects = prospectsResponse.prospects;
+  const isDemoWorkspace = tenant?.slug === 'skybridge-demo';
   const filteredProspects = allProspects.filter((prospect) => {
     const normalizedStatus = normalizeText(prospect.status);
     const statusMatches = statusFilter === 'all' || normalizedStatus === statusFilter;
@@ -234,12 +235,14 @@ export default async function ProspectsPage({
         <p className="mt-2 text-sm text-gray-600">
           These are customer/job leads captured for a client using SkyBridgeCX from calls, imports, and follow-up workflows.
         </p>
-        <div className="mt-4 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-800">
-          <p className="font-medium">Looking for your sales targets? Open Sales Pipeline.</p>
-          <Link href="/acquisition" className="mt-1 inline-flex font-semibold text-indigo-700 underline-offset-2 hover:underline">
-            Go to Sales Pipeline →
-          </Link>
-        </div>
+        {!isDemoWorkspace ? (
+          <div className="mt-4 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-800">
+            <p className="font-medium">Looking for your sales targets? Open Sales Pipeline.</p>
+            <Link href="/acquisition" className="mt-1 inline-flex font-semibold text-indigo-700 underline-offset-2 hover:underline">
+              Go to Sales Pipeline →
+            </Link>
+          </div>
+        ) : null}
       </section>
 
       <Card title="Pipeline summary" subtitle="Current pipeline stages from active records.">
