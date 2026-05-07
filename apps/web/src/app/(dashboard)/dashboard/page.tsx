@@ -110,6 +110,17 @@ type AcquisitionSummaryResponse = {
   actions: AcquisitionAction[];
 };
 
+type AcquisitionLeadListItem = {
+  stage: string;
+  outreachStatus: string;
+  nextFollowUpAt: string | null;
+};
+
+type AcquisitionLeadsResponse = {
+  ok: boolean;
+  leads: AcquisitionLeadListItem[];
+};
+
 type BusinessProfile = {
   id: string;
   name: string;
@@ -535,15 +546,19 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   ]);
 
   const activeBusiness = tenant?.businesses[0] ?? null;
-  const showSalesPipelinePanel = tenant?.slug === 'aatif-sales';
+  const isPrivateSalesWorkspace = tenant?.slug === 'aatif-sales';
+  const showSalesPipelinePanel = isPrivateSalesWorkspace;
 
-  const [businessResult, prospectsResult, billingResult, acquisitionSummaryResult] = await Promise.all([
+  const [businessResult, prospectsResult, billingResult, acquisitionSummaryResult, acquisitionLeadsResult] = await Promise.all([
     activeBusiness ? fetchApi<BusinessResponse>(`/v1/businesses/${activeBusiness.id}`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<BusinessResponse>),
     activeBusiness ? fetchApi<ProspectsResponse>(`/v1/businesses/${activeBusiness.id}/prospects?limit=8`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<ProspectsResponse>),
     tenant ? fetchApi<BillingStatusResponse>(`/v1/billing/status/${tenant.id}`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<BillingStatusResponse>),
     tenant && showSalesPipelinePanel
       ? fetchApi<AcquisitionSummaryResponse>('/v1/acquisition/leads/summary')
-      : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<AcquisitionSummaryResponse>)
+      : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<AcquisitionSummaryResponse>),
+    tenant && showSalesPipelinePanel
+      ? fetchApi<AcquisitionLeadsResponse>('/v1/acquisition/leads?limit=500')
+      : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<AcquisitionLeadsResponse>)
   ]);
 
   const safeOverview = overviewResult.data ?? emptyOverview(period);
@@ -561,6 +576,11 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
     pilotProposed: 0
   };
   const acquisitionActions = acquisitionSummaryResult.data?.actions ?? [];
+  const acquisitionLeads = acquisitionLeadsResult.data?.leads ?? [];
+  const wonTargets = acquisitionLeads.filter((lead) => lead.stage === 'Won').length;
+  const untouchedTargets = acquisitionLeads.filter(
+    (lead) => lead.stage === 'Researching' && lead.outreachStatus === 'Not contacted'
+  ).length;
 
   const activePhones = business?.phoneNumbers?.filter((p) => p.isActive) ?? [];
   const activeAgents = business?.agentProfiles?.filter((a) => a.isActive && a.channel === 'VOICE') ?? [];
@@ -579,6 +599,153 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const heading = `${greetingPrefix(new Date().getHours())}, ${operatorName}`;
   const voiceReadiness = getVoiceReadinessModel();
   const voiceSimulation = getVoiceSimulationModel();
+
+  if (isPrivateSalesWorkspace) {
+    const pilotLabel = acquisitionSummary.pilotProposed === 1 ? 'opportunity' : 'opportunities';
+    const salesActionQueue = [
+      {
+        label: `Follow up with ${acquisitionSummary.followUpsDue} due target${acquisitionSummary.followUpsDue === 1 ? '' : 's'}`,
+        description: 'Prioritize overdue targets and set the next outreach step.',
+        href: '/acquisition'
+      },
+      {
+        label: `Contact ${untouchedTargets} untouched target${untouchedTargets === 1 ? '' : 's'}`,
+        description: 'Move researching leads into first-touch outreach.',
+        href: '/acquisition'
+      },
+      {
+        label: `Prepare ${acquisitionSummary.demosBooked} demo${acquisitionSummary.demosBooked === 1 ? '' : 's'}`,
+        description: 'Use pain-point notes to tailor each booked demo.',
+        href: '/acquisition'
+      },
+      {
+        label: `Advance ${acquisitionSummary.pilotProposed} pilot ${pilotLabel}`,
+        description: 'Push demo-booked and pilot-proposed leads toward decision.',
+        href: '/acquisition'
+      }
+    ];
+
+    return (
+      <div className="space-y-6">
+        <section className="relative overflow-hidden rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-700 p-6 shadow-lg sm:p-8">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_75%_0%,rgba(255,255,255,0.12),transparent_55%)]" />
+          <div className="relative">
+            <span className="inline-flex items-center rounded-full border border-white/20 bg-white/10 px-2.5 py-1 text-xs font-semibold text-white">
+              Private Sales Workspace
+            </span>
+            <h1 className="mt-4 text-3xl font-semibold tracking-tight text-white sm:text-4xl">
+              Private Sales Command Center
+            </h1>
+            <p className="mt-3 max-w-3xl text-base leading-7 text-slate-200 sm:text-lg">
+              Track targets, outreach, demos, follow-ups, and pilot opportunities.
+            </p>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Link href="/acquisition" className="inline-flex min-h-11 items-center justify-center rounded-xl bg-white px-5 text-sm font-semibold text-slate-900 transition hover:bg-slate-100">
+                Open Sales Pipeline
+              </Link>
+              <Link href="/dashboard" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white transition hover:bg-white/20">
+                Refresh dashboard
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-6">
+          <CommandMetric label="Total targets" value={String(acquisitionSummary.totalLeads)} detail="pipeline" tone="indigo" />
+          <CommandMetric label="Contacted" value={String(acquisitionSummary.contacted)} detail="progress" tone="emerald" />
+          <CommandMetric label="Follow-ups due" value={String(acquisitionSummary.followUpsDue)} detail="today" tone={acquisitionSummary.followUpsDue > 0 ? 'amber' : 'emerald'} />
+          <CommandMetric label="Demos booked" value={String(acquisitionSummary.demosBooked)} detail="scheduled" tone="violet" />
+          <CommandMetric label="Pilot proposed" value={String(acquisitionSummary.pilotProposed)} detail="pipeline" tone="amber" />
+          <CommandMetric label="Won" value={String(wonTargets)} detail="closed" tone="emerald" />
+        </section>
+
+        <section className="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_minmax(320px,0.55fr)]">
+          <Panel
+            title="Sales Pipeline"
+            subtitle="Real imported businesses, stage progression, and next actions."
+            action={<Link href="/acquisition" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open sales pipeline →</Link>}
+          >
+            {acquisitionSummaryResult.unavailable ? (
+              <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+                Sales pipeline data is temporarily unavailable. Open <code>/acquisition</code> to retry.
+              </div>
+            ) : (
+              <div className="space-y-4">
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                    <p className="text-xs uppercase tracking-wider text-gray-500">Targets</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.totalLeads}</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                    <p className="text-xs uppercase tracking-wider text-gray-500">Contacted</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.contacted}</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                    <p className="text-xs uppercase tracking-wider text-gray-500">Follow-ups due</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.followUpsDue}</p>
+                  </div>
+                  <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                    <p className="text-xs uppercase tracking-wider text-gray-500">Won</p>
+                    <p className="mt-1 text-xl font-semibold text-gray-900">{wonTargets}</p>
+                  </div>
+                </div>
+
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Acquisition actions</p>
+                  {acquisitionActions.length > 0 ? (
+                    <ul className="mt-2 space-y-2">
+                      {acquisitionActions.slice(0, 5).map((action) => (
+                        <li key={`${action.businessName}-${action.stage}-${action.nextFollowUpAt ?? 'none'}`} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                          <p className="text-sm font-semibold text-gray-900">{action.businessName}</p>
+                          <p className="mt-1 text-xs text-gray-600">{[action.stage, action.detail].filter(Boolean).join(' · ')}</p>
+                          <p className="mt-1 text-xs text-gray-500">
+                            {action.nextFollowUpAt ? `Follow-up: ${timeAgo(action.nextFollowUpAt)}` : 'No follow-up date set'}
+                          </p>
+                        </li>
+                      ))}
+                    </ul>
+                  ) : (
+                    <p className="mt-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                      No acquisition actions queued yet. Use <code>/acquisition</code> to move stages, notes, and follow-ups.
+                    </p>
+                  )}
+                </div>
+              </div>
+            )}
+          </Panel>
+
+          <Panel title="Sales action queue" subtitle="Prioritized operator actions for today.">
+            <div className="space-y-3">
+              {salesActionQueue.map((action, index) => (
+                <Link
+                  key={`${action.label}-${index}`}
+                  href={action.href}
+                  className="group flex items-start gap-3 rounded-xl border border-gray-200 bg-gray-50 p-4 transition hover:border-indigo-200 hover:bg-indigo-50"
+                >
+                  <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-indigo-50 text-sm font-semibold text-indigo-700 ring-1 ring-indigo-200">
+                    {index + 1}
+                  </span>
+                  <span>
+                    <span className="block text-sm font-semibold text-gray-900 group-hover:text-indigo-700">{action.label}</span>
+                    <span className="mt-1 block text-sm text-gray-600">{action.description}</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </Panel>
+        </section>
+
+        <section>
+          <Panel title="Product demo readiness" subtitle="Optional reference for live product demos.">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-gray-200 bg-gray-50 px-4 py-3">
+              <p className="text-sm text-gray-700">Demo workspace keeps AI front-desk setup, voice readiness, and customer-facing demo widgets.</p>
+              <Link href="/dashboard" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Stay in private view</Link>
+            </div>
+          </Panel>
+        </section>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
