@@ -53,6 +53,19 @@ const navItems: NavItem[] = [
     )
   },
   {
+    href:  '/acquisition',
+    label: 'Acquisition',
+    icon: (
+      <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
+        <path
+          d="M4 18V6m0 12h16M8 14l3-3 3 2 4-4"
+          stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"
+        />
+        <path d="m17 7 1-1h2v2l-1 1" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    )
+  },
+  {
     href:  '/billing',
     label: 'Billing',
     icon: (
