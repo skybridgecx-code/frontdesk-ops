@@ -13,8 +13,12 @@ export type AcquisitionStage = (typeof acquisitionStages)[number];
 export type AcquisitionTarget = {
   businessName: string;
   vertical: string;
+  services?: string | null;
   location: string;
   website: string;
+  phone?: string | null;
+  email?: string | null;
+  yearsInBusiness?: string | null;
   painPoint: string;
   outreachStatus: string;
   lastContacted: string | null;
@@ -23,6 +27,7 @@ export type AcquisitionTarget = {
   offerStage: string;
   stage: AcquisitionStage;
   notes: string;
+  source: string;
 };
 
 export const pitchAngles = [
@@ -46,7 +51,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Not booked',
     offerStage: 'Not discussed',
     stage: 'Follow-up needed',
-    notes: 'Owner asked for callback after morning crew dispatch.'
+    notes: 'Owner asked for callback after morning crew dispatch.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'Northflow HVAC Demo Services',
@@ -60,7 +66,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Booked for Friday',
     offerStage: 'Pilot overview pending',
     stage: 'Demo booked',
-    notes: 'Wants call summary view and callback workflow.'
+    notes: 'Wants call summary view and callback workflow.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'Copperline Plumbing Demo Group',
@@ -74,7 +81,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Not booked',
     offerStage: 'Not discussed',
     stage: 'Contacted',
-    notes: 'Try alternate pitch angle: lead capture consistency.'
+    notes: 'Try alternate pitch angle: lead capture consistency.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'Greenline Landscape Demo Team',
@@ -88,7 +96,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Not booked',
     offerStage: 'Not discussed',
     stage: 'Researching',
-    notes: 'Build before/after story using missed-call recovery.'
+    notes: 'Build before/after story using missed-call recovery.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'ClearNest Cleaning Demo Services',
@@ -102,7 +111,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Completed',
     offerStage: 'Pilot proposed',
     stage: 'Pilot proposed',
-    notes: 'Requested draft pilot terms and onboarding timeline.'
+    notes: 'Requested draft pilot terms and onboarding timeline.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'SureGuard Pest Demo Control',
@@ -116,7 +126,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Completed',
     offerStage: 'Pilot accepted',
     stage: 'Won',
-    notes: 'Demo account setup queued for kickoff.'
+    notes: 'Demo account setup queued for kickoff.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'RapidRestore Demo Response',
@@ -130,7 +141,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Deferred',
     offerStage: 'Revisit next quarter',
     stage: 'Not now',
-    notes: 'Circle back after internal staffing changes.'
+    notes: 'Circle back after internal staffing changes.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'GateLift Garage Demo Doors',
@@ -144,7 +156,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Not booked',
     offerStage: 'Not discussed',
     stage: 'Follow-up needed',
-    notes: 'Use quick ROI framing around urgent repair calls.'
+    notes: 'Use quick ROI framing around urgent repair calls.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'BrightCurrent Electric Demo',
@@ -158,7 +171,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Not booked',
     offerStage: 'Not discussed',
     stage: 'Contacted',
-    notes: 'Mention dashboard command center in next touchpoint.'
+    notes: 'Mention dashboard command center in next touchpoint.',
+    source: 'Sample acquisition data'
   },
   {
     businessName: 'PrimeShield Home Services Demo',
@@ -172,7 +186,8 @@ export const acquisitionTargets: AcquisitionTarget[] = [
     demoStatus: 'Booked for Monday',
     offerStage: 'Pilot structure prepped',
     stage: 'Demo booked',
-    notes: 'Prepare pilot pricing draft for Monday review.'
+    notes: 'Prepare pilot pricing draft for Monday review.',
+    source: 'Sample acquisition data'
   }
 ];
 
