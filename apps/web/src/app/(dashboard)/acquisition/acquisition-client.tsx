@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Card } from '../components/card';
 import {
   acquisitionStages,
@@ -233,6 +234,33 @@ export function AcquisitionClient({ workspaceSlug }: { workspaceSlug: string | n
   const [isUpdatingLead, setIsUpdatingLead] = useState(false);
   const [selectedLeadKey, setSelectedLeadKey] = useState<string | null>(null);
   const [leadEditor, setLeadEditor] = useState<LeadEditorDraft | null>(null);
+  const [isDrawerPortalReady, setIsDrawerPortalReady] = useState(false);
+
+  useEffect(() => {
+    setIsDrawerPortalReady(true);
+  }, []);
+
+  useEffect(() => {
+    if (!selectedLeadKey) {
+      return;
+    }
+
+    const handleEscapeKey = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setSelectedLeadKey(null);
+      }
+    };
+
+    const { body } = document;
+    const previousBodyOverflow = body.style.overflow;
+    body.style.overflow = 'hidden';
+    window.addEventListener('keydown', handleEscapeKey);
+
+    return () => {
+      body.style.overflow = previousBodyOverflow;
+      window.removeEventListener('keydown', handleEscapeKey);
+    };
+  }, [selectedLeadKey]);
 
   useEffect(() => {
     try {
@@ -945,15 +973,16 @@ export function AcquisitionClient({ workspaceSlug }: { workspaceSlug: string | n
         </div>
       </section>
 
-      {selectedLead && leadEditor ? (
-        <div className="fixed inset-0 z-40 flex items-end justify-end bg-gray-900/40 p-0 sm:items-stretch">
-          <button
-            type="button"
-            aria-label="Close lead detail"
-            className="absolute inset-0"
-            onClick={() => setSelectedLeadKey(null)}
-          />
-          <aside className="relative z-50 flex h-[100dvh] w-full max-w-[44rem] flex-col border-l border-gray-200 bg-white shadow-2xl">
+      {selectedLead && leadEditor && isDrawerPortalReady
+        ? createPortal(
+            <div className="fixed inset-0 z-50">
+              <button
+                type="button"
+                aria-label="Close lead detail"
+                className="absolute inset-0 bg-black/35 backdrop-blur-[1px]"
+                onClick={() => setSelectedLeadKey(null)}
+              />
+              <aside className="absolute right-0 top-0 z-10 flex h-screen w-full max-w-[720px] flex-col border-l border-gray-200 bg-white shadow-2xl">
             <div className="sticky top-0 z-10 border-b border-gray-100 bg-white/95 px-5 py-4 backdrop-blur">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
@@ -1192,9 +1221,11 @@ export function AcquisitionClient({ workspaceSlug }: { workspaceSlug: string | n
                 </button>
               </div>
             </div>
-          </aside>
-        </div>
-      ) : null}
+              </aside>
+            </div>,
+            document.body
+          )
+        : null}
     </div>
   );
 }
