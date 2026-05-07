@@ -319,6 +319,7 @@ export function AcquisitionClient() {
   }, [leadView]);
 
   const stageFilterLabel = stageFilter === 'all' ? 'All stages' : stageFilter;
+  const todayKey = toDayKey(new Date());
 
   const importedStats = useMemo(() => {
     const totalImported = importedTargets.length;
@@ -686,30 +687,23 @@ export function AcquisitionClient() {
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="min-w-[1700px] divide-y divide-gray-200 text-sm">
+            <table className="min-w-[980px] divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
                   <th className="px-3 py-2.5">Business</th>
-                  <th className="px-3 py-2.5">Vertical</th>
-                  <th className="px-3 py-2.5">Location</th>
-                  <th className="px-3 py-2.5">Website</th>
-                  <th className="px-3 py-2.5">Phone</th>
-                  <th className="px-3 py-2.5">Email</th>
-                  <th className="px-3 py-2.5">Pain point found</th>
-                  <th className="px-3 py-2.5">Outreach status</th>
-                  <th className="px-3 py-2.5">Last contacted</th>
-                  <th className="px-3 py-2.5">Next follow-up</th>
-                  <th className="px-3 py-2.5">Demo status</th>
-                  <th className="px-3 py-2.5">Offer stage</th>
+                  <th className="px-3 py-2.5">Vertical / services</th>
+                  <th className="px-3 py-2.5">Market / location</th>
                   <th className="px-3 py-2.5">Stage</th>
-                  <th className="px-3 py-2.5">Source</th>
-                  <th className="px-3 py-2.5">Notes</th>
+                  <th className="px-3 py-2.5">Outreach status</th>
+                  <th className="px-3 py-2.5">Next follow-up</th>
+                  <th className="px-3 py-2.5">Last contacted</th>
                   <th className="px-3 py-2.5">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
                 {visibleTargets.map((target) => {
                   const editable = Boolean(target.id) && apiMode === 'connected';
+                  const isFollowUpDue = Boolean(target.nextFollowUp && target.nextFollowUp <= todayKey);
                   return (
                     <tr key={`${target.id ?? target.source}:${target.businessName}:${target.location}:${target.website}`}>
                       <td className="px-3 py-3">
@@ -720,60 +714,33 @@ export function AcquisitionClient() {
                         >
                           {target.businessName}
                         </button>
+                        <div className="mt-1">
+                          <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>
+                            {target.source === 'Imported lead file' ? 'Imported' : 'Sample'}
+                          </ToneBadge>
+                        </div>
                       </td>
                       <td className="px-3 py-3 text-gray-700">{target.services ?? target.vertical}</td>
                       <td className="px-3 py-3 text-gray-700">{target.location}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.website || '—'}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.phone?.trim() || '—'}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.email?.trim() || '—'}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.painPoint}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.outreachStatus}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.lastContacted ?? '—'}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.nextFollowUp ?? '—'}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.demoStatus}</td>
-                      <td className="px-3 py-3 text-gray-700">{target.offerStage}</td>
                       <td className="px-3 py-3">
                         <ToneBadge tone={stageTone[target.stage]}>{target.stage}</ToneBadge>
                       </td>
-                      <td className="px-3 py-3">
-                        <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>
-                          {target.source === 'Imported lead file' ? 'Imported' : 'Sample'}
-                        </ToneBadge>
+                      <td className="px-3 py-3 text-gray-700">{target.outreachStatus}</td>
+                      <td className={cn('px-3 py-3', isFollowUpDue ? 'font-semibold text-amber-700' : 'text-gray-700')}>
+                        {target.nextFollowUp ?? <span className="text-gray-400">Not set</span>}
                       </td>
-                      <td className="px-3 py-3 text-gray-600">{target.notes}</td>
+                      <td className="px-3 py-3 text-gray-700">
+                        {target.lastContacted ?? <span className="text-gray-400">Not set</span>}
+                      </td>
                       <td className="px-3 py-3">
                         {editable ? (
-                          <div className="space-y-2">
-                            <button
-                              type="button"
-                              onClick={() => setSelectedLeadKey(leadKey(target))}
-                              className="rounded border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100"
-                            >
-                              Open / edit
-                            </button>
-                            <div className="flex flex-wrap gap-1">
-                              {(
-                                [
-                                  'mark_contacted',
-                                  'needs_follow_up',
-                                  'demo_booked',
-                                  'pilot_proposed',
-                                  'won',
-                                  'not_now'
-                                ] as QuickAction[]
-                              ).map((action) => (
-                                <button
-                                  key={`${target.id}-${action}`}
-                                  type="button"
-                                  className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
-                                  onClick={() => void handleQuickAction(target, action)}
-                                  disabled={isUpdatingLead}
-                                >
-                                  {quickActionLabels[action]}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
+                          <button
+                            type="button"
+                            onClick={() => setSelectedLeadKey(leadKey(target))}
+                            className="rounded border border-indigo-200 bg-indigo-50 px-2.5 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100"
+                          >
+                            Open / edit
+                          </button>
                         ) : (
                           <span className="text-[11px] text-gray-500">
                             {target.source === 'Sample acquisition data' ? 'Sample fallback' : 'API unavailable'}
@@ -785,7 +752,7 @@ export function AcquisitionClient() {
                 })}
                 {visibleTargets.length === 0 ? (
                   <tr>
-                    <td colSpan={16} className="px-3 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={8} className="px-3 py-8 text-center text-sm text-gray-500">
                       No leads in this view yet.
                     </td>
                   </tr>
