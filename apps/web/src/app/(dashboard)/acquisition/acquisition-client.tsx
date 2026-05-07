@@ -543,9 +543,9 @@ export function AcquisitionClient() {
       <section className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Client Acquisition Command Center</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Sales Pipeline</h1>
             <p className="mt-2 max-w-3xl text-sm text-gray-600 sm:text-base">
-              Use Frontdesk OS to find, track, demo, and close local home-services businesses with a repeatable pipeline.
+              Track businesses you are trying to sell SkyBridgeCX to. Keep this pipeline separate from client-captured leads in <code>/prospects</code>.
             </p>
           </div>
           <ToneBadge tone={apiMode === 'connected' ? 'emerald' : apiMode === 'loading' ? 'slate' : 'amber'}>
@@ -584,7 +584,7 @@ export function AcquisitionClient() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.35fr)]">
-        <Card title="Sales pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()}.`}>
+        <Card title="Sales Pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()}.`}>
           <div className="mb-3 flex flex-wrap gap-2">
             <button
               type="button"
@@ -919,7 +919,7 @@ export function AcquisitionClient() {
             <div className="border-b border-gray-100 px-5 py-4">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Acquisition lead</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Sales target lead</p>
                   <h2 className="mt-1 text-xl font-semibold tracking-tight text-gray-900">{selectedLead.businessName}</h2>
                   <p className="mt-1 text-sm text-gray-600">
                     {selectedLead.location} · {selectedLead.services ?? selectedLead.vertical}

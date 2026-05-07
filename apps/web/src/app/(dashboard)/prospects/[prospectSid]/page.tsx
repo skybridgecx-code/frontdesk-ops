@@ -117,7 +117,7 @@ export default async function ProspectDetailPage({
     <div className="space-y-6">
       <Breadcrumb
         items={[
-          { label: 'Prospects', href: returnTo },
+          { label: 'Captured Leads', href: returnTo },
           { label: prospect.companyName ?? prospect.contactName ?? prospect.prospectSid }
         ]}
       />
@@ -126,7 +126,7 @@ export default async function ProspectDetailPage({
         <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
           <div>
             <Link href={returnTo} className="inline-flex min-h-11 items-center text-sm font-medium text-gray-500 transition hover:text-indigo-600">
-              ← Back to prospects list
+              ← Back to captured leads
             </Link>
             <h1 className="mt-2 text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">
               {prospect.companyName ?? prospect.contactName ?? prospect.prospectSid}

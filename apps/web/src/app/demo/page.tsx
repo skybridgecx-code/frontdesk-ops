@@ -39,7 +39,7 @@ const capabilities = [
 const ctas = [
   { label: 'View dashboard', href: '/dashboard', tone: 'primary' as const },
   { label: 'View calls', href: '/calls', tone: 'secondary' as const },
-  { label: 'View prospects', href: '/prospects', tone: 'secondary' as const }
+  { label: 'View captured leads', href: '/prospects', tone: 'secondary' as const }
 ];
 
 export default function FrontdeskDemoLandingPage() {
@@ -123,7 +123,7 @@ export default function FrontdeskDemoLandingPage() {
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-7">
           <h2 className="text-xl font-semibold tracking-tight text-gray-900">Explore the demo experience</h2>
           <p className="mt-2 max-w-3xl text-sm leading-7 text-gray-600">
-            Use the links below to walk buyers through the core operating surfaces: command center, call timeline, and prospect workflow.
+            Use the links below to walk buyers through the core operating surfaces: command center, call timeline, and captured leads workflow.
           </p>
           <div className="mt-5 grid gap-3 sm:grid-cols-3">
             <Link
@@ -142,7 +142,7 @@ export default function FrontdeskDemoLandingPage() {
               href="/prospects"
               className="rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm font-semibold text-gray-700 transition hover:bg-gray-100"
             >
-              View prospects
+              View captured leads
             </Link>
           </div>
         </section>

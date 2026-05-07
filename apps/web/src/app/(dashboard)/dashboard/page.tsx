@@ -404,7 +404,7 @@ function buildActionQueue(input: {
   if (missed.length > 0) actions.push({ label: `Return ${missed.length} missed call${missed.length === 1 ? '' : 's'}`, description: 'Use summaries and transcripts to follow up quickly.', href: '/calls?triageStatus=OPEN', priority: 'high' });
 
   const due = input.prospects.filter((p) => isNewProspect(p) || isDueProspect(p));
-  if (due.length > 0) actions.push({ label: `Work ${due.length} prospect${due.length === 1 ? '' : 's'}`, description: 'Captured leads are waiting for next action.', href: '/prospects?status=new', priority: 'normal' });
+  if (due.length > 0) actions.push({ label: `Work ${due.length} captured lead${due.length === 1 ? '' : 's'}`, description: 'Captured leads are waiting for next action.', href: '/prospects?status=new', priority: 'normal' });
 
   if (input.analyticsUnavailable || input.businessUnavailable) {
     actions.push({ label: 'Check dashboard connection', description: 'Some live data could not be loaded from the API.', href: '/dashboard', priority: 'normal' });
@@ -603,7 +603,7 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
                 Review calls
               </Link>
               <Link href="/prospects" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
-                Open lead pipeline
+                Open captured leads
               </Link>
               <Link href="/setup/phone" className="inline-flex min-h-11 items-center justify-center rounded-xl border border-white/25 bg-white/10 px-5 text-sm font-semibold text-white backdrop-blur transition hover:bg-white/20">
                 Phone setup
@@ -707,7 +707,7 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
         </Panel>
       </section>
 
-      {/* ── Recent calls + Prospects ── */}
+      {/* ── Recent calls + Captured leads ── */}
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
         <Panel
           title="Recent calls"
@@ -751,12 +751,12 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
         </Panel>
 
         <Panel
-          title="Captured prospects"
+          title="Captured Leads"
           subtitle="Leads created from AI-handled calls and manual imports."
-          action={<Link href="/prospects" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open pipeline →</Link>}
+          action={<Link href="/prospects" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open captured leads →</Link>}
         >
           {prospectsResult.unavailable ? (
-            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">Prospects could not be loaded right now.</div>
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">Captured leads could not be loaded right now.</div>
           ) : recentProspects.length > 0 ? (
             <div className="space-y-3">
               {recentProspects.slice(0, 6).map((prospect) => (
@@ -777,7 +777,7 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
               ))}
             </div>
           ) : (
-            <EmptyCommandState title="No prospects captured yet" description="New leads created from qualified AI-handled calls will appear here with status, service need, priority, and next action." href="/prospects" actionLabel="Open prospects" />
+            <EmptyCommandState title="No captured leads yet" description="New leads created from qualified AI-handled calls will appear here with status, service need, priority, and next action." href="/prospects" actionLabel="Open captured leads" />
           )}
         </Panel>
       </section>
@@ -785,9 +785,9 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
       {/* ── Detail panels row ── */}
       <section className="grid gap-6 xl:grid-cols-4">
         <Panel
-          title="Acquisition pipeline"
+          title="Sales Pipeline"
           subtitle="Businesses you are selling SkyBridgeCX to."
-          action={<Link href="/acquisition" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open acquisition →</Link>}
+          action={<Link href="/acquisition" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open sales pipeline →</Link>}
         >
           {acquisitionSummaryResult.unavailable ? (
             <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">

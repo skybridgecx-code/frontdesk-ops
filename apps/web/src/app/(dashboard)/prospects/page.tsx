@@ -8,7 +8,7 @@ import { SearchInput } from '../components/search-input';
 import { ProspectsTable } from './prospects-table';
 
 export const metadata: Metadata = {
-  title: 'Prospects | SkyBridgeCX'
+  title: 'Captured Leads | SkyBridgeCX'
 };
 
 export const dynamic = 'force-dynamic';
@@ -230,14 +230,14 @@ export default async function ProspectsPage({
   return (
     <div className="space-y-6">
       <section className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm sm:p-6">
-        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Prospects</h1>
+        <h1 className="text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl">Captured Leads</h1>
         <p className="mt-2 text-sm text-gray-600">
-          Manage the SkyBridgeCX lead pipeline, prioritize high-value accounts, and track latest outreach progress.
+          These are customer/job leads captured for a client using SkyBridgeCX from calls, imports, and follow-up workflows.
         </p>
         <div className="mt-4 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-800">
-          Selling SkybridgeCX to businesses?{' '}
-          <Link href="/acquisition" className="font-semibold text-indigo-700 underline-offset-2 hover:underline">
-            Use Acquisition.
+          <p className="font-medium">Looking for your sales targets? Open Sales Pipeline.</p>
+          <Link href="/acquisition" className="mt-1 inline-flex font-semibold text-indigo-700 underline-offset-2 hover:underline">
+            Go to Sales Pipeline →
           </Link>
         </div>
       </section>

@@ -42,7 +42,7 @@ const navItems: NavItem[] = [
   },
   {
     href:  '/prospects',
-    label: 'Prospects',
+    label: 'Captured Leads',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
         <path
@@ -54,7 +54,7 @@ const navItems: NavItem[] = [
   },
   {
     href:  '/acquisition',
-    label: 'Acquisition',
+    label: 'Sales Pipeline',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4" aria-hidden="true">
         <path

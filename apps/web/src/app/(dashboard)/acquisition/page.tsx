@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { AcquisitionClient } from './acquisition-client';
 
 export const metadata: Metadata = {
-  title: 'Client Acquisition | SkyBridgeCX'
+  title: 'Sales Pipeline | SkyBridgeCX'
 };
 
 export default function AcquisitionPage() {
