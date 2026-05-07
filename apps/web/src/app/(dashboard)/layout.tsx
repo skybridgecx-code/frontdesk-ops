@@ -4,6 +4,7 @@ import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getActiveWorkspaceId, getCurrentTenant, getOnboardingStatus, getWorkspaceOptions } from '@/lib/tenant';
+import { isPrivateSalesWorkspaceSlug } from '@/lib/workspace';
 import { SidebarNav } from './components/sidebar-nav';
 
 export const metadata: Metadata = {
@@ -85,12 +86,13 @@ export default async function DashboardLayout({
     : {
         status: 'none'
       };
+  const shouldBypassSubscriptionGuard = isPrivateSalesWorkspaceSlug(tenant?.slug);
 
   const normalizedBillingStatus = billingStatus.status.toLowerCase();
-  const hasDashboardAccess = canAccessDashboard(billingStatus);
+  const hasDashboardAccess = shouldBypassSubscriptionGuard || canAccessDashboard(billingStatus);
 
   const shouldRedirectToOnboarding = onboardingStatus
-    ? onboardingStatus.isOnboardingComplete === false && !isBillingPage
+    ? onboardingStatus.isOnboardingComplete === false && !isBillingPage && !shouldBypassSubscriptionGuard
     : false;
 
   if (shouldRedirectToOnboarding) {
@@ -110,7 +112,7 @@ export default async function DashboardLayout({
     );
   }
 
-  const showPastDueBanner = !isBillingPage && normalizedBillingStatus === 'past_due';
+  const showPastDueBanner = !isBillingPage && !shouldBypassSubscriptionGuard && normalizedBillingStatus === 'past_due';
 
   return (
     <div className="skybridge-app min-h-screen overflow-x-hidden">
