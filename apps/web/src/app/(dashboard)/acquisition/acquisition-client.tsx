@@ -21,6 +21,29 @@ import {
 
 const IMPORT_STORAGE_KEY = 'skybridgecx_acquisition_imported_leads_v1';
 type LeadView = 'imported' | 'sample' | 'all';
+type ApiMode = 'loading' | 'connected' | 'fallback';
+type QuickAction = 'mark_contacted' | 'needs_follow_up' | 'demo_booked' | 'pilot_proposed' | 'won' | 'not_now';
+
+type ApiLead = {
+  id: string;
+  businessName: string;
+  vertical: string | null;
+  services: string | null;
+  location: string;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  yearsInBusiness: string | null;
+  painPointFound: string | null;
+  outreachStatus: string;
+  stage: string;
+  demoStatus: string;
+  offerStage: string;
+  lastContactedAt: string | null;
+  nextFollowUpAt: string | null;
+  notes: string | null;
+  source: string;
+};
 
 const stageTone: Record<(typeof acquisitionStages)[number], 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate'> = {
   Researching: 'slate',
@@ -70,6 +93,47 @@ function downloadFile(filename: string, content: string, type: string) {
   URL.revokeObjectURL(url);
 }
 
+function toDayKey(value: Date) {
+  const y = value.getUTCFullYear();
+  const m = String(value.getUTCMonth() + 1).padStart(2, '0');
+  const d = String(value.getUTCDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+function toDateInput(value: string | null | undefined) {
+  if (!value) {
+    return '';
+  }
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) {
+    return '';
+  }
+  return toDayKey(parsed);
+}
+
+function normalizePersistedLead(row: ApiLead): AcquisitionTarget {
+  return {
+    id: row.id,
+    businessName: row.businessName,
+    vertical: row.vertical ?? row.services ?? 'Home Services',
+    services: row.services,
+    location: row.location,
+    phone: row.phone,
+    email: row.email,
+    website: row.website ?? '',
+    yearsInBusiness: row.yearsInBusiness,
+    painPoint: row.painPointFound ?? 'Needs outreach qualification',
+    outreachStatus: row.outreachStatus,
+    stage: (row.stage as AcquisitionTarget['stage']) ?? 'Researching',
+    demoStatus: row.demoStatus,
+    offerStage: row.offerStage,
+    lastContacted: toDateInput(row.lastContactedAt),
+    nextFollowUp: toDateInput(row.nextFollowUpAt),
+    notes: row.notes ?? '',
+    source: row.source || 'Imported lead file'
+  };
+}
+
 function isImportedLead(value: unknown): value is AcquisitionTarget {
   if (!value || typeof value !== 'object') {
     return false;
@@ -78,52 +142,101 @@ function isImportedLead(value: unknown): value is AcquisitionTarget {
   return Boolean(row.businessName && row.location && row.stage && row.source === 'Imported lead file');
 }
 
+function toApiDateOrNull(value: string | null | undefined) {
+  if (!value) {
+    return null;
+  }
+  return new Date(`${value}T00:00:00.000Z`).toISOString();
+}
+
+async function fetchAcquisitionLeadsFromApi() {
+  const response = await fetch('/api/acquisition/leads', { cache: 'no-store' });
+  if (!response.ok) {
+    throw new Error('Failed to load acquisition leads');
+  }
+
+  const payload = (await response.json()) as { ok?: boolean; leads?: ApiLead[] };
+  if (payload.ok !== true || !Array.isArray(payload.leads)) {
+    throw new Error('Malformed acquisition leads response');
+  }
+
+  return payload.leads.map(normalizePersistedLead);
+}
+
 export function AcquisitionClient() {
-  const [importedTargets, setImportedTargets] = useState<AcquisitionTarget[]>([]);
+  const [apiMode, setApiMode] = useState<ApiMode>('loading');
+  const [persistedLeads, setPersistedLeads] = useState<AcquisitionTarget[]>([]);
+  const [fallbackImportedTargets, setFallbackImportedTargets] = useState<AcquisitionTarget[]>([]);
   const [leadView, setLeadView] = useState<LeadView>('sample');
+  const [hasUserSelectedView, setHasUserSelectedView] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewTargets, setPreviewTargets] = useState<AcquisitionTarget[]>([]);
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isParsing, setIsParsing] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
+  const [followUpDrafts, setFollowUpDrafts] = useState<Record<string, string>>({});
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(IMPORT_STORAGE_KEY);
       if (!raw) {
-        setLeadView('sample');
+        setFallbackImportedTargets([]);
         return;
       }
       const parsed = JSON.parse(raw) as unknown[];
       const safeRows = Array.isArray(parsed) ? parsed.filter(isImportedLead) : [];
-      setImportedTargets(safeRows);
-      setLeadView(safeRows.length > 0 ? 'imported' : 'sample');
+      setFallbackImportedTargets(safeRows);
     } catch {
-      setImportedTargets([]);
-      setLeadView('sample');
+      setFallbackImportedTargets([]);
     }
   }, []);
 
+  useEffect(() => {
+    let cancelled = false;
+
+    async function load() {
+      try {
+        const leads = await fetchAcquisitionLeadsFromApi();
+        if (cancelled) return;
+        setPersistedLeads(leads);
+        setApiMode('connected');
+      } catch {
+        if (cancelled) return;
+        setApiMode('fallback');
+      }
+    }
+
+    void load();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const importedTargets = apiMode === 'connected' ? persistedLeads : fallbackImportedTargets;
   const allTargets = useMemo(() => [...acquisitionTargets, ...importedTargets], [importedTargets]);
+
+  useEffect(() => {
+    if (hasUserSelectedView) {
+      return;
+    }
+    setLeadView(importedTargets.length > 0 ? 'imported' : 'sample');
+  }, [importedTargets.length, hasUserSelectedView]);
+
   const visibleTargets = useMemo(() => {
-    if (leadView === 'imported') {
-      return importedTargets;
-    }
-    if (leadView === 'sample') {
-      return acquisitionTargets;
-    }
+    if (leadView === 'imported') return importedTargets;
+    if (leadView === 'sample') return acquisitionTargets;
     return allTargets;
   }, [leadView, importedTargets, allTargets]);
+
   const stats = useMemo(() => getAcquisitionStats(visibleTargets), [visibleTargets]);
   const todayActions = useMemo(() => getTodayActions(visibleTargets), [visibleTargets]);
   const preview = useMemo(() => buildImportPreview(previewTargets), [previewTargets]);
+
   const leadViewLabel = useMemo(() => {
-    if (leadView === 'imported') {
-      return 'Imported leads';
-    }
-    if (leadView === 'sample') {
-      return 'Sample leads';
-    }
+    if (leadView === 'imported') return 'Imported leads';
+    if (leadView === 'sample') return 'Sample leads';
     return 'All leads';
   }, [leadView]);
 
@@ -137,9 +250,15 @@ export function AcquisitionClient() {
     return { totalImported, missingEmail, missingPhone, readyForOutreach };
   }, [importedTargets]);
 
-  function persistImported(rows: AcquisitionTarget[]) {
-    setImportedTargets(rows);
+  function persistFallback(rows: AcquisitionTarget[]) {
+    setFallbackImportedTargets(rows);
     localStorage.setItem(IMPORT_STORAGE_KEY, JSON.stringify(rows));
+  }
+
+  async function refreshFromApi() {
+    const leads = await fetchAcquisitionLeadsFromApi();
+    setPersistedLeads(leads);
+    setApiMode('connected');
   }
 
   async function handlePreviewImport() {
@@ -154,7 +273,7 @@ export function AcquisitionClient() {
 
     const lowerName = selectedFile.name.toLowerCase();
     if (lowerName.endsWith('.xlsx') || lowerName.endsWith('.xls')) {
-      setImportError('XLSX import is not enabled yet in this build. Save your sheet as CSV and re-import.');
+      setImportError('XLSX import is not enabled in this build. Save your sheet as CSV and re-import.');
       return;
     }
 
@@ -181,7 +300,7 @@ export function AcquisitionClient() {
     }
   }
 
-  function handleImportToPipeline() {
+  async function handleImportToPipeline() {
     setImportError(null);
     setImportMessage(null);
     if (previewTargets.length === 0) {
@@ -189,22 +308,156 @@ export function AcquisitionClient() {
       return;
     }
 
-    const mergedResult = mergeImportedTargets(allTargets, previewTargets);
-    const importedOnly = mergedResult.merged.filter((target) => target.source === 'Imported lead file');
-    persistImported(importedOnly);
-    if (importedOnly.length > 0) {
+    setIsSaving(true);
+    try {
+      const payload = {
+        leads: previewTargets.map((row) => ({
+          businessName: row.businessName,
+          vertical: row.vertical ?? null,
+          services: row.services ?? null,
+          location: row.location,
+          phone: row.phone ?? null,
+          email: row.email ?? null,
+          website: row.website ?? null,
+          yearsInBusiness: row.yearsInBusiness ?? null,
+          painPointFound: row.painPoint,
+          outreachStatus: row.outreachStatus,
+          stage: row.stage,
+          demoStatus: row.demoStatus,
+          offerStage: row.offerStage,
+          lastContactedAt: toApiDateOrNull(row.lastContacted),
+          nextFollowUpAt: toApiDateOrNull(row.nextFollowUp),
+          notes: row.notes,
+          source: 'Imported lead file'
+        }))
+      };
+
+      const response = await fetch('/api/acquisition/leads/import', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('API import failed');
+      }
+
+      const data = (await response.json()) as { ok?: boolean; importedCount?: number; skippedCount?: number; leads?: ApiLead[] };
+      if (data.ok !== true || !Array.isArray(data.leads)) {
+        throw new Error('Malformed API import response');
+      }
+
+      setPersistedLeads(data.leads.map(normalizePersistedLead));
+      setApiMode('connected');
       setLeadView('imported');
+      setImportMessage(`Imported ${data.importedCount ?? 0} leads. Skipped ${data.skippedCount ?? 0} duplicates.`);
+      setPreviewTargets([]);
+    } catch {
+      const mergedResult = mergeImportedTargets(fallbackImportedTargets, previewTargets);
+      persistFallback(mergedResult.merged);
+      setApiMode('fallback');
+      setLeadView('imported');
+      setImportMessage(
+        `API unavailable, saved ${mergedResult.addedCount} leads to browser fallback. Skipped ${mergedResult.skippedCount} duplicates.`
+      );
+      setPreviewTargets([]);
+    } finally {
+      setIsSaving(false);
     }
-    setImportMessage(`Imported ${mergedResult.addedCount} new leads. Skipped ${mergedResult.skippedCount} duplicates.`);
-    setPreviewTargets([]);
   }
 
-  function handleClearImported() {
-    persistImported([]);
-    setLeadView('sample');
-    setPreviewTargets([]);
-    setImportMessage('Cleared imported leads from local storage.');
+  async function handleClearImported() {
     setImportError(null);
+    setImportMessage(null);
+
+    if (apiMode === 'connected') {
+      try {
+        const response = await fetch('/api/acquisition/leads/imported', { method: 'DELETE' });
+        if (!response.ok) {
+          throw new Error('Failed');
+        }
+        await refreshFromApi();
+        setLeadView('sample');
+        setImportMessage('Cleared imported acquisition leads for this tenant.');
+      } catch {
+        setImportError('Could not clear imported leads from API.');
+      }
+      return;
+    }
+
+    persistFallback([]);
+    setLeadView('sample');
+    setImportMessage('Cleared imported leads from browser fallback.');
+  }
+
+  async function updateLead(id: string, payload: Record<string, unknown>) {
+    if (apiMode !== 'connected') {
+      setImportError('API is unavailable. Row actions require API connectivity.');
+      return;
+    }
+
+    setIsSaving(true);
+    setImportError(null);
+    try {
+      const response = await fetch(`/api/acquisition/leads/${id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        throw new Error('Update failed');
+      }
+
+      const data = (await response.json()) as { ok?: boolean; lead?: ApiLead };
+      if (data.ok !== true || !data.lead) {
+        throw new Error('Malformed update response');
+      }
+
+      const normalized = normalizePersistedLead(data.lead);
+      setPersistedLeads((current) => current.map((lead) => (lead.id === id ? normalized : lead)));
+    } catch {
+      setImportError('Could not update lead. Please try again.');
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function handleQuickAction(lead: AcquisitionTarget, action: QuickAction) {
+    if (!lead.id) {
+      return;
+    }
+    const stageMap: Record<QuickAction, string> = {
+      mark_contacted: 'Contacted',
+      needs_follow_up: 'Follow-up needed',
+      demo_booked: 'Demo booked',
+      pilot_proposed: 'Pilot proposed',
+      won: 'Won',
+      not_now: 'Not now'
+    };
+    const payload: Record<string, unknown> = {
+      stage: stageMap[action]
+    };
+    if (action === 'mark_contacted') {
+      payload.outreachStatus = 'Contacted';
+      payload.lastContactedAt = new Date().toISOString();
+    }
+    await updateLead(lead.id, payload);
+  }
+
+  async function handleSaveNote(lead: AcquisitionTarget) {
+    if (!lead.id) {
+      return;
+    }
+    await updateLead(lead.id, { notes: noteDrafts[lead.id] ?? lead.notes ?? '' });
+  }
+
+  async function handleSaveFollowUp(lead: AcquisitionTarget) {
+    if (!lead.id) {
+      return;
+    }
+    const nextFollowUp = followUpDrafts[lead.id];
+    await updateLead(lead.id, { nextFollowUpAt: toApiDateOrNull(nextFollowUp) });
   }
 
   function handleExportJson() {
@@ -225,7 +478,9 @@ export function AcquisitionClient() {
               Use Frontdesk OS to find, track, demo, and close local home-services businesses with a repeatable pipeline.
             </p>
           </div>
-          <ToneBadge tone="slate">Local demo-safe workflow</ToneBadge>
+          <ToneBadge tone={apiMode === 'connected' ? 'emerald' : apiMode === 'loading' ? 'slate' : 'amber'}>
+            {apiMode === 'connected' ? 'API connected' : apiMode === 'loading' ? 'Loading…' : 'Local fallback active'}
+          </ToneBadge>
         </div>
         <div className="mt-4 flex flex-wrap gap-2">
           <Link href="/demo" className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-sm font-semibold text-indigo-700 hover:bg-indigo-100">
@@ -258,12 +513,15 @@ export function AcquisitionClient() {
         </Card>
       </section>
 
-      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.5fr)]">
+      <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.35fr)]">
         <Card title="Sales pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()}.`}>
           <div className="mb-3 flex flex-wrap gap-2">
             <button
               type="button"
-              onClick={() => setLeadView('imported')}
+              onClick={() => {
+                setLeadView('imported');
+                setHasUserSelectedView(true);
+              }}
               disabled={importedTargets.length === 0}
               className={cn(
                 'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
@@ -277,7 +535,10 @@ export function AcquisitionClient() {
             </button>
             <button
               type="button"
-              onClick={() => setLeadView('sample')}
+              onClick={() => {
+                setLeadView('sample');
+                setHasUserSelectedView(true);
+              }}
               className={cn(
                 'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
                 leadView === 'sample'
@@ -289,7 +550,10 @@ export function AcquisitionClient() {
             </button>
             <button
               type="button"
-              onClick={() => setLeadView('all')}
+              onClick={() => {
+                setLeadView('all');
+                setHasUserSelectedView(true);
+              }}
               className={cn(
                 'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
                 leadView === 'all'
@@ -314,7 +578,7 @@ export function AcquisitionClient() {
           </div>
 
           <div className="overflow-x-auto rounded-xl border border-gray-200">
-            <table className="min-w-[1450px] divide-y divide-gray-200 text-sm">
+            <table className="min-w-[1700px] divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr className="text-left text-xs uppercase tracking-wider text-gray-500">
                   <th className="px-3 py-2.5">Business</th>
@@ -332,37 +596,96 @@ export function AcquisitionClient() {
                   <th className="px-3 py-2.5">Stage</th>
                   <th className="px-3 py-2.5">Source</th>
                   <th className="px-3 py-2.5">Notes</th>
+                  <th className="px-3 py-2.5">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {visibleTargets.map((target) => (
-                  <tr key={`${target.source}:${target.businessName}:${target.location}:${target.website}`}>
-                    <td className="px-3 py-3 font-semibold text-gray-900">{target.businessName}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.services ?? target.vertical}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.location}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.website || '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.phone?.trim() || '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.email?.trim() || '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.painPoint}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.outreachStatus}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.lastContacted ?? '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.nextFollowUp ?? '—'}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.demoStatus}</td>
-                    <td className="px-3 py-3 text-gray-700">{target.offerStage}</td>
-                    <td className="px-3 py-3">
-                      <ToneBadge tone={stageTone[target.stage]}>{target.stage}</ToneBadge>
-                    </td>
-                    <td className="px-3 py-3">
-                      <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>
-                        {target.source === 'Imported lead file' ? 'Imported' : 'Sample'}
-                      </ToneBadge>
-                    </td>
-                    <td className="px-3 py-3 text-gray-600">{target.notes}</td>
-                  </tr>
-                ))}
+                {visibleTargets.map((target) => {
+                  const editable = Boolean(target.id) && apiMode === 'connected';
+                  return (
+                    <tr key={`${target.id ?? target.source}:${target.businessName}:${target.location}:${target.website}`}>
+                      <td className="px-3 py-3 font-semibold text-gray-900">{target.businessName}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.services ?? target.vertical}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.location}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.website || '—'}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.phone?.trim() || '—'}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.email?.trim() || '—'}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.painPoint}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.outreachStatus}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.lastContacted ?? '—'}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.nextFollowUp ?? '—'}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.demoStatus}</td>
+                      <td className="px-3 py-3 text-gray-700">{target.offerStage}</td>
+                      <td className="px-3 py-3">
+                        <ToneBadge tone={stageTone[target.stage]}>{target.stage}</ToneBadge>
+                      </td>
+                      <td className="px-3 py-3">
+                        <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>
+                          {target.source === 'Imported lead file' ? 'Imported' : 'Sample'}
+                        </ToneBadge>
+                      </td>
+                      <td className="px-3 py-3 text-gray-600">{target.notes}</td>
+                      <td className="px-3 py-3">
+                        {editable ? (
+                          <div className="space-y-1.5">
+                            <div className="flex flex-wrap gap-1">
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'mark_contacted')} disabled={isSaving}>Mark contacted</button>
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'needs_follow_up')} disabled={isSaving}>Needs follow-up</button>
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'demo_booked')} disabled={isSaving}>Demo booked</button>
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'pilot_proposed')} disabled={isSaving}>Pilot proposed</button>
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'won')} disabled={isSaving}>Won</button>
+                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'not_now')} disabled={isSaving}>Not now</button>
+                            </div>
+                            <div className="flex gap-1">
+                              <input
+                                type="date"
+                                value={followUpDrafts[target.id!] ?? target.nextFollowUp ?? ''}
+                                onChange={(event) =>
+                                  setFollowUpDrafts((current) => ({ ...current, [target.id!]: event.target.value }))
+                                }
+                                className="w-32 rounded border border-gray-200 px-2 py-1 text-[11px] text-gray-700"
+                              />
+                              <button
+                                type="button"
+                                className="rounded border border-gray-200 px-2 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
+                                onClick={() => void handleSaveFollowUp(target)}
+                                disabled={isSaving}
+                              >
+                                Save follow-up
+                              </button>
+                            </div>
+                            <div className="flex gap-1">
+                              <input
+                                type="text"
+                                value={noteDrafts[target.id!] ?? target.notes ?? ''}
+                                onChange={(event) =>
+                                  setNoteDrafts((current) => ({ ...current, [target.id!]: event.target.value }))
+                                }
+                                className="w-40 rounded border border-gray-200 px-2 py-1 text-[11px] text-gray-700"
+                                placeholder="Quick note"
+                              />
+                              <button
+                                type="button"
+                                className="rounded border border-gray-200 px-2 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
+                                onClick={() => void handleSaveNote(target)}
+                                disabled={isSaving}
+                              >
+                                Save note
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-[11px] text-gray-500">
+                            {target.source === 'Sample acquisition data' ? 'Sample fallback' : 'API unavailable'}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {visibleTargets.length === 0 ? (
                   <tr>
-                    <td colSpan={15} className="px-3 py-8 text-center text-sm text-gray-500">
+                    <td colSpan={16} className="px-3 py-8 text-center text-sm text-gray-500">
                       No leads in this view yet.
                     </td>
                   </tr>
@@ -373,7 +696,7 @@ export function AcquisitionClient() {
         </Card>
 
         <div className="space-y-6">
-          <Card title="Import leads" subtitle="CSV import is parsed in-browser and stored only in localStorage.">
+          <Card title="Import leads" subtitle="CSV import is parsed in-browser; API persistence is primary with local fallback on failure.">
             <div className="space-y-3">
               <input
                 type="file"
@@ -384,25 +707,25 @@ export function AcquisitionClient() {
               <div className="flex flex-wrap gap-2">
                 <button
                   type="button"
-                  onClick={handlePreviewImport}
-                  disabled={isParsing}
+                  onClick={() => void handlePreviewImport()}
+                  disabled={isParsing || isSaving}
                   className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
                 >
                   {isParsing ? 'Parsing…' : 'Preview import'}
                 </button>
                 <button
                   type="button"
-                  onClick={handleImportToPipeline}
-                  disabled={previewTargets.length === 0}
+                  onClick={() => void handleImportToPipeline()}
+                  disabled={previewTargets.length === 0 || isSaving}
                   className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  Import to acquisition pipeline
+                  {isSaving ? 'Saving…' : 'Import to acquisition pipeline'}
                 </button>
               </div>
               {importMessage ? <p className="text-xs font-medium text-emerald-700">{importMessage}</p> : null}
               {importError ? <p className="text-xs font-medium text-rose-700">{importError}</p> : null}
               <p className="text-xs text-gray-500">
-                XLSX support is not enabled in this lightweight build. Export your spreadsheet as CSV for local import.
+                XLSX support is not enabled in this lightweight build. Export your spreadsheet as CSV for import.
               </p>
             </div>
 
@@ -445,7 +768,7 @@ export function AcquisitionClient() {
             ) : null}
           </Card>
 
-          <Card title="Imported lead stats" subtitle="Calculated from local imported file rows only.">
+          <Card title="Imported lead stats" subtitle={`Based on ${apiMode === 'connected' ? 'tenant-persisted' : 'browser fallback'} imported leads.`}>
             <div className="grid grid-cols-2 gap-2 text-sm">
               <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
                 <p className="text-xs text-gray-500">Total imported</p>
@@ -483,8 +806,8 @@ export function AcquisitionClient() {
               </button>
               <button
                 type="button"
-                onClick={handleClearImported}
-                disabled={importedTargets.length === 0}
+                onClick={() => void handleClearImported()}
+                disabled={importedTargets.length === 0 || isSaving}
                 className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Clear imported leads
@@ -492,7 +815,7 @@ export function AcquisitionClient() {
             </div>
           </Card>
 
-          <Card title="Today's action list" subtitle="Operator tasks for today.">
+          <Card title="Today's action list" subtitle={`Actions from ${leadViewLabel.toLowerCase()}.`}>
             <ul className="space-y-2 text-sm text-gray-700">
               {todayActions.map((action) => (
                 <li key={action.label} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">
@@ -516,7 +839,7 @@ export function AcquisitionClient() {
 
           <Card>
             <p className="text-sm text-gray-600">
-              This page is intentionally local and demo-safe. It does not scrape web data. Imported spreadsheets remain local to your browser in v1.
+              Acquisition leads stay separate from customer prospect leads. Use <code>/prospects</code> for client-side captured leads and <code>/acquisition</code> for your own sales CRM.
             </p>
           </Card>
         </div>

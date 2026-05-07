@@ -11,6 +11,7 @@ export const acquisitionStages = [
 export type AcquisitionStage = (typeof acquisitionStages)[number];
 
 export type AcquisitionTarget = {
+  id?: string;
   businessName: string;
   vertical: string;
   services?: string | null;

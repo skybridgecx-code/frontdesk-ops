@@ -43,6 +43,7 @@ import settings from './routes/settings.js';
 import admin from './routes/admin.js';
 import { registerWebhookEndpointRoutes } from './routes/webhook-endpoints.js';
 import { registerAnalyticsRoutes } from './routes/analytics.js';
+import { registerAcquisitionLeadRoutes } from './routes/acquisition-leads.js';
 import { registerPhoneProvisioningRoutes } from './routes/phone-provisioning.js';
 import { runEnvCheck } from './lib/env-check.js';
 
@@ -205,6 +206,7 @@ export async function buildServer() {
   await registerWebhookEndpointRoutes(app);
   await registerPhoneProvisioningRoutes(app);
   await registerAnalyticsRoutes(app);
+  await registerAcquisitionLeadRoutes(app);
 
   return app;
 }

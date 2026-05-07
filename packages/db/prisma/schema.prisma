@@ -159,6 +159,7 @@ model Tenant {
   calls         Call[]
   prospects     Prospect[]
   prospectImportBatches ProspectImportBatch[]
+  acquisitionLeads AcquisitionLead[]
   subscription  Subscription?
   webhookEndpoints WebhookEndpoint[]
   tenantUsers   TenantUser[]
@@ -588,4 +589,35 @@ model ProspectImportBatch {
   @@index([businessId])
   @@index([sourceProvider])
   @@index([createdAt])
+}
+
+model AcquisitionLead {
+  id              String    @id @default(cuid())
+  tenantId        String
+  businessName    String
+  vertical        String?
+  services        String?
+  location        String
+  phone           String?
+  email           String?
+  website         String?
+  yearsInBusiness String?
+  painPointFound  String?
+  outreachStatus  String    @default("Not contacted")
+  stage           String    @default("Researching")
+  demoStatus      String    @default("Not booked")
+  offerStage      String    @default("Not proposed")
+  lastContactedAt DateTime?
+  nextFollowUpAt  DateTime?
+  notes           String?
+  source          String    @default("Imported lead file")
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  tenant          Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+  @@index([stage])
+  @@index([nextFollowUpAt])
+  @@index([website])
 }
