@@ -5,7 +5,7 @@ import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
 import { formatPhoneNumber, normalizeCallStatus, timeAgo } from '@/lib/call-utils';
 import type { AnalyticsPeriod, OverviewData, WebhookHealthData } from '../components/analytics/types';
-import { getVoiceReadinessModel, getVoiceSimulationModel } from './voice-readiness';
+import { VOICE_READINESS_PHONE_NUMBER, getVoiceReadinessModel, getVoiceSimulationModel } from './voice-readiness';
 
 export const metadata: Metadata = {
   title: 'Command Center | SkyBridgeCX'
@@ -546,8 +546,6 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const heading = `${greetingPrefix(new Date().getHours())}, ${operatorName}`;
   const voiceReadiness = getVoiceReadinessModel();
   const voiceSimulation = getVoiceSimulationModel();
-  const confirmedReadinessSignals = voiceReadiness.signals.filter((signal) => signal.tone === 'confirmed');
-  const blockedReadinessSignal = voiceReadiness.signals.find((signal) => signal.tone === 'blocked') ?? null;
 
   return (
     <div className="space-y-6">
@@ -758,110 +756,65 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
       <section className="grid gap-6 xl:grid-cols-3">
         <Panel title="Phone + voice readiness" subtitle="The line, routing, agent, and recovery features customers depend on.">
           <div className="space-y-3">
-            {[
-              { label: 'Primary line', value: primaryPhone ? formatPhoneNumber(primaryPhone.e164) : 'Not connected', sub: primaryPhone ? titleCase(primaryPhone.routingMode) : 'Provision or connect a phone number.' },
-              { label: 'Voice agent', value: primaryAgent?.name ?? 'No active voice agent', sub: primaryAgent?.voiceName ?? 'Voice selection pending' },
-              { label: 'Missed-call recovery', value: primaryPhone?.enableMissedCallTextBack ? 'Text-back enabled' : 'Not enabled', sub: 'Auto-recovery status from the active phone record.' }
-            ].map((row) => (
-              <div key={row.label} className="rounded-xl border border-gray-200 bg-gray-50 p-4">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-400">{row.label}</p>
-                <p className="mt-2 text-base font-semibold text-gray-900">{row.value}</p>
-                <p className="mt-1 text-sm text-gray-500">{row.sub}</p>
-              </div>
-            ))}
             <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">{voiceReadiness.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-indigo-800">{voiceReadiness.summary}</p>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">Primary line</p>
+                  <p className="mt-1 text-sm font-semibold text-indigo-900">
+                    {VOICE_READINESS_PHONE_NUMBER} / AI_ALWAYS
+                  </p>
                 </div>
-                <div className="flex flex-wrap items-center gap-2">
-                  <Badge tone="emerald">{confirmedReadinessSignals.length} confirmed</Badge>
-                  <Badge tone="amber">1 blocked</Badge>
-                </div>
+                <Badge tone="amber">OpenAI quota / billing credits</Badge>
               </div>
-              <div className="mt-4 rounded-lg border border-indigo-100 bg-white p-3.5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-indigo-700">Confirmed call path</p>
-                <div className="mt-2 space-y-2">
-                  {confirmedReadinessSignals.map((signal) => (
-                    <div key={signal.label} className="rounded-lg border border-emerald-100 bg-emerald-50/40 px-3 py-2.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <p className="text-sm font-semibold text-gray-900">{signal.label}</p>
-                        <Badge tone="emerald">Confirmed</Badge>
-                      </div>
-                      <p className="mt-1 text-xs text-gray-600">{signal.detail}</p>
-                    </div>
-                  ))}
-                </div>
+              <p className="mt-3 rounded-lg border border-indigo-100 bg-white px-3 py-2 text-sm font-semibold text-indigo-900">
+                Routing verified · OpenAI quota blocked
+              </p>
+              <ul className="mt-3 space-y-1.5 text-sm text-gray-700">
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-emerald-600">•</span>
+                  <span>Twilio inbound configured</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-emerald-600">•</span>
+                  <span>Realtime gateway connected</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-0.5 text-emerald-600">•</span>
+                  <span>OpenAI response.create reached</span>
+                </li>
+              </ul>
+              <div className="mt-3 rounded-lg border border-gray-200 bg-white px-3 py-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Next step</p>
+                <p className="mt-1 text-sm font-medium text-gray-800">After credits: confirm output_audio.delta + outbound media</p>
               </div>
-              <div className="mt-3 rounded-lg border border-amber-200 bg-amber-50 p-3.5">
-                <div className="flex items-center justify-between gap-2">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-amber-800">Current blocker</p>
-                  <Badge tone="amber">Blocked</Badge>
+              <div className="mt-3 flex items-center justify-between rounded-lg border border-cyan-100 bg-cyan-50 px-3 py-2">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">{voiceSimulation.title}</p>
+                  <p className="text-sm font-medium text-cyan-900">Demo mode available</p>
                 </div>
-                <p className="mt-2 text-sm font-semibold text-amber-900">{voiceReadiness.blocker}</p>
-                {blockedReadinessSignal ? (
-                  <p className="mt-1 text-xs text-amber-800">{blockedReadinessSignal.detail}</p>
-                ) : null}
+                <Badge tone="slate">Simulation</Badge>
               </div>
-              <div className="mt-4 rounded-lg border border-gray-200 bg-white p-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Post-credit validation checklist</p>
-                <ol className="mt-2 space-y-2 text-sm text-gray-700">
+            </div>
+            <details className="rounded-xl border border-gray-200 bg-white p-3">
+              <summary className="cursor-pointer text-sm font-semibold text-gray-800">View technical checklist</summary>
+              <div className="mt-3 space-y-3">
+                <p className="text-xs text-gray-600">{voiceReadiness.summary}</p>
+                <p className="rounded-md border border-amber-200 bg-amber-50 px-2.5 py-2 text-xs font-semibold text-amber-800">
+                  {voiceReadiness.blocker}
+                </p>
+                <ol className="space-y-1.5 text-xs text-gray-700">
                   {voiceReadiness.checklist.map((item, index) => (
-                    <li key={item} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full border border-indigo-200 bg-indigo-50 text-[11px] font-semibold text-indigo-700">
+                    <li key={item} className="flex items-start gap-2">
+                      <span className="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full border border-indigo-200 bg-indigo-50 text-[10px] font-semibold text-indigo-700">
                         {index + 1}
                       </span>
                       <span>{item}</span>
                     </li>
                   ))}
                 </ol>
-                <p className="mt-3 text-xs text-gray-500">
-                  Do not confirm audible AI responses to callers until quota is restored and outbound audio logs are observed.
-                </p>
+                <p className="text-xs text-gray-500">{voiceSimulation.disclaimer}</p>
               </div>
-            </div>
-            <div className="rounded-xl border border-cyan-200 bg-cyan-50 p-4">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">{voiceSimulation.title}</p>
-                  <p className="mt-2 text-sm leading-6 text-cyan-900">{voiceSimulation.summary}</p>
-                </div>
-                <Badge tone="slate">Demo mode</Badge>
-              </div>
-              <p className="mt-3 rounded-lg border border-cyan-200 bg-white px-3 py-2 text-sm font-semibold text-cyan-900">
-                {voiceSimulation.disclaimer}
-              </p>
-              <div className="mt-4 rounded-lg border border-cyan-100 bg-white p-3.5">
-                <p className="text-xs font-semibold uppercase tracking-widest text-cyan-800">Demo flow snapshot</p>
-                <p className="mt-1 text-xs text-cyan-700">
-                  Use this script for buyer demos while credits are blocked. It mirrors the verified runtime path without claiming live audible AI.
-                </p>
-              </div>
-              <div className="mt-3 space-y-2">
-                {voiceSimulation.steps.map((step) => (
-                  <div
-                    key={step.label}
-                    className={cn(
-                      'rounded-lg border bg-white px-3 py-2.5',
-                      step.status === 'confirmed'
-                        ? 'border-emerald-100'
-                        : step.status === 'blocked'
-                          ? 'border-amber-200'
-                          : 'border-slate-200'
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-2">
-                      <p className="text-sm font-semibold text-gray-900">{step.label}</p>
-                      <Badge tone={step.status === 'confirmed' ? 'emerald' : step.status === 'blocked' ? 'amber' : 'slate'}>
-                        {step.status === 'confirmed' ? 'Confirmed' : step.status === 'blocked' ? 'Blocked' : 'Next'}
-                      </Badge>
-                    </div>
-                    <p className="mt-1 text-xs text-gray-600">{step.detail}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
+            </details>
           </div>
         </Panel>
 
