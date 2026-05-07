@@ -3,6 +3,18 @@
 ## Purpose
 Use this 5-minute walkthrough to demo the current Frontdesk OS voice system safely and accurately while OpenAI credits are still blocked.
 
+## Local Demo Data Seed (skybridge-demo)
+Run this before the walkthrough if local dashboard data looks empty:
+
+```bash
+pnpm --filter @frontdesk/db seed:skybridge-demo
+```
+
+Notes:
+- This seed path only targets tenant slug `skybridge-demo`.
+- It writes fake home-services demo calls and prospects with idempotent upserts.
+- It does not seed real customer PII.
+
 ## Current State (Say This Clearly)
 - Live routing is working end-to-end through OpenAI `response.create`.
 - The current blocker is OpenAI API quota/credits (`insufficient_quota`), not Twilio, DigitalOcean, DB mapping, or stream routing.
