@@ -89,6 +89,27 @@ type ProspectsResponse = {
   prospects: ProspectRow[];
 };
 
+type AcquisitionSummary = {
+  totalLeads: number;
+  contacted: number;
+  demosBooked: number;
+  followUpsDue: number;
+  pilotProposed: number;
+};
+
+type AcquisitionAction = {
+  businessName: string;
+  stage: string;
+  nextFollowUpAt: string | null;
+  detail: string;
+};
+
+type AcquisitionSummaryResponse = {
+  ok: boolean;
+  summary: AcquisitionSummary;
+  actions: AcquisitionAction[];
+};
+
 type BusinessProfile = {
   id: string;
   name: string;
@@ -515,10 +536,11 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
 
   const activeBusiness = tenant?.businesses[0] ?? null;
 
-  const [businessResult, prospectsResult, billingResult] = await Promise.all([
+  const [businessResult, prospectsResult, billingResult, acquisitionSummaryResult] = await Promise.all([
     activeBusiness ? fetchApi<BusinessResponse>(`/v1/businesses/${activeBusiness.id}`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<BusinessResponse>),
     activeBusiness ? fetchApi<ProspectsResponse>(`/v1/businesses/${activeBusiness.id}/prospects?limit=8`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<ProspectsResponse>),
-    tenant ? fetchApi<BillingStatusResponse>(`/v1/billing/status/${tenant.id}`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<BillingStatusResponse>)
+    tenant ? fetchApi<BillingStatusResponse>(`/v1/billing/status/${tenant.id}`) : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<BillingStatusResponse>),
+    tenant ? fetchApi<AcquisitionSummaryResponse>('/v1/acquisition/leads/summary') : Promise.resolve({ data: null, unavailable: false } satisfies FetchResult<AcquisitionSummaryResponse>)
   ]);
 
   const safeOverview = overviewResult.data ?? emptyOverview(period);
@@ -528,6 +550,14 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
   const business = businessResult.data?.business ?? null;
   const onboardingDetail = onboardingDetailResult.data ?? null;
   const billingStatus = billingResult.data ?? null;
+  const acquisitionSummary = acquisitionSummaryResult.data?.summary ?? {
+    totalLeads: 0,
+    contacted: 0,
+    demosBooked: 0,
+    followUpsDue: 0,
+    pilotProposed: 0
+  };
+  const acquisitionActions = acquisitionSummaryResult.data?.actions ?? [];
 
   const activePhones = business?.phoneNumbers?.filter((p) => p.isActive) ?? [];
   const activeAgents = business?.agentProfiles?.filter((a) => a.isActive && a.channel === 'VOICE') ?? [];
@@ -753,7 +783,61 @@ export default async function SkybridgeCommandCenterPage({ searchParams }: { sea
       </section>
 
       {/* ── Detail panels row ── */}
-      <section className="grid gap-6 xl:grid-cols-3">
+      <section className="grid gap-6 xl:grid-cols-4">
+        <Panel
+          title="Acquisition pipeline"
+          subtitle="Businesses you are selling SkyBridgeCX to."
+          action={<Link href="/acquisition" className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">Open acquisition →</Link>}
+        >
+          {acquisitionSummaryResult.unavailable ? (
+            <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-700">
+              Acquisition data is temporarily unavailable. Open <code>/acquisition</code> to retry.
+            </div>
+          ) : (
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-2">
+                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-gray-500">Targets</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.totalLeads}</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-gray-500">Follow-ups due</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.followUpsDue}</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-gray-500">Demos booked</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.demosBooked}</p>
+                </div>
+                <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                  <p className="text-xs uppercase tracking-wider text-gray-500">Pilot proposed</p>
+                  <p className="mt-1 text-xl font-semibold text-gray-900">{acquisitionSummary.pilotProposed}</p>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Today's acquisition actions</p>
+                {acquisitionActions.length > 0 ? (
+                  <ul className="mt-2 space-y-2">
+                    {acquisitionActions.slice(0, 5).map((action) => (
+                      <li key={`${action.businessName}-${action.stage}-${action.nextFollowUpAt ?? 'none'}`} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2">
+                        <p className="text-sm font-semibold text-gray-900">{action.businessName}</p>
+                        <p className="mt-1 text-xs text-gray-600">{[action.stage, action.detail].filter(Boolean).join(' · ')}</p>
+                        <p className="mt-1 text-xs text-gray-500">
+                          {action.nextFollowUpAt ? `Follow-up: ${timeAgo(action.nextFollowUpAt)}` : 'No follow-up date set'}
+                        </p>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="mt-2 rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-sm text-gray-600">
+                    No acquisition actions queued yet. Import leads in <code>/acquisition</code> to start pipeline work.
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
+        </Panel>
+
         <Panel title="Phone + voice readiness" subtitle="The line, routing, agent, and recovery features customers depend on.">
           <div className="space-y-3">
             <div className="rounded-xl border border-indigo-200 bg-indigo-50 p-4">

@@ -23,6 +23,16 @@ const IMPORT_STORAGE_KEY = 'skybridgecx_acquisition_imported_leads_v1';
 type LeadView = 'imported' | 'sample' | 'all';
 type ApiMode = 'loading' | 'connected' | 'fallback';
 type QuickAction = 'mark_contacted' | 'needs_follow_up' | 'demo_booked' | 'pilot_proposed' | 'won' | 'not_now';
+type LeadEditorDraft = {
+  stage: AcquisitionTarget['stage'];
+  outreachStatus: string;
+  demoStatus: string;
+  offerStage: string;
+  painPoint: string;
+  notes: string;
+  lastContacted: string;
+  nextFollowUp: string;
+};
 
 type ApiLead = {
   id: string;
@@ -53,6 +63,27 @@ const stageTone: Record<(typeof acquisitionStages)[number], 'indigo' | 'emerald'
   'Pilot proposed': 'amber',
   Won: 'emerald',
   'Not now': 'rose'
+};
+
+const outreachStatusOptions = [
+  'Not contacted',
+  'Contacted',
+  'Needs follow-up',
+  'No response',
+  'Paused'
+] as const;
+
+const demoStatusOptions = ['Not booked', 'Booked', 'Completed', 'Deferred'] as const;
+
+const offerStageOptions = ['Not proposed', 'Pilot proposed', 'Pilot accepted', 'Revisit later'] as const;
+
+const quickActionLabels: Record<QuickAction, string> = {
+  mark_contacted: 'Mark contacted',
+  needs_follow_up: 'Needs follow-up',
+  demo_booked: 'Demo booked',
+  pilot_proposed: 'Pilot proposed',
+  won: 'Won',
+  not_now: 'Not now'
 };
 
 function cn(...classes: Array<string | false | undefined>) {
@@ -134,6 +165,26 @@ function normalizePersistedLead(row: ApiLead): AcquisitionTarget {
   };
 }
 
+function leadKey(target: AcquisitionTarget) {
+  if (target.id) {
+    return `id:${target.id}`;
+  }
+  return `sample:${target.businessName}:${target.location}:${target.website}:${target.source}`;
+}
+
+function createLeadEditorDraft(target: AcquisitionTarget): LeadEditorDraft {
+  return {
+    stage: target.stage,
+    outreachStatus: target.outreachStatus || 'Not contacted',
+    demoStatus: target.demoStatus || 'Not booked',
+    offerStage: target.offerStage || 'Not proposed',
+    painPoint: target.painPoint || '',
+    notes: target.notes || '',
+    lastContacted: target.lastContacted || '',
+    nextFollowUp: target.nextFollowUp || ''
+  };
+}
+
 function isImportedLead(value: unknown): value is AcquisitionTarget {
   if (!value || typeof value !== 'object') {
     return false;
@@ -174,9 +225,10 @@ export function AcquisitionClient() {
   const [importMessage, setImportMessage] = useState<string | null>(null);
   const [importError, setImportError] = useState<string | null>(null);
   const [isParsing, setIsParsing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [noteDrafts, setNoteDrafts] = useState<Record<string, string>>({});
-  const [followUpDrafts, setFollowUpDrafts] = useState<Record<string, string>>({});
+  const [isImporting, setIsImporting] = useState(false);
+  const [isUpdatingLead, setIsUpdatingLead] = useState(false);
+  const [selectedLeadKey, setSelectedLeadKey] = useState<string | null>(null);
+  const [leadEditor, setLeadEditor] = useState<LeadEditorDraft | null>(null);
 
   useEffect(() => {
     try {
@@ -230,6 +282,21 @@ export function AcquisitionClient() {
     return allTargets;
   }, [leadView, importedTargets, allTargets]);
 
+  const selectedLead = useMemo(() => {
+    if (!selectedLeadKey) {
+      return null;
+    }
+    return allTargets.find((target) => leadKey(target) === selectedLeadKey) ?? null;
+  }, [allTargets, selectedLeadKey]);
+
+  useEffect(() => {
+    if (!selectedLead) {
+      setLeadEditor(null);
+      return;
+    }
+    setLeadEditor(createLeadEditorDraft(selectedLead));
+  }, [selectedLead]);
+
   const stats = useMemo(() => getAcquisitionStats(visibleTargets), [visibleTargets]);
   const todayActions = useMemo(() => getTodayActions(visibleTargets), [visibleTargets]);
   const preview = useMemo(() => buildImportPreview(previewTargets), [previewTargets]);
@@ -249,6 +316,8 @@ export function AcquisitionClient() {
     ).length;
     return { totalImported, missingEmail, missingPhone, readyForOutreach };
   }, [importedTargets]);
+
+  const canPersistSelectedLead = Boolean(selectedLead?.id) && apiMode === 'connected';
 
   function persistFallback(rows: AcquisitionTarget[]) {
     setFallbackImportedTargets(rows);
@@ -308,7 +377,7 @@ export function AcquisitionClient() {
       return;
     }
 
-    setIsSaving(true);
+    setIsImporting(true);
     try {
       const payload = {
         leads: previewTargets.map((row) => ({
@@ -362,7 +431,7 @@ export function AcquisitionClient() {
       );
       setPreviewTargets([]);
     } finally {
-      setIsSaving(false);
+      setIsImporting(false);
     }
   }
 
@@ -396,7 +465,7 @@ export function AcquisitionClient() {
       return;
     }
 
-    setIsSaving(true);
+    setIsUpdatingLead(true);
     setImportError(null);
     try {
       const response = await fetch(`/api/acquisition/leads/${id}`, {
@@ -419,7 +488,7 @@ export function AcquisitionClient() {
     } catch {
       setImportError('Could not update lead. Please try again.');
     } finally {
-      setIsSaving(false);
+      setIsUpdatingLead(false);
     }
   }
 
@@ -445,19 +514,20 @@ export function AcquisitionClient() {
     await updateLead(lead.id, payload);
   }
 
-  async function handleSaveNote(lead: AcquisitionTarget) {
-    if (!lead.id) {
+  async function handleSaveLeadDetails() {
+    if (!selectedLead?.id || !leadEditor) {
       return;
     }
-    await updateLead(lead.id, { notes: noteDrafts[lead.id] ?? lead.notes ?? '' });
-  }
-
-  async function handleSaveFollowUp(lead: AcquisitionTarget) {
-    if (!lead.id) {
-      return;
-    }
-    const nextFollowUp = followUpDrafts[lead.id];
-    await updateLead(lead.id, { nextFollowUpAt: toApiDateOrNull(nextFollowUp) });
+    await updateLead(selectedLead.id, {
+      stage: leadEditor.stage,
+      outreachStatus: leadEditor.outreachStatus,
+      demoStatus: leadEditor.demoStatus,
+      offerStage: leadEditor.offerStage,
+      painPointFound: leadEditor.painPoint || null,
+      notes: leadEditor.notes || null,
+      lastContactedAt: toApiDateOrNull(leadEditor.lastContacted),
+      nextFollowUpAt: toApiDateOrNull(leadEditor.nextFollowUp)
+    });
   }
 
   function handleExportJson() {
@@ -604,7 +674,15 @@ export function AcquisitionClient() {
                   const editable = Boolean(target.id) && apiMode === 'connected';
                   return (
                     <tr key={`${target.id ?? target.source}:${target.businessName}:${target.location}:${target.website}`}>
-                      <td className="px-3 py-3 font-semibold text-gray-900">{target.businessName}</td>
+                      <td className="px-3 py-3">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedLeadKey(leadKey(target))}
+                          className="text-left font-semibold text-indigo-700 hover:text-indigo-600 hover:underline"
+                        >
+                          {target.businessName}
+                        </button>
+                      </td>
                       <td className="px-3 py-3 text-gray-700">{target.services ?? target.vertical}</td>
                       <td className="px-3 py-3 text-gray-700">{target.location}</td>
                       <td className="px-3 py-3 text-gray-700">{target.website || '—'}</td>
@@ -627,51 +705,35 @@ export function AcquisitionClient() {
                       <td className="px-3 py-3 text-gray-600">{target.notes}</td>
                       <td className="px-3 py-3">
                         {editable ? (
-                          <div className="space-y-1.5">
+                          <div className="space-y-2">
+                            <button
+                              type="button"
+                              onClick={() => setSelectedLeadKey(leadKey(target))}
+                              className="rounded border border-indigo-200 bg-indigo-50 px-2 py-1 text-[11px] font-semibold text-indigo-700 hover:bg-indigo-100"
+                            >
+                              Open / edit
+                            </button>
                             <div className="flex flex-wrap gap-1">
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'mark_contacted')} disabled={isSaving}>Mark contacted</button>
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'needs_follow_up')} disabled={isSaving}>Needs follow-up</button>
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'demo_booked')} disabled={isSaving}>Demo booked</button>
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'pilot_proposed')} disabled={isSaving}>Pilot proposed</button>
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'won')} disabled={isSaving}>Won</button>
-                              <button type="button" className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50" onClick={() => void handleQuickAction(target, 'not_now')} disabled={isSaving}>Not now</button>
-                            </div>
-                            <div className="flex gap-1">
-                              <input
-                                type="date"
-                                value={followUpDrafts[target.id!] ?? target.nextFollowUp ?? ''}
-                                onChange={(event) =>
-                                  setFollowUpDrafts((current) => ({ ...current, [target.id!]: event.target.value }))
-                                }
-                                className="w-32 rounded border border-gray-200 px-2 py-1 text-[11px] text-gray-700"
-                              />
-                              <button
-                                type="button"
-                                className="rounded border border-gray-200 px-2 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
-                                onClick={() => void handleSaveFollowUp(target)}
-                                disabled={isSaving}
-                              >
-                                Save follow-up
-                              </button>
-                            </div>
-                            <div className="flex gap-1">
-                              <input
-                                type="text"
-                                value={noteDrafts[target.id!] ?? target.notes ?? ''}
-                                onChange={(event) =>
-                                  setNoteDrafts((current) => ({ ...current, [target.id!]: event.target.value }))
-                                }
-                                className="w-40 rounded border border-gray-200 px-2 py-1 text-[11px] text-gray-700"
-                                placeholder="Quick note"
-                              />
-                              <button
-                                type="button"
-                                className="rounded border border-gray-200 px-2 py-1 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
-                                onClick={() => void handleSaveNote(target)}
-                                disabled={isSaving}
-                              >
-                                Save note
-                              </button>
+                              {(
+                                [
+                                  'mark_contacted',
+                                  'needs_follow_up',
+                                  'demo_booked',
+                                  'pilot_proposed',
+                                  'won',
+                                  'not_now'
+                                ] as QuickAction[]
+                              ).map((action) => (
+                                <button
+                                  key={`${target.id}-${action}`}
+                                  type="button"
+                                  className="rounded border border-gray-200 px-2 py-0.5 text-[11px] font-semibold text-gray-700 hover:bg-gray-50"
+                                  onClick={() => void handleQuickAction(target, action)}
+                                  disabled={isUpdatingLead}
+                                >
+                                  {quickActionLabels[action]}
+                                </button>
+                              ))}
                             </div>
                           </div>
                         ) : (
@@ -708,7 +770,7 @@ export function AcquisitionClient() {
                 <button
                   type="button"
                   onClick={() => void handlePreviewImport()}
-                  disabled={isParsing || isSaving}
+                  disabled={isParsing || isImporting || isUpdatingLead}
                   className="rounded-lg bg-indigo-600 px-3 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
                 >
                   {isParsing ? 'Parsing…' : 'Preview import'}
@@ -716,10 +778,10 @@ export function AcquisitionClient() {
                 <button
                   type="button"
                   onClick={() => void handleImportToPipeline()}
-                  disabled={previewTargets.length === 0 || isSaving}
+                  disabled={previewTargets.length === 0 || isImporting || isUpdatingLead}
                   className="rounded-lg border border-indigo-200 bg-indigo-50 px-3 py-2 text-sm font-semibold text-indigo-700 hover:bg-indigo-100 disabled:cursor-not-allowed disabled:opacity-50"
                 >
-                  {isSaving ? 'Saving…' : 'Import to acquisition pipeline'}
+                  {isImporting ? 'Saving…' : 'Import to acquisition pipeline'}
                 </button>
               </div>
               {importMessage ? <p className="text-xs font-medium text-emerald-700">{importMessage}</p> : null}
@@ -807,7 +869,7 @@ export function AcquisitionClient() {
               <button
                 type="button"
                 onClick={() => void handleClearImported()}
-                disabled={importedTargets.length === 0 || isSaving}
+                disabled={importedTargets.length === 0 || isImporting || isUpdatingLead}
                 className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-1.5 text-xs font-semibold text-rose-700 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 Clear imported leads
@@ -844,6 +906,230 @@ export function AcquisitionClient() {
           </Card>
         </div>
       </section>
+
+      {selectedLead && leadEditor ? (
+        <div className="fixed inset-0 z-40 flex items-end justify-end bg-gray-900/40 p-0 sm:items-stretch">
+          <button
+            type="button"
+            aria-label="Close lead detail"
+            className="absolute inset-0"
+            onClick={() => setSelectedLeadKey(null)}
+          />
+          <aside className="relative z-50 flex h-[92vh] w-full max-w-2xl flex-col border-l border-gray-200 bg-white shadow-2xl">
+            <div className="border-b border-gray-100 px-5 py-4">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Acquisition lead</p>
+                  <h2 className="mt-1 text-xl font-semibold tracking-tight text-gray-900">{selectedLead.businessName}</h2>
+                  <p className="mt-1 text-sm text-gray-600">
+                    {selectedLead.location} · {selectedLead.services ?? selectedLead.vertical}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedLeadKey(null)}
+                  className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Close
+                </button>
+              </div>
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <ToneBadge tone={stageTone[leadEditor.stage]}>{leadEditor.stage}</ToneBadge>
+                <ToneBadge tone={selectedLead.source === 'Imported lead file' ? 'indigo' : 'slate'}>
+                  {selectedLead.source === 'Imported lead file' ? 'Imported' : 'Sample'}
+                </ToneBadge>
+                <ToneBadge tone={canPersistSelectedLead ? 'emerald' : 'amber'}>
+                  {canPersistSelectedLead ? 'Persisted via API' : 'Read-only'}
+                </ToneBadge>
+              </div>
+              {!canPersistSelectedLead ? (
+                <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
+                  {apiMode === 'fallback'
+                    ? 'API unavailable. Lead edits are disabled until the acquisition API is reachable.'
+                    : 'Sample leads are demo-only and cannot be edited.'}
+                </p>
+              ) : null}
+            </div>
+
+            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Stage</span>
+                  <select
+                    value={leadEditor.stage}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) =>
+                        current
+                          ? {
+                              ...current,
+                              stage: event.target.value as AcquisitionTarget['stage']
+                            }
+                          : current
+                      )
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  >
+                    {acquisitionStages.map((stage) => (
+                      <option key={stage} value={stage}>
+                        {stage}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Outreach status</span>
+                  <select
+                    value={leadEditor.outreachStatus}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, outreachStatus: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  >
+                    {outreachStatusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Demo status</span>
+                  <select
+                    value={leadEditor.demoStatus}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, demoStatus: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  >
+                    {demoStatusOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Offer stage</span>
+                  <select
+                    value={leadEditor.offerStage}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, offerStage: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  >
+                    {offerStageOptions.map((status) => (
+                      <option key={status} value={status}>
+                        {status}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Last contacted</span>
+                  <input
+                    type="date"
+                    value={leadEditor.lastContacted}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, lastContacted: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  />
+                </label>
+                <label className="text-sm">
+                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Next follow-up</span>
+                  <input
+                    type="date"
+                    value={leadEditor.nextFollowUp}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, nextFollowUp: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  />
+                </label>
+              </div>
+
+              <label className="block text-sm">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Pain point found</span>
+                <input
+                  type="text"
+                  value={leadEditor.painPoint}
+                  disabled={!canPersistSelectedLead || isUpdatingLead}
+                  onChange={(event) =>
+                    setLeadEditor((current) => (current ? { ...current, painPoint: event.target.value } : current))
+                  }
+                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  placeholder="Document the strongest pain point you discovered"
+                />
+              </label>
+
+              <label className="block text-sm">
+                <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Notes</span>
+                <textarea
+                  value={leadEditor.notes}
+                  disabled={!canPersistSelectedLead || isUpdatingLead}
+                  onChange={(event) =>
+                    setLeadEditor((current) => (current ? { ...current, notes: event.target.value } : current))
+                  }
+                  className="min-h-28 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                  placeholder="Add outreach context, objections, and next talking points."
+                />
+              </label>
+
+              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Quick actions</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {(
+                    ['mark_contacted', 'needs_follow_up', 'demo_booked', 'pilot_proposed', 'won', 'not_now'] as QuickAction[]
+                  ).map((action) => (
+                    <button
+                      key={`drawer-action-${action}`}
+                      type="button"
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onClick={() => void handleQuickAction(selectedLead, action)}
+                      className="rounded border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {quickActionLabels[action]}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-2">
+                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Future workflow</p>
+                <p className="mt-1 text-xs text-gray-600">
+                  Convert to customer prospect: disabled for now. Keep acquisition CRM separate from client prospect records.
+                </p>
+              </div>
+            </div>
+
+            <div className="border-t border-gray-100 px-5 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedLeadKey(null)}
+                  className="rounded-md border border-gray-200 px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleSaveLeadDetails()}
+                  disabled={!canPersistSelectedLead || isUpdatingLead}
+                  className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-semibold text-white hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-indigo-300"
+                >
+                  {isUpdatingLead ? 'Saving…' : 'Save changes'}
+                </button>
+              </div>
+            </div>
+          </aside>
+        </div>
+      ) : null}
     </div>
   );
 }

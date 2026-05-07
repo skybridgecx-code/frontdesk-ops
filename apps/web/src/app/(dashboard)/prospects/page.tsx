@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
 import { getCurrentTenant } from '@/lib/tenant';
 import { Card } from '../components/card';
@@ -233,6 +234,12 @@ export default async function ProspectsPage({
         <p className="mt-2 text-sm text-gray-600">
           Manage the SkyBridgeCX lead pipeline, prioritize high-value accounts, and track latest outreach progress.
         </p>
+        <div className="mt-4 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-2.5 text-sm text-indigo-800">
+          Selling SkybridgeCX to businesses?{' '}
+          <Link href="/acquisition" className="font-semibold text-indigo-700 underline-offset-2 hover:underline">
+            Use Acquisition.
+          </Link>
+        </div>
       </section>
 
       <Card title="Pipeline summary" subtitle="Current pipeline stages from active records.">

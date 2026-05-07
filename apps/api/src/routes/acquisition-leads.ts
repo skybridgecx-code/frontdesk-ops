@@ -190,6 +190,7 @@ export async function registerAcquisitionLeadRoutes(app: FastifyInstance) {
       (row) => row.nextFollowUpAt && row.nextFollowUpAt.getTime() <= now && row.stage !== 'Won' && row.stage !== 'Not now'
     ).length;
     const demosBooked = rows.filter((row) => row.stage === 'Demo booked').length;
+    const pilotProposed = rows.filter((row) => row.stage === 'Pilot proposed').length;
     const contacted = rows.filter((row) => row.stage !== 'Researching').length;
 
     const actions = rows
@@ -213,7 +214,8 @@ export async function registerAcquisitionLeadRoutes(app: FastifyInstance) {
         totalLeads: rows.length,
         contacted,
         demosBooked,
-        followUpsDue
+        followUpsDue,
+        pilotProposed
       },
       actions
     };
