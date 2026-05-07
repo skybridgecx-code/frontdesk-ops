@@ -1,0 +1,374 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Frontdesk OS Sales Demo Package</title>
+    <style>
+      :root {
+        --bg: #f5f7fb;
+        --surface: #ffffff;
+        --surface-soft: #f7f9ff;
+        --ink: #121826;
+        --muted: #5f6b84;
+        --line: #dbe2f0;
+        --brand: #3659d9;
+        --brand-soft: #e8eeff;
+        --ok: #13795b;
+        --warn: #a15c00;
+        --radius: 16px;
+        --shadow: 0 10px 30px rgba(18, 24, 38, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Roboto, "Helvetica Neue", Arial, sans-serif;
+        color: var(--ink);
+        background: linear-gradient(180deg, #edf2ff 0%, var(--bg) 260px);
+      }
+
+      .wrap {
+        max-width: 1080px;
+        margin: 0 auto;
+        padding: 40px 20px 72px;
+      }
+
+      .hero {
+        background: linear-gradient(130deg, #17308f 0%, #3659d9 55%, #5878f0 100%);
+        color: #fff;
+        border-radius: 24px;
+        padding: 38px 32px;
+        box-shadow: var(--shadow);
+      }
+
+      .kicker {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.35);
+        background: rgba(255, 255, 255, 0.14);
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      h1 {
+        margin: 14px 0 10px;
+        font-size: clamp(28px, 4vw, 44px);
+        line-height: 1.1;
+      }
+
+      .hero p {
+        margin: 0;
+        max-width: 780px;
+        color: #e9efff;
+        font-size: 17px;
+        line-height: 1.6;
+      }
+
+      .banner {
+        margin-top: 14px;
+        display: inline-block;
+        padding: 10px 14px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.16);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .grid {
+        margin-top: 22px;
+        display: grid;
+        gap: 16px;
+      }
+
+      .grid.cols-2 {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      }
+
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 22px 20px;
+      }
+
+      h2 {
+        margin: 0 0 10px;
+        font-size: 20px;
+      }
+
+      h3 {
+        margin: 0 0 8px;
+        font-size: 16px;
+      }
+
+      p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        line-height: 1.65;
+      }
+
+      ul, ol {
+        margin: 0;
+        padding-left: 20px;
+        color: var(--ink);
+      }
+
+      li {
+        margin: 6px 0;
+        line-height: 1.55;
+      }
+
+      .tag-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .tag {
+        padding: 6px 10px;
+        border-radius: 999px;
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        font-size: 12px;
+        font-weight: 600;
+        color: #2f4678;
+      }
+
+      .route {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        font-size: 13px;
+        color: #233056;
+        background: var(--brand-soft);
+        border: 1px solid #cfdafe;
+        padding: 4px 8px;
+        border-radius: 8px;
+      }
+
+      .status {
+        border-radius: 12px;
+        padding: 12px;
+        font-size: 14px;
+        line-height: 1.55;
+      }
+
+      .status.ok {
+        border: 1px solid #b8e5d7;
+        background: #eaf9f3;
+        color: #125845;
+      }
+
+      .status.warn {
+        border: 1px solid #f2d39f;
+        background: #fff7e7;
+        color: #7d4b00;
+      }
+
+      .quote {
+        background: var(--surface-soft);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 14px;
+        color: #1f2b4a;
+      }
+
+      .two-col {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+        gap: 14px;
+      }
+
+      .footer-note {
+        margin-top: 20px;
+        padding: 12px 14px;
+        border-radius: 10px;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: #46526f;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <section class="hero">
+        <span class="kicker">Frontdesk OS • Sales Demo Package</span>
+        <h1>AI Front Desk for Missed Calls, Bookings, and Lead Follow-Up</h1>
+        <p>
+          Buyer-facing presentation package for roofers, HVAC companies, plumbers, landscapers, and other local
+          home-services businesses that want faster response times and cleaner lead workflow.
+        </p>
+        <div class="banner">Use this package to run a clean local demo without internal operator/debug framing.</div>
+      </section>
+
+      <div class="grid cols-2">
+        <section class="card">
+          <h2>60-Second Pitch</h2>
+          <p>
+            Frontdesk OS gives your business an AI front desk that helps you respond faster when people call for urgent
+            jobs, estimates, and follow-ups.
+          </p>
+          <ul>
+            <li>It organizes call handling and lead capture in one dashboard.</li>
+            <li>It keeps calls, summaries, and follow-up tasks visible for the office team.</li>
+            <li>It helps reduce lead leakage caused by missed calls and delayed callbacks.</li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <h2>Buyer Pain Points</h2>
+          <ul>
+            <li>Missed inbound calls during busy field schedules.</li>
+            <li>Slow callback cycles that lose high-intent leads.</li>
+            <li>Inconsistent capture of job details from phone conversations.</li>
+            <li>No single view of call activity and prospect follow-up.</li>
+          </ul>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>5-Minute Demo Script</h2>
+        <ol>
+          <li><strong>0:00 - 0:45:</strong> Open with business outcomes: fewer missed opportunities and faster lead response.</li>
+          <li><strong>0:45 - 1:30:</strong> Show <span class="route">/demo</span> for the buyer-facing overview.</li>
+          <li><strong>1:30 - 2:45:</strong> Show <span class="route">/dashboard</span> for readiness and operating visibility.</li>
+          <li><strong>2:45 - 3:45:</strong> Show <span class="route">/calls</span> for recent call flow and call outcomes.</li>
+          <li><strong>3:45 - 4:30:</strong> Show <span class="route">/prospects</span> for lead status and follow-up queue.</li>
+          <li><strong>4:30 - 5:00:</strong> Close with pilot offer, next steps, and scheduling the follow-up call.</li>
+        </ol>
+      </section>
+
+      <section class="card">
+        <h2>What to Show on Each Page</h2>
+        <div class="two-col">
+          <div class="quote">
+            <h3><span class="route">/demo</span></h3>
+            <p>Use as the clean executive opener: what the product does and why it matters for home-services revenue flow.</p>
+          </div>
+          <div class="quote">
+            <h3><span class="route">/dashboard</span></h3>
+            <p>Show operational visibility: voice readiness summary, calls, prospects, and prioritized owner action flow.</p>
+          </div>
+          <div class="quote">
+            <h3><span class="route">/calls</span></h3>
+            <p>Show recent call activity patterns, missed-call handling, and booked-appointment style examples.</p>
+          </div>
+          <div class="quote">
+            <h3><span class="route">/prospects</span></h3>
+            <p>Show lead organization, statuses, and follow-up progression so teams can work the queue consistently.</p>
+          </div>
+        </div>
+      </section>
+
+      <div class="grid cols-2">
+        <section class="card">
+          <h2>Product Value Proposition</h2>
+          <ul>
+            <li>Centralizes call intake and lead tracking.</li>
+            <li>Makes follow-up accountability visible.</li>
+            <li>Supports more consistent office operations during peak load.</li>
+            <li>Creates a clearer handoff between inbound calls and booked work.</li>
+          </ul>
+          <div class="tag-row" style="margin-top: 10px;">
+            <span class="tag">Roofing</span>
+            <span class="tag">HVAC</span>
+            <span class="tag">Plumbing</span>
+            <span class="tag">Landscaping</span>
+            <span class="tag">General Home Services</span>
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Objection Handling</h2>
+          <h3>“We already have office staff.”</h3>
+          <p>Frontdesk OS is not a replacement pitch. It is an operations accelerator for coverage gaps and callback consistency.</p>
+          <h3>“Will this work with our current process?”</h3>
+          <p>The demo focuses on practical flow: calls, prospects, and follow-up tracking in one place.</p>
+          <h3>“Is live AI voice fully active right now?”</h3>
+          <p>Current local demo shows readiness and workflow. Live audible AI output is pending OpenAI credits and final output log confirmation.</p>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Simple Offer Structure (Draft Example Pricing)</h2>
+        <p>Draft pricing for pilot conversations only. Final pricing is scoped per market and workload.</p>
+        <ul>
+          <li><strong>Setup fee (draft):</strong> $750 one-time</li>
+          <li><strong>Monthly pilot (draft):</strong> $450/month for 60-day pilot</li>
+          <li><strong>Optional managed follow-up workflow (draft):</strong> +$250/month</li>
+        </ul>
+      </section>
+
+      <div class="grid cols-2">
+        <section class="card">
+          <h2>First Outreach SMS</h2>
+          <div class="quote">
+            Hi {{FirstName}} — quick question: are missed calls or slow callback times costing your team jobs right now?
+            I’m showing a short Frontdesk OS demo for home-services companies that want cleaner call-to-lead follow-up. Want a 10-minute look this week?
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>First Outreach Email</h2>
+          <div class="quote">
+            Subject: Quick demo for missed-call follow-up in {{Company}}<br /><br />
+            Hi {{FirstName}},<br /><br />
+            I work with home-services teams that want better call coverage and faster lead follow-up. I can show you a short Frontdesk OS demo with call
+            workflow, lead tracking, and voice readiness status in one dashboard.<br /><br />
+            Open to a 15-minute walkthrough this week?<br /><br />
+            — {{YourName}}
+          </div>
+        </section>
+      </div>
+
+      <div class="grid cols-2">
+        <section class="card">
+          <h2>Follow-Up Message</h2>
+          <div class="quote">
+            Wanted to bump this once. If reducing missed opportunities from inbound calls is a priority this quarter, I can run a quick live demo and show
+            exactly how calls and prospects are tracked.
+          </div>
+        </section>
+
+        <section class="card">
+          <h2>Closing Question</h2>
+          <div class="quote">
+            If we could help your team respond faster to inbound calls and keep follow-up cleaner, would you be open to a small paid pilot next month?
+          </div>
+        </section>
+      </div>
+
+      <section class="card">
+        <h2>Demo Checklist</h2>
+        <h3>How to demo it live</h3>
+        <ol>
+          <li>Start API server.</li>
+          <li>Start web server.</li>
+          <li>Open <span class="route">/demo</span>.</li>
+          <li>Open <span class="route">/dashboard</span>.</li>
+          <li>Open <span class="route">/calls</span>.</li>
+          <li>Open <span class="route">/prospects</span>.</li>
+        </ol>
+        <div class="status ok" style="margin-top: 12px;">
+          Demo scope shown today: call/prospect workflow and voice readiness visibility.
+        </div>
+        <div class="status warn" style="margin-top: 10px;">
+          Live AI audio claim is intentionally deferred until OpenAI credits are restored and final test confirms:
+          <strong>output_audio.delta</strong> and <strong>twilio outbound media</strong>.
+        </div>
+      </section>
+
+      <div class="footer-note">
+        This package intentionally avoids fake testimonials, fake client names, guaranteed revenue claims, and unsupported compliance/security claims.
+      </div>
+    </div>
+  </body>
+</html>
