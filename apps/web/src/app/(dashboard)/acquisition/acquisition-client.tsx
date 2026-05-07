@@ -20,6 +20,7 @@ import {
 } from './acquisition-import';
 
 const IMPORT_STORAGE_KEY = 'skybridgecx_acquisition_imported_leads_v1';
+type LeadView = 'imported' | 'sample' | 'all';
 
 const stageTone: Record<(typeof acquisitionStages)[number], 'indigo' | 'emerald' | 'amber' | 'rose' | 'slate'> = {
   Researching: 'slate',
@@ -79,6 +80,7 @@ function isImportedLead(value: unknown): value is AcquisitionTarget {
 
 export function AcquisitionClient() {
   const [importedTargets, setImportedTargets] = useState<AcquisitionTarget[]>([]);
+  const [leadView, setLeadView] = useState<LeadView>('sample');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewTargets, setPreviewTargets] = useState<AcquisitionTarget[]>([]);
   const [importMessage, setImportMessage] = useState<string | null>(null);
@@ -89,20 +91,41 @@ export function AcquisitionClient() {
     try {
       const raw = localStorage.getItem(IMPORT_STORAGE_KEY);
       if (!raw) {
+        setLeadView('sample');
         return;
       }
       const parsed = JSON.parse(raw) as unknown[];
       const safeRows = Array.isArray(parsed) ? parsed.filter(isImportedLead) : [];
       setImportedTargets(safeRows);
+      setLeadView(safeRows.length > 0 ? 'imported' : 'sample');
     } catch {
       setImportedTargets([]);
+      setLeadView('sample');
     }
   }, []);
 
   const allTargets = useMemo(() => [...acquisitionTargets, ...importedTargets], [importedTargets]);
-  const stats = useMemo(() => getAcquisitionStats(allTargets), [allTargets]);
-  const todayActions = useMemo(() => getTodayActions(allTargets), [allTargets]);
+  const visibleTargets = useMemo(() => {
+    if (leadView === 'imported') {
+      return importedTargets;
+    }
+    if (leadView === 'sample') {
+      return acquisitionTargets;
+    }
+    return allTargets;
+  }, [leadView, importedTargets, allTargets]);
+  const stats = useMemo(() => getAcquisitionStats(visibleTargets), [visibleTargets]);
+  const todayActions = useMemo(() => getTodayActions(visibleTargets), [visibleTargets]);
   const preview = useMemo(() => buildImportPreview(previewTargets), [previewTargets]);
+  const leadViewLabel = useMemo(() => {
+    if (leadView === 'imported') {
+      return 'Imported leads';
+    }
+    if (leadView === 'sample') {
+      return 'Sample leads';
+    }
+    return 'All leads';
+  }, [leadView]);
 
   const importedStats = useMemo(() => {
     const totalImported = importedTargets.length;
@@ -169,12 +192,16 @@ export function AcquisitionClient() {
     const mergedResult = mergeImportedTargets(allTargets, previewTargets);
     const importedOnly = mergedResult.merged.filter((target) => target.source === 'Imported lead file');
     persistImported(importedOnly);
+    if (importedOnly.length > 0) {
+      setLeadView('imported');
+    }
     setImportMessage(`Imported ${mergedResult.addedCount} new leads. Skipped ${mergedResult.skippedCount} duplicates.`);
     setPreviewTargets([]);
   }
 
   function handleClearImported() {
     persistImported([]);
+    setLeadView('sample');
     setPreviewTargets([]);
     setImportMessage('Cleared imported leads from local storage.');
     setImportError(null);
@@ -217,25 +244,66 @@ export function AcquisitionClient() {
       </section>
 
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card title="Targets researched">
+        <Card title={`Targets researched (${leadViewLabel})`}>
           <p className="text-3xl font-semibold tracking-tight text-gray-900">{stats.researched}</p>
         </Card>
-        <Card title="Contacted">
+        <Card title={`Contacted (${leadViewLabel})`}>
           <p className="text-3xl font-semibold tracking-tight text-gray-900">{stats.contacted}</p>
         </Card>
-        <Card title="Demos booked">
+        <Card title={`Demos booked (${leadViewLabel})`}>
           <p className="text-3xl font-semibold tracking-tight text-gray-900">{stats.demosBooked}</p>
         </Card>
-        <Card title="Follow-ups due">
+        <Card title={`Follow-ups due (${leadViewLabel})`}>
           <p className="text-3xl font-semibold tracking-tight text-gray-900">{stats.followUpsDue}</p>
         </Card>
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.5fr)_minmax(320px,0.5fr)]">
-        <Card title="Sales pipeline" subtitle="Sample targets and imported lead-file rows are shown together below.">
+        <Card title="Sales pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()}.`}>
+          <div className="mb-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setLeadView('imported')}
+              disabled={importedTargets.length === 0}
+              className={cn(
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                leadView === 'imported'
+                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+                importedTargets.length === 0 && 'cursor-not-allowed opacity-50'
+              )}
+            >
+              Imported leads
+            </button>
+            <button
+              type="button"
+              onClick={() => setLeadView('sample')}
+              className={cn(
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                leadView === 'sample'
+                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              )}
+            >
+              Sample leads
+            </button>
+            <button
+              type="button"
+              onClick={() => setLeadView('all')}
+              className={cn(
+                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                leadView === 'all'
+                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+              )}
+            >
+              All leads
+            </button>
+          </div>
+
           <div className="mb-4 flex flex-wrap gap-2">
             {acquisitionStages.map((stage) => {
-              const count = allTargets.filter((target) => target.stage === stage).length;
+              const count = visibleTargets.filter((target) => target.stage === stage).length;
               return (
                 <span key={stage} className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700">
                   <span>{stage}</span>
@@ -267,7 +335,7 @@ export function AcquisitionClient() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100 bg-white">
-                {allTargets.map((target) => (
+                {visibleTargets.map((target) => (
                   <tr key={`${target.source}:${target.businessName}:${target.location}:${target.website}`}>
                     <td className="px-3 py-3 font-semibold text-gray-900">{target.businessName}</td>
                     <td className="px-3 py-3 text-gray-700">{target.services ?? target.vertical}</td>
@@ -285,11 +353,20 @@ export function AcquisitionClient() {
                       <ToneBadge tone={stageTone[target.stage]}>{target.stage}</ToneBadge>
                     </td>
                     <td className="px-3 py-3">
-                      <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>{target.source}</ToneBadge>
+                      <ToneBadge tone={target.source === 'Imported lead file' ? 'indigo' : 'slate'}>
+                        {target.source === 'Imported lead file' ? 'Imported' : 'Sample'}
+                      </ToneBadge>
                     </td>
                     <td className="px-3 py-3 text-gray-600">{target.notes}</td>
                   </tr>
                 ))}
+                {visibleTargets.length === 0 ? (
+                  <tr>
+                    <td colSpan={15} className="px-3 py-8 text-center text-sm text-gray-500">
+                      No leads in this view yet.
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </div>
