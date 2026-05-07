@@ -953,32 +953,34 @@ export function AcquisitionClient() {
             className="absolute inset-0"
             onClick={() => setSelectedLeadKey(null)}
           />
-          <aside className="relative z-50 flex h-[92vh] w-full max-w-2xl flex-col border-l border-gray-200 bg-white shadow-2xl">
-            <div className="border-b border-gray-100 px-5 py-4">
+          <aside className="relative z-50 flex h-[100dvh] w-full max-w-[44rem] flex-col border-l border-gray-200 bg-white shadow-2xl">
+            <div className="sticky top-0 z-10 border-b border-gray-100 bg-white/95 px-5 py-4 backdrop-blur">
               <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Sales target lead</p>
-                  <h2 className="mt-1 text-xl font-semibold tracking-tight text-gray-900">{selectedLead.businessName}</h2>
-                  <p className="mt-1 text-sm text-gray-600">
+                <div className="min-w-0">
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Lead detail</p>
+                  <h2 className="mt-1 truncate text-xl font-semibold tracking-tight text-gray-900">
+                    {selectedLead.businessName}
+                  </h2>
+                  <p className="mt-1 truncate text-sm text-gray-600">
                     {selectedLead.location} · {selectedLead.services ?? selectedLead.vertical}
                   </p>
+                  <div className="mt-2 flex flex-wrap items-center gap-2">
+                    <ToneBadge tone={stageTone[leadEditor.stage]}>{leadEditor.stage}</ToneBadge>
+                    <ToneBadge tone={selectedLead.source === 'Imported lead file' ? 'indigo' : 'slate'}>
+                      {selectedLead.source === 'Imported lead file' ? 'Imported' : 'Sample'}
+                    </ToneBadge>
+                    <ToneBadge tone={canPersistSelectedLead ? 'emerald' : 'amber'}>
+                      {canPersistSelectedLead ? 'Persisted via API' : 'Read-only'}
+                    </ToneBadge>
+                  </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => setSelectedLeadKey(null)}
-                  className="rounded-md border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
+                  className="shrink-0 rounded-md border border-gray-200 px-3 py-1.5 text-xs font-semibold text-gray-700 hover:bg-gray-50"
                 >
                   Close
                 </button>
-              </div>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <ToneBadge tone={stageTone[leadEditor.stage]}>{leadEditor.stage}</ToneBadge>
-                <ToneBadge tone={selectedLead.source === 'Imported lead file' ? 'indigo' : 'slate'}>
-                  {selectedLead.source === 'Imported lead file' ? 'Imported' : 'Sample'}
-                </ToneBadge>
-                <ToneBadge tone={canPersistSelectedLead ? 'emerald' : 'amber'}>
-                  {canPersistSelectedLead ? 'Persisted via API' : 'Read-only'}
-                </ToneBadge>
               </div>
               {!canPersistSelectedLead ? (
                 <p className="mt-3 rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-800">
@@ -989,138 +991,28 @@ export function AcquisitionClient() {
               ) : null}
             </div>
 
-            <div className="flex-1 space-y-5 overflow-y-auto px-5 py-4">
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Stage</span>
-                  <select
-                    value={leadEditor.stage}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) =>
-                        current
-                          ? {
-                              ...current,
-                              stage: event.target.value as AcquisitionTarget['stage']
-                            }
-                          : current
-                      )
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  >
-                    {acquisitionStages.map((stage) => (
-                      <option key={stage} value={stage}>
-                        {stage}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Outreach status</span>
-                  <select
-                    value={leadEditor.outreachStatus}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) => (current ? { ...current, outreachStatus: event.target.value } : current))
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  >
-                    {outreachStatusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Demo status</span>
-                  <select
-                    value={leadEditor.demoStatus}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) => (current ? { ...current, demoStatus: event.target.value } : current))
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  >
-                    {demoStatusOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Offer stage</span>
-                  <select
-                    value={leadEditor.offerStage}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) => (current ? { ...current, offerStage: event.target.value } : current))
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  >
-                    {offerStageOptions.map((status) => (
-                      <option key={status} value={status}>
-                        {status}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Last contacted</span>
-                  <input
-                    type="date"
-                    value={leadEditor.lastContacted}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) => (current ? { ...current, lastContacted: event.target.value } : current))
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  />
-                </label>
-                <label className="text-sm">
-                  <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Next follow-up</span>
-                  <input
-                    type="date"
-                    value={leadEditor.nextFollowUp}
-                    disabled={!canPersistSelectedLead || isUpdatingLead}
-                    onChange={(event) =>
-                      setLeadEditor((current) => (current ? { ...current, nextFollowUp: event.target.value } : current))
-                    }
-                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  />
-                </label>
+            <div className="flex-1 space-y-4 overflow-y-auto px-5 py-4">
+              <div className="grid gap-2 rounded-lg border border-gray-200 bg-gray-50 p-3 sm:grid-cols-2">
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Website</p>
+                  <p className="mt-1 truncate text-sm text-gray-800">{selectedLead.website || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Phone</p>
+                  <p className="mt-1 truncate text-sm text-gray-800">{selectedLead.phone?.trim() || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Email</p>
+                  <p className="mt-1 truncate text-sm text-gray-800">{selectedLead.email?.trim() || 'Not provided'}</p>
+                </div>
+                <div>
+                  <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Next follow-up</p>
+                  <p className="mt-1 truncate text-sm text-gray-800">{leadEditor.nextFollowUp || 'Not set'}</p>
+                </div>
               </div>
 
-              <label className="block text-sm">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Pain point found</span>
-                <input
-                  type="text"
-                  value={leadEditor.painPoint}
-                  disabled={!canPersistSelectedLead || isUpdatingLead}
-                  onChange={(event) =>
-                    setLeadEditor((current) => (current ? { ...current, painPoint: event.target.value } : current))
-                  }
-                  className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  placeholder="Document the strongest pain point you discovered"
-                />
-              </label>
-
-              <label className="block text-sm">
-                <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Notes</span>
-                <textarea
-                  value={leadEditor.notes}
-                  disabled={!canPersistSelectedLead || isUpdatingLead}
-                  onChange={(event) =>
-                    setLeadEditor((current) => (current ? { ...current, notes: event.target.value } : current))
-                  }
-                  className="min-h-28 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
-                  placeholder="Add outreach context, objections, and next talking points."
-                />
-              </label>
-
-              <div className="rounded-lg border border-gray-200 bg-gray-50 p-3">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Quick actions</p>
+              <section className="rounded-lg border border-gray-200 bg-white p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Quick actions</p>
                 <div className="mt-2 flex flex-wrap gap-2">
                   {(
                     ['mark_contacted', 'needs_follow_up', 'demo_booked', 'pilot_proposed', 'won', 'not_now'] as QuickAction[]
@@ -1130,23 +1022,158 @@ export function AcquisitionClient() {
                       type="button"
                       disabled={!canPersistSelectedLead || isUpdatingLead}
                       onClick={() => void handleQuickAction(selectedLead, action)}
-                      className="rounded border border-gray-200 bg-white px-2.5 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700 hover:bg-gray-100 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {quickActionLabels[action]}
                     </button>
                   ))}
                 </div>
-              </div>
+              </section>
 
-              <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 px-3 py-2">
-                <p className="text-xs font-semibold uppercase tracking-widest text-gray-500">Future workflow</p>
-                <p className="mt-1 text-xs text-gray-600">
-                  Convert to customer prospect: disabled for now. Keep acquisition CRM separate from client prospect records.
-                </p>
-              </div>
+              <section className="rounded-lg border border-gray-200 bg-white p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Pipeline status</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Stage</span>
+                    <select
+                      value={leadEditor.stage}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) =>
+                          current
+                            ? {
+                                ...current,
+                                stage: event.target.value as AcquisitionTarget['stage']
+                              }
+                            : current
+                        )
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    >
+                      {acquisitionStages.map((stage) => (
+                        <option key={stage} value={stage}>
+                          {stage}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Outreach status</span>
+                    <select
+                      value={leadEditor.outreachStatus}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) => (current ? { ...current, outreachStatus: event.target.value } : current))
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    >
+                      {outreachStatusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Demo status</span>
+                    <select
+                      value={leadEditor.demoStatus}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) => (current ? { ...current, demoStatus: event.target.value } : current))
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    >
+                      {demoStatusOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Offer stage</span>
+                    <select
+                      value={leadEditor.offerStage}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) => (current ? { ...current, offerStage: event.target.value } : current))
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    >
+                      {offerStageOptions.map((status) => (
+                        <option key={status} value={status}>
+                          {status}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-gray-200 bg-white p-3">
+                <p className="text-[11px] font-semibold uppercase tracking-widest text-gray-500">Follow-up timing</p>
+                <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Last contacted</span>
+                    <input
+                      type="date"
+                      value={leadEditor.lastContacted}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) => (current ? { ...current, lastContacted: event.target.value } : current))
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    />
+                  </label>
+                  <label className="text-sm">
+                    <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-gray-500">Next follow-up</span>
+                    <input
+                      type="date"
+                      value={leadEditor.nextFollowUp}
+                      disabled={!canPersistSelectedLead || isUpdatingLead}
+                      onChange={(event) =>
+                        setLeadEditor((current) => (current ? { ...current, nextFollowUp: event.target.value } : current))
+                      }
+                      className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    />
+                  </label>
+                </div>
+              </section>
+
+              <section className="rounded-lg border border-gray-200 bg-white p-3">
+                <label className="block text-sm">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-widest text-gray-500">Pain point</span>
+                  <input
+                    type="text"
+                    value={leadEditor.painPoint}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, painPoint: event.target.value } : current))
+                    }
+                    className="w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    placeholder="Document the strongest pain point you discovered"
+                  />
+                </label>
+              </section>
+
+              <section className="rounded-lg border border-gray-200 bg-white p-3">
+                <label className="block text-sm">
+                  <span className="mb-1 block text-[11px] font-semibold uppercase tracking-widest text-gray-500">Notes</span>
+                  <textarea
+                    value={leadEditor.notes}
+                    disabled={!canPersistSelectedLead || isUpdatingLead}
+                    onChange={(event) =>
+                      setLeadEditor((current) => (current ? { ...current, notes: event.target.value } : current))
+                    }
+                    className="min-h-28 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm text-gray-900"
+                    placeholder="Add outreach context, objections, and next talking points."
+                  />
+                </label>
+              </section>
             </div>
 
-            <div className="border-t border-gray-100 px-5 py-4">
+            <div className="sticky bottom-0 border-t border-gray-100 bg-white/95 px-5 py-3 backdrop-blur">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <button
                   type="button"
