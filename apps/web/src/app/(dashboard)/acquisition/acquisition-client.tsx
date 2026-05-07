@@ -6,8 +6,11 @@ import { Card } from '../components/card';
 import {
   acquisitionStages,
   acquisitionTargets,
+  filterTargetsByStage,
   getAcquisitionStats,
+  getStageCounts,
   getTodayActions,
+  type AcquisitionStageFilter,
   pitchAngles,
   type AcquisitionTarget
 } from './acquisition-data';
@@ -219,6 +222,7 @@ export function AcquisitionClient() {
   const [persistedLeads, setPersistedLeads] = useState<AcquisitionTarget[]>([]);
   const [fallbackImportedTargets, setFallbackImportedTargets] = useState<AcquisitionTarget[]>([]);
   const [leadView, setLeadView] = useState<LeadView>('sample');
+  const [stageFilter, setStageFilter] = useState<AcquisitionStageFilter>('all');
   const [hasUserSelectedView, setHasUserSelectedView] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewTargets, setPreviewTargets] = useState<AcquisitionTarget[]>([]);
@@ -276,11 +280,18 @@ export function AcquisitionClient() {
     setLeadView(importedTargets.length > 0 ? 'imported' : 'sample');
   }, [importedTargets.length, hasUserSelectedView]);
 
-  const visibleTargets = useMemo(() => {
+  const sourceScopedTargets = useMemo(() => {
     if (leadView === 'imported') return importedTargets;
     if (leadView === 'sample') return acquisitionTargets;
     return allTargets;
   }, [leadView, importedTargets, allTargets]);
+
+  const stageCounts = useMemo(() => getStageCounts(sourceScopedTargets), [sourceScopedTargets]);
+
+  const visibleTargets = useMemo(
+    () => filterTargetsByStage(sourceScopedTargets, stageFilter),
+    [sourceScopedTargets, stageFilter]
+  );
 
   const selectedLead = useMemo(() => {
     if (!selectedLeadKey) {
@@ -306,6 +317,8 @@ export function AcquisitionClient() {
     if (leadView === 'sample') return 'Sample leads';
     return 'All leads';
   }, [leadView]);
+
+  const stageFilterLabel = stageFilter === 'all' ? 'All stages' : stageFilter;
 
   const importedStats = useMemo(() => {
     const totalImported = importedTargets.length;
@@ -584,7 +597,7 @@ export function AcquisitionClient() {
       </section>
 
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.35fr)]">
-        <Card title="Sales Pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()}.`}>
+        <Card title="Sales Pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()} · ${stageFilterLabel.toLowerCase()}.`}>
           <div className="mb-3 flex flex-wrap gap-2">
             <button
               type="button"
@@ -636,13 +649,38 @@ export function AcquisitionClient() {
           </div>
 
           <div className="mb-4 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => setStageFilter('all')}
+              className={cn(
+                'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition',
+                stageFilter === 'all'
+                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                  : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+              )}
+            >
+              <span>All stages</span>
+              <span className="text-gray-500">{sourceScopedTargets.length}</span>
+            </button>
             {acquisitionStages.map((stage) => {
-              const count = visibleTargets.filter((target) => target.stage === stage).length;
+              const count = stageCounts[stage];
+              const isActive = stageFilter === stage;
               return (
-                <span key={stage} className="inline-flex items-center gap-1 rounded-full border border-gray-200 bg-gray-50 px-2.5 py-1 text-xs font-semibold text-gray-700">
+                <button
+                  type="button"
+                  key={stage}
+                  onClick={() => setStageFilter((current) => (current === stage ? 'all' : stage))}
+                  className={cn(
+                    'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold transition',
+                    isActive
+                      ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                      : 'border-gray-200 bg-gray-50 text-gray-700 hover:bg-gray-100'
+                  )}
+                  aria-pressed={isActive}
+                >
                   <span>{stage}</span>
                   <span className="text-gray-500">{count}</span>
-                </span>
+                </button>
               );
             })}
           </div>
@@ -877,7 +915,7 @@ export function AcquisitionClient() {
             </div>
           </Card>
 
-          <Card title="Today's action list" subtitle={`Actions from ${leadViewLabel.toLowerCase()}.`}>
+          <Card title="Today's action list" subtitle={`Actions from ${leadViewLabel.toLowerCase()} · ${stageFilterLabel.toLowerCase()}.`}>
             <ul className="space-y-2 text-sm text-gray-700">
               {todayActions.map((action) => (
                 <li key={action.label} className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5">

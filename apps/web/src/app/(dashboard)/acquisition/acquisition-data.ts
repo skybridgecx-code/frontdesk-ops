@@ -9,6 +9,7 @@ export const acquisitionStages = [
 ] as const;
 
 export type AcquisitionStage = (typeof acquisitionStages)[number];
+export type AcquisitionStageFilter = AcquisitionStage | 'all';
 
 export type AcquisitionTarget = {
   id?: string;
@@ -247,4 +248,32 @@ export function getTodayActions(targets: AcquisitionTarget[], referenceDate: Dat
   ];
 
   return [...due, ...filler].slice(0, 5);
+}
+
+export function filterTargetsByStage(
+  targets: AcquisitionTarget[],
+  stageFilter: AcquisitionStageFilter
+) {
+  if (stageFilter === 'all') {
+    return targets;
+  }
+  return targets.filter((target) => target.stage === stageFilter);
+}
+
+export function getStageCounts(targets: AcquisitionTarget[]) {
+  const counts = {
+    Researching: 0,
+    Contacted: 0,
+    'Follow-up needed': 0,
+    'Demo booked': 0,
+    'Pilot proposed': 0,
+    Won: 0,
+    'Not now': 0
+  } satisfies Record<AcquisitionStage, number>;
+
+  for (const target of targets) {
+    counts[target.stage] += 1;
+  }
+
+  return counts;
 }
