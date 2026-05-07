@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { headers } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { getApiBaseUrl, getInternalApiHeaders } from '@/lib/api';
-import { getCurrentTenant, getOnboardingStatus } from '@/lib/tenant';
+import { getActiveWorkspaceId, getCurrentTenant, getOnboardingStatus, getWorkspaceOptions } from '@/lib/tenant';
 import { SidebarNav } from './components/sidebar-nav';
 
 export const metadata: Metadata = {
@@ -73,7 +73,12 @@ export default async function DashboardLayout({
   const pathname = getRequestPathname(requestHeaders);
   const isBillingPage = pathname === '/billing' || pathname.startsWith('/billing/');
 
-  const [tenant, onboardingStatus] = await Promise.all([getCurrentTenant(), getOnboardingStatus()]);
+  const [tenant, onboardingStatus, workspaces, activeWorkspaceId] = await Promise.all([
+    getCurrentTenant(),
+    getOnboardingStatus(),
+    getWorkspaceOptions(),
+    getActiveWorkspaceId()
+  ]);
 
   const billingStatus = tenant
     ? await getBillingStatus(tenant.id)
@@ -110,7 +115,11 @@ export default async function DashboardLayout({
   return (
     <div className="skybridge-app min-h-screen overflow-x-hidden">
       <div className="flex min-h-screen w-full">
-        <SidebarNav subscriptionStatus={billingStatus.status} />
+        <SidebarNav
+          subscriptionStatus={billingStatus.status}
+          workspaces={workspaces}
+          activeWorkspaceId={activeWorkspaceId}
+        />
 
         <div className="flex min-w-0 flex-1 flex-col overflow-x-hidden">
           {/* Mobile top spacer */}

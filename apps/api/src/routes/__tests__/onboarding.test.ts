@@ -3,11 +3,14 @@ import fastify from 'fastify';
 import onboarding from '../onboarding.js';
 
 const {
+  queryRawMock,
+  executeRawMock,
   tenantFindUniqueMock,
   tenantUpsertMock,
   tenantUpdateMock,
-  tenantUserFindUniqueMock,
-  tenantUserUpsertMock,
+  tenantUserFindFirstMock,
+  tenantUserCreateMock,
+  tenantUserUpdateMock,
   agentProfileCreateMock,
   agentProfileFindFirstMock,
   agentProfileUpdateManyMock,
@@ -16,11 +19,14 @@ const {
   findAvailableLocalNumberMock,
   provisionPhoneNumberForTenantMock
 } = vi.hoisted(() => ({
+  queryRawMock: vi.fn(),
+  executeRawMock: vi.fn(),
   tenantFindUniqueMock: vi.fn(),
   tenantUpsertMock: vi.fn(),
   tenantUpdateMock: vi.fn(),
-  tenantUserFindUniqueMock: vi.fn(),
-  tenantUserUpsertMock: vi.fn(),
+  tenantUserFindFirstMock: vi.fn(),
+  tenantUserCreateMock: vi.fn(),
+  tenantUserUpdateMock: vi.fn(),
   agentProfileCreateMock: vi.fn(),
   agentProfileFindFirstMock: vi.fn(),
   agentProfileUpdateManyMock: vi.fn(),
@@ -43,14 +49,17 @@ vi.mock('@frontdesk/db', async (importOriginal) => {
   return {
     ...actual,
     prisma: {
+      $queryRaw: queryRawMock,
+      $executeRaw: executeRawMock,
       tenant: {
         findUnique: tenantFindUniqueMock,
         upsert: tenantUpsertMock,
         update: tenantUpdateMock
       },
       tenantUser: {
-        findUnique: tenantUserFindUniqueMock,
-        upsert: tenantUserUpsertMock
+        findFirst: tenantUserFindFirstMock,
+        create: tenantUserCreateMock,
+        update: tenantUserUpdateMock
       },
       agentProfile: {
         create: agentProfileCreateMock,
@@ -128,8 +137,11 @@ describe('onboarding wizard routes', () => {
     tenantFindUniqueMock.mockReset();
     tenantUpsertMock.mockReset();
     tenantUpdateMock.mockReset();
-    tenantUserFindUniqueMock.mockReset();
-    tenantUserUpsertMock.mockReset();
+    queryRawMock.mockReset();
+    executeRawMock.mockReset();
+    tenantUserFindFirstMock.mockReset();
+    tenantUserCreateMock.mockReset();
+    tenantUserUpdateMock.mockReset();
     agentProfileCreateMock.mockReset();
     agentProfileFindFirstMock.mockReset();
     agentProfileUpdateManyMock.mockReset();
@@ -141,8 +153,18 @@ describe('onboarding wizard routes', () => {
     tenantFindUniqueMock.mockResolvedValue(createTenant());
     tenantUpsertMock.mockResolvedValue(createTenant());
     tenantUpdateMock.mockResolvedValue({});
-    tenantUserFindUniqueMock.mockResolvedValue({ tenantId: 'tenant_1' });
-    tenantUserUpsertMock.mockResolvedValue({});
+    queryRawMock.mockResolvedValue([
+      {
+        tenantId: 'tenant_1',
+        role: 'owner',
+        tenantSlug: 'skybridge-demo',
+        tenantName: 'Demo Workspace'
+      }
+    ]);
+    executeRawMock.mockResolvedValue(1);
+    tenantUserFindFirstMock.mockResolvedValue({ id: 'tu_1', tenantId: 'tenant_1' });
+    tenantUserCreateMock.mockResolvedValue({});
+    tenantUserUpdateMock.mockResolvedValue({});
     agentProfileCreateMock.mockResolvedValue({});
     agentProfileFindFirstMock.mockResolvedValue(null);
     agentProfileUpdateManyMock.mockResolvedValue({ count: 1 });

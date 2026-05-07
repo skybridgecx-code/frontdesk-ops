@@ -1,6 +1,11 @@
 import type { FastifyInstance } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { randomUUID } from 'node:crypto';
+import {
+  TENANT_SELECTION_HEADER,
+  listTenantWorkspacesForClerkUser,
+  resolveTenantSelectionForClerkUser
+} from '../lib/tenant-resolver.js';
 
 function toSlugBase(value: string) {
   const base = value
@@ -25,7 +30,7 @@ function getTrialEndsAt() {
 }
 
 async function ensureBootstrapTenantForUser(clerkUserId: string) {
-  const existingTenantUser = await prisma.tenantUser.findUnique({
+  const existingTenantUser = await prisma.tenantUser.findFirst({
     where: {
       clerkUserId
     },
@@ -61,20 +66,34 @@ async function ensureBootstrapTenantForUser(clerkUserId: string) {
       AND "subscriptionStatus" = 'trialing'
   `;
 
-  await prisma.tenantUser.upsert({
+  const existingOwnerLink = await prisma.tenantUser.findFirst({
     where: {
-      clerkUserId
-    },
-    update: {
-      tenantId: tenant.id,
-      role: 'owner'
-    },
-    create: {
       clerkUserId,
-      tenantId: tenant.id,
-      role: 'owner'
+      tenantId: tenant.id
+    },
+    select: {
+      id: true
     }
   });
+
+  if (!existingOwnerLink) {
+    await prisma.tenantUser.create({
+      data: {
+        clerkUserId,
+        tenantId: tenant.id,
+        role: 'owner'
+      }
+    });
+  } else {
+    await prisma.tenantUser.update({
+      where: {
+        id: existingOwnerLink.id
+      },
+      data: {
+        role: 'owner'
+      }
+    });
+  }
 
   return tenant.id;
 }
@@ -102,9 +121,54 @@ export async function registerCoreRoutes(app: FastifyInstance) {
 
   app.get('/v1/bootstrap', async (request) => {
     let tenantId = request.tenantId;
+    let workspaces: Array<{ id: string; slug: string; name: string; role: string }> = [];
+    let activeWorkspaceId: string | null = null;
 
-    if (!tenantId && request.clerkUserId) {
-      tenantId = await ensureBootstrapTenantForUser(request.clerkUserId);
+    if (request.clerkUserId) {
+      const requestedTenantHeader = request.headers[TENANT_SELECTION_HEADER];
+      const requestedTenantId = Array.isArray(requestedTenantHeader)
+        ? requestedTenantHeader[0]
+        : requestedTenantHeader;
+
+      let selection = await resolveTenantSelectionForClerkUser({
+        clerkUserId: request.clerkUserId,
+        requestedTenantId
+      });
+
+      if (!selection.ok && selection.reason === 'no_membership') {
+        await ensureBootstrapTenantForUser(request.clerkUserId);
+        selection = await resolveTenantSelectionForClerkUser({
+          clerkUserId: request.clerkUserId,
+          requestedTenantId
+        });
+      }
+
+      if (selection.ok) {
+        tenantId = selection.workspace.tenantId;
+        activeWorkspaceId = selection.workspace.tenantId;
+        workspaces = selection.workspaces.map((workspace) => ({
+          id: workspace.tenantId,
+          slug: workspace.tenantSlug,
+          name: workspace.tenantName,
+          role: workspace.role
+        }));
+      } else if (selection.reason === 'forbidden_requested_tenant' && selection.workspaces.length > 0) {
+        tenantId = selection.workspaces[0].tenantId;
+        activeWorkspaceId = selection.workspaces[0].tenantId;
+        workspaces = selection.workspaces.map((workspace) => ({
+          id: workspace.tenantId,
+          slug: workspace.tenantSlug,
+          name: workspace.tenantName,
+          role: workspace.role
+        }));
+      } else {
+        workspaces = (await listTenantWorkspacesForClerkUser(request.clerkUserId)).map((workspace) => ({
+          id: workspace.tenantId,
+          slug: workspace.tenantSlug,
+          name: workspace.tenantName,
+          role: workspace.role
+        }));
+      }
     }
 
     const tenant = tenantId
@@ -229,7 +293,9 @@ export async function registerCoreRoutes(app: FastifyInstance) {
 
     return {
       ok: true,
-      tenant
+      tenant,
+      workspaces,
+      activeWorkspaceId
     };
   });
 }

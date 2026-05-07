@@ -232,7 +232,7 @@ model WebhookDelivery {
 
 model TenantUser {
   id          String   @id @default(uuid())
-  clerkUserId String   @unique
+  clerkUserId String
   tenantId    String
   role        String   @default("owner")
   createdAt   DateTime @default(now())
@@ -240,6 +240,7 @@ model TenantUser {
 
   tenant      Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([clerkUserId, tenantId])
   @@index([clerkUserId])
   @@index([tenantId])
 }

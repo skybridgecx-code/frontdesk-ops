@@ -1,3 +1,5 @@
+import { FRONTDESK_TENANT_HEADER, FRONTDESK_WORKSPACE_COOKIE } from './workspace';
+
 const DEFAULT_API_BASE_URL =
   process.env.NODE_ENV === 'production' ? 'https://frontdesk-ops.onrender.com' : 'http://127.0.0.1:4000';
 
@@ -20,12 +22,35 @@ export function getApiBaseUrl() {
 
 type ClerkTokenGetter = () => Promise<string | null>;
 
+function getCookieValue(name: string) {
+  if (typeof document === 'undefined') {
+    return null;
+  }
+
+  const allCookies = document.cookie ? document.cookie.split('; ') : [];
+  for (const row of allCookies) {
+    if (!row.startsWith(`${name}=`)) {
+      continue;
+    }
+    const rawValue = row.slice(name.length + 1);
+    const decoded = decodeURIComponent(rawValue);
+    return decoded.trim().length > 0 ? decoded.trim() : null;
+  }
+
+  return null;
+}
+
 export async function getClientInternalApiHeaders(getToken: ClerkTokenGetter): Promise<Record<string, string>> {
   const headers: Record<string, string> = {};
 
   const clerkToken = await getToken();
   if (clerkToken) {
     headers.Authorization = `Bearer ${clerkToken}`;
+  }
+
+  const selectedWorkspaceTenantId = getCookieValue(FRONTDESK_WORKSPACE_COOKIE);
+  if (selectedWorkspaceTenantId) {
+    headers[FRONTDESK_TENANT_HEADER] = selectedWorkspaceTenantId;
   }
 
   return headers;

@@ -60,8 +60,7 @@ async function main() {
         CURRENT_TIMESTAMP,
         CURRENT_TIMESTAMP
       )
-      ON CONFLICT ("clerkUserId") DO UPDATE SET
-        "tenantId" = EXCLUDED."tenantId",
+      ON CONFLICT ("clerkUserId", "tenantId") DO UPDATE SET
         "role" = EXCLUDED."role",
         "updatedAt" = CURRENT_TIMESTAMP
     `;

@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { FastifyInstance, FastifyPluginAsync, FastifyReply, FastifyRequest } from 'fastify';
 import { prisma } from '@frontdesk/db';
 import { z } from 'zod';
+import { TENANT_SELECTION_HEADER, resolveTenantSelectionForClerkUser } from '../lib/tenant-resolver.js';
 import { findAvailableLocalNumber, provisionPhoneNumberForTenant } from './phone-provisioning.js';
 
 type TenantRow = {
@@ -290,20 +291,34 @@ async function ensureOnboardingTenant(clerkUserId: string): Promise<OnboardingTe
       AND "subscriptionStatus" = 'trialing'
   `;
 
-  await prisma.tenantUser.upsert({
+  const existingOwnerLink = await prisma.tenantUser.findFirst({
     where: {
-      clerkUserId
-    },
-    update: {
-      tenantId: tenant.id,
-      role: 'owner'
-    },
-    create: {
       clerkUserId,
-      tenantId: tenant.id,
-      role: 'owner'
+      tenantId: tenant.id
+    },
+    select: {
+      id: true
     }
   });
+
+  if (!existingOwnerLink) {
+    await prisma.tenantUser.create({
+      data: {
+        clerkUserId,
+        tenantId: tenant.id,
+        role: 'owner'
+      }
+    });
+  } else {
+    await prisma.tenantUser.update({
+      where: {
+        id: existingOwnerLink.id
+      },
+      data: {
+        role: 'owner'
+      }
+    });
+  }
 
   await ensureDefaultBusinessForTenant(tenant);
 
@@ -321,19 +336,27 @@ async function getOnboardingTenant(
     return null;
   }
 
-  const tenantUser = await prisma.tenantUser.findUnique({
-    where: {
-      clerkUserId
-    },
-    select: {
-      tenantId: true
-    }
+  const requestedTenantHeader = request.headers[TENANT_SELECTION_HEADER];
+  const requestedTenantId = Array.isArray(requestedTenantHeader)
+    ? requestedTenantHeader[0]
+    : requestedTenantHeader;
+
+  const selection = await resolveTenantSelectionForClerkUser({
+    clerkUserId,
+    requestedTenantId
   });
 
-  if (tenantUser?.tenantId) {
+  if (!selection.ok && selection.reason === 'forbidden_requested_tenant') {
+    reply.status(403).send({
+      error: 'Requested workspace is not associated with this account.'
+    });
+    return null;
+  }
+
+  if (selection.ok) {
     const tenant = await prisma.tenant.findUnique({
       where: {
-        id: tenantUser.tenantId
+        id: selection.workspace.tenantId
       },
       select: ONBOARDING_TENANT_SELECT
     });

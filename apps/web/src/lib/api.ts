@@ -1,4 +1,6 @@
 import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
+import { FRONTDESK_TENANT_HEADER, FRONTDESK_WORKSPACE_COOKIE } from './workspace';
 
 const DEFAULT_API_BASE_URL =
   process.env.NODE_ENV === 'production' ? 'https://frontdesk-ops.onrender.com' : 'http://127.0.0.1:4000';
@@ -32,6 +34,16 @@ async function getServerClerkToken() {
   return authState.getToken();
 }
 
+async function getServerSelectedWorkspaceTenantId() {
+  try {
+    const cookieStore = await cookies();
+    const selected = cookieStore.get(FRONTDESK_WORKSPACE_COOKIE)?.value?.trim();
+    return selected && selected.length > 0 ? selected : null;
+  } catch {
+    return null;
+  }
+}
+
 export async function getInternalApiHeaders(input?: {
   getToken?: ClerkTokenGetter;
 }): Promise<Record<string, string>> {
@@ -46,6 +58,11 @@ export async function getInternalApiHeaders(input?: {
 
   if (clerkToken) {
     headers.Authorization = `Bearer ${clerkToken}`;
+  }
+
+  const selectedWorkspaceTenantId = await getServerSelectedWorkspaceTenantId();
+  if (selectedWorkspaceTenantId) {
+    headers[FRONTDESK_TENANT_HEADER] = selectedWorkspaceTenantId;
   }
 
   return headers;

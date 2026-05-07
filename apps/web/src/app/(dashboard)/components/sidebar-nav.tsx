@@ -2,11 +2,19 @@
 
 import Link from 'next/link';
 import { UserButton } from '@clerk/nextjs';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { useMemo, useState, type ReactElement } from 'react';
 
 type SidebarNavProps = {
   subscriptionStatus: string | null;
+  workspaces: Array<{
+    id: string;
+    slug: string;
+    name: string;
+    role: string;
+    label: string;
+  }>;
+  activeWorkspaceId: string | null;
 };
 
 type NavItem = {
@@ -107,10 +115,40 @@ function isItemActive(pathname: string, href: string) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
+export function SidebarNav({ subscriptionStatus, workspaces, activeWorkspaceId }: SidebarNavProps) {
   const pathname = usePathname();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
+  const [isSwitchingWorkspace, setIsSwitchingWorkspace] = useState(false);
   const subUi = useMemo(() => getSubscriptionUi(subscriptionStatus), [subscriptionStatus]);
+
+  const currentWorkspaceId =
+    activeWorkspaceId ?? workspaces[0]?.id ?? null;
+
+  async function handleWorkspaceChange(nextWorkspaceId: string) {
+    if (!nextWorkspaceId || nextWorkspaceId === currentWorkspaceId) {
+      return;
+    }
+
+    setIsSwitchingWorkspace(true);
+    try {
+      await fetch('/api/workspace', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json'
+        },
+        body: JSON.stringify({
+          tenantId: nextWorkspaceId
+        })
+      });
+      setIsOpen(false);
+      router.refresh();
+    } catch {
+      // Keep current workspace when switch request fails.
+    } finally {
+      setIsSwitchingWorkspace(false);
+    }
+  }
 
   return (
     <>
@@ -268,6 +306,32 @@ export function SidebarNav({ subscriptionStatus }: SidebarNavProps) {
           className="mt-auto space-y-3 pt-4"
           style={{ borderTop: '1px solid var(--border)' }}
         >
+          {workspaces.length > 0 ? (
+            <div
+              className="rounded-lg px-3 py-2"
+              style={{ background: 'var(--surface-2)', border: '1px solid var(--border)' }}
+            >
+              <label htmlFor="workspace-select" className="mb-1 block text-[11px] font-semibold uppercase tracking-widest" style={{ color: 'var(--text-tertiary)' }}>
+                Workspace
+              </label>
+              <select
+                id="workspace-select"
+                value={currentWorkspaceId ?? ''}
+                onChange={(event) => {
+                  void handleWorkspaceChange(event.target.value);
+                }}
+                disabled={isSwitchingWorkspace || workspaces.length <= 1}
+                className="w-full rounded-md border border-gray-200 bg-white px-2 py-1.5 text-xs font-semibold text-gray-800 disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {workspaces.map((workspace) => (
+                  <option key={workspace.id} value={workspace.id}>
+                    {workspace.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+          ) : null}
+
           {/* Subscription pill */}
           <div
             className="flex items-center gap-2 rounded-lg px-3 py-2"

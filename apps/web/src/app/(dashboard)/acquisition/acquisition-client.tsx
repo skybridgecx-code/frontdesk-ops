@@ -217,11 +217,11 @@ async function fetchAcquisitionLeadsFromApi() {
   return payload.leads.map(normalizePersistedLead);
 }
 
-export function AcquisitionClient() {
+export function AcquisitionClient({ workspaceSlug }: { workspaceSlug: string | null }) {
   const [apiMode, setApiMode] = useState<ApiMode>('loading');
   const [persistedLeads, setPersistedLeads] = useState<AcquisitionTarget[]>([]);
   const [fallbackImportedTargets, setFallbackImportedTargets] = useState<AcquisitionTarget[]>([]);
-  const [leadView, setLeadView] = useState<LeadView>('sample');
+  const [leadView, setLeadView] = useState<LeadView>(workspaceSlug === 'skybridge-demo' ? 'sample' : 'imported');
   const [stageFilter, setStageFilter] = useState<AcquisitionStageFilter>('all');
   const [hasUserSelectedView, setHasUserSelectedView] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -270,21 +270,42 @@ export function AcquisitionClient() {
     };
   }, []);
 
-  const importedTargets = apiMode === 'connected' ? persistedLeads : fallbackImportedTargets;
-  const allTargets = useMemo(() => [...acquisitionTargets, ...importedTargets], [importedTargets]);
+  const isDemoWorkspace = workspaceSlug === 'skybridge-demo';
+  const isPrivateSalesWorkspace = workspaceSlug === 'aatif-sales';
+
+  const persistedImportedTargets = apiMode === 'connected' ? persistedLeads : fallbackImportedTargets;
+  const importedTargets = isDemoWorkspace ? [] : persistedImportedTargets;
+  const sampleTargets = isPrivateSalesWorkspace ? [] : acquisitionTargets;
+  const allTargets = useMemo(() => [...sampleTargets, ...importedTargets], [sampleTargets, importedTargets]);
 
   useEffect(() => {
     if (hasUserSelectedView) {
       return;
     }
-    setLeadView(importedTargets.length > 0 ? 'imported' : 'sample');
-  }, [importedTargets.length, hasUserSelectedView]);
+    if (isDemoWorkspace) {
+      setLeadView('sample');
+      return;
+    }
+    setLeadView('imported');
+  }, [importedTargets.length, hasUserSelectedView, isDemoWorkspace]);
+
+  useEffect(() => {
+    if (isDemoWorkspace && leadView !== 'sample') {
+      setLeadView('sample');
+    }
+  }, [isDemoWorkspace, leadView]);
+
+  useEffect(() => {
+    if (isPrivateSalesWorkspace && leadView !== 'imported') {
+      setLeadView('imported');
+    }
+  }, [isPrivateSalesWorkspace, leadView]);
 
   const sourceScopedTargets = useMemo(() => {
     if (leadView === 'imported') return importedTargets;
-    if (leadView === 'sample') return acquisitionTargets;
+    if (leadView === 'sample') return sampleTargets;
     return allTargets;
-  }, [leadView, importedTargets, allTargets]);
+  }, [leadView, importedTargets, sampleTargets, allTargets]);
 
   const stageCounts = useMemo(() => getStageCounts(sourceScopedTargets), [sourceScopedTargets]);
 
@@ -320,6 +341,12 @@ export function AcquisitionClient() {
 
   const stageFilterLabel = stageFilter === 'all' ? 'All stages' : stageFilter;
   const todayKey = toDayKey(new Date());
+  const showImportedView = !isDemoWorkspace;
+  const showSampleView = !isPrivateSalesWorkspace;
+  const showAllView = !isDemoWorkspace && !isPrivateSalesWorkspace;
+  const emptyLeadsMessage = isPrivateSalesWorkspace
+    ? 'No private sales leads yet. Import a lead file to start this workspace.'
+    : 'No leads in this view yet.';
 
   const importedStats = useMemo(() => {
     const totalImported = importedTargets.length;
@@ -432,14 +459,14 @@ export function AcquisitionClient() {
 
       setPersistedLeads(data.leads.map(normalizePersistedLead));
       setApiMode('connected');
-      setLeadView('imported');
+      setLeadView(isDemoWorkspace ? 'sample' : 'imported');
       setImportMessage(`Imported ${data.importedCount ?? 0} leads. Skipped ${data.skippedCount ?? 0} duplicates.`);
       setPreviewTargets([]);
     } catch {
       const mergedResult = mergeImportedTargets(fallbackImportedTargets, previewTargets);
       persistFallback(mergedResult.merged);
       setApiMode('fallback');
-      setLeadView('imported');
+      setLeadView(isDemoWorkspace ? 'sample' : 'imported');
       setImportMessage(
         `API unavailable, saved ${mergedResult.addedCount} leads to browser fallback. Skipped ${mergedResult.skippedCount} duplicates.`
       );
@@ -460,7 +487,7 @@ export function AcquisitionClient() {
           throw new Error('Failed');
         }
         await refreshFromApi();
-        setLeadView('sample');
+        setLeadView(isDemoWorkspace ? 'sample' : 'imported');
         setImportMessage('Cleared imported acquisition leads for this tenant.');
       } catch {
         setImportError('Could not clear imported leads from API.');
@@ -469,7 +496,7 @@ export function AcquisitionClient() {
     }
 
     persistFallback([]);
-    setLeadView('sample');
+    setLeadView(isDemoWorkspace ? 'sample' : 'imported');
     setImportMessage('Cleared imported leads from browser fallback.');
   }
 
@@ -600,53 +627,59 @@ export function AcquisitionClient() {
       <section className="grid gap-6 xl:grid-cols-[minmax(0,1.65fr)_minmax(320px,0.35fr)]">
         <Card title="Sales Pipeline" subtitle={`Showing ${leadViewLabel.toLowerCase()} · ${stageFilterLabel.toLowerCase()}.`}>
           <div className="mb-3 flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setLeadView('imported');
-                setHasUserSelectedView(true);
-              }}
-              disabled={importedTargets.length === 0}
-              className={cn(
-                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
-                leadView === 'imported'
-                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
-                importedTargets.length === 0 && 'cursor-not-allowed opacity-50'
-              )}
-            >
-              Imported leads
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLeadView('sample');
-                setHasUserSelectedView(true);
-              }}
-              className={cn(
-                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
-                leadView === 'sample'
-                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-              )}
-            >
-              Sample leads
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLeadView('all');
-                setHasUserSelectedView(true);
-              }}
-              className={cn(
-                'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
-                leadView === 'all'
-                  ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
-                  : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
-              )}
-            >
-              All leads
-            </button>
+            {showImportedView ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setLeadView('imported');
+                  setHasUserSelectedView(true);
+                }}
+                disabled={importedTargets.length === 0 && !isPrivateSalesWorkspace}
+                className={cn(
+                  'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                  leadView === 'imported'
+                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50',
+                  importedTargets.length === 0 && !isPrivateSalesWorkspace && 'cursor-not-allowed opacity-50'
+                )}
+              >
+                Imported leads
+              </button>
+            ) : null}
+            {showSampleView ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setLeadView('sample');
+                  setHasUserSelectedView(true);
+                }}
+                className={cn(
+                  'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                  leadView === 'sample'
+                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                )}
+              >
+                Sample leads
+              </button>
+            ) : null}
+            {showAllView ? (
+              <button
+                type="button"
+                onClick={() => {
+                  setLeadView('all');
+                  setHasUserSelectedView(true);
+                }}
+                className={cn(
+                  'rounded-lg border px-3 py-1.5 text-xs font-semibold transition',
+                  leadView === 'all'
+                    ? 'border-indigo-200 bg-indigo-50 text-indigo-700'
+                    : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50'
+                )}
+              >
+                All leads
+              </button>
+            ) : null}
           </div>
 
           <div className="mb-4 flex flex-wrap gap-2">
@@ -753,7 +786,7 @@ export function AcquisitionClient() {
                 {visibleTargets.length === 0 ? (
                   <tr>
                     <td colSpan={8} className="px-3 py-8 text-center text-sm text-gray-500">
-                      No leads in this view yet.
+                      {emptyLeadsMessage}
                     </td>
                   </tr>
                 ) : null}

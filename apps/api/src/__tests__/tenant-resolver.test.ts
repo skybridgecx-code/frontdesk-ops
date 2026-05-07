@@ -77,7 +77,9 @@ describe('tenant resolver middleware', () => {
     queryRawMock.mockResolvedValue([
       {
         tenantId: 'tenant_1',
-        role: 'owner'
+        role: 'owner',
+        tenantSlug: 'skybridge-demo',
+        tenantName: 'Skybridge Demo'
       }
     ]);
 
@@ -153,6 +155,103 @@ describe('tenant resolver middleware', () => {
     expect(healthz.statusCode).toBe(200);
     expect(ping.statusCode).toBe(200);
     expect(queryRawMock).not.toHaveBeenCalled();
+
+    await app.close();
+  });
+
+  it('returns 403 when requested tenant is not in user memberships', async () => {
+    queryRawMock.mockResolvedValue([
+      {
+        tenantId: 'tenant_1',
+        role: 'owner',
+        tenantSlug: 'skybridge-demo',
+        tenantName: 'Skybridge Demo'
+      }
+    ]);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/private',
+      headers: {
+        'x-frontdesk-tenant-id': 'tenant_other'
+      }
+    });
+
+    expect(response.statusCode).toBe(403);
+    expect(response.json()).toEqual({
+      error: 'Requested workspace is not associated with this account.'
+    });
+
+    await app.close();
+  });
+
+  it('uses requested tenant when it belongs to the user', async () => {
+    queryRawMock.mockResolvedValue([
+      {
+        tenantId: 'tenant_1',
+        role: 'owner',
+        tenantSlug: 'skybridge-demo',
+        tenantName: 'Skybridge Demo'
+      },
+      {
+        tenantId: 'tenant_2',
+        role: 'admin',
+        tenantSlug: 'aatif-sales',
+        tenantName: 'Aatif Sales'
+      }
+    ]);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/private',
+      headers: {
+        'x-frontdesk-tenant-id': 'tenant_2'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      tenantId: 'tenant_2',
+      tenantRole: 'admin'
+    });
+
+    await app.close();
+  });
+
+  it('uses requested tenant when header matches tenant slug', async () => {
+    queryRawMock.mockResolvedValue([
+      {
+        tenantId: 'tenant_1',
+        role: 'owner',
+        tenantSlug: 'skybridge-demo',
+        tenantName: 'Skybridge Demo'
+      },
+      {
+        tenantId: 'tenant_2',
+        role: 'admin',
+        tenantSlug: 'aatif-sales',
+        tenantName: 'Aatif Sales'
+      }
+    ]);
+
+    const app = await createApp();
+    const response = await app.inject({
+      method: 'GET',
+      url: '/v1/private',
+      headers: {
+        'x-frontdesk-tenant-id': 'aatif-sales'
+      }
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json()).toEqual({
+      ok: true,
+      tenantId: 'tenant_2',
+      tenantRole: 'admin'
+    });
 
     await app.close();
   });

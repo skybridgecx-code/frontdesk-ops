@@ -1,6 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { getApiBaseUrl, getInternalApiHeaders } from './api';
+import { workspaceLabelFromSlug } from './workspace';
 
 export type TenantContext = {
   id: string;
@@ -10,6 +11,21 @@ export type TenantContext = {
     id: string;
     name: string;
   }>;
+};
+
+export type WorkspaceContext = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
+  label: string;
+};
+
+type WorkspaceBootstrapRow = {
+  id: string;
+  slug: string;
+  name: string;
+  role: string;
 };
 
 export type OnboardingStatus = {
@@ -25,20 +41,57 @@ export type OnboardingStatus = {
 type BootstrapResponse = {
   ok: true;
   tenant: TenantContext | null;
+  workspaces?: WorkspaceBootstrapRow[];
+  activeWorkspaceId?: string | null;
 };
 
-const fetchCurrentTenant = cache(async (): Promise<TenantContext | null> => {
+type BootstrapContext = {
+  tenant: TenantContext | null;
+  workspaces: WorkspaceContext[];
+  activeWorkspaceId: string | null;
+};
+
+const fetchBootstrapContext = cache(async (): Promise<BootstrapContext> => {
   const response = await fetch(`${getApiBaseUrl()}/v1/bootstrap`, {
     cache: 'no-store',
     headers: await getInternalApiHeaders()
   });
 
   if (!response.ok) {
-    return null;
+    return {
+      tenant: null,
+      workspaces: [],
+      activeWorkspaceId: null
+    };
   }
 
   const data = (await response.json()) as BootstrapResponse;
-  return data.tenant;
+  const workspaces = Array.isArray(data.workspaces)
+    ? data.workspaces
+        .filter(
+          (workspace): workspace is WorkspaceBootstrapRow =>
+            Boolean(
+              workspace &&
+                typeof workspace.id === 'string' &&
+                typeof workspace.slug === 'string' &&
+                typeof workspace.name === 'string' &&
+                typeof workspace.role === 'string'
+            )
+        )
+        .map((workspace) => ({
+          ...workspace,
+          label:
+            workspaceLabelFromSlug(workspace.slug) === 'Workspace'
+              ? workspace.name
+              : workspaceLabelFromSlug(workspace.slug)
+        }))
+    : [];
+
+  return {
+    tenant: data.tenant,
+    workspaces,
+    activeWorkspaceId: typeof data.activeWorkspaceId === 'string' ? data.activeWorkspaceId : null
+  };
 });
 
 const fetchOnboardingStatus = cache(async (): Promise<OnboardingStatus | null> => {
@@ -83,12 +136,23 @@ const fetchOnboardingStatus = cache(async (): Promise<OnboardingStatus | null> =
 });
 
 export async function getCurrentTenant() {
-  return fetchCurrentTenant();
+  const bootstrap = await fetchBootstrapContext();
+  return bootstrap.tenant;
 }
 
 export async function getCurrentTenantId() {
-  const tenant = await fetchCurrentTenant();
+  const tenant = await getCurrentTenant();
   return tenant?.id ?? null;
+}
+
+export async function getWorkspaceOptions() {
+  const bootstrap = await fetchBootstrapContext();
+  return bootstrap.workspaces;
+}
+
+export async function getActiveWorkspaceId() {
+  const bootstrap = await fetchBootstrapContext();
+  return bootstrap.activeWorkspaceId ?? bootstrap.tenant?.id ?? null;
 }
 
 export async function getOnboardingStatus() {
